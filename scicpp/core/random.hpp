@@ -1,0 +1,78 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+
+#ifndef SCICPP_CORE_RANDOM
+#define SCICPP_CORE_RANDOM
+
+#include <array>
+#include <random>
+#include <vector>
+
+namespace scicpp {
+namespace random {
+
+namespace detail {
+
+template <class Array, class RND>
+void random_number_filler(Array &a, RND distribution) {
+    std::mt19937 rng;
+
+    for (auto &v : a) {
+        v = distribution(rng);
+    }
+}
+
+} // namespace detail
+
+//---------------------------------------------------------------------------------
+// rand
+//---------------------------------------------------------------------------------
+
+template <typename T, std::size_t N>
+auto rand() {
+    std::array<T, N> res{};
+    detail::random_number_filler(res,
+                                 std::uniform_real_distribution<T>{0.0, 1.0});
+    return res;
+}
+
+template <typename T>
+T rand() {
+    return rand<T, 1>()[0];
+}
+
+template <typename T>
+auto rand(std::size_t N) {
+    std::vector<T> res(N);
+    detail::random_number_filler(res,
+                                 std::uniform_real_distribution<T>{0.0, 1.0});
+    return res;
+}
+
+//---------------------------------------------------------------------------------
+// randn
+//---------------------------------------------------------------------------------
+
+template <typename T, std::size_t N>
+auto randn() {
+    std::array<T, N> res{};
+    detail::random_number_filler(res, std::normal_distribution<T>{0.0, 1.0});
+    return res;
+}
+
+template <typename T>
+T randn() {
+    return randn<T, 1>()[0];
+}
+
+template <typename T>
+auto randn(std::size_t N) {
+    std::vector<T> res(N);
+    detail::random_number_filler(res, std::normal_distribution<T>{0.0, 1.0});
+    return res;
+}
+
+} // namespace random
+} // namespace scicpp
+
+#endif // SCICPP_CORE_RANDOM
