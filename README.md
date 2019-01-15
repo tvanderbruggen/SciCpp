@@ -13,7 +13,7 @@ See documentation (TODO link)
 
 ## Developping SciCpp
 
-### Running the tests
+### Running the test suite
 
 SciCpp tries to get as much test coverage as possible.
 Each file library header file (ex. `my_header.hpp`) should have a
