@@ -18,4 +18,4 @@ using namespace std::literals;
 // #include <scicpp/core/random.t.cpp>
 // #include <scicpp/core/stats.t.cpp>
 // #include <scicpp/core/utils.t.cpp>
-// #include <scicpp/core/linalg.t.cpp>
+#include <scicpp/core/linalg.t.cpp>

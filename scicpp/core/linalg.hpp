@@ -16,17 +16,19 @@ namespace linalg {
 template <typename T, int M, int N>
 auto lstsq(const Eigen::Matrix<T, M, N> &A,
            const std::array<T, std::size_t(M)> &b) {
-    Eigen::Matrix<T, N, 1> X =
-        A.fullPivHouseholderQr().solve(utils::eigen::to_eigen_matrix(b));
-    return utils::eigen::to_std_container(X);
+    return utils::eigen::to_std_container(
+        A.fullPivHouseholderQr()
+            .solve(utils::eigen::to_eigen_matrix(b))
+            .eval());
 }
 
 template <typename T>
 auto lstsq(const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &A,
            const std::vector<T> &b) {
-    Eigen::Matrix<T, Eigen::Dynamic, 1> X =
-        A.fullPivHouseholderQr().solve(utils::eigen::to_eigen_matrix(b));
-    return utils::eigen::to_std_container(X);
+    return utils::eigen::to_std_container(
+        A.fullPivHouseholderQr()
+            .solve(utils::eigen::to_eigen_matrix(b))
+            .eval());
 }
 
 } // namespace linalg
