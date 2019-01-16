@@ -7,23 +7,15 @@
 #include "scicpp/core/utils.hpp"
 
 #include <Eigen/Dense>
-#include <array>
-#include <vector>
+#include <type_traits>
 
 namespace scicpp::linalg {
 
-template <typename T, int M, int N>
-auto lstsq(const Eigen::Matrix<T, M, N> &A,
-           const std::array<T, std::size_t(M)> &b) {
-    return utils::eigen::to_std_container(
-        A.fullPivHouseholderQr()
-            .solve(utils::eigen::to_eigen_matrix(b))
-            .eval());
-}
+template <class EigenMatrix, class StdContainer>
+auto lstsq(const EigenMatrix &A, const StdContainer &b) {
+    static_assert(std::is_same_v<typename EigenMatrix::value_type,
+                                 typename StdContainer::value_type>);
 
-template <typename T>
-auto lstsq(const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &A,
-           const std::vector<T> &b) {
     return utils::eigen::to_std_container(
         A.fullPivHouseholderQr()
             .solve(utils::eigen::to_eigen_matrix(b))
