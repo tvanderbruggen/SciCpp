@@ -10,8 +10,7 @@
 #include <array>
 #include <vector>
 
-namespace scicpp {
-namespace linalg {
+namespace scicpp::linalg {
 
 template <typename T, int M, int N>
 auto lstsq(const Eigen::Matrix<T, M, N> &A,
@@ -31,7 +30,6 @@ auto lstsq(const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &A,
             .eval());
 }
 
-} // namespace linalg
-} // namespace scicpp
+} // namespace scicpp::linalg
 
 #endif // SCICPP_CORE_LINALG
