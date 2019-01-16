@@ -2,7 +2,7 @@
 
 Yet another C++ scientific computing library.
 
-Objective: Provide the SciPy/NumPy API for std::array and std::vector.
+Objective: Provide the SciPy / NumPy API for `std::array` and `std::vector`.
 
 Scicpp is a header only library.
 It's only dependence is the Eigen linear algebra theory, also header only.
