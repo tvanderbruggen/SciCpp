@@ -31,25 +31,22 @@ namespace scicpp::polynomials {
 // Polyval
 //---------------------------------------------------------------------------------
 
-// https://en.wikipedia.org/wiki/Horner%27s_method
-template <class Array,
-          typename T = typename Array::value_type,
-          std::enable_if_t<!meta::is_iterable_v<T>, int> = 0>
+template <class T, class Array>
 auto polyval(T x, const Array &coeffs) {
-    T res = T(0);
+    if constexpr (meta::is_iterable_v<T>) {
+        return map([&](auto v) { return polyval(v, coeffs); }, x);
+    } else {
+        static_assert(std::is_same_v<T, typename Array::value_type>);
 
-    std::for_each(coeffs.crbegin(), coeffs.crend(), [&](auto c) {
-        res = std::fma(res, x, c);
-    });
+        // https://en.wikipedia.org/wiki/Horner%27s_method
+        T res = T(0);
 
-    return res;
-}
+        std::for_each(coeffs.crbegin(), coeffs.crend(), [&](auto c) {
+            res = std::fma(res, x, c);
+        });
 
-template <class Array,
-          class Coeffs,
-          std::enable_if_t<meta::is_iterable_v<Array>, int> = 0>
-auto polyval(const Array &x, const Coeffs &coeffs) {
-    return map([&](auto v) { return polyval(v, coeffs); }, x);
+        return res;
+    }
 }
 
 //---------------------------------------------------------------------------------
