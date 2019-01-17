@@ -3,7 +3,7 @@
 scicpp::polynomial::polymulx
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Multiply a polynomial by :math:`X`.
 

@@ -3,8 +3,7 @@
 scicpp::polynomial::polyvander
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
-
+Defined in header <scicpp/polynomials/polynomial.hpp>Defined in header <scicpp/polynomials.hpp>
 Vandermonde matrix of given degree.
 
 --------------------------------------

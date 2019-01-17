@@ -3,7 +3,7 @@
 scicpp::polynomial::polycompanion
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Return the `companion matrix <https://en.wikipedia.org/wiki/Companion_matrix>`_ of a polynomial.
 

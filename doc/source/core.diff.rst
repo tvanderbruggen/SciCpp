@@ -1,9 +1,9 @@
-.. _basics_diff:
+.. _core_diff:
 
 scicpp::diff
 ====================================
 
-Defined in header <scicpp/numeric.hpp>
+Defined in header <scicpp/core.hpp>
 
 The n-th discrete difference between consecutive elements of an array.
 

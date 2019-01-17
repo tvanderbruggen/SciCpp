@@ -3,7 +3,7 @@
 scicpp::polynomial::polypow
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Raise a polynomial to a power.
 

@@ -1,9 +1,9 @@
-.. _basics_fprint:
+.. _core_fprint:
 
 scicpp::fprint
 ====================================
 
-Defined in header <scicpp/print.hpp>
+Defined in header <scicpp/core.hpp>
 
 Print an array to a file stream.
 

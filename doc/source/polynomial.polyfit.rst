@@ -3,7 +3,7 @@
 scicpp::polynomial::polyfit
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Least squares polynomial fit.
 

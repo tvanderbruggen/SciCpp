@@ -1,9 +1,9 @@
-.. _basics_stats_mean:
+.. _core_stats_mean:
 
 scicpp::stats::mean
 ====================================
 
-Defined in header <scicpp/stats/stats.hpp>
+Defined in header <scicpp/core.hpp>
 
 Compute the arithmetic mean.
 

@@ -1,9 +1,9 @@
-.. _basics_print:
+.. _core_print:
 
 scicpp::print
 ====================================
 
-Defined in header <scicpp/print.hpp>
+Defined in header <scicpp/core.hpp>
 
 Print an array onto the screen.
 

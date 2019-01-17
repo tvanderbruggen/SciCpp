@@ -3,7 +3,7 @@
 scicpp::polynomial::polyval
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Evaluate a polynomial at points x.
 

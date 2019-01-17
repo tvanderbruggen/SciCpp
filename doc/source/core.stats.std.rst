@@ -1,9 +1,9 @@
-.. _basics_stats_std:
+.. _core_stats_std:
 
 scicpp::stats::std
 ====================================
 
-Defined in header <scicpp/stats/stats.hpp>
+Defined in header <scicpp/core.hpp>
 
 Compute the standard deviation.
 

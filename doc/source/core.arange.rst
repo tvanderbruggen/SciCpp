@@ -1,9 +1,9 @@
-.. _basics_arange:
+.. _core_arange:
 
 scicpp::arange
 ====================================
 
-Defined in header <scicpp/range.hpp>
+Defined in header <scicpp/core.hpp>
 
 Return evenly spaced values within a given interval.
 

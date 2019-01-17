@@ -3,7 +3,7 @@
 scicpp::polynomial::polyfromroots
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Generate a polynomial with given roots.
 

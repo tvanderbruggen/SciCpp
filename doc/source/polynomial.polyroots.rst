@@ -3,7 +3,7 @@
 scicpp::polynomial::polyroots
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Compute the roots of a polynomial.
 

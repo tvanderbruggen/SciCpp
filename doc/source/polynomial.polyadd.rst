@@ -3,7 +3,7 @@
 scicpp::polynomial::polyadd
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Add two polynomials.
 

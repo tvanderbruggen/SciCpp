@@ -1,9 +1,9 @@
-.. _basics_trapz:
+.. _core_trapz:
 
 scicpp::trapz
 ====================================
 
-Defined in header <scicpp/numeric.hpp>
+Defined in header <scicpp/core.hpp>
 
 Integrate using the trapezoidal rule.
 

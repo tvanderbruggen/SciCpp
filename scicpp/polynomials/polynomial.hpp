@@ -264,7 +264,7 @@ auto polypow(const std::vector<T> &P, std::size_t pow) {
 namespace detail {
 
 template <typename T, std::size_t N>
-auto polyder_once(const std::array<T, N> &P) {
+constexpr auto polyder_once(const std::array<T, N> &P) {
     static_assert(N >= 1);
 
     std::array<T, N - 1> res{};
@@ -291,7 +291,7 @@ void polyder_once(std::vector<T> &P) {
 } // namespace detail
 
 template <int m, typename T, std::size_t N>
-auto polyder(const std::array<T, N> &P) {
+constexpr auto polyder(const std::array<T, N> &P) {
     static_assert(m >= 0);
 
     if constexpr (m == 0) {
@@ -305,7 +305,7 @@ auto polyder(const std::array<T, N> &P) {
 }
 
 template <typename T, std::size_t N>
-auto polyder(const std::array<T, N> &P) {
+constexpr auto polyder(const std::array<T, N> &P) {
     return polyder<1>(P);
 }
 
@@ -579,9 +579,8 @@ template <class Array>
 auto polyfromroots(const Array &roots) {
     using T = typename Array::value_type;
 
-    constexpr std::array c{1.0};
-    auto P = Polynomial<T>(c);
-    auto P_ = Polynomial<T>(c);
+    auto P = Polynomial<T>({T{1.}});
+    auto P_ = Polynomial<T>({T{1.}});
     P.reserve(roots.size() + 1);
     P_.reserve(roots.size());
 

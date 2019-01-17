@@ -3,7 +3,7 @@
 scicpp::polynomial::polysub
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Substract two polynomials.
 

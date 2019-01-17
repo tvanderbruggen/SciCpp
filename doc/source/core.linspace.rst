@@ -1,9 +1,9 @@
-.. _basics_linspace:
+.. _core_linspace:
 
 scicpp::linspace
 ====================================
 
-Defined in header <scicpp/range.hpp>
+Defined in header <scicpp/core.hpp>
 
 Return evenly spaced numbers over a specified interval.
 

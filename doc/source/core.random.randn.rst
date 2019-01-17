@@ -1,9 +1,9 @@
-.. _basics_random_randn:
+.. _core_random_randn:
 
 scicpp::random::randn
 ====================================
 
-Defined in header <scicpp/random.hpp>
+Defined in header <scicpp/core.hpp>
 
 Return random samples from a normal distribution centered
 in zero with standard deviation 1.0.

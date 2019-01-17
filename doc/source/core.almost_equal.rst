@@ -1,9 +1,9 @@
-.. _basics_almost_equal:
+.. _core_almost_equal:
 
 scicpp::almost_equal
 ====================================
 
-Defined in header <scicpp/numeric.hpp>
+Defined in header <scicpp/core.hpp>
 
 Compare floating points or arrays of floating points.
 

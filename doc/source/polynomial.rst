@@ -31,6 +31,12 @@ Fitting
 :ref:`polyvander <polynomial_polyvander>`
     Vandermonde matrix of given degree.
 
+Calculus
+---------
+
+:ref:`polyder <polynomial_polyder>`
+    Differentiate a polynomial.
+
 Algebra
 ---------
 

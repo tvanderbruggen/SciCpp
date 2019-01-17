@@ -1,9 +1,9 @@
-.. _basics_prod:
+.. _core_prod:
 
 scicpp::prod
 ====================================
 
-Defined in header <scicpp/numeric.hpp>
+Defined in header <scicpp/core.hpp>
 
 Product of array elements.
 

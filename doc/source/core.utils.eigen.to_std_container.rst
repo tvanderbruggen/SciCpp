@@ -1,9 +1,9 @@
-.. _basics_utils_eigen_to_std_container:
+.. _core_utils_eigen_to_std_container:
 
 scicpp::utils::eigen::to_std_container
 ====================================
 
-Defined in header <scicpp/utils.hpp>
+Defined in header <scicpp/core.hpp>
 
 Convert an Eigen::Matrix to a standard container.
 

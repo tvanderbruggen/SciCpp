@@ -1,9 +1,9 @@
-.. _basics_stats_var:
+.. _core_stats_var:
 
 scicpp::stats::var
 ====================================
 
-Defined in header <scicpp/stats/stats.hpp>
+Defined in header <scicpp/core.hpp>
 
 Compute the variance.
 

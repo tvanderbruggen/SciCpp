@@ -1,9 +1,9 @@
-.. _basics_stats_average:
+.. _core_stats_average:
 
 scicpp::stats::average
 ====================================
 
-Defined in header <scicpp/stats/stats.hpp>
+Defined in header <scicpp/core.hpp>
 
 Compute the weighted average.
 

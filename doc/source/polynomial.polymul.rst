@@ -3,7 +3,7 @@
 scicpp::polynomial::polymul
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Multiply two polynomials.
 

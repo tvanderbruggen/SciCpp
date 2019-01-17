@@ -1,9 +1,9 @@
-.. _basics_logspace:
+.. _core_logspace:
 
 scicpp::logspace
 ====================================
 
-Defined in header <scicpp/range.hpp>
+Defined in header <scicpp/core.hpp>
 
 Return numbers spaced evenly on a log scale.
 

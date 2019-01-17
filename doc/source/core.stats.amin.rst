@@ -1,9 +1,9 @@
-.. _basics_stats_amin:
+.. _core_stats_amin:
 
 scicpp::stats::amin
 ====================================
 
-Defined in header <scicpp/stats/stats.hpp>
+Defined in header <scicpp/core.hpp>
 
 Return the minimum value of an array.
 

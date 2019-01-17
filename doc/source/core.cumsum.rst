@@ -1,9 +1,9 @@
-.. _basics_cumsum:
+.. _core_cumsum:
 
 scicpp::cumsum
 ====================================
 
-Defined in header <scicpp/numeric.hpp>
+Defined in header <scicpp/core.hpp>
 
 Cumulative sum of array elements.
 

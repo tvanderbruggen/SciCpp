@@ -3,7 +3,7 @@
 scicpp::polynomial::Polynomial
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 --------------------------------------
 

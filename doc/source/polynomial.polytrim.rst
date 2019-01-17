@@ -3,7 +3,7 @@
 scicpp::polynomial::polytrim
 ====================================
 
-Defined in header <scicpp/polynomials/polynomial.hpp>
+Defined in header <scicpp/polynomials.hpp>
 
 Remove trailing coefficients smaller than *tol* from a polynomial.
 

@@ -1,9 +1,9 @@
-.. _basics_stats_amax:
+.. _core_stats_amax:
 
 scicpp::stats::amax
 ====================================
 
-Defined in header <scicpp/stats/stats.hpp>
+Defined in header <scicpp/core.hpp>
 
 Return the maximum value of an array.
 

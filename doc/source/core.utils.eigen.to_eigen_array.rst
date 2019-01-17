@@ -1,9 +1,9 @@
-.. _basics_utils_eigen_to_eigen_array:
+.. _core_utils_eigen_to_eigen_array:
 
 scicpp::utils::eigen::to_eigen_array
 ====================================
 
-Defined in header <scicpp/utils.hpp>
+Defined in header <scicpp/core.hpp>
 
 Convert a standard container to an Eigen::Array.
 

@@ -1,9 +1,9 @@
-.. _basics_stats_ptp:
+.. _core_stats_ptp:
 
 scicpp::stats::ptp
 ====================================
 
-Defined in header <scicpp/stats/stats.hpp>
+Defined in header <scicpp/core.hpp>
 
 Return the peak-to-peak span of an array.
 

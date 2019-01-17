@@ -1,9 +1,9 @@
-.. _basics_random_rand:
+.. _core_random_rand:
 
 scicpp::random::rand
 ====================================
 
-Defined in header <scicpp/random.hpp>
+Defined in header <scicpp/core.hpp>
 
 Return uniformly distributed random samples.
 

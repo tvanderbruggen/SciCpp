@@ -1,9 +1,9 @@
-.. _basics_sum:
+.. _core_sum:
 
 scicpp::sum
 ====================================
 
-Defined in header <scicpp/numeric.hpp>
+Defined in header <scicpp/core.hpp>
 
 Sum of array elements.
 

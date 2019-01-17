@@ -1,9 +1,9 @@
-.. _basics_linalg_lstsq:
+.. _core_linalg_lstsq:
 
 scicpp::linalg::lstsq
 ====================================
 
-Defined in header <scicpp/linalg.hpp>
+Defined in header <scicpp/core.hpp>
 
 Compute least-squares solution to equation :math:`Ax = b`.
 
