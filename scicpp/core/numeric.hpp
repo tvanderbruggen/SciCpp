@@ -4,6 +4,7 @@
 #ifndef SCICPP_CORE_NUMERIC
 #define SCICPP_CORE_NUMERIC
 
+#include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 
@@ -167,9 +168,17 @@ auto diff(const std::vector<T> &a, int n = 1) {
 }
 
 //---------------------------------------------------------------------------------
+// filter_nan
+//---------------------------------------------------------------------------------
+
+// http://blog.madhukaraphatak.com/functional-programming-in-c++/
+
+//---------------------------------------------------------------------------------
 // Arithmetic operators
 //
 // Implements element wise arithmetic operations for std::array and std::vector.
+//
+// TODO Use expression templates (http://www.modernescpp.com/index.php/expression-templates)
 //---------------------------------------------------------------------------------
 
 namespace detail {
@@ -191,9 +200,7 @@ using enable_if_valid_operator_overload =
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator-(const Array &a) {
-    Array res(a);
-    std::transform(a.cbegin(), a.cend(), res.begin(), std::negate<>());
-    return res;
+    return map(std::negate<>(), a);
 }
 
 // scalar multiply
@@ -202,8 +209,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator*=(Array &a, T scalar) {
-    std::transform(
-        a.cbegin(), a.cend(), a.begin(), [=](auto v) { return scalar * v; });
+    map_inplace([=](auto v) { return scalar * v; }, a);
     return a;
 }
 
@@ -211,9 +217,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator*(const Array &a, T scalar) {
-    Array res(a);
-    res *= scalar;
-    return res;
+    return map([=](auto v) { return scalar * v; }, a);
 }
 
 template <class Array,
@@ -229,8 +233,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator+=(Array &a, T scalar) {
-    std::transform(
-        a.cbegin(), a.cend(), a.begin(), [=](auto v) { return scalar + v; });
+    map_inplace([=](auto v) { return scalar + v; }, a);
     return a;
 }
 
@@ -238,9 +241,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator+(const Array &a, T scalar) {
-    Array res(a);
-    res += scalar;
-    return res;
+    return map([=](auto v) { return scalar + v; }, a);
 }
 
 template <class Array,
@@ -256,8 +257,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator-=(Array &a, T scalar) {
-    std::transform(
-        a.cbegin(), a.cend(), a.begin(), [=](auto v) { return v - scalar; });
+    map_inplace([=](auto v) { return v - scalar; }, a);
     return a;
 }
 
@@ -265,19 +265,14 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator-(const Array &a, T scalar) {
-    Array res(a);
-    res -= scalar;
-    return res;
+    return map([=](auto v) { return v - scalar; }, a);
 }
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator-(T scalar, const Array &a) {
-    Array res(a);
-    std::transform(
-        a.cbegin(), a.cend(), res.begin(), [=](auto v) { return scalar - v; });
-    return res;
+    return map([=](auto v) { return scalar - v; }, a);
 }
 
 // scalar divide
@@ -286,8 +281,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator/=(Array &a, T scalar) {
-    std::transform(
-        a.cbegin(), a.cend(), a.begin(), [=](auto v) { return v / scalar; });
+    map_inplace([=](auto v) { return v / scalar; }, a);
     return a;
 }
 
@@ -295,34 +289,36 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator/(const Array &a, T scalar) {
-    Array res(a);
-    res /= scalar;
-    return res;
+    return map([=](auto v) { return v / scalar; }, a);
 }
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator/(T scalar, const Array &a) {
-    Array res(a);
-    std::transform(
-        a.cbegin(), a.cend(), res.begin(), [=](auto v) { return scalar / v; });
-    return res;
+    return map([=](auto v) { return scalar / v; }, a);
 }
 
 // scalar modulus
+
+namespace detail {
+
+template <typename T>
+auto modulus(T x, T y) {
+    if constexpr (std::is_floating_point_v<T>) {
+        return std::fmod(x, y);
+    } else {
+        return x % y;
+    }
+}
+
+} // namespace detail
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator%=(Array &a, T scalar) {
-    std::transform(a.cbegin(), a.cend(), a.begin(), [=](auto v) {
-        if constexpr (std::is_floating_point_v<T>) {
-            return std::fmod(v, scalar);
-        } else {
-            return v % scalar;
-        }
-    });
+    map_inplace([=](auto v) { return detail::modulus(v, scalar); }, a);
     return a;
 }
 
@@ -330,91 +326,39 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator%(const Array &a, T scalar) {
-    Array res(a);
-    res %= scalar;
-    return res;
+    return map([=](auto v) { return detail::modulus(v, scalar); }, a);
 }
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator%(T scalar, const Array &a) {
-    Array res(a);
-    std::transform(a.cbegin(), a.cend(), res.begin(), [=](auto v) {
-        if constexpr (std::is_floating_point_v<T>) {
-            return std::fmod(scalar, v);
-        } else {
-            return scalar % v;
-        }
-    });
-    return res;
+    return map([=](auto v) { return detail::modulus(scalar, v); }, a);
 }
-
-// array multiply
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator*(const Array &a, const Array &b) {
-    SCICPP_REQUIRE(a.size() == b.size());
-
-    Array res(b);
-    std::transform(
-        a.cbegin(), a.cend(), res.begin(), res.begin(), std::multiplies<>());
-    return res;
+    return map(std::multiplies<>(), a, b);
 }
-
-// array add
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator+(const Array &a, const Array &b) {
-    SCICPP_REQUIRE(a.size() == b.size());
-
-    Array res(b);
-    std::transform(
-        a.cbegin(), a.cend(), res.begin(), res.begin(), std::plus<>());
-    return res;
+    return map(std::plus<>(), a, b);
 }
-
-// array substract
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator-(const Array &a, const Array &b) {
-    SCICPP_REQUIRE(a.size() == b.size());
-
-    Array res(b);
-    std::transform(
-        a.cbegin(), a.cend(), res.begin(), res.begin(), std::minus<>());
-    return res;
+    return map(std::minus<>(), a, b);
 }
-
-// array divide
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator/(const Array &a, const Array &b) {
-    SCICPP_REQUIRE(a.size() == b.size());
-
-    Array res(b);
-    std::transform(
-        a.cbegin(), a.cend(), res.begin(), res.begin(), std::divides<>());
-    return res;
+    return map(std::divides<>(), a, b);
 }
-
-// array modulus
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator%(const Array &a, const Array &b) {
-    using T = typename Array::value_type;
-    SCICPP_REQUIRE(a.size() == b.size());
-
-    Array res(b);
-    std::transform(
-        a.cbegin(), a.cend(), res.begin(), res.begin(), [](auto u, auto v) {
-            if constexpr (std::is_floating_point_v<T>) {
-                return std::fmod(u, v);
-            } else {
-                return u % v;
-            }
-        });
-    return res;
+    return map([](auto u, auto v) { return detail::modulus(u, v); }, a, b);
 }
 
 //---------------------------------------------------------------------------------

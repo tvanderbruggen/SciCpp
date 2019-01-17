@@ -13,8 +13,7 @@ SciCpp is a lightweight header only library.
 Its only dependence is the `Eigen <http://eigen.tuxfamily.org/index.php?title=Main_Page>`_
 linear algebra library, which is also header only.
 
-SciCpp is released under the MIT licence (because I can read it entirely and
-have the felling I understand it).
+SciCpp is released under the MIT licence.
 
 Modules:
 --------

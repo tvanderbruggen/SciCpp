@@ -4,6 +4,7 @@
 #ifndef SCICPP_POLYNOMIALS_POLYNOMIAL
 #define SCICPP_POLYNOMIALS_POLYNOMIAL
 
+#include "scicpp/core/functional.hpp"
 #include "scicpp/core/linalg.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
@@ -31,7 +32,9 @@ namespace scicpp::polynomials {
 //---------------------------------------------------------------------------------
 
 // https://en.wikipedia.org/wiki/Horner%27s_method
-template <class Array, typename T = typename Array::value_type>
+template <class Array,
+          typename T = typename Array::value_type,
+          std::enable_if_t<!meta::is_iterable_v<T>, int> = 0>
 auto polyval(T x, const Array &coeffs) {
     T res = T(0);
 
@@ -42,29 +45,11 @@ auto polyval(T x, const Array &coeffs) {
     return res;
 }
 
-namespace detail {
-
-template <class Array, class Coeffs>
-void polyval_filler(const Array &x, Array &res, const Coeffs &coeffs) {
-    std::transform(x.cbegin(), x.cend(), res.begin(), [&](auto v) {
-        return polyval(v, coeffs);
-    });
-}
-
-} // namespace detail
-
-template <typename T, std::size_t M, class Coeffs>
-auto polyval(const std::array<T, M> &x, const Coeffs &coeffs) {
-    std::array<T, M> res{};
-    detail::polyval_filler(x, res, coeffs);
-    return res;
-}
-
-template <typename T, class Coeffs>
-auto polyval(const std::vector<T> &x, const Coeffs &coeffs) {
-    std::vector<T> res(x.size());
-    detail::polyval_filler(x, res, coeffs);
-    return res;
+template <class Array,
+          class Coeffs,
+          std::enable_if_t<meta::is_iterable_v<Array>, int> = 0>
+auto polyval(const Array &x, const Coeffs &coeffs) {
+    return map([&](auto v) { return polyval(v, coeffs); }, x);
 }
 
 //---------------------------------------------------------------------------------
