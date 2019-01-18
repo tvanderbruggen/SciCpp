@@ -10,8 +10,7 @@
 #include <random>
 #include <vector>
 
-namespace scicpp {
-namespace random {
+namespace scicpp::random {
 
 namespace detail {
 
@@ -71,7 +70,6 @@ auto randn(std::size_t N) {
     return res;
 }
 
-} // namespace random
-} // namespace scicpp
+} // namespace scicpp::random
 
 #endif // SCICPP_CORE_RANDOM
