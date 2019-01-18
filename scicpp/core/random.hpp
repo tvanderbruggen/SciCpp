@@ -8,6 +8,7 @@
 
 #include <array>
 #include <random>
+#include <type_traits>
 #include <vector>
 
 namespace scicpp::random {
@@ -16,6 +17,9 @@ namespace detail {
 
 template <class Array, class RND>
 void random_number_filler(Array &a, RND distribution) {
+    static_assert(
+        std::is_same_v<typename Array::value_type, typename RND::result_type>);
+
     std::mt19937 rng;
     map_inplace([&]([[maybe_unused]] auto v) { return distribution(rng); }, a);
 }
