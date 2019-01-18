@@ -4,6 +4,8 @@
 #ifndef SCICPP_CORE_RANDOM
 #define SCICPP_CORE_RANDOM
 
+#include "scicpp/core/functional.hpp"
+
 #include <array>
 #include <random>
 #include <vector>
@@ -16,10 +18,7 @@ namespace detail {
 template <class Array, class RND>
 void random_number_filler(Array &a, RND distribution) {
     std::mt19937 rng;
-
-    for (auto &v : a) {
-        v = distribution(rng);
-    }
+    map_inplace([&]([[maybe_unused]] auto v) { return distribution(rng); }, a);
 }
 
 } // namespace detail
