@@ -32,14 +32,16 @@ namespace scicpp::polynomials {
 //---------------------------------------------------------------------------------
 
 template <class T, class Array>
-auto polyval(const T &x, const Array &coeffs) {
+auto polyval(T &&x, const Array &coeffs) {
     if constexpr (meta::is_iterable_v<T>) {
-        return map([&](auto v) { return polyval(v, coeffs); }, x);
+        return map([&](auto v) { return polyval(v, coeffs); },
+                   std::forward<T>(x));
     } else {
-        static_assert(std::is_same_v<T, typename Array::value_type>);
+        using scalar_t = std::remove_reference_t<T>;
+        static_assert(std::is_same_v<scalar_t, typename Array::value_type>);
 
         // https://en.wikipedia.org/wiki/Horner%27s_method
-        T res = T(0);
+        scalar_t res = scalar_t(0);
 
         std::for_each(coeffs.crbegin(), coeffs.crend(), [&](auto c) {
             res = std::fma(res, x, c);

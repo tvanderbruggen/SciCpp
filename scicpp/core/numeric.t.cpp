@@ -64,6 +64,8 @@ TEST_CASE("diff") {
 }
 
 TEST_CASE("Arithmetic operators") {
+    // TODO write tests for %=, +=, ...
+
     const std::array a{1., 2., 3.};
     const std::array ai{1, 2, 3};
     const std::vector v{1., 2., 3.};

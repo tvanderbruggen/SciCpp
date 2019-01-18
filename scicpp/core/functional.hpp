@@ -16,6 +16,13 @@ auto map_inplace(UnaryOp op, Array &a) {
 }
 
 template <class Array, class UnaryOp>
+auto map(UnaryOp op, Array &&a) {
+    Array res(std::move(a));
+    map_inplace(op, res);
+    return res;
+}
+
+template <class Array, class UnaryOp>
 auto map(UnaryOp op, const Array &a) {
     Array res(a);
     map_inplace(op, res);
