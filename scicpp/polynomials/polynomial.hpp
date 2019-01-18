@@ -32,7 +32,7 @@ namespace scicpp::polynomials {
 //---------------------------------------------------------------------------------
 
 template <class T, class Array>
-auto polyval(T x, const Array &coeffs) {
+auto polyval(const T &x, const Array &coeffs) {
     if constexpr (meta::is_iterable_v<T>) {
         return map([&](auto v) { return polyval(v, coeffs); }, x);
     } else {
