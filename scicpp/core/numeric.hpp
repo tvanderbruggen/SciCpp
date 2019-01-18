@@ -199,8 +199,8 @@ using enable_if_valid_operator_overload =
 // negate
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator-(const Array &a) {
-    return map(std::negate<>(), a);
+auto operator-(Array &&a) {
+    return map(std::negate<>(), std::forward<Array>(a));
 }
 
 // scalar multiply
