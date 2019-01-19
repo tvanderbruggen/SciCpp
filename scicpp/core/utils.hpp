@@ -68,6 +68,20 @@ auto to_std_container(EigenMatrix m) {
 
 } // namespace eigen
 
+//---------------------------------------------------------------------------------
+// set_array: Set an array of same size than a given array
+//---------------------------------------------------------------------------------
+
+template <typename T, std::size_t N>
+auto set_array(const std::array<T, N> & /* unused */) {
+    return std::array<T, N>{};
+}
+
+template <typename T>
+auto set_array(std::vector<T> v) {
+    return std::vector<T>(v.size());
+}
+
 } // namespace scicpp::utils
 
 #endif // SCICPP_CORE_UTILS

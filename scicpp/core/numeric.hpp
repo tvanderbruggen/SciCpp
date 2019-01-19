@@ -7,6 +7,7 @@
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/utils.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -23,21 +24,35 @@ namespace scicpp {
 //---------------------------------------------------------------------------------
 
 template <class InputIt,
+          typename Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T sum(InputIt first, InputIt last) {
+constexpr T sum(InputIt first, InputIt last, Predicate filter) {
     // We don't use std::accumulate because it is not constexpr
     T res = T(0);
 
     for (; first != last; ++first) {
-        res += *first;
+        if (filter(*first)) {
+            res += *first;
+        }
     }
 
     return res;
 }
 
+template <class InputIt,
+          typename T = typename std::iterator_traits<InputIt>::value_type>
+constexpr T sum(InputIt first, InputIt last) {
+    return sum(first, last, []([[maybe_unused]] auto v) { return true; });
+}
+
 template <class Array>
 constexpr auto sum(const Array &f) {
     return sum(f.cbegin(), f.cend());
+}
+
+template <class Array>
+auto nansum(const Array &f) {
+    return sum(f.cbegin(), f.cend(), [](auto v) { return !std::isnan(v); });
 }
 
 //---------------------------------------------------------------------------------
@@ -66,16 +81,9 @@ constexpr auto prod(const Array &f) {
 // cumsum
 //---------------------------------------------------------------------------------
 
-template <typename T, std::size_t N>
-auto cumsum(const std::array<T, N> &a) {
-    std::array<T, N> res{};
-    std::partial_sum(a.cbegin(), a.cend(), res.begin());
-    return res;
-}
-
-template <typename T>
-auto cumsum(const std::vector<T> &a) {
-    std::vector<T> res(a.size());
+template <class Array>
+auto cumsum(const Array &a) {
+    auto res = utils::set_array(a);
     std::partial_sum(a.cbegin(), a.cend(), res.begin());
     return res;
 }
@@ -177,8 +185,6 @@ auto diff(const std::vector<T> &a, int n = 1) {
 // Arithmetic operators
 //
 // Implements element wise arithmetic operations for std::array and std::vector.
-//
-// TODO Use expression templates (http://www.modernescpp.com/index.php/expression-templates)
 //---------------------------------------------------------------------------------
 
 namespace detail {
@@ -204,27 +210,18 @@ auto operator-(Array &&a) {
 }
 
 // scalar multiply
-
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator*=(Array &a, T scalar) {
-    map_inplace([=](auto v) { return scalar * v; }, a);
-    return a;
+auto operator*(Array &&a, T scalar) {
+    return map([=](auto v) { return scalar * v; }, std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator*(const Array &a, T scalar) {
-    return map([=](auto v) { return scalar * v; }, a);
-}
-
-template <class Array,
-          typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator*(T scalar, const Array &a) {
-    return a * scalar;
+auto operator*(T scalar, Array &&a) {
+    return map([=](auto v) { return scalar * v; }, std::forward<Array>(a));
 }
 
 // scalar add
@@ -232,23 +229,15 @@ auto operator*(T scalar, const Array &a) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator+=(Array &a, T scalar) {
-    map_inplace([=](auto v) { return scalar + v; }, a);
-    return a;
+auto operator+(Array &&a, T scalar) {
+    return map([=](auto v) { return scalar + v; }, std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator+(const Array &a, T scalar) {
-    return map([=](auto v) { return scalar + v; }, a);
-}
-
-template <class Array,
-          typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator+(T scalar, const Array &a) {
-    return a + scalar;
+auto operator+(T scalar, Array &&a) {
+    return map([=](auto v) { return scalar + v; }, std::forward<Array>(a));
 }
 
 // scalar substract
@@ -256,23 +245,15 @@ auto operator+(T scalar, const Array &a) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator-=(Array &a, T scalar) {
-    map_inplace([=](auto v) { return v - scalar; }, a);
-    return a;
+auto operator-(Array &&a, T scalar) {
+    return map([=](auto v) { return v - scalar; }, std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator-(const Array &a, T scalar) {
-    return map([=](auto v) { return v - scalar; }, a);
-}
-
-template <class Array,
-          typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator-(T scalar, const Array &a) {
-    return map([=](auto v) { return scalar - v; }, a);
+auto operator-(T scalar, Array &&a) {
+    return map([=](auto v) { return scalar - v; }, std::forward<Array>(a));
 }
 
 // scalar divide
@@ -280,23 +261,15 @@ auto operator-(T scalar, const Array &a) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator/=(Array &a, T scalar) {
-    map_inplace([=](auto v) { return v / scalar; }, a);
-    return a;
+auto operator/(Array &&a, T scalar) {
+    return map([=](auto v) { return v / scalar; }, std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator/(const Array &a, T scalar) {
-    return map([=](auto v) { return v / scalar; }, a);
-}
-
-template <class Array,
-          typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator/(T scalar, const Array &a) {
-    return map([=](auto v) { return scalar / v; }, a);
+auto operator/(T scalar, Array &&a) {
+    return map([=](auto v) { return scalar / v; }, std::forward<Array>(a));
 }
 
 // scalar modulus
@@ -317,48 +290,46 @@ auto modulus(T x, T y) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator%=(Array &a, T scalar) {
-    map_inplace([=](auto v) { return detail::modulus(v, scalar); }, a);
-    return a;
+auto operator%(Array &&a, T scalar) {
+    return map([=](auto v) { return detail::modulus(v, scalar); },
+               std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator%(const Array &a, T scalar) {
-    return map([=](auto v) { return detail::modulus(v, scalar); }, a);
-}
-
-template <class Array,
-          typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator%(T scalar, const Array &a) {
-    return map([=](auto v) { return detail::modulus(scalar, v); }, a);
+auto operator%(T scalar, Array &&a) {
+    return map([=](auto v) { return detail::modulus(scalar, v); },
+               std::forward<Array>(a));
 }
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator*(const Array &a, const Array &b) {
-    return map(std::multiplies<>(), a, b);
+auto operator*(Array &&a, Array &&b) {
+    return map(
+        std::multiplies<>(), std::forward<Array>(a), std::forward<Array>(b));
 }
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator+(const Array &a, const Array &b) {
-    return map(std::plus<>(), a, b);
+auto operator+(Array &&a, Array &&b) {
+    return map(std::plus<>(), std::forward<Array>(a), std::forward<Array>(b));
 }
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator-(const Array &a, const Array &b) {
-    return map(std::minus<>(), a, b);
+auto operator-(Array &&a, Array &&b) {
+    return map(std::minus<>(), std::forward<Array>(a), std::forward<Array>(b));
 }
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator/(const Array &a, const Array &b) {
-    return map(std::divides<>(), a, b);
+auto operator/(Array &&a, Array &&b) {
+    return map(
+        std::divides<>(), std::forward<Array>(a), std::forward<Array>(b));
 }
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator%(const Array &a, const Array &b) {
-    return map([](auto u, auto v) { return detail::modulus(u, v); }, a, b);
+auto operator%(Array &&a, Array &&b) {
+    return map([](auto u, auto v) { return detail::modulus(u, v); },
+               std::forward<Array>(a),
+               std::forward<Array>(b));
 }
 
 //---------------------------------------------------------------------------------

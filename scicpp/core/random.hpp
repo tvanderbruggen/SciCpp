@@ -21,7 +21,8 @@ void random_number_filler(Array &a, RND distribution) {
         std::is_same_v<typename Array::value_type, typename RND::result_type>);
 
     std::mt19937 rng;
-    map_inplace([&]([[maybe_unused]] auto v) { return distribution(rng); }, a);
+    map([&]([[maybe_unused]] auto v) { return distribution(rng); },
+        std::move(a));
 }
 
 } // namespace detail

@@ -21,6 +21,10 @@ TEST_CASE("sum") {
     REQUIRE(almost_equal(sum(std::array{1., 2., 3.141}), 6.141));
     REQUIRE(almost_equal(sum(std::array{1., 2., 3.}), 6.));
     REQUIRE(almost_equal(sum(std::vector{1., 2., 3.}), 6.));
+    REQUIRE(
+        almost_equal(nansum(std::vector{
+                         1., 2., 3., std::numeric_limits<double>::quiet_NaN()}),
+                     6.));
 }
 
 TEST_CASE("prod") {
@@ -64,8 +68,6 @@ TEST_CASE("diff") {
 }
 
 TEST_CASE("Arithmetic operators") {
-    // TODO write tests for %=, +=, ...
-
     const std::array a{1., 2., 3.};
     const std::array ai{1, 2, 3};
     const std::vector v{1., 2., 3.};
@@ -77,7 +79,6 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(-a, {-1., -2., -3.}));
     REQUIRE(almost_equal(-ai, {-1, -2, -3}));
     REQUIRE(almost_equal(-v, {-1., -2., -3.}));
-
     REQUIRE(almost_equal(2. * a, {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2., {2., 4., 6.}));
     REQUIRE(almost_equal(2 * ai, {2, 4, 6}));

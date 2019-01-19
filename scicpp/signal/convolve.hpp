@@ -89,17 +89,17 @@ auto fftconvolve(const std::vector<T> &a, const std::vector<T> &v) {
     const auto fft_size = next_fast_len(res_size);
 
     if constexpr (meta::is_complex_v<T>) {
-        const auto f_a = fft(zero_padding(a, fft_size));
-        const auto f_v = fft(zero_padding(v, fft_size));
-        const auto res = ifft(f_v * f_a, int(fft_size));
+        const auto res = ifft(fft(zero_padding(a, fft_size)) *
+                                  fft(zero_padding(v, fft_size)),
+                              int(fft_size));
 
         return std::vector<T>(
             std::make_move_iterator(res.begin()),
             std::make_move_iterator(res.begin() + int(res_size)));
     } else {
-        const auto f_a = rfft(zero_padding(a, fft_size));
-        const auto f_v = rfft(zero_padding(v, fft_size));
-        const auto res = irfft(f_v * f_a, int(fft_size));
+        const auto res = irfft(rfft(zero_padding(a, fft_size)) *
+                                   rfft(zero_padding(v, fft_size)),
+                               int(fft_size));
 
         return std::vector<T>(
             std::make_move_iterator(res.begin()),

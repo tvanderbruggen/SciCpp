@@ -19,8 +19,8 @@ WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal #-Weffc++
 
 ifeq ($(COMPILER),gcc)
-  CC = $(CROSS_COMPILE)gcc
-  CCXX = $(CROSS_COMPILE)g++
+  CC = $(CROSS_COMPILE)gcc-8
+  CCXX = $(CROSS_COMPILE)g++-8
 
   WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond
 else

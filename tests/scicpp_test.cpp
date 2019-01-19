@@ -15,7 +15,7 @@ using namespace std::literals;
 // #include <scicpp/core/maths.t.cpp>
 // #include <scicpp/core/range.t.cpp>
 // #include <scicpp/polynomials/polynomial.t.cpp>
-// #include <scicpp/core/random.t.cpp>
+#include <scicpp/core/random.t.cpp>
 // #include <scicpp/core/stats.t.cpp>
 // #include <scicpp/core/utils.t.cpp>
 // #include <scicpp/core/linalg.t.cpp>
