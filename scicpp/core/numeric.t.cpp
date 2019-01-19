@@ -32,6 +32,10 @@ TEST_CASE("prod") {
     REQUIRE(almost_equal(prod(std::array{1., 2., 3.141}), 6.282));
     REQUIRE(almost_equal(prod(std::array{1., 2., 3.}), 6.));
     REQUIRE(almost_equal(prod(std::vector{1., 2., 3.}), 6.));
+    REQUIRE(
+        almost_equal(nanprod(std::vector{
+                         1., 2., 3., std::numeric_limits<double>::quiet_NaN()}),
+                     6.));
 }
 
 TEST_CASE("cumsum") {

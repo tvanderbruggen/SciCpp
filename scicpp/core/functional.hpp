@@ -56,6 +56,27 @@ auto map(BinaryOp op, const Array &a1, const Array &a2) {
     return map(op, std::move(res), a2);
 }
 
+//---------------------------------------------------------------------------------
+// filter_reduce
+//---------------------------------------------------------------------------------
+
+template <class InputIt,
+          class Predicate,
+          class BinaryOp,
+          typename T = typename std::iterator_traits<InputIt>::value_type>
+constexpr T filter_reduce(
+    InputIt first, InputIt last, BinaryOp op, T init, Predicate filter) {
+    T res = init;
+
+    for (; first != last; ++first) {
+        if (filter(*first)) {
+            res = op(res, *first);
+        }
+    }
+
+    return res;
+}
+
 } // namespace scicpp
 
 #endif // SCICPP_CORE_FUNCTIONAL

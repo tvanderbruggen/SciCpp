@@ -24,24 +24,14 @@ namespace scicpp {
 //---------------------------------------------------------------------------------
 
 template <class InputIt,
-          typename Predicate,
+          class Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 constexpr T sum(InputIt first, InputIt last, Predicate filter) {
-    // We don't use std::accumulate because it is not constexpr
-    T res = T(0);
-
-    for (; first != last; ++first) {
-        if (filter(*first)) {
-            res += *first;
-        }
-    }
-
-    return res;
+    return filter_reduce(first, last, std::plus<>(), T{0}, filter);
 }
 
-template <class InputIt,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T sum(InputIt first, InputIt last) {
+template <class InputIt>
+constexpr auto sum(InputIt first, InputIt last) {
     return sum(first, last, []([[maybe_unused]] auto v) { return true; });
 }
 
@@ -60,21 +50,25 @@ auto nansum(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class InputIt,
+          class Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T prod(InputIt first, InputIt last) {
-    // We don't use std::accumulate because it is not constexpr
-    T res = T(1);
+constexpr T prod(InputIt first, InputIt last, Predicate filter) {
+    return filter_reduce(first, last, std::multiplies<>(), T{1}, filter);
+}
 
-    for (; first != last; ++first) {
-        res *= *first;
-    }
-
-    return res;
+template <class InputIt>
+constexpr auto prod(InputIt first, InputIt last) {
+    return prod(first, last, []([[maybe_unused]] auto v) { return true; });
 }
 
 template <class Array>
 constexpr auto prod(const Array &f) {
     return prod(f.cbegin(), f.cend());
+}
+
+template <class Array>
+auto nanprod(const Array &f) {
+    return prod(f.cbegin(), f.cend(), [](auto v) { return !std::isnan(v); });
 }
 
 //---------------------------------------------------------------------------------
