@@ -4,7 +4,6 @@
 #ifndef SCICPP_CORE_UTILS
 #define SCICPP_CORE_UTILS
 
-#include <Eigen/Dense>
 #include <array>
 #include <vector>
 
