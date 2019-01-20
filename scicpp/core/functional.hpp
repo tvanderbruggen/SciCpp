@@ -11,6 +11,7 @@
 #include <iterator>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace scicpp {
 
@@ -60,16 +61,55 @@ auto map(BinaryOp op, const Array &a1, const Array &a2) {
 }
 
 //---------------------------------------------------------------------------------
+// vectorize
+//---------------------------------------------------------------------------------
+
+template <class Func>
+auto vectorize(Func f) {
+    return [f](auto &&a) {
+        // https://stackoverflow.com/questions/47327100/c-how-to-infer-the-callables-type-arguments-list-return-value-in-a-templa
+        return map(
+            [&](auto &&... args) -> decltype(
+                                     f(std::forward<decltype(args)>(args)...)) {
+                return f(std::forward<decltype(args)>(args)...);
+            },
+            std::forward<decltype(a)>(a));
+    };
+}
+
+//---------------------------------------------------------------------------------
+// filter
+//---------------------------------------------------------------------------------
+
+// filter does resize the array in a way that depends on runtime arguments
+// so we cannot implement it for std::array.
+
+template <typename T, class UnaryPredicate>
+auto filter(std::vector<T> &&a, UnaryPredicate p) {
+    static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
+
+    auto i = std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
+    a.erase(i, a.end());
+    return a;
+}
+
+template <typename T, class UnaryPredicate>
+auto filter(const std::vector<T> &a, UnaryPredicate p) {
+    std::vector<T> res(a);
+    return filter(std::move(res), p);
+}
+
+//---------------------------------------------------------------------------------
 // filter_reduce
 //---------------------------------------------------------------------------------
 
 template <class InputIt,
-          class Predicate,
+          class UnaryPredicate,
           class BinaryOp,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 constexpr T filter_reduce(
-    InputIt first, InputIt last, BinaryOp op, T init, Predicate filter) {
-    static_assert(std::is_integral_v<std::invoke_result_t<Predicate, T>>);
+    InputIt first, InputIt last, BinaryOp op, T init, UnaryPredicate filter) {
+    static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
 
     T res = init;
 
@@ -80,6 +120,15 @@ constexpr T filter_reduce(
     }
 
     return res;
+}
+
+template <class Array,
+          class UnaryPredicate,
+          class BinaryOp,
+          typename T = typename Array::value_type>
+constexpr T
+filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
+    return filter_reduce(a.cbegin(), a.cend(), op, init, filter);
 }
 
 } // namespace scicpp

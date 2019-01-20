@@ -29,9 +29,42 @@ TEST_CASE("map") {
                          {5., 7., 9.}));
     REQUIRE(almost_equal(map(std::plus<>(), v, a), {5., 7., 9.}));
 
-    // Check const array are not modified
+    // Check const arrays are not modified
     REQUIRE(v == std::vector{1., 2., 3.});
     REQUIRE(a == std::vector{4., 5., 6.});
+}
+
+TEST_CASE("vectorize") {
+    auto f = vectorize([](double x) {return 2 * x;});
+    REQUIRE(almost_equal(f(std::vector{1., 2., 3.}), {2., 4., 6.}));
+
+}
+
+TEST_CASE("filter") {
+    const std::vector v{1., 2., 3., 4., 5.};
+
+    REQUIRE(almost_equal(filter(v, [](auto v) { return v > 3.; }), {4., 5.}));
+    REQUIRE(almost_equal(
+        filter(std::vector{1., 2., 3., 4., 5.}, [](auto v) { return v > 3.; }),
+        {4., 5.}));
+
+    REQUIRE(v == std::vector{1., 2., 3., 4., 5.});
+}
+
+TEST_CASE("filter_reduce") {
+    static_assert(
+        filter_reduce(std::array{1, 2, 3, 4, 5}, std::plus<>(), 0, [](auto v) {
+            return v % 2 == 0;
+        }) == 6);
+
+    REQUIRE(
+        filter_reduce(std::array{1, 2, 3, 4, 5}, std::plus<>(), 0, [](auto v) {
+            return v % 2 == 0;
+        }) == 6);
+
+    REQUIRE(filter_reduce(std::vector<int>{}, std::plus<>(), 1, [](auto v) {
+                return v % 2 == 0;
+            }) == 1);
 }
 
 } // namespace scicpp
