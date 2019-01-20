@@ -35,9 +35,12 @@ TEST_CASE("map") {
 }
 
 TEST_CASE("vectorize") {
-    auto f = vectorize([](double x) {return 2 * x;});
+    auto f = vectorize([](double x) { return 2 * x; });
     REQUIRE(almost_equal(f(std::vector{1., 2., 3.}), {2., 4., 6.}));
 
+    auto g = vectorize([](auto x) { return std::sin(x); });
+    REQUIRE(almost_equal(g(std::array{1., 2., 3.}),
+                         {std::sin(1.), std::sin(2.), std::sin(3.)}));
 }
 
 TEST_CASE("filter") {

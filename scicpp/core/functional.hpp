@@ -67,10 +67,8 @@ auto map(BinaryOp op, const Array &a1, const Array &a2) {
 template <class Func>
 auto vectorize(Func f) {
     return [f](auto &&a) {
-        // https://stackoverflow.com/questions/47327100/c-how-to-infer-the-callables-type-arguments-list-return-value-in-a-templa
         return map(
-            [&](auto &&... args) -> decltype(
-                                     f(std::forward<decltype(args)>(args)...)) {
+            [f](auto &&... args) {
                 return f(std::forward<decltype(args)>(args)...);
             },
             std::forward<decltype(a)>(a));
