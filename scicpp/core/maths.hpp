@@ -19,7 +19,7 @@ namespace scicpp {
 template <typename T>
 constexpr auto fabs(T &&x) {
     if constexpr (meta::is_iterable_v<T>) {
-        return map([&](auto v) { return fabs(v); }, std::forward<T>(x));
+        return map([](auto v) { return fabs(v); }, std::forward<T>(x));
     } else {
         // Handles negative zero
         // https://codereview.stackexchange.com/questions/60140/generic-absolute-value-function
