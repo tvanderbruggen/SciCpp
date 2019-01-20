@@ -8,6 +8,8 @@
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
+#include <iterator>
+#include <type_traits>
 
 namespace scicpp {
 
@@ -66,6 +68,8 @@ template <class InputIt,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 constexpr T filter_reduce(
     InputIt first, InputIt last, BinaryOp op, T init, Predicate filter) {
+    static_assert(std::is_integral_v<std::invoke_result_t<Predicate, T>>);
+
     T res = init;
 
     for (; first != last; ++first) {

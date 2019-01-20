@@ -25,6 +25,12 @@ void random_number_filler(Array &a, RND distribution) {
         std::move(a));
 }
 
+template <typename T>
+const auto uniform_dist = std::uniform_real_distribution<T>{0., 1.};
+
+template <typename T>
+const auto normal_dist = std::normal_distribution<T>{0., 1.};
+
 } // namespace detail
 
 //---------------------------------------------------------------------------------
@@ -34,8 +40,7 @@ void random_number_filler(Array &a, RND distribution) {
 template <typename T, std::size_t N>
 auto rand() {
     std::array<T, N> res{};
-    detail::random_number_filler(res,
-                                 std::uniform_real_distribution<T>{0.0, 1.0});
+    detail::random_number_filler(res, detail::uniform_dist<T>);
     return res;
 }
 
@@ -47,8 +52,7 @@ T rand() {
 template <typename T>
 auto rand(std::size_t N) {
     std::vector<T> res(N);
-    detail::random_number_filler(res,
-                                 std::uniform_real_distribution<T>{0.0, 1.0});
+    detail::random_number_filler(res, detail::uniform_dist<T>);
     return res;
 }
 
@@ -59,7 +63,7 @@ auto rand(std::size_t N) {
 template <typename T, std::size_t N>
 auto randn() {
     std::array<T, N> res{};
-    detail::random_number_filler(res, std::normal_distribution<T>{0.0, 1.0});
+    detail::random_number_filler(res, detail::normal_dist<T>);
     return res;
 }
 
@@ -71,7 +75,7 @@ T randn() {
 template <typename T>
 auto randn(std::size_t N) {
     std::vector<T> res(N);
-    detail::random_number_filler(res, std::normal_distribution<T>{0.0, 1.0});
+    detail::random_number_filler(res, detail::normal_dist<T>);
     return res;
 }
 

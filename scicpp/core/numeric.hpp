@@ -170,12 +170,6 @@ auto diff(const std::vector<T> &a, int n = 1) {
 }
 
 //---------------------------------------------------------------------------------
-// filter_nan
-//---------------------------------------------------------------------------------
-
-// http://blog.madhukaraphatak.com/functional-programming-in-c++/
-
-//---------------------------------------------------------------------------------
 // Arithmetic operators
 //
 // Implements element wise arithmetic operations for std::array and std::vector.
