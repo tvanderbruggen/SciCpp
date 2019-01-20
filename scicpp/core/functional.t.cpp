@@ -50,9 +50,9 @@ TEST_CASE("vectorize") {
 TEST_CASE("filter") {
     const std::vector v{1., 2., 3., 4., 5.};
 
-    REQUIRE(almost_equal(filter(v, [](auto v) { return v > 3.; }), {4., 5.}));
+    REQUIRE(almost_equal(filter(v, [](auto x) { return x > 3.; }), {4., 5.}));
     REQUIRE(almost_equal(
-        filter(std::vector{1., 2., 3., 4., 5.}, [](auto v) { return v > 3.; }),
+        filter(std::vector{1., 2., 3., 4., 5.}, [](auto x) { return x > 3.; }),
         {4., 5.}));
 
     REQUIRE(v == std::vector{1., 2., 3., 4., 5.});

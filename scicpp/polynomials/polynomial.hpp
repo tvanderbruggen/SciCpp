@@ -254,7 +254,7 @@ constexpr auto polyder_once(const std::array<T, N> &P) {
     std::array<T, N - 1> res{};
 
     for (std::size_t i = 0; i < res.size(); ++i) {
-        res[i] = (N - 1 - i) * P[i];
+        res[i] = T(N - 1 - i) * P[i];
     }
 
     return res;
@@ -266,7 +266,7 @@ void polyder_once(std::vector<T> &P) {
     const auto N = P.size();
 
     for (std::size_t i = 0; i < (N - 1); ++i) {
-        P[i] *= (N - 1 - i);
+        P[i] *= T(N - 1 - i);
     }
 
     P.resize(N - 1);
