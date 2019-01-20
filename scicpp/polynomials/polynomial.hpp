@@ -5,11 +5,11 @@
 #define SCICPP_POLYNOMIALS_POLYNOMIAL
 
 #include "scicpp/core/functional.hpp"
-#include "scicpp/core/linalg.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
-#include "scicpp/core/utils.hpp"
+#include "scicpp/linalg/solve.hpp"
+#include "scicpp/linalg/utils.hpp"
 #include "scicpp/signal/convolve.hpp"
 
 #include <Eigen/Dense>
@@ -324,7 +324,7 @@ auto polycompanion(const std::array<T, N> &P) {
     Eigen::Matrix<T, deg, deg> res{};
     res.setZero();
     res.diagonal(-1).setOnes();
-    res.col(deg - 1) = -utils::eigen::to_eigen_array<deg>(P) / P[deg];
+    res.col(deg - 1) = -linalg::to_eigen_array<deg>(P) / P[deg];
     return res;
 }
 
@@ -334,8 +334,7 @@ auto polycompanion(const std::vector<T> &P) {
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> res(deg, deg);
     res.setZero();
     res.diagonal(-1).setOnes();
-    res.col(deg - 1) =
-        -utils::eigen::to_eigen_matrix(P, deg) / P[std::size_t(deg)];
+    res.col(deg - 1) = -linalg::to_eigen_matrix(P, deg) / P[std::size_t(deg)];
     return res;
 }
 
@@ -345,7 +344,7 @@ auto polycompanion(const std::vector<T> &P) {
 
 template <class Array>
 auto polyroots(const Array &P) {
-    return utils::eigen::to_std_container(polycompanion(P).eigenvalues());
+    return linalg::to_std_container(polycompanion(P).eigenvalues());
 }
 
 //---------------------------------------------------------------------------------
@@ -359,7 +358,7 @@ void polyvander_filler(Matrix &res, const Vector &x) {
     static_assert(meta::is_eigen_matrix_v<Matrix>);
 
     res.col(0).setOnes();
-    res.col(1) = utils::eigen::to_eigen_array(x);
+    res.col(1) = linalg::to_eigen_array(x);
 
     for (int i = 2; i < res.cols(); ++i) {
         res.col(i) = res.col(i - 1).array() * res.col(1).array();
