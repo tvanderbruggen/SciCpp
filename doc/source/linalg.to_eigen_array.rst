@@ -1,9 +1,9 @@
-.. _core_utils_eigen_to_eigen_array:
+.. _linalg_to_eigen_array:
 
-scicpp::utils::eigen::to_eigen_array
+scicpp::linalg::to_eigen_array
 ====================================
 
-Defined in header <scicpp/core.hpp>
+Defined in header <scicpp/linalg.hpp>
 
 Convert a standard container to an Eigen::Array.
 

@@ -15,5 +15,4 @@ TEST_CASE("set_array") {
     REQUIRE(set_array(a) == std::array<int, a.size()>{});
 }
 
-
 } // namespace scicpp::utils

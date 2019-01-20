@@ -20,4 +20,6 @@
 #define SCICPP_REQUIRE(expr) assert((expr))
 #endif
 
+#define scicpp_pure __attribute__((pure))
+
 #endif // SCICPP_MACROS

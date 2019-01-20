@@ -361,7 +361,7 @@ bool almost_equal(T a, T b) {
 template <int rel_tol = 1,
           class Array,
           std::enable_if_t<meta::is_iterable_v<Array>, int> = 0>
-bool almost_equal(const Array &f1, const Array &f2) {
+bool scicpp_pure almost_equal(const Array &f1, const Array &f2) {
     return std::equal(
         f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend(), [](auto a, auto b) {
             return almost_equal<rel_tol>(a, b);

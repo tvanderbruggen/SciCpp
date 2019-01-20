@@ -1,9 +1,9 @@
-.. _core_utils_eigen_to_std_container:
+.. _linalg_to_std_container:
 
-scicpp::utils::eigen::to_std_container
+scicpp::linalg::to_std_container
 ====================================
 
-Defined in header <scicpp/core.hpp>
+Defined in header <scicpp/linalg.hpp>
 
 Convert an Eigen::Matrix to a standard container.
 

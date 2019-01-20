@@ -22,6 +22,7 @@ Modules:
    :maxdepth: 2
 
    core.rst
+   linalg.rst
    polynomial.rst
    signal.rst
 
@@ -76,4 +77,4 @@ Sometimes the size is known at compile but it is large (the exact size depends o
 your workload but let's say a few 1000s), then you might want to prefer to use a ```std::vector```.
 
 Finally, ```std::vector``` is a resizable array, so it is well suited for algorithms requiring dynamical
-resizing of the data container.
+resizing of the data container (ex. :ref:`filter <core_filter>`).

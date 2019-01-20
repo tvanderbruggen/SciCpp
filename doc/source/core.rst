@@ -6,8 +6,7 @@ Core functions defined in header <scicpp/core.hpp>
 Arithmetic operators
 -------------
 
-Prodives arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:`%`
-and :code:`+=`, :code:`-=`, :code:`*=`, :code:`/=`, :code:`%=` for `std::array` and `std::vector`.
+Prodives arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:`%` for `std::array` and `std::vector`.
 
 Ranges
 -------------
@@ -27,8 +26,14 @@ Sums, products, differences
 :ref:`sum <core_sum>`
     Sum of array elements.
 
+:ref:`nansum <core_nansum>`
+    Sum of array elements excluding NaNs.
+
 :ref:`prod <core_prod>`
     Product of array elements.
+
+:ref:`nanprod <core_nanprod>`
+    Product of array elements excluding NaNs.
 
 :ref:`cumsum <core_cumsum>`
     Cumulative sum of array elements.
@@ -78,11 +83,20 @@ Statistics
 :ref:`stats::std <core_stats_std>`
     Compute the standard deviation.
 
-Linear Algebra
+Functional programming
 ---------------
 
-:ref:`linalg::lstsq <core_linalg_lstsq>`
-    Compute least-squares solution to equation Ax = b.
+:ref:`map <core_map>`
+    Apply a function to each elements of an array.
+
+:ref:`vectorize <core_vectorize>`
+    Convert a function to accept array argument(s).
+
+:ref:`filter <core_filter>`
+    Filter a std::vector according to a predicate.
+
+:ref:`filter_reduce <core_filter_reduce>`
+    Reduce filtered elements of an array.
 
 Printing
 ---------------
@@ -93,14 +107,3 @@ Printing
 :ref:`fprint <core_fprint>`
     Print an array to a file stream.
 
-Eigen Vectors Conversions
----------------------------
-
-:ref:`utils::eigen::to_eigen_matrix <core_utils_eigen_to_eigen_matrix>`
-    Convert a standard container to an Eigen::Matrix.
-
-:ref:`utils::eigen::to_eigen_array <core_utils_eigen_to_eigen_array>`
-    Convert a standard container to an Eigen::Array.
-
-:ref:`utils::eigen::to_std_container <core_utils_eigen_to_std_container>`
-    Convert an Eigen::Matrix to a standard container.

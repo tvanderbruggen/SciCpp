@@ -49,7 +49,7 @@ template <class Array, typename T = typename Array::value_type>
 void sawtooth_filler(Array &res, const Array &t, T width) {
     SCICPP_REQUIRE(width >= T(0) && width <= T(1));
 
-    std::transform(t.cbegin(), t.cend(), res.begin(), [=](auto t_) {
+    std::transform(t.cbegin(), t.cend(), res.begin(), [=](auto t_) scicpp_pure {
         const auto tmod = std::fmod(t_, T(2) * M_PI);
 
         if (tmod < width * T(2) * M_PI) {

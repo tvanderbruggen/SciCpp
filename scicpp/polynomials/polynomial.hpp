@@ -523,11 +523,11 @@ class Polynomial {
         return tmp;
     }
 
-    bool operator==(const Polynomial &rhs) const {
+    bool scicpp_pure operator==(const Polynomial &rhs) const {
         return m_coef == rhs.m_coef;
     }
 
-    bool operator!=(const Polynomial &rhs) const {
+    bool scicpp_pure operator!=(const Polynomial &rhs) const {
         return m_coef != rhs.m_coef;
     }
 

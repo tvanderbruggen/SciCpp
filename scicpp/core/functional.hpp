@@ -107,7 +107,7 @@ template <class InputIt,
           class UnaryPredicate,
           class BinaryOp,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T filter_reduce(
+constexpr scicpp_pure T filter_reduce(
     InputIt first, InputIt last, BinaryOp op, T init, UnaryPredicate filter) {
     static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
 
@@ -126,7 +126,7 @@ template <class Array,
           class UnaryPredicate,
           class BinaryOp,
           typename T = typename Array::value_type>
-constexpr T
+constexpr scicpp_pure T
 filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
     return filter_reduce(a.cbegin(), a.cend(), op, init, filter);
 }
