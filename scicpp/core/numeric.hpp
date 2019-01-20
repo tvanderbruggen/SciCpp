@@ -337,6 +337,14 @@ bool fp_equal_predicate(T a, T b) {
 
     constexpr T tol = rel_tol * std::numeric_limits<T>::epsilon() / 2;
 
+    if (std::isnan(a) && std::isnan(b)) {
+        return true;
+    }
+
+    if (std::isinf(a) && std::isinf(b)) {
+        return std::signbit(a) == std::signbit(b);
+    }
+
     if (is_zero(a) || is_zero(b)) {
         return std::fabs(a - b) <= tol;
     }

@@ -17,7 +17,7 @@ constexpr auto inf = std::numeric_limits<double>::infinity();
 
 template <typename T>
 constexpr bool float_equal(const T f1, const T f2) {
-    return scicpp::maths::fabs(f1 - f2) <= eps;
+    return scicpp::fabs(f1 - f2) <= eps;
 }
 
 template <typename T>

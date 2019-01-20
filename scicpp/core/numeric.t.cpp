@@ -140,6 +140,17 @@ TEST_CASE("Arithmetic operators") {
 }
 
 TEST_CASE("almost_equal real") {
+    SECTION("NaNs") {
+        constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+        REQUIRE(almost_equal(nan, nan));
+    }
+
+    SECTION("Inf") {
+        constexpr auto inf = std::numeric_limits<double>::infinity();
+        REQUIRE(almost_equal(inf, inf));
+        REQUIRE(!almost_equal(inf, -inf));
+    }
+
     SECTION("near zero") {
         REQUIRE(almost_equal(0., 0.00000000000000011102));
         REQUIRE(almost_equal(0.00000000000000011102, 0.));
