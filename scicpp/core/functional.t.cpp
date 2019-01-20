@@ -41,6 +41,10 @@ TEST_CASE("vectorize") {
     auto g = vectorize([](auto x) { return std::sin(x); });
     REQUIRE(almost_equal(g(std::array{1., 2., 3.}),
                          {std::sin(1.), std::sin(2.), std::sin(3.)}));
+
+    auto h = vectorize([](double x, double y) { return x + y; });
+    REQUIRE(almost_equal(h(std::vector{1., 2., 3.}, std::vector{4., 5., 6.}),
+                         {5., 7., 9.}));
 }
 
 TEST_CASE("filter") {

@@ -65,13 +65,14 @@ auto map(BinaryOp op, const Array &a1, const Array &a2) {
 //---------------------------------------------------------------------------------
 
 template <class Func>
-auto vectorize(Func f) {
-    return [f](auto &&a) {
+auto vectorize(Func &&f) {
+    return [&](auto &&... arrays) {
         return map(
-            [f](auto &&... args) {
-                return f(std::forward<decltype(args)>(args)...);
+            [&](auto &&... args) {
+                return std::invoke(std::forward<Func>(f),
+                                   std::forward<decltype(args)>(args)...);
             },
-            std::forward<decltype(a)>(a));
+            std::forward<decltype(arrays)>(arrays)...);
     };
 }
 
