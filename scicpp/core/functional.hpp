@@ -22,10 +22,15 @@ namespace scicpp {
 
 // Unary operations
 
+// Using map for unary operation:
+// https://godbolt.org/z/hsRapR
+// Generates quasi-identical assembly as raw loop
+// https://godbolt.org/z/jFnoA2
+
 template <class Array, class UnaryOp>
 auto map(UnaryOp op, Array &&a) {
     std::transform(a.cbegin(), a.cend(), a.begin(), op);
-    return a;
+    return std::move(a);
 }
 
 template <class Array, class UnaryOp>
@@ -40,14 +45,14 @@ template <class Array, class BinaryOp>
 auto map(BinaryOp op, Array &&a1, const Array &a2) {
     SCICPP_REQUIRE(a1.size() == a2.size());
     std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
-    return a1;
+    return std::move(a1);
 }
 
 template <class Array, class BinaryOp>
 auto map(BinaryOp op, const Array &a1, Array &&a2) {
     SCICPP_REQUIRE(a1.size() == a2.size());
     std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);
-    return a2;
+    return std::move(a2);
 }
 
 template <class Array, class BinaryOp>
@@ -64,6 +69,17 @@ auto map(BinaryOp op, const Array &a1, const Array &a2) {
 //---------------------------------------------------------------------------------
 // vectorize
 //---------------------------------------------------------------------------------
+
+// Ex. compute cos(sin(x)), where x is a vector:
+// => Using vectorized functions
+//    https://godbolt.org/z/HE8A12
+// => Using raw loop:
+//    https://godbolt.org/z/HUzgjH
+//
+// Both codes generate a single call to new, so vectorize don't produce
+// unecessary temporaries.
+// For the vectorized version first the sin loop is called, then the cos one.
+// For the raw loop version a single loop call sin and cos.
 
 template <class Func>
 auto vectorize(Func &&f) {

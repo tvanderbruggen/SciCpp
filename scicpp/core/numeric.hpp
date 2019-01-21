@@ -297,6 +297,12 @@ auto operator*(Array &&a, Array &&b) {
         std::multiplies<>(), std::forward<Array>(a), std::forward<Array>(b));
 }
 
+// Sum of 3 vectors:
+// https://godbolt.org/z/YdcjKF
+// No copy, similar assembly code than raw loop:
+// https://godbolt.org/z/ptIXJ4
+// Nevertheless, in both cases 3 calls to new ...
+
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator+(Array &&a, Array &&b) {
     return map(std::plus<>(), std::forward<Array>(a), std::forward<Array>(b));
