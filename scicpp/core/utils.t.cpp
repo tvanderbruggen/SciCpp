@@ -15,10 +15,10 @@ TEST_CASE("set_array") {
     REQUIRE(set_array(a) == std::array<int, a.size()>{});
 }
 
-TEST_CASE("move_sub_vector") {
-    REQUIRE(move_sub_vector(std::vector{1, 2, 3}, 2) == std::vector{1, 2});
-    REQUIRE(move_sub_vector(std::vector{1, 2, 3}, 0) == std::vector<int>{});
-    REQUIRE(move_sub_vector(std::vector{1, 2, 3}, 4) == std::vector{1, 2, 3});
+TEST_CASE("move_subvector") {
+    REQUIRE(move_subvector(std::vector{1, 2, 3}, 2) == std::vector{1, 2});
+    REQUIRE(move_subvector(std::vector{1, 2, 3}, 0) == std::vector<int>{});
+    REQUIRE(move_subvector(std::vector{1, 2, 3}, 4) == std::vector{1, 2, 3});
 }
 
 } // namespace scicpp::utils

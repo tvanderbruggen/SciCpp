@@ -92,10 +92,10 @@ auto fftconvolve(const std::vector<T> &a, const std::vector<T> &v) {
     const auto v_pad = zero_padding(v, fft_size);
 
     if constexpr (meta::is_complex_v<T>) {
-        return utils::move_sub_vector(
+        return utils::move_subvector(
             ifft(fft(a_pad) * fft(v_pad), int(fft_size)), res_size);
     } else {
-        return utils::move_sub_vector(
+        return utils::move_subvector(
             irfft(rfft(a_pad) * rfft(v_pad), int(fft_size)), res_size);
     }
 }

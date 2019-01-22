@@ -29,7 +29,7 @@ auto set_array(std::vector<T> v) {
 //---------------------------------------------------------------------------------
 
 template <typename T>
-auto move_sub_vector(std::vector<T> &&v, std::size_t len) {
+auto move_subvector(std::vector<T> &&v, std::size_t len) {
     return std::vector<T>(
         std::make_move_iterator(v.begin()),
         std::make_move_iterator(v.begin() + int(std::min(len, v.size()))));
