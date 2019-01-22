@@ -28,13 +28,13 @@ namespace scicpp {
 // https://godbolt.org/z/jFnoA2
 
 template <class Array, class UnaryOp>
-auto map(UnaryOp op, Array &&a) {
+[[nodiscard]] auto map(UnaryOp op, Array &&a) {
     std::transform(a.cbegin(), a.cend(), a.begin(), op);
     return std::move(a);
 }
 
 template <class Array, class UnaryOp>
-auto map(UnaryOp op, const Array &a) {
+[[nodiscard]] auto map(UnaryOp op, const Array &a) {
     Array res(a);
     return map(op, std::move(res));
 }
@@ -42,26 +42,26 @@ auto map(UnaryOp op, const Array &a) {
 // Binary operations
 
 template <class Array, class BinaryOp>
-auto map(BinaryOp op, Array &&a1, const Array &a2) {
+[[nodiscard]] auto map(BinaryOp op, Array &&a1, const Array &a2) {
     SCICPP_REQUIRE(a1.size() == a2.size());
     std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
     return std::move(a1);
 }
 
 template <class Array, class BinaryOp>
-auto map(BinaryOp op, const Array &a1, Array &&a2) {
+[[nodiscard]] auto map(BinaryOp op, const Array &a1, Array &&a2) {
     SCICPP_REQUIRE(a1.size() == a2.size());
     std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);
     return std::move(a2);
 }
 
 template <class Array, class BinaryOp>
-auto map(BinaryOp op, Array &&a1, Array &&a2) {
+[[nodiscard]] auto map(BinaryOp op, Array &&a1, Array &&a2) {
     return map(op, std::move(a1), a2);
 }
 
 template <class Array, class BinaryOp>
-auto map(BinaryOp op, const Array &a1, const Array &a2) {
+[[nodiscard]] auto map(BinaryOp op, const Array &a1, const Array &a2) {
     auto res(a1);
     return map(op, std::move(res), a2);
 }
@@ -101,7 +101,7 @@ auto vectorize(Func &&f) {
 // so we cannot implement it for std::array.
 
 template <typename T, class UnaryPredicate>
-auto filter(std::vector<T> &&a, UnaryPredicate p) {
+[[nodiscard]] auto filter(std::vector<T> &&a, UnaryPredicate p) {
     static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
 
     auto i = std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
@@ -110,7 +110,7 @@ auto filter(std::vector<T> &&a, UnaryPredicate p) {
 }
 
 template <typename T, class UnaryPredicate>
-auto filter(const std::vector<T> &a, UnaryPredicate p) {
+[[nodiscard]] auto filter(const std::vector<T> &a, UnaryPredicate p) {
     std::vector<T> res(a);
     return filter(std::move(res), p);
 }
@@ -123,7 +123,7 @@ template <class InputIt,
           class UnaryPredicate,
           class BinaryOp,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr scicpp_pure T filter_reduce(
+[[nodiscard]] constexpr scicpp_pure T filter_reduce(
     InputIt first, InputIt last, BinaryOp op, T init, UnaryPredicate filter) {
     static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
 
@@ -142,7 +142,7 @@ template <class Array,
           class UnaryPredicate,
           class BinaryOp,
           typename T = typename Array::value_type>
-constexpr scicpp_pure T
+[[nodiscard]] constexpr scicpp_pure T
 filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
     return filter_reduce(a.cbegin(), a.cend(), op, init, filter);
 }
