@@ -4,6 +4,7 @@
 #ifndef SCICPP_SIGNAL_CONVOLVE
 #define SCICPP_SIGNAL_CONVOLVE
 
+#include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
@@ -133,25 +134,17 @@ constexpr auto convolve(const U &a, const V &v) {
 // correlate
 //---------------------------------------------------------------------------------
 
-namespace detail {
-
-template <class Array>
-void reverse_conj(const Array &a, Array &res) {
-    std::reverse_copy(a.cbegin(), a.cend(), res.begin());
-
-    if constexpr (meta::is_complex_v<typename Array::value_type>) {
-        std::transform(res.cbegin(), res.cend(), res.begin(), [](auto v) {
-            return std::conj(v);
-        });
-    }
-}
-
-} // namespace detail
-
 template <ConvMethod method, class U, class V>
 constexpr auto correlate(const U &a, const V &v) {
     auto v_rev = utils::set_array(v);
-    detail::reverse_conj(v, v_rev);
+    std::reverse_copy(v.cbegin(), v.cend(), v_rev.begin());
+
+    if constexpr (meta::is_complex_v<typename U::value_type>) {
+        std::transform(v_rev.cbegin(), v_rev.cend(), v_rev.begin(), [](auto x) {
+            return std::conj(x);
+        });
+    }
+
     return convolve<method>(a, v_rev);
 }
 
