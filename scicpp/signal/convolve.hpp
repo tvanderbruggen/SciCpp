@@ -4,7 +4,6 @@
 #ifndef SCICPP_SIGNAL_CONVOLVE
 #define SCICPP_SIGNAL_CONVOLVE
 
-#include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
@@ -89,23 +88,15 @@ template <typename T>
 auto fftconvolve(const std::vector<T> &a, const std::vector<T> &v) {
     const auto res_size = a.size() + v.size() - 1;
     const auto fft_size = next_fast_len(res_size);
+    const auto a_pad = zero_padding(a, fft_size);
+    const auto v_pad = zero_padding(v, fft_size);
 
     if constexpr (meta::is_complex_v<T>) {
-        const auto res = ifft(fft(zero_padding(a, fft_size)) *
-                                  fft(zero_padding(v, fft_size)),
-                              int(fft_size));
-
-        return std::vector<T>(
-            std::make_move_iterator(res.begin()),
-            std::make_move_iterator(res.begin() + int(res_size)));
+        return utils::move_sub_vector(
+            ifft(fft(a_pad) * fft(v_pad), int(fft_size)), res_size);
     } else {
-        const auto res = irfft(rfft(zero_padding(a, fft_size)) *
-                                   rfft(zero_padding(v, fft_size)),
-                               int(fft_size));
-
-        return std::vector<T>(
-            std::make_move_iterator(res.begin()),
-            std::make_move_iterator(res.begin() + int(res_size)));
+        return utils::move_sub_vector(
+            irfft(rfft(a_pad) * rfft(v_pad), int(fft_size)), res_size);
     }
 }
 

@@ -38,6 +38,9 @@ TEST_CASE("Trigonometric functions") {
     REQUIRE(almost_equal(
         arctan2(std::array{1., 2., 3.}, std::array{3., 2., 1.}),
         {std::atan2(1., 3.), std::atan2(2., 2.), std::atan2(3., 1.)}));
+    REQUIRE(almost_equal(
+        hypot(std::array{1., 2., 3.}, std::array{3., 2., 1.}),
+        {std::hypot(1., 3.), std::hypot(2., 2.), std::hypot(3., 1.)}));
 }
 
 TEST_CASE("Hyperbolic functions") {

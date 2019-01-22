@@ -5,6 +5,7 @@
 #define SCICPP_CORE_UTILS
 
 #include <array>
+#include <iterator>
 #include <vector>
 
 namespace scicpp::utils {
@@ -21,6 +22,17 @@ auto set_array(const std::array<T, N> & /* unused */) {
 template <typename T>
 auto set_array(std::vector<T> v) {
     return std::vector<T>(v.size());
+}
+
+//---------------------------------------------------------------------------------
+// move_sub_vector
+//---------------------------------------------------------------------------------
+
+template <typename T>
+auto move_sub_vector(std::vector<T> &&v, std::size_t len) {
+    return std::vector<T>(
+        std::make_move_iterator(v.begin()),
+        std::make_move_iterator(v.begin() + int(std::min(len, v.size()))));
 }
 
 } // namespace scicpp::utils

@@ -49,6 +49,7 @@ const auto arcsin = vectorize([](auto x) { return std::asin(x); });
 const auto arccos = vectorize([](auto x) { return std::acos(x); });
 const auto arctan = vectorize([](auto x) { return std::atan(x); });
 const auto arctan2 = vectorize([](auto x, auto y) { return std::atan2(x, y); });
+const auto hypot = vectorize([](auto x, auto y) { return std::hypot(x, y); });
 
 // Hyperbolic functions
 
