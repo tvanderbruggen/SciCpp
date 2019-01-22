@@ -7,6 +7,7 @@
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/utils.hpp"
 #include "scicpp/signal/fft.hpp"
 
 #include <algorithm>
@@ -147,16 +148,9 @@ void reverse_conj(const Array &a, Array &res) {
 
 } // namespace detail
 
-template <ConvMethod method, typename T, std::size_t N, std::size_t M>
-constexpr auto correlate(const std::array<T, N> &a, const std::array<T, M> &v) {
-    std::array<T, M> v_rev{};
-    detail::reverse_conj(v, v_rev);
-    return convolve<method>(a, v_rev);
-}
-
-template <ConvMethod method, typename T>
-auto correlate(const std::vector<T> &a, const std::vector<T> &v) {
-    std::vector<T> v_rev(v.size());
+template <ConvMethod method, class U, class V>
+constexpr auto correlate(const U &a, const V &v) {
+    auto v_rev = utils::set_array(v);
     detail::reverse_conj(v, v_rev);
     return convolve<method>(a, v_rev);
 }

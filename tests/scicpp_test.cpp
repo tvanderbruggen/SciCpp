@@ -7,7 +7,7 @@
 using namespace std::literals;
 // clang-format on
 
-// #include "scicpp/signal/convolve.t.cpp"
+#include "scicpp/signal/convolve.t.cpp"
 // #include "scicpp/signal/fft.t.cpp"
 // #include "scicpp/signal/waveforms.t.cpp"
 // #include "scicpp/signal/windows.t.cpp"
