@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Install GCC-8
-          command: sudo apt-get update; sudo apt-get install -y g++-8 gcc-8 libc6-dev libc-dev make;
+          command: apt-get update; apt-get install -y g++-8 gcc-8 libc6-dev libc-dev make;
       - run:
           name: Test
           command: make test
