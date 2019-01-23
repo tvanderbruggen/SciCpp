@@ -20,4 +20,4 @@ using namespace std::literals;
 // #include "scicpp/core/utils.t.cpp"
 // #include "scicpp/linalg/solve.t.cpp"
 // #include "scicpp/linalg/utils.t.cpp"
-// #include "scicpp/core/functional.t.cpp"
+#include "scicpp/core/functional.t.cpp"

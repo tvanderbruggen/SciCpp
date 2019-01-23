@@ -104,7 +104,7 @@ template <typename T, class UnaryPredicate>
 [[nodiscard]] auto filter(std::vector<T> &&a, UnaryPredicate p) {
     static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
 
-    auto i = std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
+    const auto i = std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
     a.erase(i, a.end());
     return a;
 }
