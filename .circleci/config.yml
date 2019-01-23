@@ -10,6 +10,9 @@ jobs:
           name: Install GCC-8
           command: apt-get update; apt-get install -y g++-8 gcc-8 libc6-dev libc-dev make;
       - run:
+          name: Install Eigen
+          command: bash scripts/install_eigen.sh
+      - run:
           name: Test
           command: make test
 
