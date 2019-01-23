@@ -1,0 +1,21 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:2.7-stretch-browsers
+      - image: circleci/node:10.11.0-stretch-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install GCC-8
+          command: sudo apt-get update; sudo apt-get install -y --allow-unauthenticated gcc-8 g++-8;
+      - run:
+          name: Test
+          command: make test
+
+workflows:
+  version: 2
+  build-deplay:
+    jobs:
+      - build
