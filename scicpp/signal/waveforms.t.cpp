@@ -25,6 +25,8 @@ TEST_CASE("unit_impulse") {
 }
 
 TEST_CASE("sawtooth") {
+    using namespace scicpp::operators;
+
     SECTION("std::array") {
         auto t = 2. * M_PI * 5. * linspace<20>(0., 1.);
         const auto res = sawtooth(t);

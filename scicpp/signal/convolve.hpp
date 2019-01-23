@@ -90,6 +90,8 @@ auto fftconvolve(const std::vector<T> &a, const std::vector<T> &v) {
 
     return utils::move_subvector(
         [&]() {
+            using namespace scicpp::operators;
+
             const auto fft_size = next_fast_len(res_size);
             const auto a_pad = zero_padding(a, fft_size);
             const auto v_pad = zero_padding(v, fft_size);
