@@ -175,6 +175,8 @@ auto diff(const std::vector<T> &a, int n = 1) {
 // Implements element wise arithmetic operations for std::array and std::vector.
 //---------------------------------------------------------------------------------
 
+namespace operators {
+
 namespace detail {
 
 // We define the operator for iterable types which are not
@@ -325,6 +327,8 @@ auto operator%(Array &&a, Array &&b) {
                std::forward<Array>(a),
                std::forward<Array>(b));
 }
+
+} // namespace operators
 
 //---------------------------------------------------------------------------------
 // almost_equal

@@ -72,6 +72,8 @@ TEST_CASE("diff") {
 }
 
 TEST_CASE("Arithmetic operators") {
+    using namespace operators;
+
     const std::array a{1., 2., 3.};
     const std::array ai{1, 2, 3};
     const std::vector v{1., 2., 3.};

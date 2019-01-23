@@ -3,7 +3,7 @@
 import numpy as np
 
 if __name__ == "__main__":
-    x = np.linspace(-0.1, 2.1 * np.pi, 100)
+    x = np.linspace(-0.1, 2.1, 100) * np.pi
     y = np.sin(x) + 0.1 * np.random.rand(100)
 
     P = np.polynomial.polynomial.polyfit(x, y, 3)

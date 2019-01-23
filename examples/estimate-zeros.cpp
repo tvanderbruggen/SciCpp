@@ -3,28 +3,19 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <scicpp/polynomials/polynomial.hpp>
-#include <scicpp/random.hpp>
-#include <scicpp/range.hpp>
+#include <scicpp/core.hpp>
+#include <scicpp/polynomials.hpp>
 
-using namespace scicpp;
+namespace sci = scicpp;
+using namespace sci::operators;
 
 int main() {
-    const auto x = linspace<100>(-0.1, 2.1 * M_PI);
-    std::array<double, x.size()> y{};
+    const auto x = sci::linspace<100>(-0.1, 2.1) * M_PI;
+    const auto y = sci::sin(x) + 0.1 * sci::random::rand<double, 100>();
 
-    std::transform(x.begin(), x.end(), y.begin(), [&](auto x) {
-        return std::sin(x) + 0.1 * random::rand<double>();
-    });
-
-    const auto P = polynomials::polyfit<3>(x, y);
-    const auto zeros = polynomials::polyroots(P);
+    const auto P = sci::polynomials::polyfit<3>(x, y);
+    const auto zeros = sci::polynomials::polyroots(P);
 
     printf("Zeros: Expect 0, pi, 2 pi\n");
-    for (const auto &r : zeros) {
-        printf("%f ", r.real());
-    }
-    printf("\n");
-
-    return 0;
+    sci::print(zeros);
 }

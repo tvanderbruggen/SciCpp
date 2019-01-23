@@ -5,10 +5,9 @@
 #define SCICPP_CORE_HEADER
 
 // TODO This header should not have a dependency on Eigen.
-// Move "core/linalg.hpp" to a linalg module.
+// => Remains Eigen matrix type traits in meta.hpp
 
 #include "core/functional.hpp"
-#include "core/linalg.hpp"
 #include "core/macros.hpp"
 #include "core/maths.hpp"
 #include "core/meta.hpp"

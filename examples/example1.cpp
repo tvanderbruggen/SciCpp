@@ -1,22 +1,18 @@
 #include <cstdio>
-#include <scicpp/print.hpp>
-#include <scicpp/range.hpp>
-#include <scicpp/stats/stats.hpp>
+#include <scicpp/core.hpp>
 
-using namespace scicpp;
+namespace sci = scicpp;
 
 int main() {
     // Fixed size (std::array)
-    auto a = linspace<100>(0., 10.);
-    print(a);
-    printf("Mean: %f\n", stats::mean(a));
-    printf("Var: %f\n\n", stats::var(a));
+    const auto a = sci::linspace<100>(0., 10.);
+    sci::print(a);
+    printf("Mean: %f\n", sci::stats::mean(a));
+    printf("Var: %f\n\n", sci::stats::var(a));
 
     // Dynamic size (std::vector)
-    auto v = linspace(0., 10., 100000000);
-    print(v);
-    printf("Mean: %f\n", stats::mean(v));
-    printf("Var: %f\n\n", stats::var(v));
-
-    return 0;
+    const auto v = sci::linspace(0., 10., 100000000);
+    sci::print(v);
+    printf("Mean: %f\n", sci::stats::mean(v));
+    printf("Var: %f\n\n", sci::stats::var(v));
 }
