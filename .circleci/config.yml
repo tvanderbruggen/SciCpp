@@ -10,11 +10,17 @@ jobs:
           name: Install GCC-8
           command: apt-get update; apt-get install -y g++-8 gcc-8 libc6-dev libc-dev make;
       - run:
+          name: Install Clang
+          command: apt-get install -y clang libc++-dev clang-format
+      - run:
           name: Install Eigen
           command: bash scripts/install_eigen.sh
       - run:
-          name: Test
-          command: make test
+          name: Test with GCC
+          command: make COMPILER=gcc test
+      - run:
+          name: Test with Clang
+          command: make COMPILER=clang test
 
 workflows:
   version: 2
