@@ -17,10 +17,10 @@ jobs:
           command: bash scripts/install_eigen.sh
       - run:
           name: Test with GCC
-          command: make COMPILER=gcc test
+          command: make COMPILER=gcc clean_test test
       - run:
           name: Test with Clang
-          command: make COMPILER=clang test
+          command: make COMPILER=clang clean_test test
 
 workflows:
   version: 2
