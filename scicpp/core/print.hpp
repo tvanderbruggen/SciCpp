@@ -16,7 +16,7 @@ namespace scicpp {
 namespace detail {
 
 // https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
-void replace_all(std::string &str,
+inline void replace_all(std::string &str,
                  const std::string &from,
                  const std::string &to) {
     if (from.empty()) {

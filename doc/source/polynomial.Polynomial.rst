@@ -104,7 +104,7 @@ Example
 ::
 
     #include <cstdio>
-    #include <scicpp/polynomials/polynomial.hpp>
+    #include <scicpp/polynomials.hpp>
 
     int main()
     {

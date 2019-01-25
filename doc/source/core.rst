@@ -6,7 +6,10 @@ Core functions defined in header <scicpp/core.hpp>
 Arithmetic operators
 -------------
 
-Prodives arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:`%` for `std::array` and `std::vector`.
+Provides arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:`%` for `std::array` and `std::vector`.
+
+The statement :code:`using namespace scicpp::operators` must be included in the scope where
+operators are used.
 
 Ranges
 -------------
