@@ -116,4 +116,13 @@ TEST_CASE("filter_reduce") {
             }) == 1);
 }
 
+TEST_CASE("reduce") {
+    REQUIRE(reduce(std::array{1, 2, 3},
+                   [](auto r, auto v) { return r + v * v; },
+                   0) == 14);
+    static_assert(reduce(std::array{1, 2, 3},
+                         [](auto r, auto v) { return r + v * v; },
+                         0) == 14);
+}
+
 } // namespace scicpp

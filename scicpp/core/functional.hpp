@@ -68,7 +68,8 @@ template <class Array, class UnaryOp>
 template <class Array, class BinaryOp>
 [[nodiscard]] auto map(BinaryOp op, Array &&a1, const Array &a2) {
     using InputType = typename Array::value_type;
-    using ReturnType = typename std::invoke_result_t<BinaryOp, InputType, InputType>;
+    using ReturnType =
+        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
 
     SCICPP_REQUIRE(a1.size() == a2.size());
 
@@ -85,7 +86,8 @@ template <class Array, class BinaryOp>
 template <class Array, class BinaryOp>
 [[nodiscard]] auto map(BinaryOp op, const Array &a1, Array &&a2) {
     using InputType = typename Array::value_type;
-    using ReturnType = typename std::invoke_result_t<BinaryOp, InputType, InputType>;
+    using ReturnType =
+        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
 
     SCICPP_REQUIRE(a1.size() == a2.size());
 
@@ -190,6 +192,20 @@ template <class Array,
 [[nodiscard]] constexpr scicpp_pure T
 filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
     return filter_reduce(a.cbegin(), a.cend(), op, init, filter);
+}
+
+//---------------------------------------------------------------------------------
+// reduce
+//---------------------------------------------------------------------------------
+
+template <class Array, class BinaryOp, typename T = typename Array::value_type>
+[[nodiscard]] constexpr scicpp_pure T reduce(const Array &a,
+                                             BinaryOp op,
+                                             T init) {
+    return filter_reduce(
+        a.cbegin(), a.cend(), op, init, []([[maybe_unused]] auto v) {
+            return true;
+        });
 }
 
 } // namespace scicpp

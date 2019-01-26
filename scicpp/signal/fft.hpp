@@ -267,13 +267,7 @@ auto power_spectrum_density(const std::vector<T> &x,
                             T fs,
                             const std::vector<T> &w) {
     using namespace scicpp::operators;
-
-    T S2 = 0;
-
-    for (const auto &v : w) {
-        S2 += v * v;
-    }
-
+    const auto S2 = reduce(w, [](auto r, auto v) { return r + v * v; }, T{0});
     return (2. / (fs * S2)) * norm(rfft(x * w));
 }
 
