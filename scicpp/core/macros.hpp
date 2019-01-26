@@ -21,5 +21,6 @@
 #endif
 
 #define scicpp_pure __attribute__((pure))
+#define scicpp_const __attribute__((const))
 
 #endif // SCICPP_MACROS

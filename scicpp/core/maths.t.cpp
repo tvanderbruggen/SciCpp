@@ -63,14 +63,54 @@ TEST_CASE("Hyperbolic functions") {
                         {std::atanh(0.1), std::atanh(0.2), std::atanh(0.3)}));
 }
 
-TEST_CASE("Miscellaneous") {
+TEST_CASE("Exponents and logarithms") {
+    REQUIRE(almost_equal(exp(std::vector{1., 2., 3.}),
+                         {std::exp(1.), std::exp(2.), std::exp(3.)}));
+    REQUIRE(almost_equal(expm1(std::array{1., 2., 3.}),
+                         {std::expm1(1.), std::expm1(2.), std::expm1(3.)}));
+    REQUIRE(almost_equal(exp2(std::vector{1., 2., 3.}),
+                         {std::exp2(1.), std::exp2(2.), std::exp2(3.)}));
+    REQUIRE(almost_equal(log(std::array{1., 2., 3.}),
+                         {std::log(1.), std::log(2.), std::log(3.)}));
+    REQUIRE(almost_equal(log2(std::vector{1., 2., 3.}),
+                         {std::log2(1.), std::log2(2.), std::log2(3.)}));
+    REQUIRE(almost_equal<2>(log1p(std::array{1., 2., 3.}),
+                            {std::log1p(1.), std::log1p(2.), std::log1p(3.)}));
+}
+
+TEST_CASE("Complex numbers") {
+    const std::vector v{1. - 1.i, -42. + 3.i, -64. + 42.i};
+
+    REQUIRE(almost_equal(real(v), {1., -42., -64.}));
+    REQUIRE(almost_equal(imag(v), {-1., 3., 42.}));
     REQUIRE(almost_equal(
-        norm(std::vector{1. - 1.i, -42. + 3.i, -64. + 42.i}),
+        angle(v),
+        {std::arg(1. - 1.i), std::arg(-42. + 3.i), std::arg(-64. + 42.i)}));
+    REQUIRE(almost_equal(conj(v), {1. + 1.i, -42. - 3.i, -64. - 42.i}));
+    REQUIRE(almost_equal(
+        norm(v),
         {std::norm(1. - 1.i), std::norm(-42. + 3.i), std::norm(-64. + 42.i)}));
+    REQUIRE(almost_equal(
+        polar(std::vector{1., 2., 3.}, std::vector{3., 2., 1.}),
+        {std::polar(1., 3.), std::polar(2., 2.), std::polar(3., 1.)}));
+}
+
+TEST_CASE("Rational routines") {
+    REQUIRE(almost_equal(gcd(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
+                         {std::gcd(1, 3), std::gcd(2, 2), std::gcd(3, 1)}));
+    REQUIRE(almost_equal(lcm(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
+                         {std::lcm(1, 3), std::lcm(2, 2), std::lcm(3, 1)}));
+}
+
+TEST_CASE("Miscellaneous") {
     REQUIRE(almost_equal(absolute(std::array{1., -42., -64.}), {1., 42., 64.}));
     REQUIRE(almost_equal(
         absolute(std::vector{1. - 1.i, -42. + 3.i, -64. + 42.i}),
         {std::abs(1. - 1.i), std::abs(-42. + 3.i), std::abs(-64. + 42.i)}));
+    REQUIRE(almost_equal(sqrt(std::vector{1., 2., 3.}),
+                         {std::sqrt(1.), std::sqrt(2.), std::sqrt(3.)}));
+    REQUIRE(almost_equal<2>(cbrt(std::vector{1., 2., 3.}),
+                            {std::cbrt(1.), std::cbrt(2.), std::cbrt(3.)}));
 }
 
 } // namespace scicpp

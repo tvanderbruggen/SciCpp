@@ -8,6 +8,7 @@
 #include <cmath>
 #include <complex>
 #include <limits>
+#include <numeric>
 #include <vector>
 
 namespace scicpp {
@@ -60,9 +61,31 @@ const auto arcsinh = vectorize([](auto x) { return std::asinh(x); });
 const auto arccosh = vectorize([](auto x) { return std::acosh(x); });
 const auto arctanh = vectorize([](auto x) { return std::atanh(x); });
 
+// Exponents and logarithms
+
+const auto exp = vectorize([](auto x) { return std::exp(x); });
+const auto expm1 = vectorize([](auto x) { return std::expm1(x); });
+const auto exp2 = vectorize([](auto x) { return std::exp2(x); });
+const auto log = vectorize([](auto x) { return std::log(x); });
+const auto log2 = vectorize([](auto x) { return std::log2(x); });
+const auto log1p = vectorize([](auto x) { return std::log1p(x); });
+
 // Complex numbers
 
-const auto norm = vectorize([](auto x) { return std::norm(x); });
+const auto real = vectorize([](auto z) { return std::real(z); });
+const auto imag = vectorize([](auto z) { return std::imag(z); });
+const auto angle = vectorize([](auto z) { return std::arg(z); });
+const auto norm = vectorize([](auto z) { return std::norm(z); });
+const auto conj = vectorize([](auto z) { return std::conj(z); });
+const auto polar =
+    vectorize([](auto r, auto theta) { return std::polar(r, theta); });
+
+// Rational routines
+
+const auto gcd =
+    vectorize([](auto m, auto n) scicpp_const { return std::gcd(m, n); });
+const auto lcm =
+    vectorize([](auto m, auto n) scicpp_const { return std::lcm(m, n); });
 
 // Miscellaneous
 
@@ -73,6 +96,9 @@ const auto absolute = vectorize([](auto x) {
         return std::fabs(x);
     }
 });
+
+const auto sqrt = vectorize([](auto x) { return std::sqrt(x); });
+const auto cbrt = vectorize([](auto x) { return std::cbrt(x); });
 
 } // namespace scicpp
 
