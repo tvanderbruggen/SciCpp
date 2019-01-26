@@ -30,7 +30,7 @@ namespace scicpp {
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, Array &&a) {
     using InputType = typename Array::value_type;
-    using ReturnType = decltype(op(std::declval<InputType>()));
+    using ReturnType = typename std::invoke_result_t<UnaryOp, InputType>;
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {
         std::transform(a.cbegin(), a.cend(), a.begin(), op);
@@ -53,7 +53,7 @@ template <class Array, class UnaryOp>
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, const Array &a) {
     using InputType = typename Array::value_type;
-    using ReturnType = decltype(op(std::declval<InputType>()));
+    using ReturnType = typename std::invoke_result_t<UnaryOp, InputType>;
 
     auto res = utils::set_array<ReturnType>(a);
     std::transform(a.cbegin(), a.cend(), res.begin(), op);
@@ -68,8 +68,7 @@ template <class Array, class UnaryOp>
 template <class Array, class BinaryOp>
 [[nodiscard]] auto map(BinaryOp op, Array &&a1, const Array &a2) {
     using InputType = typename Array::value_type;
-    using ReturnType =
-        decltype(op(std::declval<InputType>(), std::declval<InputType>()));
+    using ReturnType = typename std::invoke_result_t<BinaryOp, InputType, InputType>;
 
     SCICPP_REQUIRE(a1.size() == a2.size());
 
@@ -86,8 +85,7 @@ template <class Array, class BinaryOp>
 template <class Array, class BinaryOp>
 [[nodiscard]] auto map(BinaryOp op, const Array &a1, Array &&a2) {
     using InputType = typename Array::value_type;
-    using ReturnType =
-        decltype(op(std::declval<InputType>(), std::declval<InputType>()));
+    using ReturnType = typename std::invoke_result_t<BinaryOp, InputType, InputType>;
 
     SCICPP_REQUIRE(a1.size() == a2.size());
 
