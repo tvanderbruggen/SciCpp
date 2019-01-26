@@ -13,6 +13,9 @@ SciCpp is a lightweight header only library.
 Its only dependence is the `Eigen <http://eigen.tuxfamily.org/index.php?title=Main_Page>`_
 linear algebra library, which is also header only.
 
+SciCpp uses the C++-17 standard.
+It is tested with the GCC and Clang compilers under Linux.
+
 SciCpp is released under the MIT licence.
 
 Modules:
@@ -29,10 +32,22 @@ Modules:
 Introduction
 --------
 
+SciPy is an amazing library that facilitates developments.
+Often SciPy is used for prototyping but algorithms must be re-implemented
+in a system language for production.
+This is especially the case for embedded systems, where the CPU and/or
+memory resources may be too limited for the Python runtime.
+
+SciCpp ambitions to facilitate the transition from
+SciPy to C++ implementation. Therefore, SciCpp goal is
+to follow SciPy in terms of functions naming and behavior,
+to avoid surprises in the transition process.
+
 Array generation
 *****************
 
-Size related parameters are template parameters for ``std::array`` and function parameters for ``std::vector``.
+Size related parameters are template parameters for ``std::array``
+and function parameters for ``std::vector``.
 For example:
 ::
     // Generate fixed size arrays (std::array):
@@ -50,7 +65,8 @@ For example:
 Using arrays
 *****************
 
-Most functions accept both fixed sized (``std::array``) and dynamic size (``std::vector``) arrays:
+Most functions accept both fixed sized (``std::array``)
+and dynamic size (``std::vector``) arrays:
 ::
     auto a = scicpp::rand<double, 5>(); // std::array
     auto v = scicpp::rand<double>(5);   // std::vector

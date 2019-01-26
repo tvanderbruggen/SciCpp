@@ -3,7 +3,7 @@
 scicpp::signal::fftshift
 ====================================
 
-Defined in header <scicpp/signal/fft.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Shift the zero-frequency component to the center of the spectrum.
 

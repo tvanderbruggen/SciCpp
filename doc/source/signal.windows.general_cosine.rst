@@ -3,7 +3,7 @@
 scicpp::signal::windows::general_cosine
 ========================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Generic weighted sum of cosine terms window.
 

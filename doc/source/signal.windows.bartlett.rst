@@ -3,7 +3,7 @@
 scicpp::signal::windows::bartlett
 ====================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a Bartlett window.
 

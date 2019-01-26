@@ -3,7 +3,7 @@
 scicpp::signal::fftconvolve
 ====================================
 
-Defined in header <scicpp/signal/convolve.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Convolve two 1D arrays using FFT.
 

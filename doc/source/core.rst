@@ -3,6 +3,48 @@ core
 
 Core functions defined in header <scicpp/core.hpp>
 
+Mathematical functions
+-------------
+
+Provides vectorized versions of standard mathematical functions.
+
+A vectorized version applies the function element-wise on the input array(s).
+
+Function naming follows the `NumPy definitions <https://docs.scipy.org/doc/numpy-1.15.0/reference/routines.math.html>`_, 
+which sometimes differs from the C++ definitions (ex. *arcsin* vs *asin*).
+
+Trigonometric functions
+^^^^^^^^^^^^^^^^
+
+:code:`sin`, :code:`cos`, :code:`tan`, :code:`arcsin`, :code:`arccos`, :code:`arctan`, :code:`arctan2`, :code:`hypot`.
+
+Hyperbolic functions
+^^^^^^^^^^^^^^^^
+:code:`sinh`, :code:`cosh`, :code:`tanh`, :code:`arcsinh`, :code:`arccosh`, :code:`arctanh`.
+
+Exponents and logarithms
+^^^^^^^^^^^^^^^^
+
+:code:`exp`, :code:`expm1`, :code:`exp2`, :code:`log`, :code:`log2`, :code:`log1p`.
+
+Complex numbers
+^^^^^^^^^^^^^^^^
+
+:code:`real`, :code:`imag`, :code:`angle`, :code:`conj`, :code:`norm`, :code:`polar`
+
+NB: :code:`norm` and :code:`polar` are not provided by NumPy,
+but are vectorized versions of the `std::complex <https://en.cppreference.com/w/cpp/numeric/complex>`_ functions.
+
+Rational routines
+^^^^^^^^^^^^^^^^
+
+:code:`gcd`, :code:`lcm`.
+
+Miscellaneous
+^^^^^^^^^^^^^^^^
+
+:code:`absolute`, :code:`sqrt`, :code:`cbrt`.
+
 Arithmetic operators
 -------------
 

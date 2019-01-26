@@ -3,7 +3,7 @@
 scicpp::signal::fftfreq
 ====================================
 
-Defined in header <scicpp/signal/fft.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return the Discrete Fourier Transform sample frequencies.
 

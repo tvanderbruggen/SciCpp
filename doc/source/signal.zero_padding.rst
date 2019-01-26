@@ -3,7 +3,7 @@
 scicpp::signal::zero_padding
 ====================================
 
-Defined in header <scicpp/signal/fft.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Performs zero padding of an array.
 

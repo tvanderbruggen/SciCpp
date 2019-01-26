@@ -3,7 +3,7 @@
 scicpp::signal::windows::get_window
 ====================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a window with kind defined by the enum::
 

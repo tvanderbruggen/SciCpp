@@ -3,7 +3,7 @@
 scicpp::signal::convolve
 ====================================
 
-Defined in header <scicpp/signal/convolve.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Convolve two 1D arrays (either std::array or std::vector).
 

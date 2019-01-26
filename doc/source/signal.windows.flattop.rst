@@ -3,7 +3,7 @@
 scicpp::signal::windows::flattop
 =======================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a flat top window.
 

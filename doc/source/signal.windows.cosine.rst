@@ -3,7 +3,7 @@
 scicpp::signal::windows::cosine
 ====================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a window with a cosine shape.
 

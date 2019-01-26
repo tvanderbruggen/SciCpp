@@ -3,7 +3,7 @@
 scicpp::signal::windows::blackmanharris
 =======================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a minimum 4-term Blackman-Harris window.
 

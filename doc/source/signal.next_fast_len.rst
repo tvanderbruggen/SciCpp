@@ -3,7 +3,7 @@
 scicpp::signal::next_fast_len
 ====================================
 
-Defined in header <scicpp/signal/fft.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Find the next fast size of input data to FFT.
 

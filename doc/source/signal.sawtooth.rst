@@ -3,7 +3,7 @@
 scicpp::signal::sawtooth
 ====================================
 
-Defined in header <scicpp/signal/waveforms.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a periodic sawtooth or triangle waveform.
 

@@ -3,7 +3,7 @@
 scicpp::signal::rfft
 ====================================
 
-Defined in header <scicpp/signal/fft.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Discrete Fourier transform of a real sequence.
 

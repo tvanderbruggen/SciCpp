@@ -3,7 +3,7 @@
 scicpp::signal::fft
 ====================================
 
-Defined in header <scicpp/signal/fft.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Discrete Fourier transform of real or complex sequence.
 

@@ -3,7 +3,7 @@
 scicpp::signal::windows::blackman
 ====================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a Blackman window.
 

@@ -3,7 +3,7 @@
 scicpp::signal::windows::hann
 ====================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a Hann window, that is a :ref:`general Hamming window <signal_windows_general_hamming>`
 for :math:`\alpha = 0.5`.

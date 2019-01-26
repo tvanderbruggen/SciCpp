@@ -3,7 +3,7 @@
 scicpp::signal::irfft
 ====================================
 
-Defined in header <scicpp/signal/fft.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Inverse of the discrete Fourier transform for real input.
 

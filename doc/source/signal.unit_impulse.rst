@@ -3,7 +3,7 @@
 scicpp::signal::unit_impulse
 ====================================
 
-Defined in header <scicpp/signal/waveforms.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Unit impulse signal (discrete delta function) or unit basis vector.
 
