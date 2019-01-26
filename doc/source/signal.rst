@@ -84,6 +84,9 @@ Window Functions
 :ref:`windows::flattop <signal_windows_flattop>`
     Return a flat top window.
 
+:ref:`windows::gaussian <signal_windows_gaussian>`
+    Return a Gaussian window.
+
 Waveforms
 -----------
 

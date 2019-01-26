@@ -13,6 +13,8 @@ TEST_CASE("set_array") {
 
     REQUIRE(set_array(v) == std::vector<int>(v.size()));
     REQUIRE(set_array(a) == std::array<int, a.size()>{});
+    REQUIRE(set_array<float>(a) == std::array<float, a.size()>{});
+    REQUIRE(set_array<float>(v) == std::vector<float>(v.size()));
 }
 
 TEST_CASE("move_subvector") {

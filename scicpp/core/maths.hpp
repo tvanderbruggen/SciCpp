@@ -60,6 +60,18 @@ const auto arcsinh = vectorize([](auto x) { return std::asinh(x); });
 const auto arccosh = vectorize([](auto x) { return std::acosh(x); });
 const auto arctanh = vectorize([](auto x) { return std::atanh(x); });
 
+// Miscellaneous
+
+const auto norm = vectorize([](auto x) { return std::norm(x); });
+
+const auto absolute = vectorize([](auto x) {
+    if constexpr (meta::is_complex_v<decltype(x)>) {
+        return std::abs(x);
+    } else {
+        return std::fabs(x);
+    }
+});
+
 } // namespace scicpp
 
 #endif // SCICPPCORE_MATHS

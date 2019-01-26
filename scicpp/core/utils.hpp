@@ -14,14 +14,19 @@ namespace scicpp::utils {
 // set_array: Set an array of same size than a given array
 //---------------------------------------------------------------------------------
 
-template <typename T, std::size_t N>
+template <typename OutputType, typename T, std::size_t N>
 auto set_array(const std::array<T, N> & /* unused */) {
-    return std::array<T, N>{};
+    return std::array<OutputType, N>{};
 }
 
-template <typename T>
+template <typename OutputType, typename T>
 auto set_array(std::vector<T> v) {
-    return std::vector<T>(v.size());
+    return std::vector<OutputType>(v.size());
+}
+
+template <class Array>
+auto set_array(const Array &a) {
+    return set_array<typename Array::value_type>(a);
 }
 
 //---------------------------------------------------------------------------------

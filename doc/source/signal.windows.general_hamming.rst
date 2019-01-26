@@ -3,7 +3,7 @@
 scicpp::signal::windows::general_hamming
 ====================================
 
-Defined in header <scicpp/signal/windows.hpp>
+Defined in header <scicpp/signal.hpp>
 
 Return a generalized Hamming window defined as:
 

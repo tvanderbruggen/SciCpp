@@ -29,27 +29,61 @@ namespace scicpp {
 
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, Array &&a) {
-    std::transform(a.cbegin(), a.cend(), a.begin(), op);
-    return std::move(a);
+    using InputType = typename Array::value_type;
+    using ReturnType = decltype(op(std::declval<InputType>()));
+
+    if constexpr (std::is_same_v<InputType, ReturnType>) {
+        std::transform(a.cbegin(), a.cend(), a.begin(), op);
+        return std::move(a);
+    } else {
+
+        // If InputType and ReturnType are different,
+        // we cannot move and we need to create an array
+        // of ReturnType elements to store the results.
+
+        // Maybe if sizeof(InputType) > sizeof(OutputType)
+        // we can steal the input memory ? Is that safe ?
+
+        auto res = utils::set_array<ReturnType>(a);
+        std::transform(a.cbegin(), a.cend(), res.begin(), op);
+        return res;
+    }
 }
 
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, const Array &a) {
-    Array res(a);
-    return map(op, std::move(res));
+    using InputType = typename Array::value_type;
+    using ReturnType = decltype(op(std::declval<InputType>()));
+
+    auto res = utils::set_array<ReturnType>(a);
+    std::transform(a.cbegin(), a.cend(), res.begin(), op);
+    return res;
 }
 
 // Binary operations
 
 template <class Array, class BinaryOp>
 [[nodiscard]] auto map(BinaryOp op, Array &&a1, const Array &a2) {
+    using InputType = typename Array::value_type;
+    using ReturnType =
+        decltype(op(std::declval<InputType>(), std::declval<InputType>()));
+
+    // TODO Handle ReturnType != InputType, as for unary ops
+    static_assert(std::is_same_v<InputType, ReturnType>);
     SCICPP_REQUIRE(a1.size() == a2.size());
+
     std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
     return std::move(a1);
 }
 
 template <class Array, class BinaryOp>
 [[nodiscard]] auto map(BinaryOp op, const Array &a1, Array &&a2) {
+    using InputType = typename Array::value_type;
+    using ReturnType =
+        decltype(op(std::declval<InputType>(), std::declval<InputType>()));
+
+    // TODO Handle ReturnType != InputType, as for unary ops
+    static_assert(std::is_same_v<InputType, ReturnType>);
     SCICPP_REQUIRE(a1.size() == a2.size());
     std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);
     return std::move(a2);
@@ -104,7 +138,8 @@ template <typename T, class UnaryPredicate>
 [[nodiscard]] auto filter(std::vector<T> &&a, UnaryPredicate p) {
     static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
 
-    const auto i = std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
+    const auto i =
+        std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
     a.erase(i, a.end());
     return a;
 }

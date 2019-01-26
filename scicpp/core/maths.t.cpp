@@ -63,4 +63,14 @@ TEST_CASE("Hyperbolic functions") {
                         {std::atanh(0.1), std::atanh(0.2), std::atanh(0.3)}));
 }
 
+TEST_CASE("Miscellaneous") {
+    REQUIRE(almost_equal(
+        norm(std::vector{1. - 1.i, -42. + 3.i, -64. + 42.i}),
+        {std::norm(1. - 1.i), std::norm(-42. + 3.i), std::norm(-64. + 42.i)}));
+    REQUIRE(almost_equal(absolute(std::array{1., -42., -64.}), {1., 42., 64.}));
+    REQUIRE(almost_equal(
+        absolute(std::vector{1. - 1.i, -42. + 3.i, -64. + 42.i}),
+        {std::abs(1. - 1.i), std::abs(-42. + 3.i), std::abs(-64. + 42.i)}));
+}
+
 } // namespace scicpp

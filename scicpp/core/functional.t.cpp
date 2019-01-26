@@ -10,27 +10,43 @@ namespace scicpp {
 
 TEST_CASE("map") {
     const std::vector v{1., 2., 3.};
+    const std::vector vc{1. + 3.i, 2. - 2.i, 3. + 1.i};
     const std::vector a{4., 5., 6.};
 
-    REQUIRE(almost_equal(map(std::negate<>(), std::array{1., 2., 3.}),
-                         {-1., -2., -3.}));
-    REQUIRE(almost_equal(map(std::negate<>(), std::vector{1., 2., 3.}),
-                         {-1., -2., -3.}));
-    REQUIRE(almost_equal(map(std::negate<>(), v), {-1., -2., -3.}));
-    REQUIRE(almost_equal(
-        map(std::plus<>(), std::array{1., 2., 3.}, std::array{4., 5., 6.}),
-        {5., 7., 9.}));
-    REQUIRE(almost_equal(
-        map(std::plus<>(), std::vector{1., 2., 3.}, std::vector{4., 5., 6.}),
-        {5., 7., 9.}));
-    REQUIRE(almost_equal(map(std::plus<>(), std::vector{1., 2., 3.}, a),
-                         {5., 7., 9.}));
-    REQUIRE(almost_equal(map(std::plus<>(), v, std::vector{4., 5., 6.}),
-                         {5., 7., 9.}));
-    REQUIRE(almost_equal(map(std::plus<>(), v, a), {5., 7., 9.}));
+    SECTION("Unary operations") {
+        REQUIRE(almost_equal(map(std::negate<>(), std::array{1., 2., 3.}),
+                             {-1., -2., -3.}));
+        REQUIRE(almost_equal(map(std::negate<>(), std::vector{1., 2., 3.}),
+                             {-1., -2., -3.}));
+        REQUIRE(almost_equal(map(std::negate<>(), v), {-1., -2., -3.}));
+        REQUIRE(almost_equal(map([](auto z) { return std::conj(z); }, vc),
+                             {1. - 3.i, 2. + 2.i, 3. - 1.i}));
+        REQUIRE(almost_equal<2>(map([](auto z) { return std::norm(z); }, vc),
+                                {10., 8., 10.}));
+        REQUIRE(almost_equal<2>(map([](auto z) { return std::norm(z); },
+                                    std::array{1. + 3.i, 2. - 2.i, 3. + 1.i}),
+                                {10., 8., 10.}));
+    }
+
+    SECTION("Binary operations") {
+        REQUIRE(almost_equal(
+            map(std::plus<>(), std::array{1., 2., 3.}, std::array{4., 5., 6.}),
+            {5., 7., 9.}));
+        REQUIRE(almost_equal(map(std::plus<>(),
+                                 std::vector{1., 2., 3.},
+                                 std::vector{4., 5., 6.}),
+                             {5., 7., 9.}));
+        REQUIRE(almost_equal(map(std::plus<>(), std::vector{1., 2., 3.}, a),
+                             {5., 7., 9.}));
+        REQUIRE(almost_equal(map(std::plus<>(), v, std::vector{4., 5., 6.}),
+                             {5., 7., 9.}));
+        REQUIRE(almost_equal(map(std::plus<>(), v, a), {5., 7., 9.}));
+    }
 
     // Check const arrays are not modified
+    // https://stackoverflow.com/questions/54269248/rvalue-reference-overload-difference-between-clang-and-gcc
     REQUIRE(v == std::vector{1., 2., 3.});
+    REQUIRE(vc == std::vector{1. + 3.i, 2. - 2.i, 3. + 1.i});
     REQUIRE(a == std::vector{4., 5., 6.});
 }
 

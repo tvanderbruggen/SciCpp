@@ -5,6 +5,7 @@
 #define SCICPP_SIGNAL_FFT
 
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/numeric.hpp"
 #include "scicpp/signal/windows.hpp"
 
 #include <algorithm>
@@ -265,25 +266,16 @@ template <typename T>
 auto power_spectrum_density(const std::vector<T> &x,
                             T fs,
                             const std::vector<T> &w) {
-    SCICPP_REQUIRE(x.size() == w.size());
+    using namespace scicpp::operators;
 
-    std::vector<T> tmp(x.size());
+    const auto tmp = x * w;
     T S2 = 0;
 
-    for (std::size_t i = 0; i < x.size(); ++i) {
-        tmp[i] = x[i] * w[i];
-        S2 += w[i] * w[i];
+    for (const auto &v : w) {
+        S2 += v * v;
     }
 
-    const auto y = rfft(tmp);
-    const T scaling = 2.0 / (fs * S2);
-    std::vector<T> res(y.size());
-
-    std::transform(y.cbegin(), y.cend(), res.begin(), [&](auto v) {
-        return scaling * std::norm(v);
-    });
-
-    return res;
+    return (2. / (fs * S2)) * norm(rfft(tmp));
 }
 
 /// Compute the power spectrum density of a real signal
