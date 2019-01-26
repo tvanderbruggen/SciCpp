@@ -62,18 +62,25 @@ template <class Array, class UnaryOp>
 
 // Binary operations
 
+// TODO Binary operations should accept two arrays of different types
+// ex. an array of real numbers and one of complex numbers.
+
 template <class Array, class BinaryOp>
 [[nodiscard]] auto map(BinaryOp op, Array &&a1, const Array &a2) {
     using InputType = typename Array::value_type;
     using ReturnType =
         decltype(op(std::declval<InputType>(), std::declval<InputType>()));
 
-    // TODO Handle ReturnType != InputType, as for unary ops
-    static_assert(std::is_same_v<InputType, ReturnType>);
     SCICPP_REQUIRE(a1.size() == a2.size());
 
-    std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
-    return std::move(a1);
+    if constexpr (std::is_same_v<InputType, ReturnType>) {
+        std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
+        return std::move(a1);
+    } else {
+        auto res = utils::set_array<ReturnType>(a1);
+        std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), res.begin(), op);
+        return res;
+    }
 }
 
 template <class Array, class BinaryOp>
@@ -82,11 +89,16 @@ template <class Array, class BinaryOp>
     using ReturnType =
         decltype(op(std::declval<InputType>(), std::declval<InputType>()));
 
-    // TODO Handle ReturnType != InputType, as for unary ops
-    static_assert(std::is_same_v<InputType, ReturnType>);
     SCICPP_REQUIRE(a1.size() == a2.size());
-    std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);
-    return std::move(a2);
+
+    if constexpr (std::is_same_v<InputType, ReturnType>) {
+        std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);
+        return std::move(a2);
+    } else {
+        auto res = utils::set_array<ReturnType>(a2);
+        std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), res.begin(), op);
+        return res;
+    }
 }
 
 template <class Array, class BinaryOp>

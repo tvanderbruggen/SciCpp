@@ -41,6 +41,26 @@ TEST_CASE("map") {
         REQUIRE(almost_equal(map(std::plus<>(), v, std::vector{4., 5., 6.}),
                              {5., 7., 9.}));
         REQUIRE(almost_equal(map(std::plus<>(), v, a), {5., 7., 9.}));
+        REQUIRE(almost_equal<2>(
+            map([](auto z1, auto z2) { return std::norm(z1) + std::norm(z2); },
+                vc,
+                vc),
+            {20., 16., 20.}));
+        REQUIRE(almost_equal<2>(
+            map([](auto z1, auto z2) { return std::norm(z1) + std::norm(z2); },
+                vc,
+                std::vector{1. + 3.i, 2. - 2.i, 3. + 1.i}),
+            {20., 16., 20.}));
+        REQUIRE(almost_equal<2>(
+            map([](auto z1, auto z2) { return std::norm(z1) + std::norm(z2); },
+                std::vector{1. + 3.i, 2. - 2.i, 3. + 1.i},
+                vc),
+            {20., 16., 20.}));
+        REQUIRE(almost_equal<2>(
+            map([](auto z1, auto z2) { return std::norm(z1) + std::norm(z2); },
+                std::array{1. + 3.i, 2. - 2.i, 3. + 1.i},
+                std::array{1. + 3.i, 2. - 2.i, 3. + 1.i}),
+            {20., 16., 20.}));
     }
 
     // Check const arrays are not modified

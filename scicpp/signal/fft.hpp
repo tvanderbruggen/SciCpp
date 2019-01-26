@@ -268,14 +268,13 @@ auto power_spectrum_density(const std::vector<T> &x,
                             const std::vector<T> &w) {
     using namespace scicpp::operators;
 
-    const auto tmp = x * w;
     T S2 = 0;
 
     for (const auto &v : w) {
         S2 += v * v;
     }
 
-    return (2. / (fs * S2)) * norm(rfft(tmp));
+    return (2. / (fs * S2)) * norm(rfft(x * w));
 }
 
 /// Compute the power spectrum density of a real signal
