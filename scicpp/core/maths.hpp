@@ -60,9 +60,11 @@ const auto arcsinh = vectorize([](auto x) { return std::asinh(x); });
 const auto arccosh = vectorize([](auto x) { return std::acosh(x); });
 const auto arctanh = vectorize([](auto x) { return std::atanh(x); });
 
-// Miscellaneous
+// Complex numbers
 
 const auto norm = vectorize([](auto x) { return std::norm(x); });
+
+// Miscellaneous
 
 const auto absolute = vectorize([](auto x) {
     if constexpr (meta::is_complex_v<decltype(x)>) {

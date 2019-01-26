@@ -23,9 +23,11 @@ TEST_CASE("map") {
                              {1. - 3.i, 2. + 2.i, 3. - 1.i}));
         REQUIRE(almost_equal<2>(map([](auto z) { return std::norm(z); }, vc),
                                 {10., 8., 10.}));
-        REQUIRE(almost_equal<2>(map([](auto z) { return std::norm(z); },
-                                    std::array{1. + 3.i, 2. - 2.i, 3. + 1.i}),
-                                {10., 8., 10.}));
+        const auto x = map([](auto z) { return std::norm(z); },
+                           std::array{1. + 3.i, 2. - 2.i, 3. + 1.i});
+        REQUIRE(almost_equal<2>(x, {10., 8., 10.}));
+        static_assert(
+            std::is_same_v<std::decay_t<decltype(x)>, std::array<double, 3>>);
     }
 
     SECTION("Binary operations") {
@@ -41,6 +43,7 @@ TEST_CASE("map") {
         REQUIRE(almost_equal(map(std::plus<>(), v, std::vector{4., 5., 6.}),
                              {5., 7., 9.}));
         REQUIRE(almost_equal(map(std::plus<>(), v, a), {5., 7., 9.}));
+
         REQUIRE(almost_equal<2>(
             map([](auto z1, auto z2) { return std::norm(z1) + std::norm(z2); },
                 vc,
@@ -56,11 +59,14 @@ TEST_CASE("map") {
                 std::vector{1. + 3.i, 2. - 2.i, 3. + 1.i},
                 vc),
             {20., 16., 20.}));
-        REQUIRE(almost_equal<2>(
+
+        const auto x =
             map([](auto z1, auto z2) { return std::norm(z1) + std::norm(z2); },
                 std::array{1. + 3.i, 2. - 2.i, 3. + 1.i},
-                std::array{1. + 3.i, 2. - 2.i, 3. + 1.i}),
-            {20., 16., 20.}));
+                std::array{1. + 3.i, 2. - 2.i, 3. + 1.i});
+        REQUIRE(almost_equal<2>(x, {20., 16., 20.}));
+        static_assert(
+            std::is_same_v<std::decay_t<decltype(x)>, std::array<double, 3>>);
     }
 
     // Check const arrays are not modified
