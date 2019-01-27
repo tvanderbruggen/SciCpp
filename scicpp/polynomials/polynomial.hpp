@@ -180,7 +180,7 @@ auto polymulx(const std::vector<T> &P) {
 
 template <typename T>
 auto polymulx(std::vector<T> &&P) {
-    P.push_back(T(0));
+    P.push_back(T{0});
     std::rotate(P.rbegin(), P.rbegin() + 1, P.rend());
     return std::move(P);
 }
@@ -426,6 +426,7 @@ class Polynomial {
     explicit Polynomial(size_type deg) : m_coef(deg + 1, T(0)) {}
 
     explicit Polynomial(const std::vector<T> &coef) : m_coef(coef) {}
+    explicit Polynomial(std::vector<T> &&coef) : m_coef(std::move(coef)) {}
 
     template <size_type N>
     explicit Polynomial(const std::array<T, N> &coef)

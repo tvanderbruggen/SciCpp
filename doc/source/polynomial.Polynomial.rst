@@ -30,6 +30,8 @@ Initialize a Polynomial of a degree deg with zero coefficients.
 
 .. function:: Polynomial(const std::vector<T> &coef)
 
+.. function:: Polynomial(std::vector<T> &&coef)
+
 Initialize a Polynomial from a std::vector of coefficients.
 
 :parameter coef: Polynomial coefficients in order of increasing degree, 
