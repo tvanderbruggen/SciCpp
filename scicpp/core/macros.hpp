@@ -26,7 +26,7 @@
 
 namespace detail {
 
-inline void assert_impl(bool cond, const char *msg) {
+inline constexpr void assert_impl(bool cond, const char *msg) {
     if (!cond) {
         throw std::runtime_error(msg);
     }
