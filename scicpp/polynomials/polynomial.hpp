@@ -179,9 +179,10 @@ auto polymulx(const std::vector<T> &P) {
 }
 
 template <typename T>
-void polymulx_inplace(std::vector<T> &P) {
+auto polymulx(std::vector<T> &&P) {
     P.push_back(T(0));
     std::rotate(P.rbegin(), P.rbegin() + 1, P.rend());
+    return std::move(P);
 }
 
 //---------------------------------------------------------------------------------
@@ -440,7 +441,7 @@ class Polynomial {
 
     const auto &data() const { return m_coef; }
 
-    void mulx() { polymulx_inplace(m_coef); }
+    void mulx() { m_coef = polymulx(std::move(m_coef)); }
 
     void trim(T tol = T(0)) { polytrim(m_coef, tol); }
 

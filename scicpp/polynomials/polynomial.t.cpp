@@ -316,21 +316,11 @@ TEST_CASE("polymul") {
 } // namespace
 
 TEST_CASE("polymulx") {
-    SECTION("std::array") {
-        const auto P = polymulx(std::array{4., 5., 8.});
-        REQUIRE(almost_equal(P, {0., 4., 5., 8.}));
-    }
-
-    SECTION("std::vector") {
-        const auto P = polymulx(std::vector{4., 5., 8.});
-        REQUIRE(almost_equal(P, {0., 4., 5., 8.}));
-    }
-
-    SECTION("std::vector in place") {
-        std::vector P{4., 5., 8.};
-        polymulx_inplace(P);
-        REQUIRE(almost_equal(P, {0., 4., 5., 8.}));
-    }
+    const auto Pa = polymulx(std::array{4., 5., 8.});
+    REQUIRE(almost_equal(Pa, {0., 4., 5., 8.}));
+    const auto Pv = polymulx(std::vector{4., 5., 8.});
+    REQUIRE(almost_equal(Pv, {0., 4., 5., 8.}));
+    REQUIRE(almost_equal(polymulx(std::vector{4., 5., 8.}), {0., 4., 5., 8.}));
 }
 
 TEST_CASE("polypow") {
