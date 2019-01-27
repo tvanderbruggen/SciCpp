@@ -67,7 +67,8 @@ TEST_CASE("Constructors") {
         const auto coef = random::rand<double>(10);
         const auto P = Polynomial(coef);
         REQUIRE(P.degree() == 9);
-        REQUIRE(Polynomial(random::rand<double>(5)).degree() == 4);
+        const auto P2 = Polynomial(random::rand<double>(5));
+        REQUIRE(P2.degree() == 4);
     }
 
     SECTION("From std::array") {
