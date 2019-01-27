@@ -41,7 +41,7 @@ auto polyval(T &&x, const Array &coeffs) {
         static_assert(std::is_same_v<scalar_t, typename Array::value_type>);
 
         // https://en.wikipedia.org/wiki/Horner%27s_method
-        scalar_t res = scalar_t(0);
+        auto res = scalar_t{0};
 
         std::for_each(coeffs.crbegin(), coeffs.crend(), [&](auto c) {
             res = std::fma(res, x, c);
@@ -197,11 +197,9 @@ template <std::size_t pow, typename T, std::size_t N>
 auto polypow(const std::array<T, N> &P) {
     // Return a std::array<T, pow * (N - 1) + 1>
     if constexpr (pow == 0) {
-        std::array x{T(1)};
-        return x;
+        return std::array{T{1}};
     } else if constexpr (pow == 1) {
-        auto x(P);
-        return x;
+        return std::array{P};
     } else {
         if constexpr (pow % 2 == 0) {
             return polypow<pow / 2>(polymul(P, P));
@@ -214,7 +212,7 @@ auto polypow(const std::array<T, N> &P) {
 template <signal::ConvMethod method, typename T>
 auto polypow(const std::vector<T> &P, std::size_t pow) {
     if (pow == 0) {
-        return std::vector(1, T(1));
+        return std::vector(1, T{1});
     } else if (pow == 1) {
         return std::vector<T>(P.cbegin(), P.cend());
     } else {
@@ -251,7 +249,6 @@ namespace detail {
 template <typename T, std::size_t N>
 constexpr auto polyder_once(const std::array<T, N> &P) {
     static_assert(N >= 1);
-
     std::array<T, N - 1> res{};
 
     for (std::size_t i = 0; i < res.size(); ++i) {
