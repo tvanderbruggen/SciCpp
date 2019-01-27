@@ -375,6 +375,15 @@ TEST_CASE("polyint") {
         REQUIRE(almost_equal<2>(polyint<2>(a),
                                 {0., 0., 2., 2.5 / 3., 2. / 3., 0.157, 1.4}));
     }
+
+    SECTION("std::vector") {
+        const std::vector a{4., 5., 8., 3.14, 42.};
+        print(polyint(a));
+        REQUIRE(almost_equal(polyint(a, 0), a));
+        REQUIRE(almost_equal(polyint(a), {0., 4., 2.5, 8. / 3., 0.785, 8.4}));
+        REQUIRE(almost_equal<2>(polyint(a, 2),
+                                {0., 0., 2., 2.5 / 3., 2. / 3., 0.157, 1.4}));
+    }
 }
 
 TEST_CASE("polytrim") {

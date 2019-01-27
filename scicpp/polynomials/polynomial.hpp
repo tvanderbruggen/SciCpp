@@ -322,8 +322,6 @@ namespace detail {
 
 template <typename T, std::size_t N>
 constexpr auto polyint_once(const std::array<T, N> &P) {
-    static_assert(N >= 1);
-
     std::array<T, N + 1> res{};
 
     for (std::size_t i = 0; i < N; ++i) {
@@ -333,10 +331,23 @@ constexpr auto polyint_once(const std::array<T, N> &P) {
     return res;
 }
 
+template <typename T>
+void polyint_once(std::vector<T> &P) {
+    const std::size_t N = P.size();
+    P.resize(N + 1);
+
+    for (int i = int(N) - 1; i >= 0; --i) {
+        P[std::size_t(i) + 1] = P[std::size_t(i)] / T(i + 1);
+    }
+
+    P[0] = T{0};
+}
+
 } // namespace detail
 
 template <int m, typename T, std::size_t N>
 constexpr auto polyint(const std::array<T, N> &P) {
+    static_assert(N > 0);
     static_assert(m >= 0);
 
     if constexpr (m == 0) {
@@ -349,6 +360,25 @@ constexpr auto polyint(const std::array<T, N> &P) {
 template <typename T, std::size_t N>
 constexpr auto polyint(const std::array<T, N> &P) {
     return polyint<1>(P);
+}
+
+template <typename T>
+auto polyint(const std::vector<T> &P, int m = 1) {
+    scicpp_require(P.size() > 0);
+    scicpp_require(m >= 0);
+
+    if (m == 0) {
+        return std::vector<T>(P);
+    }
+
+    std::vector<T> res(P);
+    res.reserve(P.size() + std::size_t(m));
+
+    while (m--) {
+        detail::polyint_once(res);
+    }
+
+    return res;
 }
 
 //---------------------------------------------------------------------------------
