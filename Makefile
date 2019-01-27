@@ -137,6 +137,10 @@ example: $(EXAMPLE_TARGET)
 	@echo ======= Python =======
 	time -p python $(EXAMPLE_PY)
 	
+.PHONY: clean_examples
+clean_examples:
+	rm -rf $(TMP)/examples
+
 .PHONY: clean
 clean:
 	rm -rf $(TMP)
