@@ -35,14 +35,14 @@ constexpr void direct_convolve_impl(U &res, const V &a, const W &v) {
     static_assert(
         std::is_same_v<typename U::value_type, typename W::value_type>);
 
-    const int n = int(a.size());
-    const int m = int(v.size());
-    scicpp_require(int(res.size()) == n + m - 1);
+    const auto n = signed_size_t(a.size());
+    const auto m = signed_size_t(v.size());
+    scicpp_require(signed_size_t(res.size()) == n + m - 1);
 
-    for (int i = 0; i < n + m - 1; ++i) {
+    for (signed_size_t i = 0; i < n + m - 1; ++i) {
         res[std::size_t(i)] = 0.0;
-        const int jmn = (i >= m - 1) ? i - (m - 1) : 0;
-        const int jmx = (i < n - 1) ? i : n - 1;
+        const auto jmn = (i >= m - 1) ? i - (m - 1) : 0;
+        const auto jmx = (i < n - 1) ? i : n - 1;
         for (auto j = jmn; j <= jmx; ++j) {
             res[std::size_t(i)] += (a[std::size_t(j)] * v[std::size_t(i - j)]);
         }

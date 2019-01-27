@@ -5,6 +5,7 @@
 #define SCICPP_MACROS
 
 #include <cassert>
+#include <type_traits>
 
 #ifdef NDEBUG
 #define SCICPP_UNREACHABLE __builtin_unreachable()
@@ -39,5 +40,8 @@ inline constexpr void assert_impl(bool cond, const char *msg) {
 
 #define scicpp_pure __attribute__((pure))
 #define scicpp_const __attribute__((const))
+
+// Define a signed integer for sized
+using signed_size_t = typename std::make_signed_t<std::size_t>;
 
 #endif // SCICPP_MACROS

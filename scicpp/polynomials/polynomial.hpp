@@ -275,7 +275,7 @@ void polyder_once(std::vector<T> &P) {
 
 } // namespace detail
 
-template <int m, typename T, std::size_t N>
+template <signed_size_t m, typename T, std::size_t N>
 constexpr auto polyder(const std::array<T, N> &P) {
     static_assert(m >= 0);
 
@@ -294,7 +294,7 @@ constexpr auto polyder(const std::array<T, N> &P) {
 }
 
 template <typename T>
-auto polyder(const std::vector<T> &P, long m = 1) {
+auto polyder(const std::vector<T> &P, signed_size_t m = 1) {
     scicpp_require(m >= 0);
 
     if (m == 0) {
@@ -333,10 +333,10 @@ constexpr auto polyint_once(const std::array<T, N> &P) {
 
 template <typename T>
 void polyint_once(std::vector<T> &P) {
-    const std::size_t N = P.size();
+    const auto N = P.size();
     P.resize(N + 1);
 
-    for (int i = int(N) - 1; i >= 0; --i) {
+    for (signed_size_t i = signed_size_t(N) - 1; i >= 0; --i) {
         P[std::size_t(i) + 1] = P[std::size_t(i)] / T(i + 1);
     }
 
@@ -345,7 +345,7 @@ void polyint_once(std::vector<T> &P) {
 
 } // namespace detail
 
-template <int m, typename T, std::size_t N>
+template <signed_size_t m, typename T, std::size_t N>
 constexpr auto polyint(const std::array<T, N> &P) {
     static_assert(N > 0);
     static_assert(m >= 0);
@@ -363,7 +363,7 @@ constexpr auto polyint(const std::array<T, N> &P) {
 }
 
 template <typename T>
-auto polyint(const std::vector<T> &P, long m = 1) {
+auto polyint(const std::vector<T> &P, signed_size_t m = 1) {
     scicpp_require(P.size() > 0);
     scicpp_require(m >= 0);
 
