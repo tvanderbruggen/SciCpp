@@ -7,8 +7,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install SciPy
+          command: apt-get update; apt-get install -y time python-numpy python-scipy;
+      - run:
           name: Install GCC-8
-          command: apt-get update; apt-get install -y g++-8 gcc-8 libc6-dev libc-dev make;
+          command: apt-get install -y g++-8 gcc-8 libc6-dev libc-dev make;
       - run:
           name: Install Clang
           command: apt-get install -y clang libc++-dev clang-format
