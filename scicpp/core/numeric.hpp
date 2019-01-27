@@ -123,7 +123,7 @@ auto diff_once(const std::array<T, N> &a) {
 
 template <typename T>
 void diff_once(std::vector<T> &res) {
-    SCICPP_REQUIRE(!res.empty());
+    scicpp_require(!res.empty());
 
     if (res.size() > 1) {
         const auto tmp = res[0];
@@ -155,7 +155,7 @@ auto diff(const std::array<T, N> &a) {
 
 template <typename T>
 auto diff(std::vector<T> &&a, int n = 1) {
-    SCICPP_REQUIRE(n >= 0);
+    scicpp_require(n >= 0);
 
     while (n-- && !a.empty()) {
         detail::diff_once(a);

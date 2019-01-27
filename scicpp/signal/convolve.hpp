@@ -37,7 +37,7 @@ constexpr void direct_convolve_impl(U &res, const V &a, const W &v) {
 
     const int n = int(a.size());
     const int m = int(v.size());
-    SCICPP_REQUIRE(int(res.size()) == n + m - 1);
+    scicpp_require(int(res.size()) == n + m - 1);
 
     for (int i = 0; i < n + m - 1; ++i) {
         res[std::size_t(i)] = 0.0;

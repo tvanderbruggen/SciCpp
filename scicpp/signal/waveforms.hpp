@@ -47,16 +47,16 @@ namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
 void sawtooth_filler(Array &res, const Array &t, T width) {
-    SCICPP_REQUIRE(width >= T(0) && width <= T(1));
+    scicpp_require(width >= T(0) && width <= T(1));
 
     std::transform(t.cbegin(), t.cend(), res.begin(), [=](auto t_) scicpp_pure {
         const auto tmod = std::fmod(t_, T(2) * M_PI);
 
         if (tmod < width * T(2) * M_PI) {
-            SCICPP_REQUIRE(width > T(0));
+            scicpp_require(width > T(0));
             return tmod / (width * M_PI) - T(1);
         } else {
-            SCICPP_REQUIRE(width < T(1));
+            scicpp_require(width < T(1));
             return M_1_PI * (M_PI * (width + T(1)) - tmod) / (T(1) - width);
         }
     });

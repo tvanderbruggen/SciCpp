@@ -71,7 +71,7 @@ template <class Array, class BinaryOp>
     using ReturnType =
         typename std::invoke_result_t<BinaryOp, InputType, InputType>;
 
-    SCICPP_REQUIRE(a1.size() == a2.size());
+    scicpp_require(a1.size() == a2.size());
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {
         std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
@@ -89,7 +89,7 @@ template <class Array, class BinaryOp>
     using ReturnType =
         typename std::invoke_result_t<BinaryOp, InputType, InputType>;
 
-    SCICPP_REQUIRE(a1.size() == a2.size());
+    scicpp_require(a1.size() == a2.size());
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {
         std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);

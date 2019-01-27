@@ -24,7 +24,7 @@ namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
 constexpr void fftfreq_filler(Array &res, T d) {
-    SCICPP_REQUIRE(d > 0);
+    scicpp_require(d > 0);
     const auto N = res.size();
     const T scaling = T(1) / (d * T(N));
 
@@ -59,7 +59,7 @@ constexpr auto fftfreq(T d = T(1)) {
 
 template <typename T>
 auto fftfreq(std::size_t n, T d = T(1)) {
-    SCICPP_REQUIRE(n > 0);
+    scicpp_require(n > 0);
     std::vector<T> res(n);
     detail::fftfreq_filler(res, d);
     return res;

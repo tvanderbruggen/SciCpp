@@ -64,14 +64,14 @@ void add_arrays(const U &P1, const V &P2, W &P) {
     static_assert(std::is_same_v<typename W::value_type, T>);
 
     if (P1.size() <= P2.size()) {
-        SCICPP_REQUIRE(P.size() >= P2.size());
+        scicpp_require(P.size() >= P2.size());
         std::transform(
             P1.cbegin(), P1.cend(), P2.cbegin(), P.begin(), std::plus<T>());
         std::copy(P2.cbegin() + int(P1.size()),
                   P2.cend(),
                   P.begin() + int(P1.size()));
     } else {
-        SCICPP_REQUIRE(P.size() >= P1.size());
+        scicpp_require(P.size() >= P1.size());
         std::transform(
             P2.cbegin(), P2.cend(), P1.cbegin(), P.begin(), std::plus<T>());
         std::copy(P1.cbegin() + int(P2.size()),
@@ -109,7 +109,7 @@ void sub_arrays(const U &P1, const V &P2, W &P) {
     static_assert(std::is_same_v<typename W::value_type, T>);
 
     if (P1.size() <= P2.size()) {
-        SCICPP_REQUIRE(P.size() >= P2.size());
+        scicpp_require(P.size() >= P2.size());
         std::transform(
             P1.cbegin(), P1.cend(), P2.cbegin(), P.begin(), std::minus<T>());
         std::transform(P2.cbegin() + int(P1.size()),
@@ -117,7 +117,7 @@ void sub_arrays(const U &P1, const V &P2, W &P) {
                        P.begin() + int(P1.size()),
                        [](auto v) { return -v; });
     } else {
-        SCICPP_REQUIRE(P.size() >= P1.size());
+        scicpp_require(P.size() >= P1.size());
         std::transform(P2.cbegin(),
                        P2.cend(),
                        P1.cbegin(),
@@ -263,7 +263,7 @@ constexpr auto polyder_once(const std::array<T, N> &P) {
 
 template <typename T>
 void polyder_once(std::vector<T> &P) {
-    SCICPP_REQUIRE(P.size() >= 1);
+    scicpp_require(P.size() >= 1);
     const auto N = P.size();
 
     for (std::size_t i = 0; i < (N - 1); ++i) {
@@ -296,7 +296,7 @@ constexpr auto polyder(const std::array<T, N> &P) {
 
 template <typename T>
 auto polyder(const std::vector<T> &P, int m = 1) {
-    SCICPP_REQUIRE(m >= 0);
+    scicpp_require(m >= 0);
 
     if (m == 0) {
         return std::vector<T>(P);

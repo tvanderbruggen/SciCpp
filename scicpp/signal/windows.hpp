@@ -65,7 +65,7 @@ constexpr auto bartlett() {
 
 template <typename T>
 auto bartlett(std::size_t M) {
-    SCICPP_REQUIRE(M > 1);
+    scicpp_require(M > 1);
     std::vector<T> w(M);
     detail::bartlett_filler(w);
     return w;
@@ -134,7 +134,7 @@ void general_cosine(Array &w, const std::array<T, n_weights> &a) {
 
 template <typename T, std::size_t n_weights>
 auto general_cosine(std::size_t M, const std::array<T, n_weights> &a) {
-    SCICPP_REQUIRE(M > 1);
+    scicpp_require(M > 1);
     std::vector<T> w(M);
     detail::general_cosine(w, a);
     return w;
@@ -238,7 +238,7 @@ namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
 void gaussian_filler(Array &w, T sigma) {
-    SCICPP_REQUIRE(sigma > T(0));
+    scicpp_require(sigma > T(0));
 
     const T shift = w.size() % 2 == 0 ? T(0.5) : T(0);
     const T i0 = T(w.size() / 2) - shift;
