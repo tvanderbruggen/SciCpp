@@ -14,8 +14,7 @@
 #include <unsupported/Eigen/FFT>
 #include <vector>
 
-namespace scicpp {
-namespace signal {
+namespace scicpp::signal {
 
 //---------------------------------------------------------------------------------
 // FFT helper functions
@@ -25,8 +24,8 @@ namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
 constexpr void fftfreq_filler(Array &res, T d) {
+    SCICPP_REQUIRE(d > 0);
     const auto N = res.size();
-    // FIXME Handle d = 0 and N = 0
     const T scaling = T(1) / (d * T(N));
 
     if (N % 2 == 0) {
@@ -52,6 +51,7 @@ constexpr void fftfreq_filler(Array &res, T d) {
 
 template <std::size_t N, typename T = double>
 constexpr auto fftfreq(T d = T(1)) {
+    static_assert(N > 0);
     std::array<T, N> res{};
     detail::fftfreq_filler(res, d);
     return res;
@@ -59,6 +59,7 @@ constexpr auto fftfreq(T d = T(1)) {
 
 template <typename T>
 auto fftfreq(std::size_t n, T d = T(1)) {
+    SCICPP_REQUIRE(n > 0);
     std::vector<T> res(n);
     detail::fftfreq_filler(res, d);
     return res;
@@ -290,7 +291,6 @@ auto power_spectrum_density(const std::vector<T> &x,
     return power_spectrum_density(x, fs, windows::get_window<T>(win, x.size()));
 }
 
-} // namespace signal
-} // namespace scicpp
+} // namespace scicpp::signal
 
 #endif // SCICPP_SIGNAL_FFT
