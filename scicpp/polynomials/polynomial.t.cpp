@@ -357,12 +357,23 @@ TEST_CASE("polyder") {
 
     SECTION("std::vector") {
         const std::vector a{4., 5., 8., 3.14, 42.};
-        print(polyder(a));
+        // print(polyder(a));
         REQUIRE(almost_equal(polyder(a), {16., 15., 16., 3.14}));
         REQUIRE(almost_equal(polyder(a, 3), {96., 30.}));
         REQUIRE(almost_equal(polyder(a, 0), a));
         REQUIRE(almost_equal(polyder(std::vector<double>(0)), {}));
         REQUIRE(almost_equal(polyder(a, 10), {}));
+    }
+}
+
+TEST_CASE("polyint") {
+    SECTION("std::array") {
+        const std::array a{4., 5., 8., 3.14, 42.};
+        // print(polyint<2>(a));
+        REQUIRE(almost_equal(polyint<0>(a), a));
+        REQUIRE(almost_equal(polyint(a), {0., 4., 2.5, 8. / 3., 0.785, 8.4}));
+        REQUIRE(almost_equal<2>(polyint<2>(a),
+                                {0., 0., 2., 2.5 / 3., 2. / 3., 0.157, 1.4}));
     }
 }
 

@@ -280,8 +280,7 @@ constexpr auto polyder(const std::array<T, N> &P) {
     static_assert(m >= 0);
 
     if constexpr (m == 0) {
-        auto x{P};
-        return x;
+        return std::array{P};
     } else if constexpr (m >= N) {
         return std::array<T, 0>{};
     } else {
@@ -313,6 +312,43 @@ auto polyder(const std::vector<T> &P, int m = 1) {
     }
 
     return res;
+}
+
+//---------------------------------------------------------------------------------
+// polyint
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <typename T, std::size_t N>
+constexpr auto polyint_once(const std::array<T, N> &P) {
+    static_assert(N >= 1);
+
+    std::array<T, N + 1> res{};
+
+    for (std::size_t i = 0; i < N; ++i) {
+        res[i + 1] = P[i] / T(i + 1);
+    }
+
+    return res;
+}
+
+} // namespace detail
+
+template <int m, typename T, std::size_t N>
+constexpr auto polyint(const std::array<T, N> &P) {
+    static_assert(m >= 0);
+
+    if constexpr (m == 0) {
+        return std::array{P};
+    } else {
+        return polyint<m - 1>(detail::polyint_once(P));
+    }
+}
+
+template <typename T, std::size_t N>
+constexpr auto polyint(const std::array<T, N> &P) {
+    return polyint<1>(P);
 }
 
 //---------------------------------------------------------------------------------
