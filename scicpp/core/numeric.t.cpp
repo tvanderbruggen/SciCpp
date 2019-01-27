@@ -69,6 +69,8 @@ TEST_CASE("diff") {
     // print(diff(std::vector{1., 2., 4., 7., 0.}, 2));
     REQUIRE(
         almost_equal(diff(std::vector{1., 2., 4., 7., 0.}, 2), {1., 1., -10.}));
+    const std::vector v{1., 2., 4., 7., 0.};
+    REQUIRE(almost_equal(diff(v, 2), {1., 1., -10.}));
 }
 
 TEST_CASE("Arithmetic operators") {

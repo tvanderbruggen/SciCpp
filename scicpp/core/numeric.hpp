@@ -154,19 +154,20 @@ auto diff(const std::array<T, N> &a) {
 }
 
 template <typename T>
-void diff_inplace(std::vector<T> &a, int n = 1) {
+auto diff(std::vector<T> &&a, int n = 1) {
     SCICPP_REQUIRE(n >= 0);
 
     while (n-- && !a.empty()) {
         detail::diff_once(a);
     }
+
+    return std::move(a);
 }
 
 template <typename T>
 auto diff(const std::vector<T> &a, int n = 1) {
     std::vector<T> res(a);
-    diff_inplace(res, n);
-    return res;
+    return diff(std::move(res), n);
 }
 
 //---------------------------------------------------------------------------------

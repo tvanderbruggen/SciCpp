@@ -17,14 +17,10 @@ The n-th discrete difference between consecutive elements of an array.
 .. function:: template <typename T> \
               std::vector<T> diff(const std::vector<T> &a, int n = 1)
 
-Return a std::vector of size :code:`max(a.size() - n, 0)`.
-
---------------------------------------
-
 .. function:: template <typename T> \
-              void diff_inplace(std::vector<T> &a, int n = 1)
+              std::vector<T> diff(std::vector<T> &&a, int n = 1)
 
-Differentiate a std::vector in-place.
+Return a std::vector of size :code:`max(a.size() - n, 0)`.
 
 --------------------------------------
 
