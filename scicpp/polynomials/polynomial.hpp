@@ -294,7 +294,7 @@ constexpr auto polyder(const std::array<T, N> &P) {
 }
 
 template <typename T>
-auto polyder(const std::vector<T> &P, int m = 1) {
+auto polyder(const std::vector<T> &P, long m = 1) {
     scicpp_require(m >= 0);
 
     if (m == 0) {
@@ -363,7 +363,7 @@ constexpr auto polyint(const std::array<T, N> &P) {
 }
 
 template <typename T>
-auto polyint(const std::vector<T> &P, int m = 1) {
+auto polyint(const std::vector<T> &P, long m = 1) {
     scicpp_require(P.size() > 0);
     scicpp_require(m >= 0);
 

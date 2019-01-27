@@ -378,7 +378,7 @@ TEST_CASE("polyint") {
 
     SECTION("std::vector") {
         const std::vector a{4., 5., 8., 3.14, 42.};
-        print(polyint(a));
+        // print(polyint(a));
         REQUIRE(almost_equal(polyint(a, 0), a));
         REQUIRE(almost_equal(polyint(a), {0., 4., 2.5, 8. / 3., 0.785, 8.4}));
         REQUIRE(almost_equal<2>(polyint(a, 2),
