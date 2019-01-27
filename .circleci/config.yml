@@ -21,6 +21,12 @@ jobs:
       - run:
           name: Test with Clang
           command: make COMPILER=clang clean_test test
+      - run:
+          name: Run examples with GCC
+          command: bash scripts/test_examples.sh gcc
+      - run:
+          name: Run examples with Clang
+          command: bash scripts/test_examples.sh clang
 
 workflows:
   version: 2
