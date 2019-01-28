@@ -29,7 +29,7 @@ namespace scicpp {
 
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, Array &&a) {
-    using InputType = typename Array::value_type;
+    using InputType = typename std::remove_reference_t<Array>::value_type;
     using ReturnType = typename std::invoke_result_t<UnaryOp, InputType>;
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {

@@ -4,6 +4,7 @@
 #ifndef SCICPP_SIGNAL_WAVEFORMS
 #define SCICPP_SIGNAL_WAVEFORMS
 
+#include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 
 #include <algorithm>
@@ -43,40 +44,29 @@ auto unit_impulse(std::size_t len, std::size_t idx = 0) {
 // sawtooth
 //---------------------------------------------------------------------------------
 
-namespace detail {
+template <class Array,
+          typename T = typename std::remove_reference_t<Array>::value_type>
+auto sawtooth(Array &&t, T width = T{1}) {
+    scicpp_require(width >= T{0} && width <= T{1});
 
-template <class Array, typename T = typename Array::value_type>
-void sawtooth_filler(Array &res, const Array &t, T width) {
-    scicpp_require(width >= T(0) && width <= T(1));
+    return map(
+        [width](auto t_) scicpp_pure {
+            const auto tmod = std::fmod(t_, T{2} * M_PI);
 
-    std::transform(t.cbegin(), t.cend(), res.begin(), [=](auto t_) scicpp_pure {
-        const auto tmod = std::fmod(t_, T(2) * M_PI);
-
-        if (tmod < width * T(2) * M_PI) {
-            scicpp_require(width > T(0));
-            return tmod / (width * M_PI) - T(1);
-        } else {
-            scicpp_require(width < T(1));
-            return M_1_PI * (M_PI * (width + T(1)) - tmod) / (T(1) - width);
-        }
-    });
+            if (tmod < width * T{2} * M_PI) {
+                scicpp_require(width > T{0});
+                return tmod / (width * M_PI) - T{1};
+            } else {
+                scicpp_require(width < T{1});
+                return M_1_PI * (M_PI * (width + T{1}) - tmod) / (T{1} - width);
+            }
+        },
+        std::forward<Array>(t));
 }
 
-} // namespace detail
-
-template <typename T, std::size_t N>
-auto sawtooth(const std::array<T, N> &t, T width = T(1)) {
-    std::array<T, N> res{};
-    detail::sawtooth_filler(res, t, width);
-    return res;
-}
-
-template <typename T>
-auto sawtooth(const std::vector<T> &t, T width = T(1)) {
-    std::vector<T> res(t.size());
-    detail::sawtooth_filler(res, t, width);
-    return res;
-}
+//---------------------------------------------------------------------------------
+// sweep_poly
+//---------------------------------------------------------------------------------
 
 } // namespace scicpp::signal
 

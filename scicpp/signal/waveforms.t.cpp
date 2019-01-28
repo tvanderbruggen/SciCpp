@@ -28,8 +28,7 @@ TEST_CASE("sawtooth") {
     using namespace scicpp::operators;
 
     SECTION("std::array") {
-        auto t = 2. * M_PI * 5. * linspace<20>(0., 1.);
-        const auto res = sawtooth(t);
+        const auto res = sawtooth(2. * M_PI * 5. * linspace<20>(0., 1.));
         // print(res);
 
         REQUIRE(almost_equal<8>(
@@ -43,7 +42,7 @@ TEST_CASE("sawtooth") {
     }
 
     SECTION("std::vector") {
-        auto t = 2. * M_PI * 5. * linspace(0., 1., 20);
+        const auto t = 2. * M_PI * 5. * linspace(0., 1., 20);
         const auto res = sawtooth(t);
 
         REQUIRE(almost_equal<8>(
@@ -55,6 +54,10 @@ TEST_CASE("sawtooth") {
                   0.8947368421052628,  -0.5789473684210527, -0.0526315789473691,
                   0.4736842105263155,  -1.0000000000000000}));
     }
+}
+
+TEST_CASE("sweep_poly") {
+
 }
 
 } // namespace scicpp::signal
