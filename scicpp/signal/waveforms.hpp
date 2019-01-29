@@ -6,6 +6,8 @@
 
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/maths.hpp"
+#include "scicpp/core/numeric.hpp"
 #include "scicpp/polynomials/polynomial.hpp"
 
 #include <algorithm>

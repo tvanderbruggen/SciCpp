@@ -301,10 +301,10 @@ auto operator*(Array &&a, Array &&b) {
 }
 
 // Sum of 3 vectors:
-// https://godbolt.org/z/YdcjKF
+// https://godbolt.org/z/zsZB29
 // No copy, similar assembly code than raw loop:
 // https://godbolt.org/z/ptIXJ4
-// Nevertheless, in both cases 3 calls to new ...
+// Except 4 calls to new with raw copy, only one with operator+.
 
 template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
 auto operator+(Array &&a, Array &&b) {
