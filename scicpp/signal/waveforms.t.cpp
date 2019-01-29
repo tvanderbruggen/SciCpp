@@ -57,7 +57,42 @@ TEST_CASE("sawtooth") {
 }
 
 TEST_CASE("sweep_poly") {
+    SECTION("std::array") {
+        const std::array poly{2., 1.25, -0.36, .025};
+        const auto t = linspace<10>(0., 10.);
+        const auto res = sweep_poly(t, poly);
+        // print(res);
 
+        REQUIRE(almost_equal<2000>(res,
+                                   {1.0000000000000000,
+                                    0.5291475130785160,
+                                    -0.6679198682512369,
+                                    0.9257239692688911,
+                                    0.6459001092455789,
+                                    0.1802459804009975,
+                                    0.8135520702629856,
+                                    0.1575930433609465,
+                                    0.8056830092586544,
+                                    1.0000000000000000}));
+    }
+
+    SECTION("std::vector") {
+        const std::array poly{2., 1.25, -0.36, .025};
+        const auto t = linspace(0., 10., 10);
+        const auto res = sweep_poly(t, poly);
+
+        REQUIRE(almost_equal<2000>(res,
+                                   {1.0000000000000000,
+                                    0.5291475130785160,
+                                    -0.6679198682512369,
+                                    0.9257239692688911,
+                                    0.6459001092455789,
+                                    0.1802459804009975,
+                                    0.8135520702629856,
+                                    0.1575930433609465,
+                                    0.8056830092586544,
+                                    1.0000000000000000}));
+    }
 }
 
 } // namespace scicpp::signal

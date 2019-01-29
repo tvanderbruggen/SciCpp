@@ -6,6 +6,7 @@
 
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
+#include "scicpp/polynomials/polynomial.hpp"
 
 #include <algorithm>
 #include <array>
@@ -66,7 +67,21 @@ auto sawtooth(Array &&t, T width = T{1}) {
 
 //---------------------------------------------------------------------------------
 // sweep_poly
+//
+// /!\ Polynomial order doesn't follow the legacy numpy.poly1d order
+//     for the coefficients but the numpy.polynomial order.
 //---------------------------------------------------------------------------------
+
+template <class Array,
+          class Poly,
+          typename T = typename std::remove_reference_t<Array>::value_type>
+auto sweep_poly(Array &&t, const Poly &poly, T phi = T{0}) {
+    using namespace scicpp::operators;
+    using namespace polynomials;
+
+    return cos(T{2} * M_PI * polyval(std::forward<Array>(t), polyint(poly)) +
+               phi * M_PI / T{180});
+}
 
 } // namespace scicpp::signal
 
