@@ -4,6 +4,7 @@
 #ifndef SCICPP_CORE_STATS
 #define SCICPP_CORE_STATS
 
+#include "scicpp/core/functional.hpp"
 #include "scicpp/core/numeric.hpp"
 
 #include <algorithm>
@@ -98,14 +99,14 @@ constexpr T var(const Array &f) {
     }
 
     const T m0 = mean(f);
-    T acc = T(0);
 
-    for (const auto &v : f) {
-        const T diff = v - m0;
-        acc += diff * diff;
-    }
-
-    return acc / T(f.size());
+    return reduce(f,
+                  [m0](auto r, auto v) {
+                      const T diff = v - m0;
+                      return r + diff * diff;
+                  },
+                  T{0}) /
+           T(f.size());
 }
 
 //---------------------------------------------------------------------------------
