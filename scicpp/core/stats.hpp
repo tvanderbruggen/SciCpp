@@ -56,8 +56,8 @@ constexpr auto ptp(const Array &f) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
-    const auto x = std::minmax_element(f.cbegin(), f.cend());
-    return *x.second - *x.first; // peak-to-peak = max - min
+    const auto [it_min, it_max] = std::minmax_element(f.cbegin(), f.cend());
+    return *it_max - *it_min;
 }
 
 //---------------------------------------------------------------------------------
