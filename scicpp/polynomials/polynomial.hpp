@@ -172,13 +172,13 @@ namespace detail {
 
 template <class U, class V>
 auto polydiv_impl(const U &u, const V &v) {
-    // TODO static_assert types
+    using T = typename U::value_type;
+    static_assert(std::is_same_v<T, typename V::value_type>);
 
     auto tmp(u);
-
     const auto m = signed_size_t(u.size()) - 1;
     const auto n = signed_size_t(v.size()) - 1;
-    const auto scale = 1. / v[std::size_t(n)];
+    const auto scale = T{1} / v[std::size_t(n)];
 
     for (signed_size_t k = m - n; k >= 0; --k) {
         const auto d = scale * tmp[std::size_t(n + k)];
@@ -195,6 +195,9 @@ auto polydiv_impl(const U &u, const V &v) {
 
 template <typename T, std::size_t M, std::size_t N>
 auto polydiv(const std::array<T, M> &u, const std::array<T, N> &v) {
+    static_assert(M > 0);
+    static_assert(N > 0);
+
     if constexpr (N == 1) {
         using namespace scicpp::operators;
         return std::make_tuple(u / v[0], std::array<T, 1>{});
@@ -207,9 +210,32 @@ auto polydiv(const std::array<T, M> &u, const std::array<T, N> &v) {
         std::array<T, N - 1> r{};
         std::move(tmp.begin(), tmp.begin() + r.size(), r.begin());
         std::move(tmp.begin() + r.size(), tmp.end(), q.begin());
-
         return std::make_tuple(q, r);
     }
+}
+
+template <typename T>
+auto polydiv(const std::vector<T> &u, const std::vector<T> &v) {
+    scicpp_require(!u.empty());
+    scicpp_require(!v.empty());
+
+    if (v.size() == 1) {
+        using namespace scicpp::operators;
+        return std::make_tuple(u / v[0], std::vector<T>(1, T{0}));
+    }
+
+    if (u.size() < v.size()) {
+        return std::make_tuple(std::vector<T>(1, T{0}), u);
+    }
+
+    const auto tmp = detail::polydiv_impl(u, v);
+    const auto len = signed_size_t(v.size()) - 1;
+
+    return std::make_tuple(
+        std::vector<T>(std::make_move_iterator(tmp.begin() + len),
+                       std::make_move_iterator(tmp.end())),
+        std::vector<T>(std::make_move_iterator(tmp.begin()),
+                       std::make_move_iterator(tmp.begin() + len)));
 }
 
 //---------------------------------------------------------------------------------
@@ -517,14 +543,14 @@ auto polyfit(const std::vector<T> &x, const std::vector<T> &y, int deg) {
 //---------------------------------------------------------------------------------
 
 template <typename T>
-void polytrim(std::vector<T> &P, T tol = T(0)) {
+void polytrim(std::vector<T> &P, T tol = T{0}) {
     P.erase(
-        std::find_if(P.crbegin(), P.crend(), [&](auto c) { return c > tol; })
+        std::find_if(P.crbegin(), P.crend(), [=](auto c) { return c > tol; })
             .base(),
         P.end());
 
     if (P.empty()) {
-        P.push_back(T(0));
+        P.push_back(T{0});
     }
 }
 
@@ -538,7 +564,7 @@ class Polynomial {
     using value_type = typename std::vector<T>::value_type;
     using size_type = typename std::vector<T>::size_type;
 
-    explicit Polynomial(size_type deg) : m_coef(deg + 1, T(0)) {}
+    explicit Polynomial(size_type deg) : m_coef(deg + 1, T{0}) {}
 
     explicit Polynomial(const std::vector<T> &coef) : m_coef(coef) {}
     explicit Polynomial(std::vector<T> &&coef) : m_coef(std::move(coef)) {}
