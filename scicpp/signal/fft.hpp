@@ -263,13 +263,11 @@ auto irfft(const std::vector<std::complex<T>> &y, int n = -1) {
 ///  The output as unit of :math:`\rm{V}^{2}/\rm{Hz}` if x is in :math:`\rm{V}`
 ///  and fs is in :math:`\rm{Hz}`.
 /// \endrst
-template <typename T>
-auto power_spectrum_density(const std::vector<T> &x,
-                            T fs,
-                            const std::vector<T> &w) {
+template <class Array, typename T = typename Array::value_type>
+auto power_spectrum_density(const Array &x, T fs, Array &&w) {
     using namespace scicpp::operators;
     const auto S2 = reduce(w, [](auto r, auto v) { return r + v * v; }, T{0});
-    return (2. / (fs * S2)) * norm(rfft(x * w));
+    return (2. / (fs * S2)) * norm(rfft(x * std::forward<Array>(w)));
 }
 
 /// Compute the power spectrum density of a real signal
@@ -284,10 +282,8 @@ auto power_spectrum_density(const std::vector<T> &x,
 ///  The output as unit of :math:`\rm{V}^{2}/\rm{Hz}` if x is in :math:`\rm{V}`
 ///  and fs is in :math:`\rm{Hz}`.
 /// \endrst
-template <typename T>
-auto power_spectrum_density(const std::vector<T> &x,
-                            T fs,
-                            windows::Window win) {
+template <class Array, typename T = typename Array::value_type>
+auto power_spectrum_density(const Array &x, T fs, windows::Window win) {
     return power_spectrum_density(x, fs, windows::get_window<T>(win, x.size()));
 }
 

@@ -184,18 +184,21 @@ namespace detail {
 // Eigen::Matrix or Eigen::Array.
 
 template <class T>
-constexpr bool has_valid_operator_overload_v =
+constexpr bool is_operator_iterable_v =
     meta::is_iterable_v<T> && !meta::is_eigen_container_v<T>;
 
 template <class T>
-using enable_if_valid_operator_overload =
-    std::enable_if_t<detail::has_valid_operator_overload_v<T>, int>;
+using enable_if_operator_iterable =
+    std::enable_if_t<detail::is_operator_iterable_v<T>, int>;
+
+template <class T>
+using enable_if_arithmetic = std::enable_if_t<std::is_arithmetic_v<T>, int>;
 
 } // namespace detail
 
 // negate
 
-template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
+template <class Array, detail::enable_if_operator_iterable<Array> = 0>
 auto operator-(Array &&a) {
     return map(std::negate<>(), std::forward<Array>(a));
 }
@@ -203,14 +206,16 @@ auto operator-(Array &&a) {
 // scalar multiply
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator*(Array &&a, T scalar) {
     return map([=](auto v) { return scalar * v; }, std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator*(T scalar, Array &&a) {
     return map([=](auto v) { return scalar * v; }, std::forward<Array>(a));
 }
@@ -219,14 +224,16 @@ auto operator*(T scalar, Array &&a) {
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator+(Array &&a, T scalar) {
     return map([=](auto v) { return scalar + v; }, std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator+(T scalar, Array &&a) {
     return map([=](auto v) { return scalar + v; }, std::forward<Array>(a));
 }
@@ -235,14 +242,16 @@ auto operator+(T scalar, Array &&a) {
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator-(Array &&a, T scalar) {
     return map([=](auto v) { return v - scalar; }, std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator-(T scalar, Array &&a) {
     return map([=](auto v) { return scalar - v; }, std::forward<Array>(a));
 }
@@ -251,14 +260,16 @@ auto operator-(T scalar, Array &&a) {
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator/(Array &&a, T scalar) {
     return map([=](auto v) { return v / scalar; }, std::forward<Array>(a));
 }
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator/(T scalar, Array &&a) {
     return map([=](auto v) { return scalar / v; }, std::forward<Array>(a));
 }
@@ -280,7 +291,8 @@ auto modulus(T x, T y) {
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator%(Array &&a, T scalar) {
     return map([=](auto v) { return detail::modulus(v, scalar); },
                std::forward<Array>(a));
@@ -288,16 +300,21 @@ auto operator%(Array &&a, T scalar) {
 
 template <class Array,
           typename T = typename Array::value_type,
-          detail::enable_if_valid_operator_overload<Array> = 0>
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_arithmetic<T> = 0>
 auto operator%(T scalar, Array &&a) {
     return map([=](auto v) { return detail::modulus(scalar, v); },
                std::forward<Array>(a));
 }
 
-template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator*(Array &&a, Array &&b) {
-    return map(
-        std::multiplies<>(), std::forward<Array>(a), std::forward<Array>(b));
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
+auto operator*(ArrayLhs &&a, ArrayRhs &&b) {
+    return map(std::multiplies<>(),
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
 }
 
 // Sum of 3 vectors:
@@ -306,27 +323,41 @@ auto operator*(Array &&a, Array &&b) {
 // https://godbolt.org/z/ptIXJ4
 // Except 4 calls to new with raw copy, only one with operator+.
 
-template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator+(Array &&a, Array &&b) {
-    return map(std::plus<>(), std::forward<Array>(a), std::forward<Array>(b));
-}
-
-template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator-(Array &&a, Array &&b) {
-    return map(std::minus<>(), std::forward<Array>(a), std::forward<Array>(b));
-}
-
-template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator/(Array &&a, Array &&b) {
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
+auto operator+(ArrayLhs &&a, ArrayRhs &&b) {
     return map(
-        std::divides<>(), std::forward<Array>(a), std::forward<Array>(b));
+        std::plus<>(), std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
 
-template <class Array, detail::enable_if_valid_operator_overload<Array> = 0>
-auto operator%(Array &&a, Array &&b) {
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
+auto operator-(ArrayLhs &&a, ArrayRhs &&b) {
+    return map(
+        std::minus<>(), std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
+auto operator/(ArrayLhs &&a, ArrayRhs &&b) {
+    return map(
+        std::divides<>(), std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 00>
+auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
     return map([](auto u, auto v) { return detail::modulus(u, v); },
-               std::forward<Array>(a),
-               std::forward<Array>(b));
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
 }
 
 } // namespace operators
