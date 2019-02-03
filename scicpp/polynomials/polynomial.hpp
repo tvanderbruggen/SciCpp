@@ -22,6 +22,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <limits>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -164,8 +165,52 @@ auto polymul(const U &P1, const V &P2) {
 // polydiv
 //---------------------------------------------------------------------------------
 
+namespace detail {
+
 // https://stackoverflow.com/questions/44770632/fft-division-for-fast-polynomial-division
 // http://web.cs.iastate.edu/~cs577/handouts/polydivide.pdf
+
+template <class U, class V>
+auto polydiv_impl(const U &u, const V &v) {
+    // TODO static_assert types
+
+    auto tmp(u);
+
+    const auto m = signed_size_t(u.size()) - 1;
+    const auto n = signed_size_t(v.size()) - 1;
+    const auto scale = 1. / v[std::size_t(n)];
+
+    for (signed_size_t k = m - n; k >= 0; --k) {
+        const auto d = scale * tmp[std::size_t(n + k)];
+
+        for (signed_size_t j = n + k - 1; j >= k; --j) {
+            tmp[std::size_t(j)] -= d * v[std::size_t(j - k)];
+        }
+    }
+
+    return tmp;
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, std::size_t N>
+auto polydiv(const std::array<T, M> &u, const std::array<T, N> &v) {
+    if constexpr (N == 1) {
+        using namespace scicpp::operators;
+        return std::make_tuple(u / v[0], std::array<T, 1>{});
+    } else if constexpr (M < N) {
+        return std::make_tuple(std::array<T, 1>{}, u);
+    } else {
+        const auto tmp = detail::polydiv_impl(u, v);
+
+        std::array<T, M - N + 1> q{};
+        std::array<T, N - 1> r{};
+        std::move(tmp.begin(), tmp.begin() + r.size(), r.begin());
+        std::move(tmp.begin() + r.size(), tmp.end(), q.begin());
+
+        return std::make_tuple(q, r);
+    }
+}
 
 //---------------------------------------------------------------------------------
 // polymulx

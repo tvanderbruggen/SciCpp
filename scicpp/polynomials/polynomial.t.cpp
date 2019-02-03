@@ -317,6 +317,29 @@ TEST_CASE("polymul") {
 
 } // namespace
 
+TEST_CASE("polydiv") {
+    const std::array u{1., 2., 3.};
+    const std::array v{3., 2., 1.};
+    const auto [q, r] = polydiv(u, v);
+    REQUIRE(almost_equal(q, {3.}));
+    REQUIRE(almost_equal(r, {-8., -4.}));
+
+    const std::array u1{8., 10., -5., 3.};
+    const std::array v1{-3., 2., 1.};
+
+    const auto [q1, r1] = polydiv(u1, v1);
+    REQUIRE(almost_equal(q1, {-11, 3.}));
+    REQUIRE(almost_equal(r1, {-25., 41.}));
+
+    const auto [q2, r2] = polydiv(v1, u1);
+    REQUIRE(almost_equal(q2, {0.}));
+    REQUIRE(almost_equal(r2, {-3., 2., 1.}));
+
+    const auto [q3, r3] = polydiv(u1, std::array{0.5});
+    REQUIRE(almost_equal(q3, {16., 20., -10., 6.}));
+    REQUIRE(almost_equal(r3, {0.}));
+}
+
 TEST_CASE("polymulx") {
     const auto Pa = polymulx(std::array{4., 5., 8.});
     REQUIRE(almost_equal(Pa, {0., 4., 5., 8.}));
