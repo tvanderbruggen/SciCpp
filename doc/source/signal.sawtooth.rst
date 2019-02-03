@@ -21,4 +21,4 @@ Return a periodic sawtooth or triangle waveform.
 
 See also
     ----------
-    `https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.sawtooth.html#scipy.signal.sawtooth>`_
+    `Scipy documentation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.sawtooth.html#scipy.signal.sawtooth>`_
