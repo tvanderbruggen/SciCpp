@@ -95,3 +95,6 @@ Waveforms
 
 :ref:`sawtooth <signal_sawtooth>`
     Return a periodic sawtooth or triangle waveform.
+
+:ref:`sweep_poly <signal_sweep_poly>`
+    Frequency-swept cosine generator, with a time-dependent frequency.

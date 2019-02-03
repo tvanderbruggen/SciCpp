@@ -143,6 +143,9 @@ Functional programming
 :ref:`filter_reduce <core_filter_reduce>`
     Reduce filtered elements of an array.
 
+:ref:`reduce <core_reduce>`
+    Reduce elements of an array.
+
 Printing
 ---------------
 

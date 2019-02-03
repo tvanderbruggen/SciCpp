@@ -35,7 +35,7 @@ Initialize a Polynomial of a degree deg with zero coefficients.
 Initialize a Polynomial from a std::vector of coefficients.
 
 :parameter coef: Polynomial coefficients in order of increasing degree, 
-             i.e., :expr:`{1., 2., 3.}` give :math:`1 + 2 X + 3 X^{2}`.
+             i.e., :expr:`{1., 2., 3.}` is :math:`1 + 2 X + 3 X^{2}`.
 
 --------------------------------------
 

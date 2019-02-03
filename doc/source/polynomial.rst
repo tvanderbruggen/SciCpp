@@ -37,6 +37,9 @@ Calculus
 :ref:`polyder <polynomial_polyder>`
     Differentiate a polynomial.
 
+:ref:`polyint <polynomial_polyint>`
+    Integrate a polynomial.
+
 Algebra
 ---------
 
@@ -48,6 +51,9 @@ Algebra
 
 :ref:`polymul <polynomial_polymul>`
     Multiply two polynomials.
+
+:ref:`polydiv <polynomial_polydiv>`
+    Divide two polynomials.
 
 :ref:`polymulx <polynomial_polymulx>`
     Multiply a polynomial by :math:`X`.

@@ -171,7 +171,7 @@ namespace detail {
 // http://web.cs.iastate.edu/~cs577/handouts/polydivide.pdf
 
 template <class U, class V>
-auto polydiv_impl(const U &u, const V &v) {
+constexpr auto polydiv_impl(const U &u, const V &v) {
     using T = typename U::value_type;
     static_assert(std::is_same_v<T, typename V::value_type>);
 
@@ -194,7 +194,7 @@ auto polydiv_impl(const U &u, const V &v) {
 } // namespace detail
 
 template <typename T, std::size_t M, std::size_t N>
-auto polydiv(const std::array<T, M> &u, const std::array<T, N> &v) {
+constexpr auto polydiv(const std::array<T, M> &u, const std::array<T, N> &v) {
     static_assert(M > 0);
     static_assert(N > 0);
 
