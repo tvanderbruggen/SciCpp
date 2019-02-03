@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+
 #include <cstdio>
 #include <scicpp/core.hpp>
 #include <scicpp/signal.hpp>

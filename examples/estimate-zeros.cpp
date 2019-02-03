@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+
 // Estimate the zeros of a noisy sinusoid using a polynomial fit
 
 #include <algorithm>
