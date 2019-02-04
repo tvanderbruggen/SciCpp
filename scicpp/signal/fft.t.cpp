@@ -140,16 +140,14 @@ TEST_CASE("fftfreq") {
 TEST_CASE("fftshift") {
     SECTION("std::array") {
         SECTION("Even size") {
-            auto a = fftfreq<4>(3.14);
-            fftshift_inplace(a);
-            REQUIRE(almost_equal(a,
+            REQUIRE(almost_equal(fftshift(fftfreq<4>(3.14)),
                                  {-0.1592356687898089,
                                   -0.07961783439490445,
                                   0.,
                                   0.07961783439490445}));
 
-            auto f = fftshift(fftfreq<4>(3.14));
-            REQUIRE(almost_equal(f,
+            const auto a = fftfreq<4>(3.14);
+            REQUIRE(almost_equal(fftshift(a),
                                  {-0.1592356687898089,
                                   -0.07961783439490445,
                                   0.,
@@ -157,17 +155,15 @@ TEST_CASE("fftshift") {
         }
 
         SECTION("Odd size") {
-            auto a = fftfreq<5>(3.14);
-            fftshift_inplace(a);
-            REQUIRE(almost_equal(a,
+            REQUIRE(almost_equal(fftshift(fftfreq<5>(3.14)),
                                  {-0.12738853503184713,
                                   -0.06369426751592357,
                                   0.,
                                   0.06369426751592357,
                                   0.12738853503184713}));
 
-            auto f = fftshift(fftfreq<5>(3.14));
-            REQUIRE(almost_equal(f,
+            const auto a = fftfreq<5>(3.14);
+            REQUIRE(almost_equal(fftshift(a),
                                  {-0.12738853503184713,
                                   -0.06369426751592357,
                                   0.,
@@ -178,16 +174,14 @@ TEST_CASE("fftshift") {
 
     SECTION("std::vector") {
         SECTION("Even size") {
-            auto a = fftfreq(4, 3.14);
-            fftshift_inplace(a);
-            REQUIRE(almost_equal(a,
+            REQUIRE(almost_equal(fftshift(fftfreq(4, 3.14)),
                                  {-0.1592356687898089,
                                   -0.07961783439490445,
                                   0.,
                                   0.07961783439490445}));
 
-            auto f = fftshift(fftfreq(4, 3.14));
-            REQUIRE(almost_equal(f,
+            const auto a = fftfreq(4, 3.14);
+            REQUIRE(almost_equal(fftshift(a),
                                  {-0.1592356687898089,
                                   -0.07961783439490445,
                                   0.,
@@ -195,17 +189,15 @@ TEST_CASE("fftshift") {
         }
 
         SECTION("Odd size") {
-            auto a = fftfreq(5, 3.14);
-            fftshift_inplace(a);
-            REQUIRE(almost_equal(a,
+            REQUIRE(almost_equal(fftshift(fftfreq(5, 3.14)),
                                  {-0.12738853503184713,
                                   -0.06369426751592357,
                                   0.,
                                   0.06369426751592357,
                                   0.12738853503184713}));
 
-            auto f = fftshift(fftfreq(5, 3.14));
-            REQUIRE(almost_equal(f,
+            const auto a = fftfreq(5, 3.14);
+            REQUIRE(almost_equal(fftshift(a),
                                  {-0.12738853503184713,
                                   -0.06369426751592357,
                                   0.,

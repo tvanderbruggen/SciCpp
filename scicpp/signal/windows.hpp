@@ -242,7 +242,7 @@ void gaussian_filler(Array &w, T sigma) {
     const T i0 = T(w.size() / 2) - shift;
     const T scaling = -T{1} / (T{2} * sigma * sigma);
 
-    symmetric_filler(w, [&](std::size_t i) {
+    symmetric_filler(w, [=](std::size_t i) {
         const T n = T(i) - i0;
         return std::exp(scaling * n * n);
     });

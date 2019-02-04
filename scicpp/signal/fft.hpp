@@ -6,12 +6,14 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/utils.hpp"
 #include "scicpp/signal/windows.hpp"
 
 #include <algorithm>
 #include <array>
 #include <complex>
 #include <unsupported/Eigen/FFT>
+#include <utility>
 #include <vector>
 
 namespace scicpp::signal {
@@ -24,9 +26,9 @@ namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
 constexpr void fftfreq_filler(Array &res, T d) {
-    scicpp_require(d > 0);
+    scicpp_require(d > T{0});
     const auto N = res.size();
-    const T scaling = T(1) / (d * T(N));
+    const T scaling = T{1} / (d * T(N));
 
     if (N % 2 == 0) {
         const std::size_t max = (N / 2) - 1;
@@ -50,7 +52,7 @@ constexpr void fftfreq_filler(Array &res, T d) {
 } // namespace detail
 
 template <std::size_t N, typename T = double>
-constexpr auto fftfreq(T d = T(1)) {
+constexpr auto fftfreq(T d = T{1}) {
     static_assert(N > 0);
     std::array<T, N> res{};
     detail::fftfreq_filler(res, d);
@@ -58,7 +60,7 @@ constexpr auto fftfreq(T d = T(1)) {
 }
 
 template <typename T>
-auto fftfreq(std::size_t n, T d = T(1)) {
+auto fftfreq(std::size_t n, T d = T{1}) {
     scicpp_require(n > 0);
     std::vector<T> res(n);
     detail::fftfreq_filler(res, d);
@@ -66,34 +68,20 @@ auto fftfreq(std::size_t n, T d = T(1)) {
 }
 
 template <class Array>
-void fftshift_inplace(Array &a) {
-    std::rotate(a.begin(), a.begin() + int(a.size() + 1) / 2, a.end());
+auto fftshift(Array &&a) {
+    std::rotate(
+        a.begin(), a.begin() + signed_size_t(a.size() + 1) / 2, a.end());
+    return std::move(a);
 }
-
-namespace detail {
 
 template <class Array>
-void fftshift_filler(const Array &src, Array &dest) {
-    const auto offset = (int(src.size() - 1) / 2) + 1;
-    std::copy(src.cbegin() + offset, src.cend(), dest.begin());
-    std::copy(src.cbegin(),
-              src.cbegin() + offset,
-              dest.begin() + int(src.size()) / 2);
-}
-
-} // namespace detail
-
-template <typename T, std::size_t N>
-constexpr auto fftshift(const std::array<T, N> &a) {
-    std::array<T, N> res{};
-    detail::fftshift_filler(a, res);
-    return res;
-}
-
-template <typename T>
-auto fftshift(const std::vector<T> &v) {
-    std::vector<T> res(v.size());
-    detail::fftshift_filler(v, res);
+auto fftshift(const Array &a) {
+    auto res = utils::set_array(a);
+    const auto offset = (signed_size_t(a.size() - 1) / 2) + 1;
+    std::copy(a.cbegin() + offset, a.cend(), res.begin());
+    std::copy(a.cbegin(),
+              a.cbegin() + offset,
+              res.begin() + signed_size_t(a.size()) / 2);
     return res;
 }
 
@@ -157,9 +145,9 @@ Integral next_fast_len(Integral n) {
 
 template <typename T>
 auto zero_padding(const std::vector<T> &v, std::size_t new_size) {
-    std::vector<T> res(new_size, T(0));
+    std::vector<T> res(new_size, T{0});
     std::copy(v.cbegin(),
-              v.cbegin() + int(std::min(new_size, v.size())),
+              v.cbegin() + signed_size_t(std::min(new_size, v.size())),
               res.begin());
     return res;
 }
@@ -211,12 +199,12 @@ namespace detail {
 
 template <typename T>
 auto to_complex(const std::vector<T> &y, std::size_t n) {
-    std::vector<std::complex<T>> x(n, std::complex<T>(T(0), T(0)));
+    std::vector<std::complex<T>> x(n, std::complex<T>(T{0}, T{0}));
 
     std::transform(y.cbegin(),
                    y.cbegin() + int(std::min(n, y.size())),
                    x.begin(),
-                   [](auto v) { return std::complex(v, T(0)); });
+                   [](auto v) { return std::complex(v, T{0}); });
 
     return x;
 }
