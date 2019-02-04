@@ -35,13 +35,13 @@ void symmetric_filler(Array &w, Func f) {
 template <typename T, std::size_t M>
 auto boxcar() {
     std::array<T, M> w{};
-    w.fill(T(1));
+    w.fill(T{1});
     return w;
 }
 
 template <typename T>
 auto boxcar(std::size_t M) {
-    return std::vector<T>(M, T(1));
+    return std::vector<T>(M, T{1});
 }
 
 namespace detail {
@@ -49,8 +49,8 @@ namespace detail {
 template <class Array>
 constexpr void bartlett_filler(Array &w) {
     using T = typename Array::value_type;
-    const T scaling = -T(2) / T(w.size() - 1);
-    symmetric_filler(w, [&](auto i) { return std::fma(scaling, T(i), T(2)); });
+    const auto scaling = -T{2} / T(w.size() - 1);
+    symmetric_filler(w, [&](auto i) { return std::fma(scaling, T(i), T{2}); });
 }
 
 } // namespace detail
@@ -113,15 +113,15 @@ template <class Array,
           std::size_t n_weights,
           typename T = typename Array::value_type>
 void general_cosine(Array &w, const std::array<T, n_weights> &a) {
-    const T scaling = T(2) * M_PI / T(w.size() - 1);
+    const auto scaling = T{2} * M_PI / T(w.size() - 1);
 
     symmetric_filler(w, [&](std::size_t i) {
-        T tmp = T(0);
-        T sign = -T(1);
+        auto tmp = T{0};
+        auto sign = -T{1};
         std::size_t j = 0;
 
         for (const auto &c : a) {
-            sign *= -T(1);
+            sign *= -T{1};
             tmp += sign * c * std::cos(scaling * T(i * j));
             j++;
         }
@@ -150,13 +150,13 @@ auto general_cosine(const std::array<T, n_weights> &a) {
 
 template <typename T, std::size_t M>
 auto general_hamming(T alpha) {
-    std::array a{alpha, T(1) - alpha};
+    std::array a{alpha, T{1} - alpha};
     return general_cosine<T, M>(a);
 }
 
 template <typename T>
 auto general_hamming(std::size_t M, T alpha) {
-    std::array a{alpha, T(1) - alpha};
+    std::array a{alpha, T{1} - alpha};
     return general_cosine(M, a);
 }
 
@@ -238,11 +238,11 @@ namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
 void gaussian_filler(Array &w, T sigma) {
-    scicpp_require(sigma > T(0));
+    scicpp_require(sigma > T{0});
 
-    const T shift = w.size() % 2 == 0 ? T(0.5) : T(0);
+    const T shift = w.size() % 2 == 0 ? T{0.5} : T{0};
     const T i0 = T(w.size() / 2) - shift;
-    const T scaling = -T(1) / (T(2) * sigma * sigma);
+    const T scaling = -T{1} / (T{2} * sigma * sigma);
 
     symmetric_filler(w, [&](std::size_t i) {
         const T n = T(i) - i0;

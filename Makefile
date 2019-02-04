@@ -3,8 +3,8 @@
 
 TMP=tmp
 
-COMPILER ?= clang
-# COMPILER ?= gcc
+# COMPILER ?= clang
+COMPILER ?= gcc
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native
@@ -16,7 +16,7 @@ INCLUDES = -I. -Iscicpp
 WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
 WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion
 WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
-WARNINGS += -Wfloat-equal #-Weffc++
+WARNINGS += -Wfloat-equal -Weffc++
 
 ifeq ($(COMPILER),gcc)
   CC = $(CROSS_COMPILE)gcc-8
