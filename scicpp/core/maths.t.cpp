@@ -5,19 +5,23 @@
 
 namespace scicpp {
 
-TEST_CASE("fabs") {
-    static_assert(float_equal(fabs(-3.141516), 3.141516));
-    static_assert(float_equal(fabs(2.71828), 2.71828));
+TEST_CASE("scicpp::fabs") {
+    constexpr auto inf = std::numeric_limits<double>::infinity();
 
-    REQUIRE(std::fpclassify(1. / fabs(-0.)) == FP_INFINITE);
-    REQUIRE(std::fpclassify(1. / fabs(+0.)) == FP_INFINITE);
-    REQUIRE(std::fpclassify(fabs(-inf)) == FP_INFINITE);
-    REQUIRE(std::fpclassify(fabs(inf)) == FP_INFINITE);
+    static_assert(float_equal(scicpp::fabs(-3.141516), 3.141516));
+    static_assert(float_equal(scicpp::fabs(2.71828), 2.71828));
 
-    REQUIRE(almost_equal(fabs(std::array{-3.141516, 2.71828, 42., -1.4142}),
-                         {3.141516, 2.71828, 42., 1.4142}));
-    REQUIRE(almost_equal(fabs(std::vector{-3.141516, 2.71828, 42., -1.4142}),
-                         {3.141516, 2.71828, 42., 1.4142}));
+    REQUIRE(std::fpclassify(1. / scicpp::fabs(-0.)) == FP_INFINITE);
+    REQUIRE(std::fpclassify(1. / scicpp::fabs(+0.)) == FP_INFINITE);
+    REQUIRE(std::fpclassify(scicpp::fabs(-inf)) == FP_INFINITE);
+    REQUIRE(std::fpclassify(scicpp::fabs(inf)) == FP_INFINITE);
+
+    REQUIRE(
+        almost_equal(scicpp::fabs(std::array{-3.141516, 2.71828, 42., -1.4142}),
+                     {3.141516, 2.71828, 42., 1.4142}));
+    REQUIRE(almost_equal(
+        scicpp::fabs(std::vector{-3.141516, 2.71828, 42., -1.4142}),
+        {3.141516, 2.71828, 42., 1.4142}));
 }
 
 TEST_CASE("Trigonometric functions") {

@@ -5,24 +5,23 @@
 
 #include "scicpp/core/stats.hpp"
 
-namespace scicpp {
-namespace random {
+namespace scicpp::random {
 
 TEST_CASE("rand") {
     SECTION("std::array") {
         auto r = rand<double, 1000>();
         REQUIRE(r.size() == 1000);
-        REQUIRE_FLOAT_EQUAL(stats::mean(r), 0.5010793723598663);
-        REQUIRE_FLOAT_EQUAL(stats::std(r),
-                            0.2929667023696285); // Theory 1/sqrt(12)
+        REQUIRE(almost_equal(stats::mean(r), 0.5010793723598663));
+        REQUIRE(almost_equal(stats::std(r),
+                             0.2929667023696285)); // Theory 1/sqrt(12)
     }
 
     SECTION("std::vector") {
         auto r = rand<double>(1000);
         REQUIRE(r.size() == 1000);
-        REQUIRE_FLOAT_EQUAL(stats::mean(r), 0.5010793723598663);
-        REQUIRE_FLOAT_EQUAL(stats::std(r),
-                            0.2929667023696285); // Theory 1/sqrt(12)
+        REQUIRE(almost_equal(stats::mean(r), 0.5010793723598663));
+        REQUIRE(almost_equal(stats::std(r),
+                             0.2929667023696285)); // Theory 1/sqrt(12)
     }
 }
 
@@ -42,5 +41,4 @@ TEST_CASE("randn") {
     }
 }
 
-} // namespace random
-} // namespace scicpp
+} // namespace scicpp::random

@@ -156,37 +156,21 @@ TEST_CASE("Gaussian") {
 
 TEST_CASE("get_window") {
     SECTION("std::array") {
-        auto w1 = get_window<Hann, 4>();
-        REQUIRE(w1.size() == 4);
-        printf("%.19f\n", w1[1]);
-        printf("%.19f\n", w1[2]);
-        REQUIRE_FLOAT_EQUAL(w1[0], 0.0);
-        REQUIRE_FLOAT_EQUAL(w1[1], 0.75);
-        REQUIRE_FLOAT_EQUAL(w1[2], 0.75);
-        REQUIRE_FLOAT_EQUAL(w1[3], 0.0);
-
-        auto w2 = get_window<Nuttall, 4>();
-        REQUIRE(w2.size() == 4);
-        REQUIRE_FLOAT_EQUAL(w2[0], 0.0003628000000000381);
-        REQUIRE_FLOAT_EQUAL(w2[1], 0.5292298000000004166);
-        REQUIRE_FLOAT_EQUAL(w2[2], 0.5292298000000004166);
-        REQUIRE_FLOAT_EQUAL(w2[3], 0.0003628000000000381);
+        REQUIRE(almost_equal<4>(get_window<Hann, 4>(), {0., 0.75, 0.75, 0.}));
+        REQUIRE(almost_equal(get_window<Nuttall, 4>(),
+                             {0.0003628000000000381,
+                              0.5292298000000004166,
+                              0.5292298000000004166,
+                              0.0003628000000000381}));
     }
 
     SECTION("std::vector") {
-        auto w1 = get_window(Hann, 4);
-        REQUIRE(w1.size() == 4);
-        REQUIRE_FLOAT_EQUAL(w1[0], 0.0);
-        REQUIRE_FLOAT_EQUAL(w1[1], 0.75);
-        REQUIRE_FLOAT_EQUAL(w1[2], 0.75);
-        REQUIRE_FLOAT_EQUAL(w1[3], 0.0);
-
-        auto w2 = get_window(Nuttall, 4);
-        REQUIRE(w2.size() == 4);
-        REQUIRE_FLOAT_EQUAL(w2[0], 0.0003628000000000381);
-        REQUIRE_FLOAT_EQUAL(w2[1], 0.5292298000000004166);
-        REQUIRE_FLOAT_EQUAL(w2[2], 0.5292298000000004166);
-        REQUIRE_FLOAT_EQUAL(w2[3], 0.0003628000000000381);
+        REQUIRE(almost_equal<4>(get_window(Hann, 4), {0., 0.75, 0.75, 0.}));
+        REQUIRE(almost_equal(get_window(Nuttall, 4),
+                             {0.0003628000000000381,
+                              0.5292298000000004166,
+                              0.5292298000000004166,
+                              0.0003628000000000381}));
     }
 }
 
