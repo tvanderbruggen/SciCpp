@@ -18,12 +18,10 @@ namespace detail {
 
 template <class Array, typename Func>
 void symmetric_filler(Array &w, Func f) {
-    // Since windows are symmetric we compute only half of it
-    for (std::size_t i = w.size() / 2; i < w.size(); ++i) {
-        w[i] = f(i);
-    }
-
-    std::reverse_copy(w.begin() + int(w.size()) / 2, w.end(), w.begin());
+    const auto len = signed_size_t(w.size()) / 2;
+    std::iota(w.begin() + len, w.end(), len);
+    std::transform(w.cbegin() + len, w.cend(), w.begin() + len, f);
+    std::reverse_copy(w.begin() + len, w.end(), w.begin());
 }
 
 } // namespace detail
