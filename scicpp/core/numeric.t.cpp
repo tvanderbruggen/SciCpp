@@ -93,8 +93,10 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(ai * 2, {2, 4, 6}));
     REQUIRE(almost_equal(2. * v, {2., 4., 6.}));
     REQUIRE(almost_equal(v * 2., {2., 4., 6.}));
+    REQUIRE(almost_equal(v * 2.i, {2.i, 4.i, 6.i}));
 
     REQUIRE(almost_equal(2. + a, {3., 4., 5.}));
+    REQUIRE(almost_equal(2.i + a, {2.i + 1., 2.i + 2., 2.i + 3.}));
     REQUIRE(almost_equal(a + 2., {3., 4., 5.}));
     REQUIRE(almost_equal(2 + ai, {3, 4, 5}));
     REQUIRE(almost_equal(ai + 2, {3, 4, 5}));
@@ -114,6 +116,7 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(ai / 2, {0, 1, 1}));
     REQUIRE(almost_equal(2. / v, {2., 1., 2. / 3.}));
     REQUIRE(almost_equal(v / 2., {0.5, 1., 3. / 2.}));
+    REQUIRE(almost_equal(v / 2.i, {-0.5i, -1.i, -3.i / 2.}));
 
     REQUIRE(almost_equal(2. % a, {0., 0., 2.}));
     REQUIRE(almost_equal(a % 2., {1., 0., 1.}));

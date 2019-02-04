@@ -192,7 +192,8 @@ using enable_if_operator_iterable =
     std::enable_if_t<detail::is_operator_iterable_v<T>, int>;
 
 template <class T>
-using enable_if_arithmetic = std::enable_if_t<std::is_arithmetic_v<T>, int>;
+using enable_if_scalar =
+    std::enable_if_t<std::is_arithmetic_v<T> || meta::is_complex_v<T>, int>;
 
 } // namespace detail
 
@@ -207,7 +208,7 @@ auto operator-(Array &&a) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator*(Array &&a, T scalar) {
     return map([=](auto v) { return scalar * v; }, std::forward<Array>(a));
 }
@@ -215,7 +216,7 @@ auto operator*(Array &&a, T scalar) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator*(T scalar, Array &&a) {
     return map([=](auto v) { return scalar * v; }, std::forward<Array>(a));
 }
@@ -225,7 +226,7 @@ auto operator*(T scalar, Array &&a) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator+(Array &&a, T scalar) {
     return map([=](auto v) { return scalar + v; }, std::forward<Array>(a));
 }
@@ -233,7 +234,7 @@ auto operator+(Array &&a, T scalar) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator+(T scalar, Array &&a) {
     return map([=](auto v) { return scalar + v; }, std::forward<Array>(a));
 }
@@ -243,7 +244,7 @@ auto operator+(T scalar, Array &&a) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator-(Array &&a, T scalar) {
     return map([=](auto v) { return v - scalar; }, std::forward<Array>(a));
 }
@@ -251,7 +252,7 @@ auto operator-(Array &&a, T scalar) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator-(T scalar, Array &&a) {
     return map([=](auto v) { return scalar - v; }, std::forward<Array>(a));
 }
@@ -261,7 +262,7 @@ auto operator-(T scalar, Array &&a) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator/(Array &&a, T scalar) {
     return map([=](auto v) { return v / scalar; }, std::forward<Array>(a));
 }
@@ -269,7 +270,7 @@ auto operator/(Array &&a, T scalar) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator/(T scalar, Array &&a) {
     return map([=](auto v) { return scalar / v; }, std::forward<Array>(a));
 }
@@ -292,7 +293,7 @@ auto modulus(T x, T y) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator%(Array &&a, T scalar) {
     return map([=](auto v) { return detail::modulus(v, scalar); },
                std::forward<Array>(a));
@@ -301,7 +302,7 @@ auto operator%(Array &&a, T scalar) {
 template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
-          detail::enable_if_arithmetic<T> = 0>
+          detail::enable_if_scalar<T> = 0>
 auto operator%(T scalar, Array &&a) {
     return map([=](auto v) { return detail::modulus(scalar, v); },
                std::forward<Array>(a));
