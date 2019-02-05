@@ -12,25 +12,6 @@
 namespace scicpp {
 namespace signal {
 
-namespace fft_static_tests {
-
-constexpr auto a = fftfreq<4>();
-static_assert(a.size() == 4);
-static_assert(float_equal(a[0], 0.0));
-static_assert(float_equal(a[1], 0.25));
-static_assert(float_equal(a[2], -0.5));
-static_assert(float_equal(a[3], -0.25));
-
-constexpr auto b = fftfreq<5>();
-static_assert(b.size() == 5);
-static_assert(float_equal(b[0], 0.0));
-static_assert(float_equal(b[1], 0.2));
-static_assert(float_equal(b[2], 0.4));
-static_assert(float_equal(b[3], -0.4));
-static_assert(float_equal(b[4], -0.2));
-
-} // namespace fft_static_tests
-
 TEST_CASE("Forward complex FFT") {
     SECTION("Complex input vector") {
         std::vector x{1. + 3.i, 2. + 2.i, 3. + 1.i};
@@ -57,7 +38,6 @@ TEST_CASE("Forward real FFT") {
 TEST_CASE("Inverse real FFT") {
     SECTION("Test1") {
         std::vector y{1. + 0.i, -1.i, -1. + 0.i, 1.i};
-
         REQUIRE(almost_equal<15>(irfft(y),
                                  {-0.16666666666666666,
                                   0.6220084679281461,

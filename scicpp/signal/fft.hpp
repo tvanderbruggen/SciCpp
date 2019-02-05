@@ -22,49 +22,10 @@ namespace scicpp::signal {
 // FFT helper functions
 //---------------------------------------------------------------------------------
 
-namespace detail {
-
-template <class Array, typename T = typename Array::value_type>
-constexpr void fftfreq_filler(Array &res, T d) {
-    scicpp_require(d > T{0});
-    const auto N = res.size();
-    const T scaling = T{1} / (d * T(N));
-
-    if (N % 2 == 0) {
-        const std::size_t max = (N / 2) - 1;
-
-        for (std::size_t i = 0; i <= max; ++i) {
-            res[i] = T(i) * scaling;
-            res[max + 1 + i] = -T(max + 1 - i) * scaling;
-        }
-    } else {
-        const std::size_t max = (N - 1) / 2;
-
-        for (std::size_t i = 0; i < max; ++i) {
-            res[i] = T(i) * scaling;
-            res[max + 1 + i] = -T(max - i) * scaling;
-        }
-
-        res[max] = T(max) * scaling;
-    }
-}
-
-} // namespace detail
-
-template <std::size_t N, typename T = double>
-constexpr auto fftfreq(T d = T{1}) {
-    static_assert(N > 0);
-    std::array<T, N> res{};
-    detail::fftfreq_filler(res, d);
-    return res;
-}
-
-template <typename T>
-auto fftfreq(std::size_t n, T d = T{1}) {
-    scicpp_require(n > 0);
-    std::vector<T> res(n);
-    detail::fftfreq_filler(res, d);
-    return res;
+template <class Array>
+auto ifftshift(Array &&a) {
+    std::rotate(a.begin(), a.begin() + signed_size_t(a.size()) / 2, a.end());
+    return std::move(a);
 }
 
 template <class Array>
@@ -83,6 +44,36 @@ auto fftshift(const Array &a) {
               a.cbegin() + offset,
               res.begin() + signed_size_t(a.size()) / 2);
     return res;
+}
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+auto fftfreq_filler(Array &res, T d) {
+    using namespace scicpp::operators;
+    scicpp_require(d > T{0});
+
+    const auto N = signed_size_t(res.size());
+    auto start = N % 2 == 0 ? -N / 2 : -(N - 1) / 2;
+    std::iota(res.begin(), res.end(), start);
+    return ifftshift(res / (d * T(N)));
+}
+
+} // namespace detail
+
+template <std::size_t N, typename T = double>
+auto fftfreq(T d = T{1}) {
+    using namespace scicpp::operators;
+    static_assert(N > 0);
+    std::array<T, N> res{};
+    return detail::fftfreq_filler(res, d);
+}
+
+template <typename T>
+auto fftfreq(std::size_t n, T d = T{1}) {
+    scicpp_require(n > 0);
+    std::vector<T> res(n);
+    return detail::fftfreq_filler(res, d);
 }
 
 namespace detail {
