@@ -187,6 +187,75 @@ TEST_CASE("fftshift") {
     }
 }
 
+TEST_CASE("ifftshift") {
+    SECTION("std::array") {
+        SECTION("Even size") {
+            REQUIRE(almost_equal(ifftshift(fftfreq<4>(3.14)),
+                                 {-0.1592356687898089,
+                                  -0.07961783439490445,
+                                  0.,
+                                  0.07961783439490445}));
+
+            const auto a = fftfreq<4>(3.14);
+            REQUIRE(almost_equal(ifftshift(a),
+                                 {-0.1592356687898089,
+                                  -0.07961783439490445,
+                                  0.,
+                                  0.07961783439490445}));
+        }
+        SECTION("Odd size") {
+            REQUIRE(almost_equal(ifftshift(fftfreq<5>(3.14)),
+                                 {0.12738853503184713,
+                                  -0.12738853503184713,
+                                  -0.06369426751592357,
+                                  0.,
+                                  0.06369426751592357}));
+
+            const auto a = fftfreq<5>(3.14);
+            REQUIRE(almost_equal(ifftshift(a),
+                                 {0.12738853503184713,
+                                  -0.12738853503184713,
+                                  -0.06369426751592357,
+                                  0.,
+                                  0.06369426751592357}));
+        }
+    }
+
+    SECTION("std::vector") {
+        SECTION("Even size") {
+            REQUIRE(almost_equal(ifftshift(fftfreq(4, 3.14)),
+                                 {-0.1592356687898089,
+                                  -0.07961783439490445,
+                                  0.,
+                                  0.07961783439490445}));
+
+            const auto a = fftfreq(4, 3.14);
+            REQUIRE(almost_equal(ifftshift(a),
+                                 {-0.1592356687898089,
+                                  -0.07961783439490445,
+                                  0.,
+                                  0.07961783439490445}));
+        }
+
+        SECTION("Odd size") {
+            REQUIRE(almost_equal(ifftshift(fftfreq(5, 3.14)),
+                                 {0.12738853503184713,
+                                  -0.12738853503184713,
+                                  -0.06369426751592357,
+                                  0.,
+                                  0.06369426751592357}));
+
+            const auto a = fftfreq(5, 3.14);
+            REQUIRE(almost_equal(ifftshift(a),
+                                 {0.12738853503184713,
+                                  -0.12738853503184713,
+                                  -0.06369426751592357,
+                                  0.,
+                                  0.06369426751592357}));
+        }
+    }
+}
+
 TEST_CASE("next_fast_len") {
     REQUIRE(next_fast_len(852U) == 864U);
     REQUIRE(next_fast_len(78954651U) == 79626240U);

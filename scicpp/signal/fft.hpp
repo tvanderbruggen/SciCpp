@@ -23,12 +23,6 @@ namespace scicpp::signal {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-auto ifftshift(Array &&a) {
-    std::rotate(a.begin(), a.begin() + signed_size_t(a.size()) / 2, a.end());
-    return std::move(a);
-}
-
-template <class Array>
 auto fftshift(Array &&a) {
     std::rotate(
         a.begin(), a.begin() + signed_size_t(a.size() + 1) / 2, a.end());
@@ -46,16 +40,32 @@ auto fftshift(const Array &a) {
     return res;
 }
 
+template <class Array>
+auto ifftshift(Array &&a) {
+    std::rotate(a.begin(), a.begin() + signed_size_t(a.size()) / 2, a.end());
+    return std::move(a);
+}
+
+template <class Array>
+auto ifftshift(const Array &a) {
+    auto res = utils::set_array(a);
+    const auto offset = (signed_size_t(a.size()) / 2);
+    std::copy(a.cbegin() + offset, a.cend(), res.begin());
+    std::copy(a.cbegin(),
+              a.cbegin() + offset,
+              res.begin() + signed_size_t(a.size() + 1) / 2);
+    return res;
+}
+
 namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
-auto fftfreq_filler(Array &res, T d) {
+auto fftfreq_impl(Array &res, T d) {
     using namespace scicpp::operators;
     scicpp_require(d > T{0});
 
     const auto N = signed_size_t(res.size());
-    auto start = N % 2 == 0 ? -N / 2 : -(N - 1) / 2;
-    std::iota(res.begin(), res.end(), start);
+    std::iota(res.begin(), res.end(), -T(N / 2));
     return ifftshift(res / (d * T(N)));
 }
 
@@ -63,17 +73,16 @@ auto fftfreq_filler(Array &res, T d) {
 
 template <std::size_t N, typename T = double>
 auto fftfreq(T d = T{1}) {
-    using namespace scicpp::operators;
     static_assert(N > 0);
     std::array<T, N> res{};
-    return detail::fftfreq_filler(res, d);
+    return detail::fftfreq_impl(res, d);
 }
 
 template <typename T>
 auto fftfreq(std::size_t n, T d = T{1}) {
     scicpp_require(n > 0);
     std::vector<T> res(n);
-    return detail::fftfreq_filler(res, d);
+    return detail::fftfreq_impl(res, d);
 }
 
 namespace detail {
