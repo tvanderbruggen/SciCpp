@@ -71,7 +71,7 @@ auto fftfreq_impl(Array &&res, T d) {
 
 } // namespace detail
 
-template <std::size_t N, typename T = double>
+template <std::size_t N, typename T>
 auto fftfreq(T d = T{1}) {
     static_assert(N > 0);
     return detail::fftfreq_impl(std::array<T, N>{}, d);
