@@ -60,7 +60,7 @@ auto ifftshift(const Array &a) {
 namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
-auto fftfreq_impl(Array &res, T d) {
+auto fftfreq_impl(Array &&res, T d) {
     using namespace scicpp::operators;
     scicpp_require(d > T{0});
 
@@ -74,15 +74,13 @@ auto fftfreq_impl(Array &res, T d) {
 template <std::size_t N, typename T = double>
 auto fftfreq(T d = T{1}) {
     static_assert(N > 0);
-    std::array<T, N> res{};
-    return detail::fftfreq_impl(res, d);
+    return detail::fftfreq_impl(std::array<T, N>{}, d);
 }
 
 template <typename T>
 auto fftfreq(std::size_t n, T d = T{1}) {
     scicpp_require(n > 0);
-    std::vector<T> res(n);
-    return detail::fftfreq_impl(res, d);
+    return detail::fftfreq_impl(std::vector<T>(n), d);
 }
 
 namespace detail {
