@@ -108,8 +108,7 @@ template <class Array, class BinaryOp>
 
 template <class Array, class BinaryOp>
 [[nodiscard]] auto map(BinaryOp op, const Array &a1, const Array &a2) {
-    auto res(a1);
-    return map(op, std::move(res), a2);
+    return map(op, Array(a1), a2);
 }
 
 //---------------------------------------------------------------------------------
