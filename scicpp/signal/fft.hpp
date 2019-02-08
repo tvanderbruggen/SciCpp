@@ -130,7 +130,7 @@ Integral next_ugly_number(Integral num) {
         }
     }
 
-    SCICPP_UNREACHABLE;
+    scicpp_unreachable;
     return 0;
 }
 

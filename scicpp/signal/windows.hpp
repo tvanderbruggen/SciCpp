@@ -148,34 +148,32 @@ auto general_cosine(const std::array<T, n_weights> &a) {
 
 template <typename T, std::size_t M>
 auto general_hamming(T alpha) {
-    std::array a{alpha, T{1} - alpha};
-    return general_cosine<T, M>(a);
+    return general_cosine<T, M>(std::array{alpha, T{1} - alpha});
 }
 
 template <typename T>
 auto general_hamming(std::size_t M, T alpha) {
-    std::array a{alpha, T{1} - alpha};
-    return general_cosine(M, a);
+    return general_cosine(M, std::array{alpha, T{1} - alpha});
 }
 
 template <typename T, std::size_t M>
 auto hann() {
-    return general_hamming<T, M>(0.5);
+    return general_hamming<T, M>(T{0.5});
 }
 
 template <typename T>
 auto hann(std::size_t M) {
-    return general_hamming(M, 0.5);
+    return general_hamming(M, T{0.5});
 }
 
 template <typename T, std::size_t M>
 auto hamming() {
-    return general_hamming<T, M>(0.54);
+    return general_hamming<T, M>(T{0.54});
 }
 
 template <typename T>
 auto hamming(std::size_t M) {
-    return general_hamming(M, 0.54);
+    return general_hamming(M, T{0.54});
 }
 
 template <typename T, std::size_t M>
@@ -302,7 +300,7 @@ auto get_window() {
     case Flattop:
         return flattop<T, N>();
     default:
-        SCICPP_UNREACHABLE;
+        scicpp_unreachable;
     }
 }
 
@@ -328,7 +326,7 @@ auto get_window(Window win, std::size_t N) {
     case Flattop:
         return flattop<T>(N);
     default:
-        SCICPP_UNREACHABLE;
+        scicpp_unreachable;
     }
 }
 

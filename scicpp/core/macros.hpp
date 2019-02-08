@@ -6,11 +6,12 @@
 
 #include <cassert>
 #include <type_traits>
+#include <utility>
 
 #ifdef NDEBUG
-#define SCICPP_UNREACHABLE __builtin_unreachable()
+#define scicpp_unreachable __builtin_unreachable()
 #else
-#define SCICPP_UNREACHABLE assert(false)
+#define scicpp_unreachable assert(false)
 #endif
 
 //https://blog.regehr.org/archives/1096
@@ -18,30 +19,13 @@
 #define scicpp_require(expr)                                                   \
     ((expr) ? static_cast<void>(0) : __builtin_unreachable())
 #else
-
-// We throw an exception on assert to be able to test
-// for asserts using CATCH.
-// https://github.com/catchorg/Catch2/issues/553
-
-#include <stdexcept>
-
-namespace detail {
-
-inline constexpr void assert_impl(bool cond, const char *msg) {
-    if (!cond) {
-        throw std::runtime_error(msg);
-    }
-}
-
-} // namespace detail
-
-#define scicpp_require(x) ::detail::assert_impl((x), #x)
+#define scicpp_require(expr) assert(expr)
 #endif
 
 #define scicpp_pure __attribute__((pure))
 #define scicpp_const __attribute__((const))
 
-// Define a signed integer for sized
+// Define a signed integer for sizes
 using signed_size_t = typename std::make_signed_t<std::size_t>;
 
 #endif // SCICPP_MACROS

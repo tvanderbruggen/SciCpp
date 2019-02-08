@@ -3,9 +3,9 @@
 
 // clang-format off
 #include "scicpp_catch.hpp"
+// clang-format on
 
 using namespace std::literals;
-// clang-format on
 
 #include "scicpp/signal/convolve.t.cpp"
 #include "scicpp/signal/fft.t.cpp"

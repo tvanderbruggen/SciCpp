@@ -130,7 +130,7 @@ template <class Func>
 auto vectorize(Func &&f) {
     return [&](auto &&... arrays) {
         return map(
-            [&](auto &&... args) {
+            [&](auto &&... args) scicpp_const {
                 return std::invoke(std::forward<Func>(f),
                                    std::forward<decltype(args)>(args)...);
             },

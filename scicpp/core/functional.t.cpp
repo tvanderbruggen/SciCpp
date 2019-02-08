@@ -67,9 +67,6 @@ TEST_CASE("map") {
         REQUIRE(almost_equal<2>(x, {20., 16., 20.}));
         static_assert(
             std::is_same_v<std::decay_t<decltype(x)>, std::array<double, 3>>);
-
-        REQUIRE_THROWS(
-            map(std::plus<>(), std::vector{4., 5.}, std::vector{4., 5., 6.}));
     }
 
     // Check const arrays are not modified
