@@ -82,6 +82,19 @@ TEST_CASE("Exponents and logarithms") {
                             {std::log1p(1.), std::log1p(2.), std::log1p(3.)}));
 }
 
+TEST_CASE("Rounding") {
+    REQUIRE(almost_equal(around(std::vector{1.2, 2.5, 3.67}),
+                         {1., 3., 4.}));
+    REQUIRE(almost_equal(floor(std::array{1., 2., 3.}),
+                         {std::floor(1.), std::floor(2.), std::floor(3.)}));
+    REQUIRE(almost_equal(ceil(std::array{1., 2., 3.}),
+                         {std::ceil(1.), std::ceil(2.), std::ceil(3.)}));
+    REQUIRE(almost_equal(trunc(std::array{1., 2., 3.}),
+                         {std::trunc(1.), std::trunc(2.), std::trunc(3.)}));
+    REQUIRE(almost_equal(rint(std::array{1., 2., 3.}),
+                         {std::rint(1.), std::rint(2.), std::rint(3.)}));
+}
+
 TEST_CASE("Complex numbers") {
     const std::vector v{1. - 1.i, -42. + 3.i, -64. + 42.i};
 

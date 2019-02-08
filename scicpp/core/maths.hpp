@@ -70,6 +70,14 @@ const auto log = vectorize([](auto x) { return std::log(x); });
 const auto log2 = vectorize([](auto x) { return std::log2(x); });
 const auto log1p = vectorize([](auto x) { return std::log1p(x); });
 
+// Rounding
+
+const auto around = vectorize([](auto x) { return std::round(x); });
+const auto floor = vectorize([](auto x) { return std::floor(x); });
+const auto ceil = vectorize([](auto x) { return std::ceil(x); });
+const auto trunc = vectorize([](auto x) { return std::trunc(x); });
+const auto rint = vectorize([](auto x) { return std::rint(x); });
+
 // Complex numbers
 
 const auto real = vectorize([](auto z) { return std::real(z); });

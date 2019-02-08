@@ -27,6 +27,10 @@ Exponents and logarithms
 
 :code:`exp`, :code:`expm1`, :code:`exp2`, :code:`log`, :code:`log2`, :code:`log1p`.
 
+Rounding
+^^^^^^^^^^^^^^^^
+:code:`around`, :code:`floor`, :code:`ceil`, :code:`trunc`, :code:`rint`.
+
 Complex numbers
 ^^^^^^^^^^^^^^^^
 
