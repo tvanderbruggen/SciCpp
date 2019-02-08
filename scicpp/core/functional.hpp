@@ -157,8 +157,7 @@ template <typename T, class UnaryPredicate>
 
 template <typename T, class UnaryPredicate>
 [[nodiscard]] auto filter(const std::vector<T> &a, UnaryPredicate p) {
-    std::vector<T> res(a);
-    return filter(std::move(res), p);
+    return filter(std::vector(a), p);
 }
 
 //---------------------------------------------------------------------------------
