@@ -39,6 +39,9 @@ FFT Helper Functions
 :ref:`fftshift <signal_fftshift>`
     Shift the zero-frequency component to the center of the spectrum.
 
+:ref:`ifftshift <signal_ifftshift>`
+    The inverse of fftshift.
+
 :ref:`next_fast_len <signal_next_fast_len>`
     Find the next fast size of input data to FFT.
 
