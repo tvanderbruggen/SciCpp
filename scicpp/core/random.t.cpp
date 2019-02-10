@@ -9,32 +9,32 @@ namespace scicpp::random {
 
 TEST_CASE("rand") {
     SECTION("std::array") {
-        auto r = rand<double, 1000>();
+        const auto r = rand<double, 1000>();
         REQUIRE(r.size() == 1000);
-        REQUIRE(almost_equal(stats::mean(r), 0.5010793723598663));
-        REQUIRE(almost_equal(stats::std(r),
-                             0.2929667023696285)); // Theory 1/sqrt(12)
+        REQUIRE(std::fabs(stats::mean(r) - 0.5) < 1. / std::sqrt(1000));
+        REQUIRE(std::fabs(stats::std(r) - 1 / std::sqrt(12)) <
+                1. / std::sqrt(1000));
     }
 
     SECTION("std::vector") {
-        auto r = rand<double>(1000);
+        const auto r = rand<double>(1000);
         REQUIRE(r.size() == 1000);
-        REQUIRE(almost_equal(stats::mean(r), 0.5010793723598663));
-        REQUIRE(almost_equal(stats::std(r),
-                             0.2929667023696285)); // Theory 1/sqrt(12)
+        REQUIRE(std::fabs(stats::mean(r) - 0.5) < 1. / std::sqrt(1000));
+        REQUIRE(std::fabs(stats::std(r) - 1 / std::sqrt(12)) <
+                1. / std::sqrt(1000));
     }
 }
 
 TEST_CASE("randn") {
     SECTION("std::array") {
-        auto r = randn<double, 1000>();
+        const auto r = randn<double, 1000>();
         REQUIRE(r.size() == 1000);
         REQUIRE(std::fabs(stats::mean(r)) < 0.01);
         REQUIRE(std::fabs(stats::std(r) - 1.0) < 0.01);
     }
 
     SECTION("std::vector") {
-        auto r = randn<double>(1000);
+        const auto r = randn<double>(1000);
         REQUIRE(r.size() == 1000);
         REQUIRE(std::fabs(stats::mean(r)) < 0.01);
         REQUIRE(std::fabs(stats::std(r) - 1.0) < 0.01);
