@@ -87,6 +87,9 @@ Sums, products, differences
 :ref:`cumsum <core_cumsum>`
     Cumulative sum of array elements.
 
+:ref:`cumprod <core_cumprod>`
+    Cumulative products of array elements.
+
 :ref:`trapz <core_trapz>`
     Integrate using the trapezoidal rule.
 
