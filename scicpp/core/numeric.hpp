@@ -90,6 +90,17 @@ auto cumsum(const Array &a) {
 }
 
 //---------------------------------------------------------------------------------
+// cumprod
+//---------------------------------------------------------------------------------
+
+template <class Array>
+auto cumprod(const Array &a) {
+    auto res = utils::set_array(a);
+    std::partial_sum(a.cbegin(), a.cend(), res.begin(), std::multiplies<>());
+    return res;
+}
+
+//---------------------------------------------------------------------------------
 // trapz
 //---------------------------------------------------------------------------------
 
@@ -97,12 +108,12 @@ template <class InputIt,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 constexpr T trapz(InputIt first, InputIt last, T dx) {
     if (std::distance(first, last) == 0) {
-        return T(0);
+        return T{0};
     }
 
     // https://en.wikipedia.org/wiki/Trapezoidal_rule
-    return T(0.5) * dx *
-           (*first + T(2) * sum(first + 1, last - 1) + *(last - 1));
+    return T{0.5} * dx *
+           (*first + T{2} * sum(first + 1, last - 1) + *(last - 1));
 }
 
 template <class Array, typename T = typename Array::value_type>
@@ -173,8 +184,7 @@ auto diff(std::vector<T> &&a, int n = 1) {
 
 template <typename T>
 auto diff(const std::vector<T> &a, int n = 1) {
-    std::vector<T> res(a);
-    return diff(std::move(res), n);
+    return diff(std::vector<T>(a), n);
 }
 
 //---------------------------------------------------------------------------------

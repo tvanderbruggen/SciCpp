@@ -46,6 +46,14 @@ TEST_CASE("cumsum") {
                          {1., 4., 10., 20., 35., 56.}));
 }
 
+TEST_CASE("cumprod") {
+    REQUIRE(cumprod(std::array<double, 0>{}).empty());
+    REQUIRE(almost_equal(cumprod(std::array{1., 3., 6., 10., 15., 21.}),
+                         {1., 3., 18., 180., 2700., 56700.}));
+    REQUIRE(almost_equal(cumprod(std::vector{1., 3., 6., 10., 15., 21.}),
+                         {1., 3., 18., 180., 2700., 56700.}));
+}
+
 TEST_CASE("trapz") {
     REQUIRE(almost_equal(trapz(std::array<double, 0>{}, 1.), 0.));
     REQUIRE(almost_equal(trapz(std::array{1., 2., 3.}, 1.), 4.));
