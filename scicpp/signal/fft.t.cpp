@@ -269,10 +269,10 @@ TEST_CASE("zero_padding") {
 
 TEST_CASE("power_spectrum_density") {
     // Generate a Gaussian white-noise with sigma = 1
-    const auto noise = random::randn<double>(1000);
-    auto psd = power_spectrum_density(noise, 1.0, windows::Window::Flattop);
+    const auto noise = random::randn<double>(10000);
+    const auto psd = power_spectrum_density(noise, 1., windows::Window::Boxcar);
     // The expected PSD for a white noise is 2 * sigma ^ 2
-    REQUIRE(almost_equal<2>(stats::mean(psd), 1.8119111289763108));
+    REQUIRE(std::fabs(stats::mean(psd) - 2.) / 2. < 1. / std::sqrt(10000));
 }
 
 } // namespace signal
