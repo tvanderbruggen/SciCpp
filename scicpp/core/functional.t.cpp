@@ -101,28 +101,27 @@ TEST_CASE("filter") {
 }
 
 TEST_CASE("filter_reduce") {
-    static_assert(
+    const auto [res, cnt] =
         filter_reduce(std::array{1, 2, 3, 4, 5}, std::plus<>(), 0, [](auto v) {
             return v % 2 == 0;
-        }) == 6);
+        });
 
-    REQUIRE(
-        filter_reduce(std::array{1, 2, 3, 4, 5}, std::plus<>(), 0, [](auto v) {
-            return v % 2 == 0;
-        }) == 6);
+    REQUIRE(res == 6);
+    REQUIRE(cnt == 2);
 
-    REQUIRE(filter_reduce(std::vector<int>{}, std::plus<>(), 1, [](auto v) {
-                return v % 2 == 0;
-            }) == 1);
+    REQUIRE(std::get<0>(
+                filter_reduce(std::vector<int>{}, std::plus<>(), 1, [](auto v) {
+                    return v % 2 == 0;
+                })) == 1);
 }
 
 TEST_CASE("reduce") {
-    REQUIRE(reduce(std::array{1, 2, 3},
-                   [](auto r, auto v) { return r + v * v; },
-                   0) == 14);
-    static_assert(reduce(std::array{1, 2, 3},
-                         [](auto r, auto v) { return r + v * v; },
-                         0) == 14);
+    REQUIRE(std::get<0>(reduce(std::array{1, 2, 3},
+                               [](auto r, auto v) { return r + v * v; },
+                               0)) == 14);
+    static_assert(std::get<0>(reduce(std::array{1, 2, 3},
+                                     [](auto r, auto v) { return r + v * v; },
+                                     0)) == 14);
 }
 
 } // namespace scicpp

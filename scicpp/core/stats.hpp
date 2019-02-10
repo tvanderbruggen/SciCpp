@@ -79,34 +79,57 @@ T average(const Array &f, const Array &weights) {
 // mean
 //---------------------------------------------------------------------------------
 
-template <class Array, typename T = typename Array::value_type>
-constexpr T mean(const Array &f) {
+template <class Array, class Predicate, typename T = typename Array::value_type>
+constexpr T mean(const Array &f, Predicate filter) {
     if (f.empty()) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
-    return sum(f) / T(f.size());
+    const auto [res, cnt] = sum(f, filter);
+    return res / T(cnt);
+}
+
+template <class Array, typename T = typename Array::value_type>
+constexpr T mean(const Array &f) {
+    return mean(f, []([[maybe_unused]] auto v) { return true; });
+}
+
+template <class Array, typename T = typename Array::value_type>
+T nanmean(const Array &f) {
+    return mean(f, [](auto v) { return !std::isnan(v); });
 }
 
 //---------------------------------------------------------------------------------
 // var
 //---------------------------------------------------------------------------------
 
-template <class Array, typename T = typename Array::value_type>
-constexpr T var(const Array &f) {
+template <class Array, class Predicate, typename T = typename Array::value_type>
+constexpr T var(const Array &f, Predicate filter) {
     if (f.empty()) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
-    const T m0 = mean(f);
+    const T m0 = mean(f, filter);
 
-    return reduce(f,
-                  [m0](auto r, auto v) {
-                      const T diff = v - m0;
-                      return r + diff * diff;
-                  },
-                  T{0}) /
-           T(f.size());
+    const auto [res, cnt] = filter_reduce(f,
+                                          [m0](auto r, auto v) {
+                                              const T diff = v - m0;
+                                              return r + diff * diff;
+                                          },
+                                          T{0},
+                                          filter);
+
+    return res / T(cnt);
+}
+
+template <class Array, typename T = typename Array::value_type>
+constexpr T var(const Array &f) {
+    return var(f, []([[maybe_unused]] auto v) { return true; });
+}
+
+template <class Array, typename T = typename Array::value_type>
+T nanvar(const Array &f) {
+    return var(f, [](auto v) { return !std::isnan(v); });
 }
 
 //---------------------------------------------------------------------------------
@@ -116,6 +139,11 @@ constexpr T var(const Array &f) {
 template <class Array>
 auto std(const Array &a) {
     return std::sqrt(var(a));
+}
+
+template <class Array>
+auto nanstd(const Array &a) {
+    return std::sqrt(nanvar(a));
 }
 
 } // namespace stats

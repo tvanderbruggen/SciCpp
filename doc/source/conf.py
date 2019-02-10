@@ -59,8 +59,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'SciCpp'
-copyright = u'2018, The SciCpp community'
-author = u'The SciCpp community'
+copyright = u'2018, T. Vanderbruggen'
+author = u'T. Vanderbruggen'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

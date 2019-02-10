@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -168,26 +169,28 @@ template <class InputIt,
           class UnaryPredicate,
           class BinaryOp,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-[[nodiscard]] constexpr scicpp_pure T filter_reduce(
+[[nodiscard]] constexpr scicpp_pure auto filter_reduce(
     InputIt first, InputIt last, BinaryOp op, T init, UnaryPredicate filter) {
     static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
 
     T res = init;
+    signed_size_t cnt = 0;
 
     for (; first != last; ++first) {
         if (filter(*first)) {
             res = op(res, *first);
+            cnt++;
         }
     }
 
-    return res;
+    return std::make_tuple(res, cnt);
 }
 
 template <class Array,
           class UnaryPredicate,
           class BinaryOp,
           typename T = typename Array::value_type>
-[[nodiscard]] constexpr scicpp_pure T
+[[nodiscard]] constexpr scicpp_pure auto
 filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
     return filter_reduce(a.cbegin(), a.cend(), op, init, filter);
 }
@@ -197,9 +200,8 @@ filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
 //---------------------------------------------------------------------------------
 
 template <class Array, class BinaryOp, typename T = typename Array::value_type>
-[[nodiscard]] constexpr scicpp_pure T reduce(const Array &a,
-                                             BinaryOp op,
-                                             T init) {
+[[nodiscard]] constexpr scicpp_pure auto
+reduce(const Array &a, BinaryOp op, T init) {
     return filter_reduce(
         a.cbegin(), a.cend(), op, init, []([[maybe_unused]] auto v) {
             return true;

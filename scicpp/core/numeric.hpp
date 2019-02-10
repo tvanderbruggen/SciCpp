@@ -26,23 +26,29 @@ namespace scicpp {
 template <class InputIt,
           class Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T sum(InputIt first, InputIt last, Predicate filter) {
+constexpr auto sum(InputIt first, InputIt last, Predicate filter) {
     return filter_reduce(first, last, std::plus<>(), T{0}, filter);
 }
 
 template <class InputIt>
 constexpr auto sum(InputIt first, InputIt last) {
-    return sum(first, last, []([[maybe_unused]] auto v) { return true; });
+    return std::get<0>(
+        sum(first, last, []([[maybe_unused]] auto v) { return true; }));
+}
+
+template <class Array, class Predicate>
+constexpr auto sum(const Array &f, Predicate filter) {
+    return sum(f.cbegin(), f.cend(), filter);
 }
 
 template <class Array>
 constexpr auto sum(const Array &f) {
-    return sum(f.cbegin(), f.cend());
+    return std::get<0>(sum(f, []([[maybe_unused]] auto v) { return true; }));
 }
 
 template <class Array>
 auto nansum(const Array &f) {
-    return sum(f.cbegin(), f.cend(), [](auto v) { return !std::isnan(v); });
+    return sum(f, [](auto v) { return !std::isnan(v); });
 }
 
 //---------------------------------------------------------------------------------
@@ -52,13 +58,14 @@ auto nansum(const Array &f) {
 template <class InputIt,
           class Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T prod(InputIt first, InputIt last, Predicate filter) {
+constexpr auto prod(InputIt first, InputIt last, Predicate filter) {
     return filter_reduce(first, last, std::multiplies<>(), T{1}, filter);
 }
 
 template <class InputIt>
 constexpr auto prod(InputIt first, InputIt last) {
-    return prod(first, last, []([[maybe_unused]] auto v) { return true; });
+    return std::get<0>(
+        prod(first, last, []([[maybe_unused]] auto v) { return true; }));
 }
 
 template <class Array>

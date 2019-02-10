@@ -53,19 +53,34 @@ TEST_CASE("average") {
 
 TEST_CASE("mean") {
     REQUIRE(std::isnan(mean(std::array<double, 0>{})));
-    REQUIRE(almost_equal(mean(std::array{1.0, 2.0, 3.0}), 2.0));
-    REQUIRE(almost_equal(mean(std::vector{1.0, 2.0, 3.0}), 2.0));
+    REQUIRE(almost_equal(mean(std::array{1., 2., 3.}), 2.));
+    REQUIRE(almost_equal(mean(std::vector{1., 2., 3.}), 2.));
+}
+
+TEST_CASE("nan") {
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(std::isnan(nanmean(std::array<double, 0>{})));
+    REQUIRE(almost_equal(nanmean(std::array{1., nan, 2., 3., nan}), 2.));
+    REQUIRE(almost_equal(nanmean(std::vector{1., 2., nan, 3.}), 2.));
 }
 
 TEST_CASE("var") {
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
     REQUIRE(std::isnan(var(std::array<double, 0>{})));
-    REQUIRE(almost_equal(var(std::array{1.0, 2.0, 3.0}), 2.0 / 3.0));
-    REQUIRE(almost_equal(var(std::vector{1.0, 2.0, 3.0}), 2.0 / 3.0));
+    REQUIRE(almost_equal(var(std::array{1., 2., 3.}), 2. / 3.));
+    REQUIRE(almost_equal(var(std::vector{1., 2., 3.}), 2. / 3.));
+    REQUIRE(almost_equal(nanvar(std::array{1., nan, 2., 3., nan}), 2. / 3.));
+    REQUIRE(almost_equal(nanvar(std::vector{1., 2., nan, 3.}), 2. / 3.));
 }
 
 TEST_CASE("std") {
-    REQUIRE(almost_equal(std(std::array{1.0, 2.0, 3.0}), 0.816496580927726));
-    REQUIRE(almost_equal(std(std::vector{4.0, 1.0, 12.0}), 4.642796092394707));
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(std(std::array{1., 2., 3.}), 0.816496580927726));
+    REQUIRE(almost_equal(std(std::vector{4., 1., 12.}), 4.642796092394707));
+    REQUIRE(
+        almost_equal(nanstd(std::array{1., nan, 2., 3.}), 0.816496580927726));
+    REQUIRE(almost_equal(nanstd(std::vector{4., nan, 1., nan, 12.}),
+                         4.642796092394707));
 }
 
 } // namespace stats

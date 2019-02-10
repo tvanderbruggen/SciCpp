@@ -252,7 +252,8 @@ auto irfft(const std::vector<std::complex<T>> &y, int n = -1) {
 template <class Array, typename T = typename Array::value_type>
 auto power_spectrum_density(const Array &x, T fs, Array &&w) {
     using namespace scicpp::operators;
-    const auto S2 = reduce(w, [](auto r, auto v) { return r + v * v; }, T{0});
+    const auto S2 =
+        std::get<0>(reduce(w, [](auto r, auto v) { return r + v * v; }, T{0}));
     return (2. / (fs * S2)) * norm(rfft(x * std::forward<Array>(w)));
 }
 

@@ -83,8 +83,7 @@ TEST_CASE("Exponents and logarithms") {
 }
 
 TEST_CASE("Rounding") {
-    REQUIRE(almost_equal(around(std::vector{1.2, 2.5, 3.67}),
-                         {1., 3., 4.}));
+    REQUIRE(almost_equal(around(std::vector{1.2, 2.5, 3.67}), {1., 3., 4.}));
     REQUIRE(almost_equal(floor(std::array{1., 2., 3.}),
                          {std::floor(1.), std::floor(2.), std::floor(3.)}));
     REQUIRE(almost_equal(ceil(std::array{1., 2., 3.}),

@@ -21,10 +21,10 @@ TEST_CASE("sum") {
     REQUIRE(almost_equal(sum(std::array{1., 2., 3.141}), 6.141));
     REQUIRE(almost_equal(sum(std::array{1., 2., 3.}), 6.));
     REQUIRE(almost_equal(sum(std::vector{1., 2., 3.}), 6.));
-    REQUIRE(
-        almost_equal(nansum(std::vector{
-                         1., 2., 3., std::numeric_limits<double>::quiet_NaN()}),
-                     6.));
+    const auto [res, cnt] = nansum(
+        std::vector{1., 2., 3., std::numeric_limits<double>::quiet_NaN()});
+    REQUIRE(almost_equal(res, 6.));
+    REQUIRE(cnt == 3);
 }
 
 TEST_CASE("prod") {
@@ -32,10 +32,10 @@ TEST_CASE("prod") {
     REQUIRE(almost_equal(prod(std::array{1., 2., 3.141}), 6.282));
     REQUIRE(almost_equal(prod(std::array{1., 2., 3.}), 6.));
     REQUIRE(almost_equal(prod(std::vector{1., 2., 3.}), 6.));
-    REQUIRE(
-        almost_equal(nanprod(std::vector{
-                         1., 2., 3., std::numeric_limits<double>::quiet_NaN()}),
-                     6.));
+    const auto [res, cnt] = nanprod(
+        std::vector{1., 2., 3., std::numeric_limits<double>::quiet_NaN()});
+    REQUIRE(almost_equal(res, 6.));
+    REQUIRE(cnt == 3);
 }
 
 TEST_CASE("cumsum") {

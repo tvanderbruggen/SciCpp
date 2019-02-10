@@ -9,13 +9,35 @@ Compute the arithmetic mean.
 
 ----------------
 
-.. function:: template <typename T, std::size_t N> \
-              constexpr T mean(const std::array<T, N> &f)
+.. function:: template <class Array, class Predicate>
+              constexpr auto mean(const Array &f, Predicate filter)
+
+Compute the arithmetic mean of an array using only the values satisfying the filter predicate.
 
 ----------------
 
-.. function:: template <typename T> \
-              T mean(const std::vector<T> &f)
+.. function:: template <class Array>
+              constexpr auto mean(const Array &f)
+
+Compute the arithmetic mean of an array.
+
+Example
+-------------------------
+
+::
+
+    #include <scicpp/core.hpp>
+
+    int main()
+    {
+        const a = std::array{-1., 1., 2., 3.};
+
+        // Compute the mean of the array
+        auto m = scicpp::stats::mean(a);
+
+        // Compute the mean of the positive values of the array
+        auto m_pos = scicpp::stats::mean(a, [](auto x) { return x >= 0; });
+    }
 
 See also
     ----------

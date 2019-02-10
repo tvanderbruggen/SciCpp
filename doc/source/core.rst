@@ -126,11 +126,20 @@ Statistics
 :ref:`stats::mean <core_stats_mean>`
     Compute the arithmetic mean.
 
+:ref:`stats::nanmean <core_stats_nanmean>`
+    Compute the arithmetic mean, ignoring NaNs.
+
 :ref:`stats::var <core_stats_var>`
     Compute the variance.
 
+:ref:`stats::nanvar <core_stats_nanvar>`
+    Compute the variance, ignoring NaNs.
+
 :ref:`stats::std <core_stats_std>`
     Compute the standard deviation.
+
+:ref:`stats::nanstd <core_stats_nanstd>`
+    Compute the standard deviation, ignoring NaNs.
 
 Functional programming
 ---------------
