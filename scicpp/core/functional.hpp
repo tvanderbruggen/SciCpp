@@ -8,6 +8,7 @@
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <iterator>
 #include <tuple>
@@ -142,6 +143,14 @@ auto vectorize(Func &&f) {
 //---------------------------------------------------------------------------------
 // filter
 //---------------------------------------------------------------------------------
+
+namespace filters {
+
+const auto all = []([[maybe_unused]] auto v) { return true; };
+const auto none = []([[maybe_unused]] auto v) { return false; };
+const auto not_nan = [](auto v) { return !std::isnan(v); };
+
+}
 
 // filter does resize the array in a way that depends on runtime arguments
 // so we cannot implement it for std::array.

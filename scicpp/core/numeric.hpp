@@ -33,7 +33,7 @@ constexpr auto sum(InputIt first, InputIt last, Predicate filter) {
 template <class InputIt>
 constexpr auto sum(InputIt first, InputIt last) {
     return std::get<0>(
-        sum(first, last, []([[maybe_unused]] auto v) { return true; }));
+        sum(first, last, filters::all));
 }
 
 template <class Array, class Predicate>
@@ -43,12 +43,12 @@ constexpr auto sum(const Array &f, Predicate filter) {
 
 template <class Array>
 constexpr auto sum(const Array &f) {
-    return std::get<0>(sum(f, []([[maybe_unused]] auto v) { return true; }));
+    return std::get<0>(sum(f, filters::all));
 }
 
 template <class Array>
 auto nansum(const Array &f) {
-    return sum(f, [](auto v) { return !std::isnan(v); });
+    return sum(f, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ constexpr auto prod(InputIt first, InputIt last, Predicate filter) {
 template <class InputIt>
 constexpr auto prod(InputIt first, InputIt last) {
     return std::get<0>(
-        prod(first, last, []([[maybe_unused]] auto v) { return true; }));
+        prod(first, last, filters::all));
 }
 
 template <class Array>
@@ -75,7 +75,7 @@ constexpr auto prod(const Array &f) {
 
 template <class Array>
 auto nanprod(const Array &f) {
-    return prod(f.cbegin(), f.cend(), [](auto v) { return !std::isnan(v); });
+    return prod(f.cbegin(), f.cend(), filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------

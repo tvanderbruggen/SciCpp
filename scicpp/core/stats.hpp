@@ -91,12 +91,12 @@ constexpr T mean(const Array &f, Predicate filter) {
 
 template <class Array, typename T = typename Array::value_type>
 constexpr T mean(const Array &f) {
-    return mean(f, []([[maybe_unused]] auto v) { return true; });
+    return mean(f, filters::all);
 }
 
 template <class Array, typename T = typename Array::value_type>
 T nanmean(const Array &f) {
-    return mean(f, [](auto v) { return !std::isnan(v); });
+    return mean(f, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
@@ -122,12 +122,12 @@ constexpr T var(const Array &f, Predicate filter) {
 
 template <class Array, typename T = typename Array::value_type>
 constexpr T var(const Array &f) {
-    return var(f, []([[maybe_unused]] auto v) { return true; });
+    return var(f, filters::all);
 }
 
 template <class Array, typename T = typename Array::value_type>
 T nanvar(const Array &f) {
-    return var(f, [](auto v) { return !std::isnan(v); });
+    return var(f, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
