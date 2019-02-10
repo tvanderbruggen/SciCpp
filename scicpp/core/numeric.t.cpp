@@ -44,6 +44,12 @@ TEST_CASE("cumsum") {
                          {1., 4., 10., 20., 35., 56.}));
     REQUIRE(almost_equal(cumsum(std::vector{1., 3., 6., 10., 15., 21.}),
                          {1., 4., 10., 20., 35., 56.}));
+    const std::vector v{1., 3., 6., 10., 15., 21.};
+    REQUIRE(almost_equal(cumsum(v), {1., 4., 10., 20., 35., 56.}));
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(
+        nancumsum(std::vector{1., 3., nan, 6., 10., 15., nan, 21.}),
+        {1., 4., 10., 20., 35., 56.}));
 }
 
 TEST_CASE("cumprod") {
@@ -52,6 +58,12 @@ TEST_CASE("cumprod") {
                          {1., 3., 18., 180., 2700., 56700.}));
     REQUIRE(almost_equal(cumprod(std::vector{1., 3., 6., 10., 15., 21.}),
                          {1., 3., 18., 180., 2700., 56700.}));
+    const std::vector v{1., 3., 6., 10., 15., 21.};
+    REQUIRE(almost_equal(cumprod(v), {1., 3., 18., 180., 2700., 56700.}));
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(
+        nancumprod(std::vector{1., nan, 3., 6., nan, 10., 15., nan, 21.}),
+        {1., 3., 18., 180., 2700., 56700.}));
 }
 
 TEST_CASE("trapz") {

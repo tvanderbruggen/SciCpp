@@ -32,8 +32,7 @@ constexpr auto sum(InputIt first, InputIt last, Predicate filter) {
 
 template <class InputIt>
 constexpr auto sum(InputIt first, InputIt last) {
-    return std::get<0>(
-        sum(first, last, filters::all));
+    return std::get<0>(sum(first, last, filters::all));
 }
 
 template <class Array, class Predicate>
@@ -64,8 +63,7 @@ constexpr auto prod(InputIt first, InputIt last, Predicate filter) {
 
 template <class InputIt>
 constexpr auto prod(InputIt first, InputIt last) {
-    return std::get<0>(
-        prod(first, last, filters::all));
+    return std::get<0>(prod(first, last, filters::all));
 }
 
 template <class Array>
@@ -83,10 +81,19 @@ auto nanprod(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
+auto cumsum(Array &&a) {
+    std::partial_sum(a.cbegin(), a.cend(), a.begin());
+    return std::move(a);
+}
+
+template <class Array>
 auto cumsum(const Array &a) {
-    auto res = utils::set_array(a);
-    std::partial_sum(a.cbegin(), a.cend(), res.begin());
-    return res;
+    return cumsum(Array(a));
+}
+
+template <typename T>
+auto nancumsum(const std::vector<T> &v) {
+    return cumacc(v, std::plus<>(), filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
@@ -94,10 +101,19 @@ auto cumsum(const Array &a) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
+auto cumprod(Array &&a) {
+    std::partial_sum(a.cbegin(), a.cend(), a.begin(), std::multiplies<>());
+    return std::move(a);
+}
+
+template <class Array>
 auto cumprod(const Array &a) {
-    auto res = utils::set_array(a);
-    std::partial_sum(a.cbegin(), a.cend(), res.begin(), std::multiplies<>());
-    return res;
+    return cumprod(Array(a));
+}
+
+template <typename T>
+auto nancumprod(const std::vector<T> &v) {
+    return cumacc(v, std::multiplies<>(), filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------

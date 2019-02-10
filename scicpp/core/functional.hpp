@@ -11,6 +11,7 @@
 #include <cmath>
 #include <functional>
 #include <iterator>
+#include <numeric>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -150,7 +151,7 @@ const auto all = []([[maybe_unused]] auto v) { return true; };
 const auto none = []([[maybe_unused]] auto v) { return false; };
 const auto not_nan = [](auto v) { return !std::isnan(v); };
 
-}
+} // namespace filters
 
 // filter does resize the array in a way that depends on runtime arguments
 // so we cannot implement it for std::array.
@@ -162,7 +163,7 @@ template <typename T, class UnaryPredicate>
     const auto i =
         std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
     a.erase(i, a.end());
-    return a;
+    return std::move(a);
 }
 
 template <typename T, class UnaryPredicate>
@@ -215,6 +216,24 @@ reduce(const Array &a, BinaryOp op, T init) {
         a.cbegin(), a.cend(), op, init, []([[maybe_unused]] auto v) {
             return true;
         });
+}
+
+//---------------------------------------------------------------------------------
+// cumacc
+//---------------------------------------------------------------------------------
+
+template <class Array, class BinaryOp, class UnaryPredicate>
+auto cumacc(Array &&a, BinaryOp op, UnaryPredicate p) {
+    using InputType = typename std::remove_reference_t<Array>::value_type;
+    using ReturnType =
+        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
+    static_assert(
+        std::is_integral_v<std::invoke_result_t<UnaryPredicate, InputType>>);
+    static_assert(std::is_same_v<InputType, ReturnType>);
+
+    auto a_filt = filter(std::forward<Array>(a), p);
+    std::partial_sum(a_filt.cbegin(), a_filt.cend(), a_filt.begin(), op);
+    return a_filt;
 }
 
 } // namespace scicpp

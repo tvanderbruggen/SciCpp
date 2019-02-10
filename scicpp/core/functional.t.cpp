@@ -124,4 +124,10 @@ TEST_CASE("reduce") {
                                      0)) == 14);
 }
 
+TEST_CASE("cumacc") {
+    REQUIRE(cumacc(std::vector{-1, 1, 2, 3}, std::plus<>(), [](auto x) {
+                return x > 0;
+            }) == std::vector{1, 3, 6});
+}
+
 } // namespace scicpp
