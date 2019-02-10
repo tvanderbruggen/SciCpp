@@ -87,8 +87,14 @@ Sums, products, differences
 :ref:`cumsum <core_cumsum>`
     Cumulative sum of array elements.
 
+:ref:`nancumsum <core_nancumsum>`
+    Cumulative sum of array elements excluding NaNs.
+
 :ref:`cumprod <core_cumprod>`
     Cumulative products of array elements.
+
+:ref:`nancumprod <core_nancumprod>`
+    Cumulative products of array elements excluding NaNs.
 
 :ref:`trapz <core_trapz>`
     Integrate using the trapezoidal rule.
@@ -161,6 +167,9 @@ Functional programming
 
 :ref:`reduce <core_reduce>`
     Reduce elements of an array.
+
+:ref:`cumacc <core_cumacc>`
+    Cumulative accumulation of array elements.
 
 Printing
 ---------------

@@ -27,7 +27,7 @@ SciCpp tries to get as much test coverage as possible.
 Each file library header file (ex. `my_header.hpp`) should have a
 corresponding test file in the same folder (`my_header.t.hpp`).
 
-To run the tests:
+To build and run the tests:
 
 ```
 make test

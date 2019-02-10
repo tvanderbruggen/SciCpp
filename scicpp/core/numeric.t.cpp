@@ -25,6 +25,8 @@ TEST_CASE("sum") {
         std::vector{1., 2., 3., std::numeric_limits<double>::quiet_NaN()});
     REQUIRE(almost_equal(res, 6.));
     REQUIRE(cnt == 3);
+    const auto v = std::vector(500000, 0.1);
+    REQUIRE(std::fabs(sum(v) - double(v.size()) / 10.) < 1E-10);
 }
 
 TEST_CASE("prod") {
