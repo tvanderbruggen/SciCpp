@@ -110,7 +110,6 @@ constexpr T var(const Array &f, Predicate filter) {
     }
 
     const T m0 = mean(f, filter);
-
     const auto [res, cnt] = filter_reduce(f,
                                           [m0](auto r, auto v) {
                                               const T diff = v - m0;
@@ -118,7 +117,6 @@ constexpr T var(const Array &f, Predicate filter) {
                                           },
                                           T{0},
                                           filter);
-
     return res / T(cnt);
 }
 
