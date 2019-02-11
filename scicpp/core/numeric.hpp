@@ -23,29 +23,10 @@ namespace scicpp {
 // sum
 //---------------------------------------------------------------------------------
 
-template <class InputIt, class SummationOp, class Predicate>
-constexpr auto
-sum(InputIt first, InputIt last, SummationOp op, Predicate filter) {
-    // https://en.wikipedia.org/wiki/Pairwise_summation
-    // https://github.com/numpy/numpy/pull/3685
-
-    using T = typename std::iterator_traits<InputIt>::value_type;
-
-    constexpr long PW_BLOCKSIZE = 64;
-    const auto size = std::distance(first, last);
-
-    if (size <= PW_BLOCKSIZE) {
-        return filter_reduce(first, last, op, T{0}, filter);
-    } else {
-        const auto [res1, cnt1] = sum(first, first + size / 2, op, filter);
-        const auto [res2, cnt2] = sum(first + size / 2, last, op, filter);
-        return std::make_tuple(res1 + res2, cnt1 + cnt2);
-    }
-}
-
 template <class InputIt, class Predicate>
 constexpr auto sum(InputIt first, InputIt last, Predicate filter) {
-    return sum(first, last, std::plus<>(), filter);
+    using T = typename std::iterator_traits<InputIt>::value_type;
+    return filter_reduce_associative(first, last, std::plus<>(), T{0}, filter);
 }
 
 template <class InputIt>
@@ -76,7 +57,7 @@ template <class InputIt,
           class Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 constexpr auto prod(InputIt first, InputIt last, Predicate filter) {
-    return filter_reduce(first, last, std::multiplies<>(), T{1}, filter);
+    return filter_reduce_associative(first, last, std::multiplies<>(), T{1}, filter);
 }
 
 template <class InputIt>

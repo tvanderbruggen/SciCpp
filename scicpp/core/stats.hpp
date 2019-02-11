@@ -110,13 +110,15 @@ constexpr T var(const Array &f, Predicate filter) {
     }
 
     const T m0 = mean(f, filter);
-    const auto [res, cnt] = sum(f.cbegin(),
-                                f.cend(),
-                                [m0](auto r, auto v) {
-                                    const T diff = v - m0;
-                                    return r + diff * diff;
-                                },
-                                filter);
+    const auto [res, cnt] =
+        filter_reduce_associative(f.cbegin(),
+                                  f.cend(),
+                                  [m0](auto r, auto v) {
+                                      const T diff = v - m0;
+                                      return r + diff * diff;
+                                  },
+                                  T{0},
+                                  filter);
     return res / T(cnt);
 }
 

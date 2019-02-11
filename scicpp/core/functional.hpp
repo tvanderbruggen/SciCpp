@@ -206,6 +206,40 @@ filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
 }
 
 //---------------------------------------------------------------------------------
+// filter_reduce_associative
+//
+// Use pairwise operation for improved precision in association operations.
+//---------------------------------------------------------------------------------
+
+template <class InputIt,
+          class UnaryPredicate,
+          class AssociativeBinaryOp,
+          typename T = typename std::iterator_traits<InputIt>::value_type>
+[[nodiscard]] constexpr scicpp_pure auto
+filter_reduce_associative(InputIt first,
+                          InputIt last,
+                          AssociativeBinaryOp op,
+                          T init,
+                          UnaryPredicate filter) {
+    // https://en.wikipedia.org/wiki/Pairwise_summation
+    // https://github.com/numpy/numpy/pull/3685
+    // https://github.com/JuliaLang/julia/pull/4039
+
+    constexpr long PW_BLOCKSIZE = 64;
+    const auto size = std::distance(first, last);
+
+    if (size <= PW_BLOCKSIZE) {
+        return filter_reduce(first, last, op, init, filter);
+    } else {
+        const auto [res1, cnt1] = filter_reduce_associative(
+            first, first + size / 2, op, init, filter);
+        const auto [res2, cnt2] =
+            filter_reduce_associative(first + size / 2, last, op, init, filter);
+        return std::make_tuple(res1 + res2, cnt1 + cnt2);
+    }
+}
+
+//---------------------------------------------------------------------------------
 // reduce
 //---------------------------------------------------------------------------------
 
