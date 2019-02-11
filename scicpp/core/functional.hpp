@@ -5,6 +5,7 @@
 #define SCICPP_CORE_FUNCTIONAL
 
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/meta.hpp"
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
@@ -225,17 +226,24 @@ filter_reduce_associative(InputIt first,
                           AssociativeBinaryOp op,
                           T init,
                           UnaryPredicate filter) {
-    constexpr long PW_BLOCKSIZE = 64;
-    const auto size = std::distance(first, last);
-
-    if (size <= PW_BLOCKSIZE) {
+    if constexpr (std::is_integral_v<T>) {
+        // No precision problem for integers, as long as you don't overflow ...
         return filter_reduce(first, last, op, init, filter);
     } else {
-        const auto [res1, cnt1] = filter_reduce_associative(
-            first, first + size / 2, op, init, filter);
-        const auto [res2, cnt2] =
-            filter_reduce_associative(first + size / 2, last, op, init, filter);
-        return std::make_tuple(res1 + res2, cnt1 + cnt2);
+        static_assert(std::is_floating_point_v<T> || meta::is_complex_v<T>);
+
+        constexpr long PW_BLOCKSIZE = 64;
+        const auto size = std::distance(first, last);
+
+        if (size <= PW_BLOCKSIZE) {
+            return filter_reduce(first, last, op, init, filter);
+        } else {
+            const auto [res1, cnt1] = filter_reduce_associative(
+                first, first + size / 2, op, init, filter);
+            const auto [res2, cnt2] =
+                filter_reduce_associative(first + size / 2, last, op, init, filter);
+            return std::make_tuple(res1 + res2, cnt1 + cnt2);
+        }
     }
 }
 
