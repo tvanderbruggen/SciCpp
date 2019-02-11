@@ -57,7 +57,8 @@ template <class InputIt,
           class Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 constexpr auto prod(InputIt first, InputIt last, Predicate filter) {
-    return filter_reduce_associative(first, last, std::multiplies<>(), T{1}, filter);
+    return filter_reduce_associative(
+        first, last, std::multiplies<>(), T{1}, filter);
 }
 
 template <class InputIt>

@@ -208,7 +208,11 @@ filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
 //---------------------------------------------------------------------------------
 // filter_reduce_associative
 //
-// Use pairwise operation for improved precision in association operations.
+// Use pairwise recursion for improved precision in associative operations.
+//
+// https://en.wikipedia.org/wiki/Pairwise_summation
+// https://github.com/numpy/numpy/pull/3685
+// https://github.com/JuliaLang/julia/pull/4039
 //---------------------------------------------------------------------------------
 
 template <class InputIt,
@@ -221,10 +225,6 @@ filter_reduce_associative(InputIt first,
                           AssociativeBinaryOp op,
                           T init,
                           UnaryPredicate filter) {
-    // https://en.wikipedia.org/wiki/Pairwise_summation
-    // https://github.com/numpy/numpy/pull/3685
-    // https://github.com/JuliaLang/julia/pull/4039
-
     constexpr long PW_BLOCKSIZE = 64;
     const auto size = std::distance(first, last);
 
