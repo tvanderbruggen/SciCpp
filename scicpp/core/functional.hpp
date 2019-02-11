@@ -246,10 +246,7 @@ filter_reduce_associative(InputIt first,
 template <class Array, class BinaryOp, typename T = typename Array::value_type>
 [[nodiscard]] constexpr scicpp_pure auto
 reduce(const Array &a, BinaryOp op, T init) {
-    return filter_reduce(
-        a.cbegin(), a.cend(), op, init, []([[maybe_unused]] auto v) {
-            return true;
-        });
+    return filter_reduce(a.cbegin(), a.cend(), op, init, filters::all);
 }
 
 //---------------------------------------------------------------------------------
