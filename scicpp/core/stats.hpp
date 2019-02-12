@@ -113,14 +113,13 @@ constexpr T var(const Array &f, Predicate filter) {
 
     const T m0 = mean(f, filter);
     const auto [res, cnt] =
-        filter_reduce_associative(f.cbegin(),
-                                  f.cend(),
+        filter_reduce_associative(f,
                                   [m0](auto r, auto v) {
                                       const T diff = v - m0;
                                       return r + diff * diff;
                                       // Benchmark: this is slower on both GCC and Clang
                                       // (and not constexpr)
-                                      //   return std::fma(diff, diff, r);
+                                      // return std::fma(diff, diff, r);
                                   },
                                   T{0},
                                   filter);

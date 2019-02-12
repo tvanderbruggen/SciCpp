@@ -246,6 +246,15 @@ filter_reduce_associative(InputIt first,
     }
 }
 
+template <class Array,
+          class UnaryPredicate,
+          class AssociativeBinaryOp,
+          typename T = typename Array::value_type>
+[[nodiscard]] constexpr scicpp_pure auto filter_reduce_associative(
+    const Array &a, AssociativeBinaryOp op, T init, UnaryPredicate filter) {
+    return filter_reduce_associative(a.cbegin(), a.cend(), op, init, filter);
+}
+
 //---------------------------------------------------------------------------------
 // reduce
 //---------------------------------------------------------------------------------
