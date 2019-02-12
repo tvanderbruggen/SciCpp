@@ -240,8 +240,8 @@ filter_reduce_associative(InputIt first,
         } else {
             const auto [res1, cnt1] = filter_reduce_associative(
                 first, first + size / 2, op, init, filter);
-            const auto [res2, cnt2] =
-                filter_reduce_associative(first + size / 2, last, op, init, filter);
+            const auto [res2, cnt2] = filter_reduce_associative(
+                first + size / 2, last, op, init, filter);
             return std::make_tuple(res1 + res2, cnt1 + cnt2);
         }
     }

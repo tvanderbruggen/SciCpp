@@ -73,6 +73,7 @@ TEST_CASE("var") {
     REQUIRE(almost_equal(nanvar(std::vector{1., 2., nan, 3.}), 2. / 3.));
     auto v = std::vector(500000, 1.);
     v[0] = 1E10;
+    // printf("%.20f\n", var(v));
     REQUIRE(almost_equal<4>(var(v), 199999599960000.));
 }
 

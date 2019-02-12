@@ -12,8 +12,7 @@
 #include <limits>
 #include <numeric>
 
-namespace scicpp {
-namespace stats {
+namespace scicpp::stats {
 
 //---------------------------------------------------------------------------------
 // amax
@@ -116,6 +115,9 @@ constexpr T var(const Array &f, Predicate filter) {
                                   [m0](auto r, auto v) {
                                       const T diff = v - m0;
                                       return r + diff * diff;
+                                      // Benchmark: this is slower on both GCC and Clang
+                                      // (and not constexpr)
+                                      //   return std::fma(diff, diff, r);
                                   },
                                   T{0},
                                   filter);
@@ -146,7 +148,6 @@ auto nanstd(const Array &a) {
     return std::sqrt(nanvar(a));
 }
 
-} // namespace stats
-} // namespace scicpp
+} // namespace scicpp::stats
 
 #endif // SCICPP_CORE_STATS
