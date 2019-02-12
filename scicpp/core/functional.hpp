@@ -184,17 +184,16 @@ template <class InputIt,
     InputIt first, InputIt last, BinaryOp op, T init, UnaryPredicate filter) {
     static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
 
-    T res = init;
     signed_size_t cnt = 0;
 
     for (; first != last; ++first) {
         if (filter(*first)) {
-            res = op(res, *first);
+            init = op(init, *first);
             cnt++;
         }
     }
 
-    return std::make_tuple(res, cnt);
+    return std::make_tuple(init, cnt);
 }
 
 template <class Array,
@@ -242,7 +241,7 @@ filter_reduce_associative(InputIt first,
                 first, first + size / 2, op, init, filter);
             const auto [res2, cnt2] = filter_reduce_associative(
                 first + size / 2, last, op, init, filter);
-            return std::make_tuple(res1 + res2, cnt1 + cnt2);
+            return std::make_tuple(op(res1, res2), cnt1 + cnt2);
         }
     }
 }

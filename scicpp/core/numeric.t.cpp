@@ -38,6 +38,8 @@ TEST_CASE("prod") {
         std::vector{1., 2., 3., std::numeric_limits<double>::quiet_NaN()});
     REQUIRE(almost_equal(res, 6.));
     REQUIRE(cnt == 3);
+    const auto v = std::vector(500000, 1.);
+    REQUIRE(almost_equal(prod(v), 1.));
 }
 
 TEST_CASE("cumsum") {
