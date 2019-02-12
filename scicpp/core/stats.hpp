@@ -14,16 +14,23 @@
 
 namespace scicpp::stats {
 
+namespace detail {
+
+template <class Array>
+auto quiet_nan() {
+    return std::numeric_limits<typename Array::value_type>::quiet_NaN();
+}
+
+} // namespace detail
+
 //---------------------------------------------------------------------------------
 // amax
 //---------------------------------------------------------------------------------
 
 template <class Array>
 constexpr auto amax(const Array &f) {
-    using T = typename Array::value_type;
-
     if (f.empty()) {
-        return std::numeric_limits<T>::quiet_NaN();
+        return detail::quiet_nan<Array>();
     }
 
     return *std::max_element(f.cbegin(), f.cend());
@@ -35,10 +42,8 @@ constexpr auto amax(const Array &f) {
 
 template <class Array>
 constexpr auto amin(const Array &f) {
-    using T = typename Array::value_type;
-
     if (f.empty()) {
-        return std::numeric_limits<T>::quiet_NaN();
+        return detail::quiet_nan<Array>();
     }
 
     return *std::min_element(f.cbegin(), f.cend());
@@ -50,10 +55,8 @@ constexpr auto amin(const Array &f) {
 
 template <class Array>
 constexpr auto ptp(const Array &f) {
-    using T = typename Array::value_type;
-
     if (f.empty()) {
-        return std::numeric_limits<T>::quiet_NaN();
+        return detail::quiet_nan<Array>();
     }
 
     const auto [it_min, it_max] = std::minmax_element(f.cbegin(), f.cend());
@@ -67,10 +70,10 @@ constexpr auto ptp(const Array &f) {
 template <class Array, typename T = typename Array::value_type>
 T average(const Array &f, const Array &weights) {
     if (f.empty() || (f.size() != weights.size())) {
-        return std::numeric_limits<T>::quiet_NaN();
+        return detail::quiet_nan<Array>();
     }
 
-    return std::inner_product(f.cbegin(), f.cend(), weights.cbegin(), T(0)) /
+    return std::inner_product(f.cbegin(), f.cend(), weights.cbegin(), T{0}) /
            sum(weights);
 }
 
@@ -81,20 +84,20 @@ T average(const Array &f, const Array &weights) {
 template <class Array, class Predicate, typename T = typename Array::value_type>
 constexpr T mean(const Array &f, Predicate filter) {
     if (f.empty()) {
-        return std::numeric_limits<T>::quiet_NaN();
+        return detail::quiet_nan<Array>();
     }
 
     const auto [res, cnt] = sum(f, filter);
     return res / T(cnt);
 }
 
-template <class Array, typename T = typename Array::value_type>
-constexpr T mean(const Array &f) {
+template <class Array>
+constexpr auto mean(const Array &f) {
     return mean(f, filters::all);
 }
 
-template <class Array, typename T = typename Array::value_type>
-T nanmean(const Array &f) {
+template <class Array>
+auto nanmean(const Array &f) {
     return mean(f, filters::not_nan);
 }
 
@@ -105,7 +108,7 @@ T nanmean(const Array &f) {
 template <class Array, class Predicate, typename T = typename Array::value_type>
 constexpr T var(const Array &f, Predicate filter) {
     if (f.empty()) {
-        return std::numeric_limits<T>::quiet_NaN();
+        return detail::quiet_nan<Array>();
     }
 
     const T m0 = mean(f, filter);
@@ -124,13 +127,13 @@ constexpr T var(const Array &f, Predicate filter) {
     return res / T(cnt);
 }
 
-template <class Array, typename T = typename Array::value_type>
-constexpr T var(const Array &f) {
+template <class Array>
+constexpr auto var(const Array &f) {
     return var(f, filters::all);
 }
 
-template <class Array, typename T = typename Array::value_type>
-T nanvar(const Array &f) {
+template <class Array>
+auto nanvar(const Array &f) {
     return var(f, filters::not_nan);
 }
 
