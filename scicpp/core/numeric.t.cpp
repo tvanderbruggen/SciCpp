@@ -4,6 +4,7 @@
 #include "numeric.hpp"
 
 #include "scicpp/core/print.hpp"
+#include "scicpp/core/range.hpp"
 
 namespace scicpp {
 
@@ -95,6 +96,18 @@ TEST_CASE("diff") {
         almost_equal(diff(std::vector{1., 2., 4., 7., 0.}, 2), {1., 1., -10.}));
     const std::vector v{1., 2., 4., 7., 0.};
     REQUIRE(almost_equal(diff(v, 2), {1., 1., -10.}));
+}
+
+TEST_CASE("inner") {
+    static_assert(inner(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) ==
+                  -32);
+    REQUIRE(inner(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) == -32);
+    REQUIRE(inner(std::vector{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
+    // printf("%.20f\n",
+    //        inner(linspace(0., 1253., 1000000), linspace(0., 148253., 1000000)));
+    REQUIRE(almost_equal<2>(
+        inner(linspace(0., 1253., 1000000), linspace(0., 148253., 1000000)),
+        61920367293532.47));
 }
 
 TEST_CASE("Arithmetic operators") {

@@ -102,6 +102,9 @@ Sums, products, differences
 :ref:`diff <core_diff>`
     The n-th discrete difference between consecutive elements of an array.
 
+:ref:`inner <core_inner>`
+    Ordinary inner product of arrays (without complex conjugation).
+
 Comparisons
 ----------------
 

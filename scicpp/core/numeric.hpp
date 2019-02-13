@@ -204,6 +204,37 @@ auto diff(const std::vector<T> &a, int n = 1) {
 }
 
 //---------------------------------------------------------------------------------
+// inner
+//---------------------------------------------------------------------------------
+
+template <class InputIt,
+          typename T = typename std::iterator_traits<InputIt>::value_type>
+constexpr auto
+inner(InputIt first1, InputIt last1, InputIt first2, InputIt last2) {
+    constexpr long PW_BLOCKSIZE = 64;
+    const auto size = std::distance(first1, last1);
+    scicpp_require(size == std::distance(first2, last2));
+
+    if (size <= PW_BLOCKSIZE) {
+        T res = T{0};
+
+        for (; first1 != last1; ++first1, ++first2) {
+            res += (*first1) * (*first2);
+        }
+
+        return res;
+    } else {
+        return inner(first1, first1 + size / 2, first2, first2 + size / 2) +
+               inner(first1 + size / 2, last1, first2 + size / 2, last2);
+    }
+}
+
+template <class Array>
+constexpr auto inner(const Array &a1, const Array &a2) {
+    return inner(a1.cbegin(), a1.cend(), a2.cbegin(), a2.cend());
+}
+
+//---------------------------------------------------------------------------------
 // Arithmetic operators
 //
 // Implements element wise arithmetic operations for std::array and std::vector.

@@ -4,11 +4,11 @@
 #include "stats.hpp"
 
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/range.hpp"
 
 #include <cmath>
 
-namespace scicpp {
-namespace stats {
+namespace scicpp::stats {
 
 namespace stats_constexpr_tests {
 
@@ -76,6 +76,9 @@ TEST_CASE("var") {
     // printf("%.20f\n", var(v));
     // Compare with result from numpy
     REQUIRE(almost_equal<32>(var(v), 199999599960000.12));
+    // printf("%.20f\n", var(linspace(0., 1253., 1000000)));
+    REQUIRE(almost_equal<16>(var(linspace(0., 1253., 1000000)),
+                             130834.34500176184));
 }
 
 TEST_CASE("std") {
@@ -88,5 +91,4 @@ TEST_CASE("std") {
                          4.642796092394707));
 }
 
-} // namespace stats
-} // namespace scicpp
+} // namespace scicpp::stats
