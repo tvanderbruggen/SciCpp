@@ -10,9 +10,10 @@ namespace scicpp::random {
 TEST_CASE("rand") {
     SECTION("std::array") {
         const auto r = rand<double, 1000>();
+        printf("%f %f\n", stats::std(r), stats::var(r));
         REQUIRE(r.size() == 1000);
         REQUIRE(std::fabs(stats::mean(r) - 0.5) < 1. / std::sqrt(1000));
-        REQUIRE(std::fabs(stats::std(r) - 1 / std::sqrt(12)) <
+        REQUIRE(std::fabs(stats::std(r) - 1. / std::sqrt(12)) <
                 1. / std::sqrt(1000));
     }
 
@@ -20,7 +21,7 @@ TEST_CASE("rand") {
         const auto r = rand<double>(1000);
         REQUIRE(r.size() == 1000);
         REQUIRE(std::fabs(stats::mean(r) - 0.5) < 1. / std::sqrt(1000));
-        REQUIRE(std::fabs(stats::std(r) - 1 / std::sqrt(12)) <
+        REQUIRE(std::fabs(stats::std(r) - 1. / std::sqrt(12)) <
                 1. / std::sqrt(1000));
     }
 }

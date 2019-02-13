@@ -81,14 +81,21 @@ T average(const Array &f, const Array &weights) {
 // mean
 //---------------------------------------------------------------------------------
 
-template <class Array, class Predicate, typename T = typename Array::value_type>
-constexpr T mean(const Array &f, Predicate filter) {
-    if (f.empty()) {
-        return detail::quiet_nan<Array>();
+template <class InputIt,
+          class Predicate,
+          typename T = typename std::iterator_traits<InputIt>::value_type>
+constexpr T mean(InputIt first, InputIt last, Predicate filter) {
+    if (std::distance(first, last) == 0) {
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
-    const auto [res, cnt] = sum(f, filter);
+    const auto [res, cnt] = sum(first, last, filter);
     return res / T(cnt);
+}
+
+template <class Array, class Predicate>
+constexpr auto mean(const Array &f, Predicate filter) {
+    return mean(f.cbegin(), f.cend(), filter);
 }
 
 template <class Array>
@@ -105,25 +112,67 @@ auto nanmean(const Array &f) {
 // var
 //---------------------------------------------------------------------------------
 
-template <class Array, class Predicate, typename T = typename Array::value_type>
-constexpr T var(const Array &f, Predicate filter) {
-    if (f.empty()) {
-        return detail::quiet_nan<Array>();
+namespace detail {
+
+// Pairwise recursive implementation of variance summation
+
+template <class InputIt,
+          class Predicate,
+          typename T = typename std::iterator_traits<InputIt>::value_type>
+constexpr auto variance_helper(InputIt first, InputIt last, Predicate filter) {
+    constexpr long PW_BLOCKSIZE = 64;
+    const auto size = std::distance(first, last);
+
+    if (size <= PW_BLOCKSIZE) {
+        const T m0 = mean(first, last, filter);
+
+        const auto [res, cnt] =
+            filter_reduce(first,
+                          last,
+                          [m0](auto r, auto v) {
+                              const T diff = v - m0;
+                              return r + diff * diff;
+                              // Benchmark: this is slower on both GCC and Clang
+                              // (and not constexpr)
+                              // return std::fma(diff, diff, r);
+                          },
+                          T{0},
+                          filter);
+
+        return std::make_tuple(m0, res / T(cnt), cnt);
+    } else {
+        const auto [m1, var1, n1] =
+            variance_helper(first, first + size / 2, filter);
+        const auto [m2, var2, n2] =
+            variance_helper(first + size / 2, last, filter);
+        // Combine variances
+        // https://www.emathzone.com/tutorials/basic-statistics/combined-variance.html
+        const auto n_c = n1 + n2;
+        const auto r = T{1} / T(n_c);
+        const auto m_c = r * (T(n1) * m1 + T(n2) * m2);
+        const auto var_c = r * (T(n1) * (var1 + (m1 - m_c) * (m1 - m_c)) +
+                                T(n2) * (var2 + (m2 - m_c) * (m2 - m_c)));
+        return std::make_tuple(m_c, var_c, n_c);
+    }
+}
+
+} // namespace detail
+
+template <class InputIt,
+          class Predicate,
+          typename T = typename std::iterator_traits<InputIt>::value_type>
+constexpr auto var(InputIt first, InputIt last, Predicate filter) {
+    if (std::distance(first, last) == 0) {
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
-    const T m0 = mean(f, filter);
-    const auto [res, cnt] =
-        filter_reduce_associative(f,
-                                  [m0](auto r, auto v) {
-                                      const T diff = v - m0;
-                                      return r + diff * diff;
-                                      // Benchmark: this is slower on both GCC and Clang
-                                      // (and not constexpr)
-                                      // return std::fma(diff, diff, r);
-                                  },
-                                  T{0},
-                                  filter);
-    return res / T(cnt);
+    const auto [m, v, c] = detail::variance_helper(first, last, filter);
+    return v;
+}
+
+template <class Array, class Predicate>
+constexpr auto var(const Array &f, Predicate filter) {
+    return var(f.cbegin(), f.cend(), filter);
 }
 
 template <class Array>

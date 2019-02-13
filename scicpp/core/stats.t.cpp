@@ -74,7 +74,8 @@ TEST_CASE("var") {
     auto v = std::vector(500000, 1.);
     v[0] = 1E10;
     // printf("%.20f\n", var(v));
-    REQUIRE(almost_equal<4>(var(v), 199999599960000.));
+    // Compare with result from numpy
+    REQUIRE(almost_equal<32>(var(v), 199999599960000.12));
 }
 
 TEST_CASE("std") {
