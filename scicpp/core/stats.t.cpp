@@ -46,7 +46,9 @@ TEST_CASE("average") {
         2.133333333333333));
     // printf("%.20f\n",
     //        average(linspace(0., 87946., 1000000), linspace(0., 156., 1000000)));
-    REQUIRE(almost_equal<6>(average(linspace(0., 87946., 1000000), linspace(0., 156., 1000000)), 58630.695982029356));
+    REQUIRE(almost_equal<6>(
+        average(linspace(0., 87946., 1000000), linspace(0., 156., 1000000)),
+        58630.695982029356));
 }
 
 TEST_CASE("mean") {
