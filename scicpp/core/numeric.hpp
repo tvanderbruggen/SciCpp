@@ -209,7 +209,7 @@ auto diff(const std::vector<T> &a, int n = 1) {
 
 template <class InputIt,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr auto
+constexpr auto scicpp_pure
 inner(InputIt first1, InputIt last1, InputIt first2, InputIt last2) {
     constexpr long PW_BLOCKSIZE = 64;
     const auto size = std::distance(first1, last1);

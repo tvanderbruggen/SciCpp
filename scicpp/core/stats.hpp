@@ -67,14 +67,13 @@ constexpr auto ptp(const Array &f) {
 // average
 //---------------------------------------------------------------------------------
 
-template <class Array, typename T = typename Array::value_type>
-T average(const Array &f, const Array &weights) {
+template <class Array>
+constexpr auto average(const Array &f, const Array &weights) {
     if (f.empty() || (f.size() != weights.size())) {
         return detail::quiet_nan<Array>();
     }
 
-    return std::inner_product(f.cbegin(), f.cend(), weights.cbegin(), T{0}) /
-           sum(weights);
+    return inner(f, weights) / sum(weights);
 }
 
 //---------------------------------------------------------------------------------
