@@ -212,12 +212,12 @@ auto diff(const std::vector<T> &a, int n = 1) {
 // inner, dot, vdot
 //---------------------------------------------------------------------------------
 
-template <class InputItLhs, class InputItRhs, class TernaryOp>
+template <class InputItLhs, class InputItRhs, class ProductOp>
 constexpr auto scicpp_pure inner(InputItLhs first1,
                                  InputItLhs last1,
                                  InputItRhs first2,
                                  InputItRhs last2,
-                                 TernaryOp op) {
+                                 ProductOp op) {
     using T = typename std::common_type_t<
         typename std::iterator_traits<InputItLhs>::value_type,
         typename std::iterator_traits<InputItRhs>::value_type>;
@@ -230,7 +230,7 @@ constexpr auto scicpp_pure inner(InputItLhs first1,
         auto res = T{0};
 
         for (; first1 != last1; ++first1, ++first2) {
-            res = op(res, *first1, *first2);
+            res += op(*first1, *first2);
         }
 
         return res;
@@ -243,9 +243,7 @@ constexpr auto scicpp_pure inner(InputItLhs first1,
 template <class InputIt>
 constexpr auto
 inner(InputIt first1, InputIt last1, InputIt first2, InputIt last2) {
-    return inner(first1, last1, first2, last2, [](auto r, auto x1, auto x2) {
-        return r + x1 * x2;
-    });
+    return inner(first1, last1, first2, last2, std::multiplies<>());
 }
 
 template <class Array>
@@ -262,11 +260,11 @@ constexpr auto dot(const Array &a1, const Array &a2) {
 template <class InputItLhs, class InputItRhs>
 constexpr auto
 vdot(InputItLhs first1, InputItLhs last1, InputItRhs first2, InputItRhs last2) {
-    return inner(first1, last1, first2, last2, [](auto r, auto x1, auto x2) {
+    return inner(first1, last1, first2, last2, [](auto x1, auto x2) {
         if constexpr (meta::is_complex_v<decltype(x1)>) {
-            return r + std::conj(x1) * x2;
+            return std::conj(x1) * x2;
         } else {
-            return r + x1 * x2;
+            return x1 * x2;
         }
     });
 }
