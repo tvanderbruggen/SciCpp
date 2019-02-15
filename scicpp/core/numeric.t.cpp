@@ -99,15 +99,27 @@ TEST_CASE("diff") {
 }
 
 TEST_CASE("inner") {
+    using namespace scicpp::operators;
+
     static_assert(inner(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) ==
                   -32);
     REQUIRE(inner(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) == -32);
     REQUIRE(inner(std::vector{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
+    REQUIRE(dot(std::vector{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
     // printf("%.20f\n",
     //        inner(linspace(0., 1253., 1000000), linspace(0., 148253., 1000000)));
     REQUIRE(almost_equal<2>(
         inner(linspace(0., 1253., 1000000), linspace(0., 148253., 1000000)),
         61920367293532.47));
+    REQUIRE(vdot(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) == -32);
+    REQUIRE(vdot(std::array{1. + 0.i, 2.i, 4. + 0.i, 7.i},
+                 std::array{1., 2., 3., -7.}) == 13. + 45.i);
+    REQUIRE(vdot(std::array{1., 2., 3., -7.},
+                 std::array{1. + 0.i, 2.i, 4. + 0.i, 7.i}) == 13. - 45.i);
+    const auto p = vdot(linspace(0., 87946., 1000000) * (3.14 + 2.718i),
+                        linspace(0., 156., 1000000));
+    // printf("%.20f, %.20f\n", p.real(), p.imag());
+    REQUIRE(almost_equal<10>(p, 14359830059918.605 - 12429942070974.137i));
 }
 
 TEST_CASE("Arithmetic operators") {

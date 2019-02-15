@@ -7,26 +7,35 @@ Defined in header <scicpp/core.hpp>
 
 Product of array elements.
 
---------------------------------------
+Standard functions
+-------------------------
 
 .. function:: template <class InputIt> \
-              constexpr T prod(InputIt first, InputIt last)
-
-Compute the product of the elements between a pair of iterators.
+              constexpr auto prod(InputIt first, InputIt last)
 
 --------------------------------------
 
-.. function:: template <typename T, std::size_t N> \
-              constexpr T prod(const std::array<T, N> &f)
-
-Compute the product of the elements in a std::array.
+.. function:: template <class Array> \
+              constexpr auto prod(const Array &f)
 
 --------------------------------------
 
-.. function:: template <typename T> \
-              constexpr T prod(const std::vector<T> &f)
+With filtering predicate
+-------------------------
 
-Compute the product of the elements in a std::vector.
+These variants accept a predicate to specify values that must be filtered in.
+
+These functions return a pair with first the sum result, and then the number of elements used to compute the sum.
+
+--------------------------------------
+
+.. function:: template <class InputIt, class Predicate> \
+              constexpr auto prod(InputIt first, InputIt last, Predicate filter)
+
+--------------------------------------
+
+.. function:: template <class Array, class Predicate> \
+              constexpr auto prod(const Array &f, Predicate filter)
 
 --------------------------------------
 

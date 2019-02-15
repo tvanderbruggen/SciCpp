@@ -7,6 +7,11 @@ Defined in header <scicpp/core.hpp>
 
 Ordinary inner product of arrays (without complex conjugation).
 
+.. function:: template <class InputItLhs, class InputItRhs, class TernaryOp> \
+              constexpr auto inner(InputItLhs first1, InputItLhs last1, InputItRhs first2, InputItRhs last2, TernaryOp op)
+
+Generalized inner product accepting a ternary operation.
+
 --------------------------------------
 
 .. function:: template <class InputIt> \
@@ -16,6 +21,11 @@ Ordinary inner product of arrays (without complex conjugation).
 
 .. function:: template <class Array> \
               constexpr auto inner(const Array &a1, const Array &a2)
+
+--------------------------------------
+
+.. function:: template <class Array> \
+              constexpr auto dot(const Array &a1, const Array &a2)
 
 --------------------------------------
 

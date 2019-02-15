@@ -102,8 +102,12 @@ Sums, products, differences
 :ref:`diff <core_diff>`
     The n-th discrete difference between consecutive elements of an array.
 
-:ref:`inner <core_inner>`
+:ref:`inner or dot <core_inner>`
     Ordinary inner product of arrays (without complex conjugation).
+
+:ref:`vdot <core_vdot>`
+    Return the dot product of two vectors.
+
 
 Comparisons
 ----------------

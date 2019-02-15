@@ -66,6 +66,11 @@ constexpr auto prod(InputIt first, InputIt last) {
     return std::get<0>(prod(first, last, filters::all));
 }
 
+template <class Array, class Predicate>
+constexpr auto prod(const Array &f, Predicate filter) {
+    return prod(f.cbegin(), f.cend(), filter);
+}
+
 template <class Array>
 constexpr auto prod(const Array &f) {
     return prod(f.cbegin(), f.cend());
@@ -73,7 +78,7 @@ constexpr auto prod(const Array &f) {
 
 template <class Array>
 auto nanprod(const Array &f) {
-    return prod(f.cbegin(), f.cend(), filters::not_nan);
+    return prod(f, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
@@ -204,34 +209,71 @@ auto diff(const std::vector<T> &a, int n = 1) {
 }
 
 //---------------------------------------------------------------------------------
-// inner
+// inner, dot, vdot
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr auto scicpp_pure
-inner(InputIt first1, InputIt last1, InputIt first2, InputIt last2) {
+template <class InputItLhs, class InputItRhs, class TernaryOp>
+constexpr auto scicpp_pure inner(InputItLhs first1,
+                                 InputItLhs last1,
+                                 InputItRhs first2,
+                                 InputItRhs last2,
+                                 TernaryOp op) {
+    using T = typename std::common_type_t<
+        typename std::iterator_traits<InputItLhs>::value_type,
+        typename std::iterator_traits<InputItRhs>::value_type>;
+
     constexpr long PW_BLOCKSIZE = 64;
     const auto size = std::distance(first1, last1);
     scicpp_require(size == std::distance(first2, last2));
 
     if (size <= PW_BLOCKSIZE) {
-        T res = T{0};
+        auto res = T{0};
 
         for (; first1 != last1; ++first1, ++first2) {
-            res += (*first1) * (*first2);
+            res = op(res, *first1, *first2);
         }
 
         return res;
     } else {
-        return inner(first1, first1 + size / 2, first2, first2 + size / 2) +
-               inner(first1 + size / 2, last1, first2 + size / 2, last2);
+        return inner(first1, first1 + size / 2, first2, first2 + size / 2, op) +
+               inner(first1 + size / 2, last1, first2 + size / 2, last2, op);
     }
+}
+
+template <class InputIt>
+constexpr auto
+inner(InputIt first1, InputIt last1, InputIt first2, InputIt last2) {
+    return inner(first1, last1, first2, last2, [](auto r, auto x1, auto x2) {
+        return r + x1 * x2;
+    });
 }
 
 template <class Array>
 constexpr auto inner(const Array &a1, const Array &a2) {
     return inner(a1.cbegin(), a1.cend(), a2.cbegin(), a2.cend());
+}
+
+// inner and dot are the same for 1D arrays
+template <class Array>
+constexpr auto dot(const Array &a1, const Array &a2) {
+    return inner(a1, a2);
+}
+
+template <class InputItLhs, class InputItRhs>
+constexpr auto
+vdot(InputItLhs first1, InputItLhs last1, InputItRhs first2, InputItRhs last2) {
+    return inner(first1, last1, first2, last2, [](auto r, auto x1, auto x2) {
+        if constexpr (meta::is_complex_v<decltype(x1)>) {
+            return r + std::conj(x1) * x2;
+        } else {
+            return r + x1 * x2;
+        }
+    });
+}
+
+template <class ArrayLhs, class ArrayRhs>
+constexpr auto vdot(const ArrayLhs &a1, const ArrayRhs &a2) {
+    return vdot(a1.cbegin(), a1.cend(), a2.cbegin(), a2.cend());
 }
 
 //---------------------------------------------------------------------------------
