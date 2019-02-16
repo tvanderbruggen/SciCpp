@@ -24,10 +24,10 @@ Example
 
 ::
 
-    #include <array>
     #include <Eigen/Dense>
+    #include <array>
+    #include <scicpp/core.hpp>
     #include <scicpp/linalg.hpp>
-    #include <scicpp/print.hpp>
 
     int main()
     {

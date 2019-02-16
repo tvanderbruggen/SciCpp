@@ -16,3 +16,4 @@ make COMPILER=$compiler EXAMPLE=white-noise example_py
 make EXAMPLE=doc/core_stats_mean example
 make EXAMPLE=doc/core_map example
 make EXAMPLE=doc/polynomial_Polynomial example
+make EXAMPLE=doc/linalg_lstsq example

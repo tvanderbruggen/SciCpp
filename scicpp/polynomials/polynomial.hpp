@@ -719,6 +719,6 @@ auto polyfromroots(const Array &roots) {
     return P;
 }
 
-} // namespace scicpp::polynomials
+} // namespace scicpp::polynomial
 
 #endif // SCICPP_POLYNOMIALS_POLYNOMIAL

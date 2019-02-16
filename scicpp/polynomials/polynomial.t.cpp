@@ -548,4 +548,4 @@ TEST_CASE("polyfit") {
     }
 }
 
-} // namespace scicpp::polynomials
+} // namespace scicpp::polynomial
