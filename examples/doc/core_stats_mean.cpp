@@ -1,8 +1,10 @@
-#include <scicpp/core.hpp>
-#include <cstdio>
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-int main()
-{
+#include <cstdio>
+#include <scicpp/core.hpp>
+
+int main() {
     const std::array a{-1., 1., 2., 3.};
 
     // Compute the mean of the array
