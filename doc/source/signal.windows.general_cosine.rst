@@ -31,9 +31,9 @@ Example
 Implements Heinzel flat-top window named “HFT90D” [1]_::
 
     #include <array>
+    #include <scicpp/core.hpp>
+    #include <scicpp/signal.hpp>
     #include <vector>
-
-    #include <scicpp/signal/windows.hpp>
 
     int main()
     {
@@ -41,10 +41,12 @@ Implements Heinzel flat-top window named “HFT90D” [1]_::
         constexpr std::array HFT90D{1., 1.942604, 1.340318, 0.440811, 0.043097};
 
         // Window of 16 points stored in a std::array
-        auto window_array = scicpp::signal::windows::general_cosine<16>(HFT90D);
+        const auto window_array = scicpp::signal::windows::general_cosine<double, 16>(HFT90D);
+        scicpp::print(window_array);
 
         // Window of 8192 points stored in a std::vector
-        auto window_vector = scicpp::signal::windows::general_cosine(8192, HFT90D);
+        const auto window_vector = scicpp::signal::windows::general_cosine(8192, HFT90D);
+        scicpp::print(window_vector);
     }
 
 References

@@ -4,8 +4,7 @@
 #include <scicpp/core.hpp>
 #include <scicpp/polynomials.hpp>
 
-int main()
-{
+int main() {
     const std::vector u{1., 2., 3.};
     const std::vector v{3., 2., 1.};
     const auto [q, r] = scicpp::polynomial::polydiv(u, v);

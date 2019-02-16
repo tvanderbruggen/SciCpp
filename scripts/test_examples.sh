@@ -18,3 +18,4 @@ make EXAMPLE=doc/core_map example
 make EXAMPLE=doc/polynomial_Polynomial example
 make EXAMPLE=doc/polynomial_polydiv example
 make EXAMPLE=doc/linalg_lstsq example
+make EXAMPLE=doc/signal_windows_general_cosine example
