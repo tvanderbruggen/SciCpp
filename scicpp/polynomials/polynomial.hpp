@@ -26,7 +26,7 @@
 #include <utility>
 #include <vector>
 
-namespace scicpp::polynomials {
+namespace scicpp::polynomial {
 
 //---------------------------------------------------------------------------------
 // Polyval

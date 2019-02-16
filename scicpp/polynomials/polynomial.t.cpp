@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-namespace scicpp::polynomials {
+namespace scicpp::polynomial {
 
 TEST_CASE("polyval") {
     SECTION("From std::array") {
