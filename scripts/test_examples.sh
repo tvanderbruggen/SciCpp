@@ -14,3 +14,4 @@ make COMPILER=$compiler EXAMPLE=white-noise example_py
 # doc examples
 
 make EXAMPLE=doc/core_stats_mean example
+make EXAMPLE=doc/core_map example

@@ -63,18 +63,22 @@ Example
         // Unary operations
 
         // Negate all elements of an array
-        auto neg = scicpp::map(std::negate<>(), std::array{1., 2., 3.});
+        const auto neg = scicpp::map(std::negate<>(), std::array{1., 2., 3.});
+        scicpp::print(neg);
 
         // Conjuguate all elements of a vector of complex numbers
-        auto cj = scicpp::map([](auto z) { return std::conj(z); }, std::vector{1. + 2.i, 2. - 3.i});
+        const auto cj = scicpp::map([](auto z) { return std::conj(z); }, std::vector{1. + 2.i, 2. - 3.i});
+        scicpp::print(cj);
 
         // Binary operations
 
         // Sum two arrays
-        auto sum = scicpp::map(std::plus<>(), std::array{1., 2., 3.}, std::array{4., 5., 6.});
+        const auto s = scicpp::map(std::plus<>(), std::array{1., 2., 3.}, std::array{4., 5., 6.});
+        scicpp::print(s);
 
         // Compute the product of sinus between two vectors
-        auto p = scicpp::map([](auto x, auto y) { return std::sin(x) * std::sin(y); },
-                             std::vector{1., 2., 3.},
-                             std::vector{4., 5., 6.});
+        const auto p = scicpp::map([](auto x, auto y) { return std::sin(x) * std::sin(y); },
+                                std::vector{1., 2., 3.},
+                                std::vector{4., 5., 6.});
+        scicpp::print(p);
     }
