@@ -79,7 +79,7 @@ template <class Array,
           typename T = typename std::remove_reference_t<Array>::value_type>
 auto sweep_poly(Array &&t, const Poly &poly, T phi = T{0}) {
     using namespace scicpp::operators;
-    using namespace polynomials;
+    using namespace polynomial;
 
     return cos(T{2} * M_PI * polyval(std::forward<Array>(t), polyint(poly)) +
                phi * M_PI / T{180});
