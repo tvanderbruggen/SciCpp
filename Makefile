@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
+MAJOR = 0
+MINOR = 1
+PATCH = 0
+
+SCICPP_SRC=scicpp
+
 TMP=tmp
 
 # COMPILER ?= clang
@@ -11,7 +17,7 @@ ARCH_FLAGS = -march=native
 OPTIM_FLAGS = -O3 -fno-math-errno # -ffast-math
 DEBUG_FLAGS = #-g
 
-INCLUDES = -I. -Iscicpp
+INCLUDES = -I. -I$(SCICPP_SRC)
 
 WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
 WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion
@@ -113,6 +119,22 @@ benchmark: $(BCHMK_TARGET)
 .PHONY: clean_benchmark
 clean_benchmark:
 	rm -rf $(TMP_BCHMK)
+
+# -------------------------------------------------------------------------------------
+# Release
+# -------------------------------------------------------------------------------------
+
+RELEASE_ZIP = $(TMP)/scicpp-$(MAJOR).$(MINOR).$(PATCH).zip
+
+$(RELEASE_ZIP):
+	zip -r $@ $(SCICPP_SRC) -x *.cpp
+
+.PHONY: release
+release: $(RELEASE_ZIP)
+
+.PHONY: clean_release
+clean_release:
+	rm -rf $(RELEASE_ZIP)
 
 # -------------------------------------------------------------------------------------
 # Examples
