@@ -34,6 +34,6 @@ Example
         const std::vector v{3., 2., 1.};
         const auto [q, r] = scicpp::polynomial::polydiv(u, v);
 
-        print(q); // [ 3.0 ]
-        print(r); // [ -8.0, -4.0 ]
+        scicpp::print(q); // [ 3.0 ]
+        scicpp::print(r); // [ -8.0, -4.0 ]
     }
