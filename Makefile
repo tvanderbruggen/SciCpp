@@ -149,19 +149,23 @@ EXAMPLE_DEP = $(subst .o,.d,$(EXAMPLE_OBJ))
 -include $(EXAMPLE_DEP)
 
 $(EXAMPLE_TARGET): $(EXAMPLE_OBJ)
-	$(CCXX) -o $@ $(EXAMPLE_OBJ) $(CXXFLAGS) $(LD_FLAGS) $(LIBS)
+	$(CCXX) -o $@ $< $(CXXFLAGS) $(LD_FLAGS) $(LIBS)
 
 .PHONY: example
 example: $(EXAMPLE_TARGET)
-	@echo ======= C++ =======
-	time -p $(EXAMPLE_TARGET)
-	@echo
-	@echo ======= Python =======
-	time -p python $(EXAMPLE_PY)
+	$<
+
+.PHONY: example_py
+example_py:
+	python $(EXAMPLE_PY)
 	
 .PHONY: clean_examples
 clean_examples:
 	rm -rf $(TMP)/examples
+
+# -------------------------------------------------------------------------------------
+# clean all
+# -------------------------------------------------------------------------------------
 
 .PHONY: clean
 clean:
