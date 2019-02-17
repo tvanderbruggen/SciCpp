@@ -92,27 +92,19 @@ auto logspace(T start, T stop, std::size_t num, T base = T{10}) {
 //---------------------------------------------------------------------------------
 
 template <typename T>
-auto arange(T start, T stop, T step = 1.0) {
+auto arange(T start, T stop, T step = T{1}) {
     std::size_t num;
 
-    if (((stop > start) && (step < 0.0)) || ((stop < start) && (step > 0.0))) {
+    if (((stop > start) && (step < T{0})) ||
+        ((stop < start) && (step > T{0}))) {
         num = 0;
     } else {
         num = static_cast<std::size_t>(std::fabs((stop - start) / step));
     }
 
-    std::vector<T> vec(num);
-
-    if (num == 0) {
-        return vec;
-    }
-
-    std::generate(vec.begin(), vec.end(), [&, n = -1]() mutable {
-        n++;
-        return std::fma(T(n), step, start);
-    });
-
-    return vec;
+    std::vector<T> v(num);
+    std::iota(v.begin(), v.end(), T{0});
+    return map([=](auto x) { return std::fma(x, step, start); }, v);
 }
 
 } // namespace scicpp
