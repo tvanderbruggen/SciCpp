@@ -9,8 +9,7 @@
 #include <scicpp/core/stats.hpp>
 #include <scicpp/signal/windows.hpp>
 
-namespace scicpp {
-namespace signal {
+namespace scicpp::signal {
 
 TEST_CASE("Forward complex FFT") {
     SECTION("Complex input vector") {
@@ -275,5 +274,4 @@ TEST_CASE("power_spectrum_density") {
     REQUIRE(std::fabs(stats::mean(psd) - 2.) / 2. < 1. / std::sqrt(10000));
 }
 
-} // namespace signal
-} // namespace scicpp
+} // namespace scicpp::signal

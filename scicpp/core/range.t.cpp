@@ -8,21 +8,6 @@
 
 namespace scicpp {
 
-namespace numerics_static_tests {
-// linspace
-constexpr auto empty = linspace<0>(2., 3.);
-static_assert(empty.empty());
-
-constexpr auto single = linspace<1>(2., 3.);
-static_assert(single.size() == 1);
-static_assert(float_equal(single[0], 2.));
-
-constexpr auto a = linspace<5>(2., 3.);
-static_assert(a.size() == 5);
-static_assert(float_equal(a[0], 2.));
-static_assert(float_equal(a[1], 2.25));
-} // namespace numerics_static_tests
-
 TEST_CASE("linspace") {
     SECTION("std::array") {
         REQUIRE(linspace<0>(2., 3.).empty());

@@ -4,9 +4,12 @@
 #ifndef SCICPP_CORE_RANGE
 #define SCICPP_CORE_RANGE
 
+#include "scicpp/core/functional.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <numeric>
 #include <type_traits>
 #include <vector>
 
@@ -19,39 +22,33 @@ namespace scicpp {
 namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
-constexpr void linspace_filler(Array &arr, T start, T stop) {
+auto linspace_filler(Array &&a, T start, T stop) {
     static_assert(std::is_floating_point<T>::value);
 
-    if (arr.size() == 0) {
-        return;
+    if (a.size() == 0) {
+        return std::move(a);
     }
 
-    if (arr.size() == 1) {
-        arr[0] = start;
-        return;
+    if (a.size() == 1) {
+        a[0] = start;
+        return std::move(a);
     }
 
-    const T step = (stop - start) / T(arr.size() - 1);
-
-    for (std::size_t i = 0; i < arr.size(); ++i) {
-        arr[i] = start + T(i) * step;
-    }
+    const T step = (stop - start) / T(a.size() - 1);
+    std::iota(a.begin(), a.end(), T{0});
+    return map([=](auto x) { return start + x * step; }, a);
 }
 
 } // namespace detail
 
 template <std::size_t N, typename T>
-constexpr auto linspace(T start, T stop) {
-    std::array<T, N> arr{};
-    detail::linspace_filler(arr, start, stop);
-    return arr;
+auto linspace(T start, T stop) {
+    return detail::linspace_filler(std::array<T, N>{}, start, stop);
 }
 
 template <typename T>
 auto linspace(T start, T stop, std::size_t num) {
-    std::vector<T> vec(num);
-    detail::linspace_filler(vec, start, stop);
-    return vec;
+    return detail::linspace_filler(std::vector<T>(num), start, stop);
 }
 
 //---------------------------------------------------------------------------------
