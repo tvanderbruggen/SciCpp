@@ -5,6 +5,7 @@
 #define SCICPP_CORE_RANGE
 
 #include "scicpp/core/functional.hpp"
+#include "scicpp/core/numeric.hpp"
 
 #include <algorithm>
 #include <array>
@@ -23,7 +24,7 @@ namespace detail {
 
 template <class Array, typename T = typename Array::value_type>
 auto linspace_filler(Array &&a, T start, T stop) {
-    static_assert(std::is_floating_point<T>::value);
+    using namespace scicpp::operators;
 
     if (a.size() == 0) {
         return std::move(a);
@@ -36,7 +37,7 @@ auto linspace_filler(Array &&a, T start, T stop) {
 
     const T step = (stop - start) / T(a.size() - 1);
     std::iota(a.begin(), a.end(), T{0});
-    return map([=](auto x) { return start + x * step; }, a);
+    return start + a * step;
 }
 
 } // namespace detail
@@ -57,41 +58,33 @@ auto linspace(T start, T stop, std::size_t num) {
 
 namespace detail {
 
-template <int Base, class Array, typename T = typename Array::value_type>
-void logspace_filler(Array &arr, T start, T stop) {
-    static_assert(std::is_floating_point_v<T>);
-
-    if (arr.size() == 0) {
-        return;
+template <class Array, typename T = typename Array::value_type>
+auto logspace_filler(Array &&a, T start, T stop, T base) {
+    if (a.size() == 0) {
+        return std::move(a);
     }
 
-    if (arr.size() == 1) {
-        arr[0] = std::pow(T(Base), start);
-        return;
+    if (a.size() == 1) {
+        a[0] = std::pow(base, start);
+        return std::move(a);
     }
 
-    const T step = (stop - start) / T(arr.size() - 1);
-
-    std::generate(arr.begin(), arr.end(), [&, n = -1]() mutable {
-        n++;
-        return std::pow(T(Base), std::fma(T(n), step, start));
-    });
+    const T step = (stop - start) / T(a.size() - 1);
+    std::iota(a.begin(), a.end(), T{0});
+    return map([=](auto x) { return std::pow(base, std::fma(x, step, start)); },
+               a);
 }
 
 } // namespace detail
 
-template <std::size_t N, typename T, int Base = 10>
-auto logspace(T start, T stop) {
-    std::array<T, N> arr{};
-    detail::logspace_filler<Base>(arr, start, stop);
-    return arr;
+template <std::size_t N, typename T>
+auto logspace(T start, T stop, T base = T{10}) {
+    return detail::logspace_filler(std::array<T, N>{}, start, stop, base);
 }
 
-template <typename T, int Base = 10>
-auto logspace(T start, T stop, std::size_t num) {
-    std::vector<T> vec(num);
-    detail::logspace_filler<Base>(vec, start, stop);
-    return vec;
+template <typename T>
+auto logspace(T start, T stop, std::size_t num, T base = T{10}) {
+    return detail::logspace_filler(std::vector<T>(num), start, stop, base);
 }
 
 //---------------------------------------------------------------------------------
