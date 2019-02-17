@@ -26,17 +26,20 @@ Example
 
 ::
 
+    #include <cstdio>
     #include <scicpp/core.hpp>
 
     int main()
     {
-        const a = std::array{-1., 1., 2., 3.};
+        const std::array a{-1., 1., 2., 3.};
 
         // Compute the variance of the array
-        auto m = scicpp::stats::var(a);
+        const auto v = scicpp::stats::var(a);
 
         // Compute the variance of the positive values of the array
-        auto m_pos = scicpp::stats::var(a, [](auto x) { return x >= 0; });
+        const auto v_pos = scicpp::stats::var(a, [](auto x) { return x >= 0; });
+
+        printf("v = %f, v_pos = %f\n", v, v_pos);
     }
 
 See also
