@@ -104,7 +104,7 @@ auto arange(T start, T stop, T step = T{1}) {
 
     std::vector<T> v(num);
     std::iota(v.begin(), v.end(), T{0});
-    return map([=](auto x) { return std::fma(x, step, start); }, v);
+    return map([=](auto x) { return std::fma(x, step, start); }, std::move(v));
 }
 
 } // namespace scicpp
