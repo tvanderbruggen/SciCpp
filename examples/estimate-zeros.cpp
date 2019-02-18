@@ -3,7 +3,6 @@
 
 // Estimate the zeros of a noisy sinusoid using a polynomial fit
 
-#include <algorithm>
 #include <array>
 #include <cmath>
 #include <scicpp/core.hpp>
