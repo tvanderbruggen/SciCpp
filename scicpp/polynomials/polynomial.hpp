@@ -705,8 +705,8 @@ template <class Array>
 auto polyfromroots(const Array &roots) {
     using T = typename Array::value_type;
 
-    auto P = Polynomial<T>({T{1.}});
-    auto P_ = Polynomial<T>({T{1.}});
+    auto P = Polynomial<T>({T{1}});
+    auto P_ = Polynomial<T>({T{1}});
     P.reserve(roots.size() + 1);
     P_.reserve(roots.size());
 
