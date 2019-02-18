@@ -14,6 +14,22 @@ See documentation (TODO link) for more details.
 
 ## Installing and using SciCpp
 
+To use SciCpp you can directly download a release zip file.
+Since SciCpp is a header library you can just unzip the content to a convenient place for you.
+
+If you want to install it globally on your system you can unzip it in the `/usr/include` directory.
+
+Else you can also save it directly into your project and add an include directive `-I` to the compiler to specify the path.
+
+SciCpp requires the Eigen library for some functions.
+You can install it by running the script:
+
+```
+sudo bash scripts/install_eigen.sh
+```
+
+that will install it globally on your system.
+
 ## Developing SciCpp
 
 ### Setup your development environment
@@ -38,14 +54,28 @@ You can comment out the tests you don't want to run.
 
 ### Running the benchmarks
 
+Scicpp uses the Nonius framework for benchmarking.
+The header is already included in the repo.
+However the Boost library is required, you can install it using:
+
+```
+sudo make setup_benchmark
+```
+
+To build and run the benchmarks:
+
 ```
 make benchmark
 ```
 
+List of benchmarks to run can be found [here](benchmarks/scicpp_benchmark.cpp).
+
+You can comment out the tests you don't want to run.
+
 ### Running an example
 
 ```
-make EXAMPLE=example1 example
+make EXAMPLE=estimate-zeros example
 ```
 
 ### Formating the code
