@@ -188,7 +188,6 @@ setup_documentation:
 
 SCRIPT_TIDY_SH = scripts/tidy.sh
 SCRIPT_FORMAT_SH = scripts/format.sh
-SCRIPT_CPPCHECK_SH = scripts/cppcheck.sh
 
 .PHONY: tidy
 tidy: $(SCRIPT_TIDY_SH)
@@ -196,8 +195,4 @@ tidy: $(SCRIPT_TIDY_SH)
 
 .PHONY: format
 format: $(SCRIPT_FORMAT_SH)
-	bash $<
-
-.PHONY: cppcheck
-cppcheck: $(SCRIPT_CPPCHECK_SH)
 	bash $<
