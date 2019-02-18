@@ -25,7 +25,11 @@
 #define scicpp_pure __attribute__((pure))
 #define scicpp_const __attribute__((const))
 
+namespace scicpp {
+
 // Define a signed integer for sizes
 using signed_size_t = typename std::make_signed_t<std::size_t>;
+
+} // namespace scicpp
 
 #endif // SCICPP_MACROS
