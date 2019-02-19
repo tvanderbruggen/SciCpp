@@ -123,7 +123,7 @@ constexpr auto variance_helper(InputIt first, InputIt last, Predicate filter) {
         first,
         last,
         [&](auto f, auto l, auto i) {
-            const T m0 = mean(first, last, filter);
+            const T m0 = mean(f, l, filter);
 
             const auto [res, cnt] =
                 filter_reduce(f,
@@ -140,16 +140,12 @@ constexpr auto variance_helper(InputIt first, InputIt last, Predicate filter) {
 
             return std::make_tuple(m0, res / T(cnt), cnt);
         },
-        [&](auto res1, auto res2) {
+        [&](const auto res1, const auto res2) {
             // Combine variances
             // https://www.emathzone.com/tutorials/basic-statistics/combined-variance.html
-            const auto m1 = std::get<0>(res1);
-            const auto m2 = std::get<0>(res2);
-            const auto var1 = std::get<1>(res1);
-            const auto var2 = std::get<1>(res2);
-            const auto n1 = std::get<2>(res1);
-            const auto n2 = std::get<2>(res2);
-            
+            const auto [m1, var1, n1] = res1;
+            const auto [m2, var2, n2] = res2;
+
             const auto n_c = n1 + n2;
             const auto r = T{1} / T(n_c);
             const auto m_c = r * (T(n1) * m1 + T(n2) * m2);
@@ -158,41 +154,6 @@ constexpr auto variance_helper(InputIt first, InputIt last, Predicate filter) {
             return std::make_tuple(m_c, var_c, n_c);
         },
         T{0});
-
-    // constexpr long PW_BLOCKSIZE = 64;
-    // const auto size = std::distance(first, last);
-
-    // if (size <= PW_BLOCKSIZE) {
-    //     const T m0 = mean(first, last, filter);
-
-    //     const auto [res, cnt] =
-    //         filter_reduce(first,
-    //                       last,
-    //                       [m0](auto r, auto v) {
-    //                           const T diff = v - m0;
-    //                           return r + diff * diff;
-    //                           // Benchmark: this is slower on both GCC and Clang
-    //                           // (and not constexpr)
-    //                           // return std::fma(diff, diff, r);
-    //                       },
-    //                       T{0},
-    //                       filter);
-
-    //     return std::make_tuple(m0, res / T(cnt), cnt);
-    // } else {
-    //     const auto [m1, var1, n1] =
-    //         variance_helper(first, first + size / 2, filter);
-    //     const auto [m2, var2, n2] =
-    //         variance_helper(first + size / 2, last, filter);
-    //     // Combine variances
-    //     // https://www.emathzone.com/tutorials/basic-statistics/combined-variance.html
-    //     const auto n_c = n1 + n2;
-    //     const auto r = T{1} / T(n_c);
-    //     const auto m_c = r * (T(n1) * m1 + T(n2) * m2);
-    //     const auto var_c = r * (T(n1) * (var1 + (m1 - m_c) * (m1 - m_c)) +
-    //                             T(n2) * (var2 + (m2 - m_c) * (m2 - m_c)));
-    //     return std::make_tuple(m_c, var_c, n_c);
-    // }
 }
 
 } // namespace detail

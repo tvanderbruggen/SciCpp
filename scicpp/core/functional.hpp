@@ -221,23 +221,23 @@ reduce(const Array &a, BinaryOp op, T init) {
 
 template <signed_size_t PW_BLOCKSIZE,
           class InputIt,
-          class ReduceOp,
+          class AccumulateOp,
           class CombineOp,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 [[nodiscard]] constexpr auto pairwise_accumulate(InputIt first,
                                                  InputIt last,
-                                                 ReduceOp reduce,
+                                                 AccumulateOp accumulate,
                                                  CombineOp combine,
                                                  T init = T{0}) {
     const auto size = std::distance(first, last);
 
     if (size <= PW_BLOCKSIZE) {
-        return reduce(first, last, init);
+        return accumulate(first, last, init);
     } else {
         return combine(pairwise_accumulate<PW_BLOCKSIZE>(
-                           first, first + size / 2, reduce, combine, init),
+                           first, first + size / 2, accumulate, combine, init),
                        pairwise_accumulate<PW_BLOCKSIZE>(
-                           first + size / 2, last, reduce, combine, init));
+                           first + size / 2, last, accumulate, combine, init));
     }
 }
 
@@ -273,24 +273,12 @@ filter_reduce_associative(InputIt first,
             [&](auto f, auto l, auto i) {
                 return filter_reduce(f, l, op, i, filter);
             },
-            [&](auto res1, auto res2) {
-                return std::make_tuple(op(std::get<0>(res1), std::get<0>(res2)),
-                                       std::get<1>(res1) + std::get<1>(res2));
+            [&](const auto res1, const auto res2) {
+                const auto [x1, n1] = res1;
+                const auto [x2, n2] = res2;
+                return std::make_tuple(op(x1, x2), n1 + n2);
             },
             init);
-
-        // constexpr long PW_BLOCKSIZE = 64;
-        // const auto size = std::distance(first, last);
-
-        // if (size <= PW_BLOCKSIZE) {
-        //     return filter_reduce(first, last, op, init, filter);
-        // } else {
-        //     const auto [res1, cnt1] = filter_reduce_associative(
-        //         first, first + size / 2, op, init, filter);
-        //     const auto [res2, cnt2] = filter_reduce_associative(
-        //         first + size / 2, last, op, init, filter);
-        //     return std::make_tuple(op(res1, res2), cnt1 + cnt2);
-        // }
     }
 }
 
