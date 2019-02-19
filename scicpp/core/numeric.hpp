@@ -25,8 +25,7 @@ namespace scicpp {
 
 template <class InputIt, class Predicate>
 constexpr auto sum(InputIt first, InputIt last, Predicate filter) {
-    using T = typename std::iterator_traits<InputIt>::value_type;
-    return filter_reduce_associative(first, last, std::plus<>(), T{0}, filter);
+    return filter_reduce_associative(first, last, std::plus<>(), filter);
 }
 
 template <class InputIt>
@@ -53,12 +52,11 @@ auto nansum(const Array &f) {
 // prod
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          class Predicate,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
+template <class InputIt, class Predicate>
 constexpr auto prod(InputIt first, InputIt last, Predicate filter) {
+    using T = typename std::iterator_traits<InputIt>::value_type;
     return filter_reduce_associative(
-        first, last, std::multiplies<>(), T{1}, filter);
+        first, last, std::multiplies<>(), filter, T{1});
 }
 
 template <class InputIt>

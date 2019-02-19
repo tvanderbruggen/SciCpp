@@ -222,22 +222,20 @@ reduce(const Array &a, BinaryOp op, T init) {
 template <signed_size_t PW_BLOCKSIZE,
           class InputIt,
           class AccumulateOp,
-          class CombineOp,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
+          class CombineOp>
 [[nodiscard]] constexpr auto pairwise_accumulate(InputIt first,
                                                  InputIt last,
-                                                 AccumulateOp accumulate,
-                                                 CombineOp combine,
-                                                 T init = T{0}) {
+                                                 AccumulateOp accop,
+                                                 CombineOp combop) {
     const auto size = std::distance(first, last);
 
     if (size <= PW_BLOCKSIZE) {
-        return accumulate(first, last, init);
+        return accop(first, last);
     } else {
-        return combine(pairwise_accumulate<PW_BLOCKSIZE>(
-                           first, first + size / 2, accumulate, combine, init),
-                       pairwise_accumulate<PW_BLOCKSIZE>(
-                           first + size / 2, last, accumulate, combine, init));
+        return combop(pairwise_accumulate<PW_BLOCKSIZE>(
+                          first, first + size / 2, accop, combop),
+                      pairwise_accumulate<PW_BLOCKSIZE>(
+                          first + size / 2, last, accop, combop));
     }
 }
 
@@ -259,26 +257,25 @@ template <class InputIt,
 filter_reduce_associative(InputIt first,
                           InputIt last,
                           AssociativeBinaryOp op,
-                          T init,
-                          UnaryPredicate filter) {
+                          UnaryPredicate filter,
+                          T id_elt = T{0}) {
     if constexpr (std::is_integral_v<T>) {
         // No precision problem for integers, as long as you don't overflow ...
-        return filter_reduce(first, last, op, init, filter);
+        return filter_reduce(first, last, op, id_elt, filter);
     } else {
         static_assert(std::is_floating_point_v<T> || meta::is_complex_v<T>);
 
         return pairwise_accumulate<64>(
             first,
             last,
-            [&](auto f, auto l, auto i) {
-                return filter_reduce(f, l, op, i, filter);
+            [&](auto f, auto l) {
+                return filter_reduce(f, l, op, id_elt, filter);
             },
             [&](const auto res1, const auto res2) {
                 const auto [x1, n1] = res1;
                 const auto [x2, n2] = res2;
                 return std::make_tuple(op(x1, x2), n1 + n2);
-            },
-            init);
+            });
     }
 }
 
@@ -287,8 +284,8 @@ template <class Array,
           class AssociativeBinaryOp,
           typename T = typename Array::value_type>
 [[nodiscard]] constexpr scicpp_pure auto filter_reduce_associative(
-    const Array &a, AssociativeBinaryOp op, T init, UnaryPredicate filter) {
-    return filter_reduce_associative(a.cbegin(), a.cend(), op, init, filter);
+    const Array &a, AssociativeBinaryOp op, UnaryPredicate filter) {
+    return filter_reduce_associative(a.cbegin(), a.cend(), op, filter);
 }
 
 //---------------------------------------------------------------------------------

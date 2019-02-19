@@ -11,6 +11,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <tuple>
 
 namespace scicpp::stats {
 
@@ -122,22 +123,24 @@ constexpr auto variance_helper(InputIt first, InputIt last, Predicate filter) {
     return pairwise_accumulate<64>(
         first,
         last,
-        [&](auto f, auto l, auto i) {
+        [&](auto f, auto l) {
             const T m0 = mean(f, l, filter);
 
-            const auto [res, cnt] =
-                filter_reduce(f,
-                              l,
-                              [m0](auto r, auto v) {
-                                  const T diff = v - m0;
-                                  return r + diff * diff;
-                                  // Benchmark: this is slower on both GCC and Clang
-                                  // (and not constexpr)
-                                  // return std::fma(diff, diff, r);
-                              },
-                              i,
-                              filter);
+            // Cannot use structure binding directly here with GCC => bug ??
+            // const auto [res, cnt] =
+            const auto t = filter_reduce(f,
+                                         l,
+                                         [m0](auto r, auto v) {
+                                             const T diff = v - m0;
+                                             return r + diff * diff;
+                                             // Benchmark: this is slower on both GCC and Clang
+                                             // (and also not constexpr)
+                                             // return std::fma(diff, diff, r);
+                                         },
+                                         T{0},
+                                         filter);
 
+            const auto [res, cnt] = t;
             return std::make_tuple(m0, res / T(cnt), cnt);
         },
         [&](const auto res1, const auto res2) {
@@ -152,8 +155,7 @@ constexpr auto variance_helper(InputIt first, InputIt last, Predicate filter) {
             const auto var_c = r * (T(n1) * (var1 + (m1 - m_c) * (m1 - m_c)) +
                                     T(n2) * (var2 + (m2 - m_c) * (m2 - m_c)));
             return std::make_tuple(m_c, var_c, n_c);
-        },
-        T{0});
+        });
 }
 
 } // namespace detail
