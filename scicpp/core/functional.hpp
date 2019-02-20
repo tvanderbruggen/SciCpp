@@ -217,6 +217,22 @@ reduce(const Array &a, BinaryOp op, T init) {
 
 //---------------------------------------------------------------------------------
 // pairwise_accumulate
+//
+// Implements pairwise recursion
+// https://en.wikipedia.org/wiki/Pairwise_summation
+//
+//  | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK |
+//      |       |       |       |       |       |       |       |
+//     acc     acc     acc     acc     acc     acc     acc     acc
+//      |_______|       |_______|       |_______|       |_______|
+//          |               |               |               |
+//       combine         combine         combine         combine
+//          |_______________|               |_______________|
+//                  |_______________________________|
+//                                  |
+//                               combine
+//                                  |
+//                                Result
 //---------------------------------------------------------------------------------
 
 template <signed_size_t PW_BLOCKSIZE,
@@ -239,12 +255,43 @@ template <signed_size_t PW_BLOCKSIZE,
     }
 }
 
+template <signed_size_t PW_BLOCKSIZE,
+          class InputItLhs,
+          class InputItRhs,
+          class AccumulateOp,
+          class CombineOp>
+[[nodiscard]] constexpr auto pairwise_accumulate(InputItLhs first1,
+                                                 InputItLhs last1,
+                                                 InputItRhs first2,
+                                                 InputItRhs last2,
+                                                 AccumulateOp accop,
+                                                 CombineOp combop) {
+    const auto size = std::distance(first1, last1);
+    scicpp_require(size == std::distance(first2, last2));
+
+    if (size <= PW_BLOCKSIZE) {
+        return accop(first1, last1, first2, last2);
+    } else {
+        return combop(pairwise_accumulate<PW_BLOCKSIZE>(first1,
+                                                        first1 + size / 2,
+                                                        first2,
+                                                        first2 + size / 2,
+                                                        accop,
+                                                        combop),
+                      pairwise_accumulate<PW_BLOCKSIZE>(first1 + size / 2,
+                                                        last1,
+                                                        first2 + size / 2,
+                                                        last2,
+                                                        accop,
+                                                        combop));
+    }
+}
+
 //---------------------------------------------------------------------------------
 // filter_reduce_associative
 //
 // Use pairwise recursion for improved precision in associative operations.
 //
-// https://en.wikipedia.org/wiki/Pairwise_summation
 // https://github.com/numpy/numpy/pull/3685
 // https://github.com/JuliaLang/julia/pull/4039
 //---------------------------------------------------------------------------------

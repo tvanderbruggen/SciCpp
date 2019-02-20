@@ -220,22 +220,21 @@ constexpr auto scicpp_pure inner(InputItLhs first1,
         typename std::iterator_traits<InputItLhs>::value_type,
         typename std::iterator_traits<InputItRhs>::value_type>;
 
-    constexpr long PW_BLOCKSIZE = 64;
-    const auto size = std::distance(first1, last1);
-    scicpp_require(size == std::distance(first2, last2));
+    return pairwise_accumulate<64>(
+        first1,
+        last1,
+        first2,
+        last2,
+        [&](auto f1, auto l1, auto f2, [[maybe_unused]] auto l2) {
+            auto res = T{0};
 
-    if (size <= PW_BLOCKSIZE) {
-        auto res = T{0};
+            for (; f1 != l1; ++f1, ++f2) {
+                res += op(*f1, *f2);
+            }
 
-        for (; first1 != last1; ++first1, ++first2) {
-            res += op(*first1, *first2);
-        }
-
-        return res;
-    } else {
-        return inner(first1, first1 + size / 2, first2, first2 + size / 2, op) +
-               inner(first1 + size / 2, last1, first2 + size / 2, last2, op);
-    }
+            return res;
+        },
+        std::plus<>());
 }
 
 template <class InputIt>
