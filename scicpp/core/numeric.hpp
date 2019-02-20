@@ -211,11 +211,11 @@ auto diff(const std::vector<T> &a, int n = 1) {
 //---------------------------------------------------------------------------------
 
 template <class InputItLhs, class InputItRhs, class ProductOp>
-constexpr auto scicpp_pure inner(InputItLhs first1,
-                                 InputItLhs last1,
-                                 InputItRhs first2,
-                                 InputItRhs last2,
-                                 ProductOp op) {
+constexpr auto inner(InputItLhs first1,
+                     InputItLhs last1,
+                     InputItRhs first2,
+                     InputItRhs last2,
+                     ProductOp op) {
     using T = typename std::common_type_t<
         typename std::iterator_traits<InputItLhs>::value_type,
         typename std::iterator_traits<InputItRhs>::value_type>;
@@ -225,7 +225,7 @@ constexpr auto scicpp_pure inner(InputItLhs first1,
         last1,
         first2,
         last2,
-        [&](auto f1, auto l1, auto f2, [[maybe_unused]] auto l2) {
+        [&](auto f1, auto l1, auto f2, [[maybe_unused]] auto l2) scicpp_pure {
             auto res = T{0};
 
             for (; f1 != l1; ++f1, ++f2) {
