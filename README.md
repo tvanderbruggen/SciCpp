@@ -10,7 +10,7 @@ It's only dependence is the Eigen linear algebra library, also header only.
 SciCpp uses the C++-17 standard.
 It is tested with the GCC and Clang compilers under Linux.
 
-See documentation (TODO link) for more details.
+See [documentation](https://tvanderbruggen.github.io/scicpp/) for more details.
 
 ## Installing and using SciCpp
 
