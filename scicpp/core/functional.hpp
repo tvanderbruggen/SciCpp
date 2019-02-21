@@ -206,11 +206,92 @@ filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
 }
 
 //---------------------------------------------------------------------------------
+// reduce
+//---------------------------------------------------------------------------------
+
+template <class Array, class BinaryOp, typename T = typename Array::value_type>
+[[nodiscard]] constexpr scicpp_pure auto
+reduce(const Array &a, BinaryOp op, T init) {
+    return filter_reduce(a, op, init, filters::all);
+}
+
+//---------------------------------------------------------------------------------
+// pairwise_accumulate
+//
+// Implements pairwise recursion
+// https://en.wikipedia.org/wiki/Pairwise_summation
+//
+//  | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK |
+//      |       |       |       |       |       |       |       |
+//     acc     acc     acc     acc     acc     acc     acc     acc
+//      |_______|       |_______|       |_______|       |_______|
+//          |               |               |               |
+//       combine         combine         combine         combine
+//          |_______________|               |_______________|
+//                  |_______________________________|
+//                                  |
+//                               combine
+//                                  |
+//                                Result
+//---------------------------------------------------------------------------------
+
+template <signed_size_t PW_BLOCKSIZE,
+          class InputIt,
+          class AccumulateOp,
+          class CombineOp>
+[[nodiscard]] constexpr auto pairwise_accumulate(InputIt first,
+                                                 InputIt last,
+                                                 AccumulateOp accop,
+                                                 CombineOp combop) {
+    const auto size = std::distance(first, last);
+
+    if (size <= PW_BLOCKSIZE) {
+        return accop(first, last);
+    } else {
+        return combop(pairwise_accumulate<PW_BLOCKSIZE>(
+                          first, first + size / 2, accop, combop),
+                      pairwise_accumulate<PW_BLOCKSIZE>(
+                          first + size / 2, last, accop, combop));
+    }
+}
+
+template <signed_size_t PW_BLOCKSIZE,
+          class InputItLhs,
+          class InputItRhs,
+          class AccumulateOp,
+          class CombineOp>
+[[nodiscard]] constexpr auto pairwise_accumulate(InputItLhs first1,
+                                                 InputItLhs last1,
+                                                 InputItRhs first2,
+                                                 InputItRhs last2,
+                                                 AccumulateOp accop,
+                                                 CombineOp combop) {
+    const auto size = std::distance(first1, last1);
+    scicpp_require(size == std::distance(first2, last2));
+
+    if (size <= PW_BLOCKSIZE) {
+        return accop(first1, last1, first2, last2);
+    } else {
+        return combop(pairwise_accumulate<PW_BLOCKSIZE>(first1,
+                                                        first1 + size / 2,
+                                                        first2,
+                                                        first2 + size / 2,
+                                                        accop,
+                                                        combop),
+                      pairwise_accumulate<PW_BLOCKSIZE>(first1 + size / 2,
+                                                        last1,
+                                                        first2 + size / 2,
+                                                        last2,
+                                                        accop,
+                                                        combop));
+    }
+}
+
+//---------------------------------------------------------------------------------
 // filter_reduce_associative
 //
 // Use pairwise recursion for improved precision in associative operations.
 //
-// https://en.wikipedia.org/wiki/Pairwise_summation
 // https://github.com/numpy/numpy/pull/3685
 // https://github.com/JuliaLang/julia/pull/4039
 //---------------------------------------------------------------------------------
@@ -223,26 +304,25 @@ template <class InputIt,
 filter_reduce_associative(InputIt first,
                           InputIt last,
                           AssociativeBinaryOp op,
-                          T init,
-                          UnaryPredicate filter) {
+                          UnaryPredicate filter,
+                          T id_elt = T{0}) {
     if constexpr (std::is_integral_v<T>) {
         // No precision problem for integers, as long as you don't overflow ...
-        return filter_reduce(first, last, op, init, filter);
+        return filter_reduce(first, last, op, id_elt, filter);
     } else {
         static_assert(std::is_floating_point_v<T> || meta::is_complex_v<T>);
 
-        constexpr long PW_BLOCKSIZE = 64;
-        const auto size = std::distance(first, last);
-
-        if (size <= PW_BLOCKSIZE) {
-            return filter_reduce(first, last, op, init, filter);
-        } else {
-            const auto [res1, cnt1] = filter_reduce_associative(
-                first, first + size / 2, op, init, filter);
-            const auto [res2, cnt2] = filter_reduce_associative(
-                first + size / 2, last, op, init, filter);
-            return std::make_tuple(op(res1, res2), cnt1 + cnt2);
-        }
+        return pairwise_accumulate<64>(
+            first,
+            last,
+            [&](auto f, auto l) {
+                return filter_reduce(f, l, op, id_elt, filter);
+            },
+            [&](const auto res1, const auto res2) {
+                const auto [x1, n1] = res1;
+                const auto [x2, n2] = res2;
+                return std::make_tuple(op(x1, x2), n1 + n2);
+            });
     }
 }
 
@@ -251,18 +331,8 @@ template <class Array,
           class AssociativeBinaryOp,
           typename T = typename Array::value_type>
 [[nodiscard]] constexpr scicpp_pure auto filter_reduce_associative(
-    const Array &a, AssociativeBinaryOp op, T init, UnaryPredicate filter) {
-    return filter_reduce_associative(a.cbegin(), a.cend(), op, init, filter);
-}
-
-//---------------------------------------------------------------------------------
-// reduce
-//---------------------------------------------------------------------------------
-
-template <class Array, class BinaryOp, typename T = typename Array::value_type>
-[[nodiscard]] constexpr scicpp_pure auto
-reduce(const Array &a, BinaryOp op, T init) {
-    return filter_reduce(a, op, init, filters::all);
+    const Array &a, AssociativeBinaryOp op, UnaryPredicate filter) {
+    return filter_reduce_associative(a.cbegin(), a.cend(), op, filter);
 }
 
 //---------------------------------------------------------------------------------

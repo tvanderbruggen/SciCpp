@@ -25,8 +25,7 @@ namespace scicpp {
 
 template <class InputIt, class Predicate>
 constexpr auto sum(InputIt first, InputIt last, Predicate filter) {
-    using T = typename std::iterator_traits<InputIt>::value_type;
-    return filter_reduce_associative(first, last, std::plus<>(), T{0}, filter);
+    return filter_reduce_associative(first, last, std::plus<>(), filter);
 }
 
 template <class InputIt>
@@ -53,12 +52,11 @@ auto nansum(const Array &f) {
 // prod
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          class Predicate,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
+template <class InputIt, class Predicate>
 constexpr auto prod(InputIt first, InputIt last, Predicate filter) {
+    using T = typename std::iterator_traits<InputIt>::value_type;
     return filter_reduce_associative(
-        first, last, std::multiplies<>(), T{1}, filter);
+        first, last, std::multiplies<>(), filter, T{1});
 }
 
 template <class InputIt>
@@ -213,31 +211,30 @@ auto diff(const std::vector<T> &a, int n = 1) {
 //---------------------------------------------------------------------------------
 
 template <class InputItLhs, class InputItRhs, class ProductOp>
-constexpr auto scicpp_pure inner(InputItLhs first1,
-                                 InputItLhs last1,
-                                 InputItRhs first2,
-                                 InputItRhs last2,
-                                 ProductOp op) {
+constexpr auto inner(InputItLhs first1,
+                     InputItLhs last1,
+                     InputItRhs first2,
+                     InputItRhs last2,
+                     ProductOp op) {
     using T = typename std::common_type_t<
         typename std::iterator_traits<InputItLhs>::value_type,
         typename std::iterator_traits<InputItRhs>::value_type>;
 
-    constexpr long PW_BLOCKSIZE = 64;
-    const auto size = std::distance(first1, last1);
-    scicpp_require(size == std::distance(first2, last2));
+    return pairwise_accumulate<64>(
+        first1,
+        last1,
+        first2,
+        last2,
+        [&](auto f1, auto l1, auto f2, [[maybe_unused]] auto l2) scicpp_pure {
+            auto res = T{0};
 
-    if (size <= PW_BLOCKSIZE) {
-        auto res = T{0};
+            for (; f1 != l1; ++f1, ++f2) {
+                res += op(*f1, *f2);
+            }
 
-        for (; first1 != last1; ++first1, ++first2) {
-            res += op(*first1, *first2);
-        }
-
-        return res;
-    } else {
-        return inner(first1, first1 + size / 2, first2, first2 + size / 2, op) +
-               inner(first1 + size / 2, last1, first2 + size / 2, last2, op);
-    }
+            return res;
+        },
+        std::plus<>());
 }
 
 template <class InputIt>
