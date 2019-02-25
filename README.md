@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/tvanderbruggen/SciCpp.svg?style=shield)](https://circleci.com/gh/tvanderbruggen/SciCpp)
+
 # SciCpp
 
 Yet another C++ scientific computing library.
