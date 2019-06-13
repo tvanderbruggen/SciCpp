@@ -38,7 +38,7 @@ endif
 
 CFLAGS += -Werror $(WARNINGS) $(ARCH_FLAGS) $(OPTIM_FLAGS) $(DEBUG_FLAGS) $(INCLUDES) -MMD -MP
 CXXFLAGS = $(CFLAGS) -std=c++17 -pthread
-LD_FLAGS = -lm
+LD_FLAGS = -lm -lstdc++fs
 
 ifeq ($(COMPILER),clang)
   # CXXFLAGS += -stdlib=libc++ # No C++17 deduction guides for now
