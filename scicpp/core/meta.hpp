@@ -68,6 +68,25 @@ static_assert(is_iterable_v<std::vector<float>>);
 static_assert(!is_iterable_v<double>);
 
 //---------------------------------------------------------------------------------
+// std::vector traits
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class T>
+struct is_std_vector : std::false_type {};
+template <typename Scalar>
+struct is_std_vector<std::vector<Scalar>> : std::true_type {};
+
+} // namespace detail
+
+template <class T>
+constexpr bool is_std_vector_v = detail::is_std_vector<T>::value;
+
+static_assert(!is_std_vector_v<Eigen::Matrix2d>);
+static_assert(is_std_vector_v<std::vector<double>>);
+
+//---------------------------------------------------------------------------------
 // Eigen type traits
 //---------------------------------------------------------------------------------
 

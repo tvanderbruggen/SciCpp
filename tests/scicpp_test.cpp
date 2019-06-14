@@ -18,7 +18,7 @@ using namespace std::literals;
 #include "scicpp/core/random.t.cpp"
 #include "scicpp/core/stats.t.cpp"
 #include "scicpp/core/utils.t.cpp"
-#include "scicpp/core/loadtxt.t.cpp"
+#include "scicpp/core/io.t.cpp"
 #include "scicpp/linalg/solve.t.cpp"
 #include "scicpp/linalg/utils.t.cpp"
 #include "scicpp/core/functional.t.cpp"
