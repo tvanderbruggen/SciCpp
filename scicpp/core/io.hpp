@@ -20,6 +20,8 @@
 
 namespace scicpp {
 
+namespace detail {
+
 template <typename T>
 auto to_number(const char *str) {
     if constexpr (std::is_floating_point_v<T>) {
@@ -34,13 +36,49 @@ auto to_number(const std::string &str) {
     return to_number<T>(str.data());
 }
 
+template <typename DataType>
+int push_string_to_vector(std::vector<DataType> &vec,
+                          const char *str,
+                          char sep) {
+    std::stringstream ss(str);
+    std::string tmp;
+    int len = 0;
+
+    while (std::getline(ss, tmp, sep)) {
+        vec.push_back(to_number<DataType>(tmp));
+        ++len;
+    }
+
+    return len;
+}
+
+} // namespace detail
+
+//---------------------------------------------------------------------------------
+// fromstring
+//---------------------------------------------------------------------------------
+
+template <typename DataType = double>
+auto fromstring(const char *str, char sep) {
+    std::vector<DataType> res;
+    detail::push_string_to_vector(res, str, sep);
+    return res;
+}
+
+template <typename DataType = double>
+auto fromstring(const std::string &str, char sep) {
+    return fromstring(str.data(), sep);
+}
+
+//---------------------------------------------------------------------------------
+// loadtxt
+//---------------------------------------------------------------------------------
+
 // Load all the data in a single vector and return the number of columns.
 template <typename StdVector,
           std::enable_if_t<meta::is_std_vector_v<StdVector>, int> = 0>
 auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
-    using T = typename StdVector::value_type;
-
-    StdVector res;
+    StdVector res(0);
     std::ifstream file(fname);
     int skip = skiprows;
     bool is_first_row = true;
@@ -48,21 +86,20 @@ auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
 
     if (file.is_open()) {
         std::string line;
-        std::string tmp;
 
-        while (--skip) {
+        while (skip > 0) {
+            --skip;
             std::getline(file, line);
         }
 
         while (std::getline(file, line)) {
-            std::stringstream ss(line);
+            int line_cols =
+                detail::push_string_to_vector(res, line.data(), delimiter);
 
-            while (std::getline(ss, tmp, delimiter)) {
-                if (is_first_row) {
-                    ++num_cols;
-                }
-
-                res.push_back(to_number<T>(tmp));
+            if (is_first_row) {
+                num_cols = line_cols;
+            } else {
+                scicpp_require(line_cols == num_cols);
             }
 
             is_first_row = false;
