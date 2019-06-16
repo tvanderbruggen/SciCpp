@@ -5,6 +5,8 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
 
+#include <iostream>
+
 namespace scicpp {
 
 TEST_CASE("scicpp::detail::to_number") {
@@ -34,6 +36,12 @@ TEST_CASE("scicpp::loadtxt to vector") {
     REQUIRE(data.size() == 195);
     REQUIRE(almost_equal(data[0], 1.));
     REQUIRE(almost_equal(data[data.size() - 1], 0.02));
+}
+
+TEST_CASE("scicpp::loadtxt to tuple") {
+    const auto data =
+        loadtxt<int, double, double, double, double>("tests/data0.csv", ',', 1);
+    REQUIRE(true);
 }
 
 TEST_CASE("scicpp::loadtxt to vector with converters") {

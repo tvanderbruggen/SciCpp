@@ -12,7 +12,6 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
-#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
@@ -22,6 +21,8 @@
 
 namespace scicpp {
 
+// A dictionary mapping column number to a function that will parse the
+// column string into the desired value.
 template <typename DataType>
 using ConvertersDict =
     typename std::map<int, std::function<DataType(const char *str)>>;
@@ -68,6 +69,38 @@ int push_string_to_vector(std::vector<DataType> &vec,
     }
 
     return len;
+}
+
+auto tokenize(const char *str, char sep) {
+    std::stringstream ss(str);
+    std::string tmp;
+    std::vector<std::string> tokens;
+
+    while (std::getline(ss, tmp, sep)) {
+        tokens.push_back(tmp);
+    }
+
+    return tokens;
+}
+
+template <typename DataType0, typename... DataTypes>
+auto tokens_to_tuple(const std::vector<std::string> &tokens) {
+    const auto idx = tokens.size() - sizeof...(DataTypes) - 1;
+
+    if constexpr (sizeof...(DataTypes) == 0) {
+        return std::make_tuple(to_number<DataType0>(tokens[idx]));
+    } else {
+        return std::tuple_cat(
+            tokens_to_tuple<DataTypes...>(tokens),
+            std::make_tuple(to_number<DataType0>(tokens[idx])));
+    }
+}
+
+template <typename... DataTypes>
+auto load_line_to_tuple(const char *str, char sep) {
+    const auto tokens = tokenize(str, sep);
+    scicpp_require(tokens.size() == sizeof...(DataTypes));
+    return tokens_to_tuple<DataTypes...>(tokens);
 }
 
 } // namespace detail
@@ -164,6 +197,33 @@ auto loadtxt(const std::filesystem::path &fname,
              const ConvertersDict<DataType> &converters = {}) {
     return loadtxt<Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>>(
         fname, delimiter, skiprows, converters);
+}
+
+template <typename... DataTypes,
+          std::enable_if_t<(sizeof...(DataTypes) > 1), int> = 0>
+auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
+    std::vector<std::tuple<DataTypes...>> res;
+
+    std::ifstream file(fname);
+    int skip = skiprows;
+
+    if (file.is_open()) {
+        std::string line;
+
+        while (skip > 0) {
+            --skip;
+            std::getline(file, line);
+        }
+
+        while (std::getline(file, line)) {
+            res.push_back(detail::load_line_to_tuple<DataTypes...>(line.data(),
+                                                                   delimiter));
+        }
+
+        file.close();
+    }
+
+    return res;
 }
 
 } // namespace scicpp
