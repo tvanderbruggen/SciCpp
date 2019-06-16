@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-#ifndef SCICPP_CORE_LOADTXT
-#define SCICPP_CORE_LOADTXT
+#ifndef SCICPP_CORE_IO
+#define SCICPP_CORE_IO
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
@@ -11,7 +11,9 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -19,6 +21,10 @@
 #include <vector>
 
 namespace scicpp {
+
+template <typename DataType>
+using ConvertersDict =
+    typename std::map<int, std::function<DataType(const char *str)>>;
 
 namespace detail {
 
@@ -39,13 +45,25 @@ auto to_number(const std::string &str) {
 template <typename DataType>
 int push_string_to_vector(std::vector<DataType> &vec,
                           const char *str,
-                          char sep) {
+                          char sep,
+                          const ConvertersDict<DataType> &converters = {}) {
     std::stringstream ss(str);
     std::string tmp;
     int len = 0;
 
     while (std::getline(ss, tmp, sep)) {
-        vec.push_back(to_number<DataType>(tmp));
+        if (!converters.empty()) {
+            const auto converter = converters.find(len);
+
+            if (converter != converters.end()) {
+                vec.push_back(converter->second(tmp.data()));
+            } else {
+                vec.push_back(to_number<DataType>(tmp));
+            }
+        } else {
+            vec.push_back(to_number<DataType>(tmp));
+        }
+
         ++len;
     }
 
@@ -59,15 +77,19 @@ int push_string_to_vector(std::vector<DataType> &vec,
 //---------------------------------------------------------------------------------
 
 template <typename DataType = double>
-auto fromstring(const char *str, char sep) {
+auto fromstring(const char *str,
+                char sep,
+                const ConvertersDict<DataType> &converters = {}) {
     std::vector<DataType> res;
-    detail::push_string_to_vector(res, str, sep);
+    detail::push_string_to_vector(res, str, sep, converters);
     return res;
 }
 
 template <typename DataType = double>
-auto fromstring(const std::string &str, char sep) {
-    return fromstring(str.data(), sep);
+auto fromstring(const std::string &str,
+                char sep,
+                const ConvertersDict<DataType> &converters = {}) {
+    return fromstring(str.data(), sep, converters);
 }
 
 //---------------------------------------------------------------------------------
@@ -76,8 +98,12 @@ auto fromstring(const std::string &str, char sep) {
 
 // Load all the data in a single vector and return the number of columns.
 template <typename StdVector,
+          typename DataType = typename StdVector::value_type,
           std::enable_if_t<meta::is_std_vector_v<StdVector>, int> = 0>
-auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
+auto loadtxt(const std::filesystem::path &fname,
+             char delimiter,
+             int skiprows,
+             const ConvertersDict<DataType> &converters = {}) {
     StdVector res(0);
     std::ifstream file(fname);
     int skip = skiprows;
@@ -93,8 +119,8 @@ auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
         }
 
         while (std::getline(file, line)) {
-            int line_cols =
-                detail::push_string_to_vector(res, line.data(), delimiter);
+            int line_cols = detail::push_string_to_vector(
+                res, line.data(), delimiter, converters);
 
             if (is_first_row) {
                 num_cols = line_cols;
@@ -112,13 +138,16 @@ auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
 }
 
 template <class EigenMatrix,
+          typename DataType = typename EigenMatrix::value_type,
           std::enable_if_t<meta::is_eigen_matrix_v<EigenMatrix>, int> = 0>
-EigenMatrix
-loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
+EigenMatrix loadtxt(const std::filesystem::path &fname,
+                    char delimiter,
+                    int skiprows,
+                    const ConvertersDict<DataType> &converters = {}) {
     using T = typename EigenMatrix::value_type;
 
     const auto [data, num_cols] =
-        loadtxt<std::vector<T>>(fname, delimiter, skiprows);
+        loadtxt<std::vector<T>>(fname, delimiter, skiprows, converters);
 
     return Eigen::Map<const Eigen::Matrix<typename EigenMatrix::Scalar,
                                           EigenMatrix::RowsAtCompileTime,
@@ -129,11 +158,14 @@ loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
 
 template <typename DataType = double,
           std::enable_if_t<std::is_arithmetic_v<DataType>, int> = 0>
-auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
+auto loadtxt(const std::filesystem::path &fname,
+             char delimiter,
+             int skiprows,
+             const ConvertersDict<DataType> &converters = {}) {
     return loadtxt<Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>>(
-        fname, delimiter, skiprows);
+        fname, delimiter, skiprows, converters);
 }
 
 } // namespace scicpp
 
-#endif // SCICPP_CORE_LOADTXT
+#endif // SCICPP_CORE_IO
