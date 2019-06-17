@@ -32,15 +32,20 @@ TEST_CASE("scicpp::fromstring with converters") {
 TEST_CASE("scicpp::loadtxt to vector") {
     const auto [data, num_cols] =
         loadtxt<std::vector<double>>("tests/data0.csv", ',', 1);
-    // print(data);
+    print(data);
     REQUIRE(data.size() == 195);
     REQUIRE(almost_equal(data[0], 1.));
     REQUIRE(almost_equal(data[data.size() - 1], 0.02));
 }
 
 TEST_CASE("scicpp::loadtxt to tuple") {
-    const auto data =
-        loadtxt<int, double, double, double, double>("tests/data0.csv", ',', 1);
+    detail::fprint_element(stdout, std::complex<double>(1., -2.));
+    std::vector<std::tuple<int, double>> v = {std::make_tuple(1, 3.14),
+                                                 std::make_tuple(0, 4.78)};
+    print(v);
+    const auto data = loadtxt<int, double, double, double, double>(
+        "tests/data0.csv", ',', 1);
+    print(data);
     REQUIRE(true);
 }
 

@@ -91,8 +91,8 @@ auto tokens_to_tuple(const std::vector<std::string> &tokens) {
         return std::make_tuple(to_number<DataType0>(tokens[idx]));
     } else {
         return std::tuple_cat(
-            tokens_to_tuple<DataTypes...>(tokens),
-            std::make_tuple(to_number<DataType0>(tokens[idx])));
+            std::make_tuple(to_number<DataType0>(tokens[idx])),
+            tokens_to_tuple<DataTypes...>(tokens));
     }
 }
 

@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 #include <array>
 #include <complex>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
@@ -85,6 +86,45 @@ constexpr bool is_std_vector_v = detail::is_std_vector<T>::value;
 
 static_assert(!is_std_vector_v<Eigen::Matrix2d>);
 static_assert(is_std_vector_v<std::vector<double>>);
+
+//---------------------------------------------------------------------------------
+// std::tuple traits
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class T>
+struct is_std_tuple : std::false_type {};
+template <typename... Args>
+struct is_std_tuple<std::tuple<Args...>> : std::true_type {};
+
+} // namespace detail
+
+template <class T>
+constexpr bool is_std_tuple_v = detail::is_std_tuple<T>::value;
+
+static_assert(!is_std_tuple_v<std::vector<double>>);
+static_assert(is_std_tuple_v<std::tuple<double, int, float>>);
+
+//---------------------------------------------------------------------------------
+// subtuple
+// https://stackoverflow.com/questions/17854219/creating-a-sub-tuple-starting-from-a-stdtuplesome-types
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <typename... T, std::size_t... I>
+auto subtuple_(const std::tuple<T...> &t, std::index_sequence<I...>) {
+    return std::make_tuple(std::get<I>(t)...);
+}
+
+} // namespace detail
+
+template <int Trim, typename... T>
+auto subtuple(const std::tuple<T...> &t) {
+    return detail::subtuple_(t,
+                             std::make_index_sequence<sizeof...(T) - Trim>());
+}
 
 //---------------------------------------------------------------------------------
 // Eigen type traits
