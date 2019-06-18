@@ -26,12 +26,14 @@ constexpr auto type_to_format() {
         return "%f";
     } else if constexpr (std::is_unsigned_v<T>) {
         return "%lu";
-    } else if constexpr (std::is_signed_v<T>) {
+    } else if constexpr (std::is_same_v<T, long int>) {
         return "%li";
+    } else if constexpr (std::is_same_v<T, int>) {
+        return "%i";
     }
 }
 
-template<typename T>
+template <typename T>
 void fprint_tuple_element(FILE *stream, T x) {
     fprint_element(stream, x);
     std::fprintf(stream, ", ");
@@ -56,9 +58,7 @@ void fprint_element(FILE *stream, T value) {
         }
     } else if constexpr (meta::is_std_tuple_v<T>) {
         std::apply(
-            [stream](auto... x) {
-                (fprint_tuple_element(stream, x), ...);
-            },
+            [stream](auto... x) { (fprint_tuple_element(stream, x), ...); },
             meta::subtuple<1>(value));
         fprint_element(stream, std::get<std::tuple_size_v<T> - 1>(value));
     } else {

@@ -23,9 +23,23 @@ namespace scicpp {
 
 // A dictionary mapping column number to a function that will parse the
 // column string into the desired value.
-template <typename DataType>
-using ConvertersDict =
-    typename std::map<int, std::function<DataType(const char *str)>>;
+
+namespace detail {
+
+template <typename DataType0, typename... DataTypes>
+struct ConvertersDict_ {
+    using type = typename std::map<
+        int,
+        std::conditional_t<sizeof...(DataTypes) == 0,
+                           std::function<DataType0(const char *str)>,
+                           std::function<std::tuple<DataType0, DataTypes...>(
+                               const char *str)>>>;
+};
+
+} // namespace detail
+
+template <typename... DataTypes>
+using ConvertersDict = typename detail::ConvertersDict_<DataTypes...>::type;
 
 namespace detail {
 
@@ -130,14 +144,12 @@ auto fromstring(const std::string &str,
 //---------------------------------------------------------------------------------
 
 // Load all the data in a single vector and return the number of columns.
-template <typename StdVector,
-          typename DataType = typename StdVector::value_type,
-          std::enable_if_t<meta::is_std_vector_v<StdVector>, int> = 0>
-auto loadtxt(const std::filesystem::path &fname,
-             char delimiter,
-             int skiprows,
-             const ConvertersDict<DataType> &converters = {}) {
-    StdVector res(0);
+template <typename DataType>
+auto loadtxt_to_vector(const std::filesystem::path &fname,
+                       char delimiter,
+                       int skiprows,
+                       const ConvertersDict<DataType> &converters = {}) {
+    std::vector<DataType> res(0);
     std::ifstream file(fname);
     int skip = skiprows;
     bool is_first_row = true;
@@ -180,7 +192,7 @@ EigenMatrix loadtxt(const std::filesystem::path &fname,
     using T = typename EigenMatrix::value_type;
 
     const auto [data, num_cols] =
-        loadtxt<std::vector<T>>(fname, delimiter, skiprows, converters);
+        loadtxt_to_vector<T>(fname, delimiter, skiprows, converters);
 
     return Eigen::Map<const Eigen::Matrix<typename EigenMatrix::Scalar,
                                           EigenMatrix::RowsAtCompileTime,
@@ -201,7 +213,11 @@ auto loadtxt(const std::filesystem::path &fname,
 
 template <typename... DataTypes,
           std::enable_if_t<(sizeof...(DataTypes) > 1), int> = 0>
-auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
+auto loadtxt(
+    const std::filesystem::path &fname,
+    char delimiter,
+    int skiprows,
+    [[maybe_unused]] const ConvertersDict<DataTypes...> &converters = {}) {
     std::vector<std::tuple<DataTypes...>> res;
 
     std::ifstream file(fname);
@@ -225,6 +241,37 @@ auto loadtxt(const std::filesystem::path &fname, char delimiter, int skiprows) {
 
     return res;
 }
+
+template <typename... DataTypes>
+class TxtLoader {
+  public:
+    TxtLoader() {}
+
+    auto delimiter(char delimiter_) {
+        m_delimiter = delimiter_;
+        return *this;
+    }
+
+    auto skiprows(int skiprows_) {
+        m_skiprows = skiprows_;
+        return *this;
+    }
+
+    auto converters(ConvertersDict<DataTypes...> converters_) {
+        m_converters = converters_;
+        return *this;
+    }
+
+    auto load(const std::filesystem::path &fname) {
+        return loadtxt<DataTypes...>(
+            fname, m_delimiter, m_skiprows, m_converters);
+    }
+
+  private:
+    char m_delimiter = ' ';
+    int m_skiprows = 0;
+    ConvertersDict<DataTypes...> m_converters = {};
+}; // class TxtLoader
 
 } // namespace scicpp
 

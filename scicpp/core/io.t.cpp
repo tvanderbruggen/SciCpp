@@ -29,44 +29,51 @@ TEST_CASE("scicpp::fromstring with converters") {
                          {42., 1., 10.}));
 }
 
-TEST_CASE("scicpp::loadtxt to vector") {
-    const auto [data, num_cols] =
-        loadtxt<std::vector<double>>("tests/data0.csv", ',', 1);
-    print(data);
-    REQUIRE(data.size() == 195);
-    REQUIRE(almost_equal(data[0], 1.));
-    REQUIRE(almost_equal(data[data.size() - 1], 0.02));
-}
+// TEST_CASE("scicpp::TxtLoader to vector") {
+//     const auto [data, num_cols] =
+//         TxtLoader<std::vector<double>>().delimiter(',').skiprows(1).load(
+//             "tests/data0.csv");
+//     // print(data);
+//     REQUIRE(data.size() == 195);
+//     REQUIRE(almost_equal(data[0], 1.));
+//     REQUIRE(almost_equal(data[data.size() - 1], 0.02));
+// }
 
 TEST_CASE("scicpp::loadtxt to tuple") {
-    detail::fprint_element(stdout, std::complex<double>(1., -2.));
-    std::vector<std::tuple<int, double>> v = {std::make_tuple(1, 3.14),
-                                                 std::make_tuple(0, 4.78)};
-    print(v);
-    const auto data = loadtxt<int, double, double, double, double>(
-        "tests/data0.csv", ',', 1);
+    // detail::fprint_element(stdout, std::complex<double>(1., -2.));
+    // std::vector<std::tuple<int, double>> v = {std::make_tuple(1, 3.14),
+    //                                           std::make_tuple(0, 4.78)};
+    // print(v);
+    const auto data = TxtLoader<int, double, double, double, double>()
+                          .delimiter(',')
+                          .skiprows(1)
+                          .load("tests/data0.csv");
     print(data);
     REQUIRE(true);
 }
 
-TEST_CASE("scicpp::loadtxt to vector with converters") {
-    const ConvertersDict<double> converters = {
-        {0, [](auto x) { return -std::atof(x); }}};
-    const auto [data, num_cols] =
-        loadtxt<std::vector<double>>("tests/data0.csv", ',', 1, converters);
-    // print(data);
-    REQUIRE(data.size() == 195);
-    REQUIRE(almost_equal(data[0], -1.));
-    REQUIRE(almost_equal(data[data.size() - 1], 0.02));
-}
+// TEST_CASE("scicpp::loadtxt to vector with converters") {
+//     const ConvertersDict<double> converters = {
+//         {0, [](auto x) { return -std::atof(x); }}};
+//     const auto [data, num_cols] =
+//         loadtxt<std::vector<double>>("tests/data0.csv", ',', 1, converters);
+//     // print(data);
+//     REQUIRE(data.size() == 195);
+//     REQUIRE(almost_equal(data[0], -1.));
+//     REQUIRE(almost_equal(data[data.size() - 1], 0.02));
+// }
 
-TEST_CASE("scicpp::loadtxt to Eigen matrix") {
-    const auto m1 = loadtxt("tests/data0.csv", ',', 1);
+TEST_CASE("scicpp::TxtLoader to Eigen matrix") {
+    const auto m1 =
+        TxtLoader<double>().delimiter(',').skiprows(1).load("tests/data0.csv");
+    ;
     // std::cout << m1 << '\n';
     REQUIRE(m1.rows() == 39);
     REQUIRE(m1.cols() == 5);
     REQUIRE(almost_equal(m1(0, 0), 1.0));
-    const auto m2 = loadtxt<int>("tests/data0.csv", ',', 1);
+    const auto m2 =
+        TxtLoader<int>().delimiter(',').skiprows(1).load("tests/data0.csv");
+    ;
     // std::cout << m2 << '\n';
     REQUIRE(m2.rows() == 39);
     REQUIRE(m2.cols() == 5);
