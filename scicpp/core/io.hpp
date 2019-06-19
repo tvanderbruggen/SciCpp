@@ -8,6 +8,7 @@
 #include "scicpp/core/meta.hpp"
 
 #include <Eigen/Dense>
+#include <any>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -24,22 +25,8 @@ namespace scicpp {
 // A dictionary mapping column number to a function that will parse the
 // column string into the desired value.
 
-namespace detail {
-
-template <typename DataType0, typename... DataTypes>
-struct ConvertersDict_ {
-    using type = typename std::map<
-        int,
-        std::conditional_t<sizeof...(DataTypes) == 0,
-                           std::function<DataType0(const char *str)>,
-                           std::function<std::tuple<DataType0, DataTypes...>(
-                               const char *str)>>>;
-};
-
-} // namespace detail
-
-template <typename... DataTypes>
-using ConvertersDict = typename detail::ConvertersDict_<DataTypes...>::type;
+using ConvertersDict =
+    typename std::map<signed_size_t, std::function<std::any(const char *str)>>;
 
 namespace detail {
 
@@ -61,7 +48,7 @@ template <typename DataType>
 int push_string_to_vector(std::vector<DataType> &vec,
                           const char *str,
                           char sep,
-                          const ConvertersDict<DataType> &converters = {}) {
+                          const ConvertersDict &converters = {}) {
     std::stringstream ss(str);
     std::string tmp;
     int len = 0;
@@ -71,7 +58,7 @@ int push_string_to_vector(std::vector<DataType> &vec,
             const auto converter = converters.find(len);
 
             if (converter != converters.end()) {
-                vec.push_back(converter->second(tmp.data()));
+                vec.push_back(std::any_cast<DataType>(converter->second(tmp.data())));
             } else {
                 vec.push_back(to_number<DataType>(tmp));
             }
@@ -98,23 +85,40 @@ auto tokenize(const char *str, char sep) {
 }
 
 template <typename DataType0, typename... DataTypes>
-auto tokens_to_tuple(const std::vector<std::string> &tokens) {
+auto tokens_to_tuple(const std::vector<std::string> &tokens,
+                     const ConvertersDict &converters = {}) {
     const auto idx = tokens.size() - sizeof...(DataTypes) - 1;
+    DataType0 res;
+
+    if (!converters.empty()) {
+        const auto converter = converters.find(signed_size_t(idx));
+
+        if (converter != converters.end()) {
+            res =
+                std::any_cast<DataType0>(converter->second(tokens[idx].data()));
+        } else {
+            res = to_number<DataType0>(tokens[idx]);
+        }
+    } else {
+        res = to_number<DataType0>(tokens[idx]);
+    }
 
     if constexpr (sizeof...(DataTypes) == 0) {
-        return std::make_tuple(to_number<DataType0>(tokens[idx]));
+        return std::make_tuple(res);
     } else {
         return std::tuple_cat(
-            std::make_tuple(to_number<DataType0>(tokens[idx])),
-            tokens_to_tuple<DataTypes...>(tokens));
+            std::make_tuple(res),
+            tokens_to_tuple<DataTypes...>(tokens, converters));
     }
 }
 
 template <typename... DataTypes>
-auto load_line_to_tuple(const char *str, char sep) {
+auto load_line_to_tuple(const char *str,
+                        char sep,
+                        const ConvertersDict &converters = {}) {
     const auto tokens = tokenize(str, sep);
     scicpp_require(tokens.size() == sizeof...(DataTypes));
-    return tokens_to_tuple<DataTypes...>(tokens);
+    return tokens_to_tuple<DataTypes...>(tokens, converters);
 }
 
 } // namespace detail
@@ -126,7 +130,7 @@ auto load_line_to_tuple(const char *str, char sep) {
 template <typename DataType = double>
 auto fromstring(const char *str,
                 char sep,
-                const ConvertersDict<DataType> &converters = {}) {
+                const ConvertersDict &converters = {}) {
     std::vector<DataType> res;
     detail::push_string_to_vector(res, str, sep, converters);
     return res;
@@ -135,7 +139,7 @@ auto fromstring(const char *str,
 template <typename DataType = double>
 auto fromstring(const std::string &str,
                 char sep,
-                const ConvertersDict<DataType> &converters = {}) {
+                const ConvertersDict &converters = {}) {
     return fromstring(str.data(), sep, converters);
 }
 
@@ -148,7 +152,7 @@ template <typename DataType>
 auto loadtxt_to_vector(const std::filesystem::path &fname,
                        char delimiter,
                        int skiprows,
-                       const ConvertersDict<DataType> &converters = {}) {
+                       const ConvertersDict &converters = {}) {
     std::vector<DataType> res(0);
     std::ifstream file(fname);
     int skip = skiprows;
@@ -183,12 +187,11 @@ auto loadtxt_to_vector(const std::filesystem::path &fname,
 }
 
 template <class EigenMatrix,
-          typename DataType = typename EigenMatrix::value_type,
           std::enable_if_t<meta::is_eigen_matrix_v<EigenMatrix>, int> = 0>
 EigenMatrix loadtxt(const std::filesystem::path &fname,
                     char delimiter,
                     int skiprows,
-                    const ConvertersDict<DataType> &converters = {}) {
+                    const ConvertersDict &converters = {}) {
     using T = typename EigenMatrix::value_type;
 
     const auto [data, num_cols] =
@@ -206,7 +209,7 @@ template <typename DataType = double,
 auto loadtxt(const std::filesystem::path &fname,
              char delimiter,
              int skiprows,
-             const ConvertersDict<DataType> &converters = {}) {
+             const ConvertersDict &converters = {}) {
     return loadtxt<Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>>(
         fname, delimiter, skiprows, converters);
 }
@@ -217,7 +220,7 @@ auto loadtxt(
     const std::filesystem::path &fname,
     char delimiter,
     int skiprows,
-    [[maybe_unused]] const ConvertersDict<DataTypes...> &converters = {}) {
+    [[maybe_unused]] const ConvertersDict &converters = {}) {
     std::vector<std::tuple<DataTypes...>> res;
 
     std::ifstream file(fname);
@@ -257,7 +260,7 @@ class TxtLoader {
         return *this;
     }
 
-    auto converters(ConvertersDict<DataTypes...> converters_) {
+    auto converters(ConvertersDict converters_) {
         m_converters = converters_;
         return *this;
     }
@@ -270,7 +273,7 @@ class TxtLoader {
   private:
     char m_delimiter = ' ';
     int m_skiprows = 0;
-    ConvertersDict<DataTypes...> m_converters = {};
+    ConvertersDict m_converters = {};
 }; // class TxtLoader
 
 } // namespace scicpp
