@@ -65,7 +65,7 @@ template <typename DataType>
 int push_string_to_vector(std::vector<DataType> &vec,
                           const char *str,
                           char sep,
-                          const ConvertersDict &converters = {}) {
+                          const ConvertersDict &converters) {
     std::stringstream ss(str);
     std::string tmp;
     int len = 0;
@@ -92,7 +92,7 @@ auto tokenize(const char *str, char sep) {
 
 template <typename DataType0, typename... DataTypes>
 auto tokens_to_tuple(const std::vector<std::string> &tokens,
-                     const ConvertersDict &converters = {}) {
+                     const ConvertersDict &converters) {
     const auto idx = tokens.size() - sizeof...(DataTypes) - 1;
     const auto res =
         convert<DataType0>(tokens[idx], signed_size_t(idx), converters);
@@ -109,7 +109,7 @@ auto tokens_to_tuple(const std::vector<std::string> &tokens,
 template <typename... DataTypes>
 auto load_line_to_tuple(const char *str,
                         char sep,
-                        const ConvertersDict &converters = {}) {
+                        const ConvertersDict &converters) {
     const auto tokens = tokenize(str, sep);
     scicpp_require(tokens.size() == sizeof...(DataTypes));
     return tokens_to_tuple<DataTypes...>(tokens, converters);
@@ -141,17 +141,10 @@ auto fromstring(const std::string &str,
 // loadtxt
 //---------------------------------------------------------------------------------
 
-// Load all the data in a single vector and return the number of columns.
-template <typename DataType>
-auto loadtxt_to_vector(const std::filesystem::path &fname,
-                       char delimiter,
-                       int skiprows,
-                       const ConvertersDict &converters = {}) {
-    std::vector<DataType> res(0);
+template <class LineOp>
+void iterate_file(const std::filesystem::path &fname, int skiprows, LineOp op) {
     std::ifstream file(fname);
     int skip = skiprows;
-    bool is_first_row = true;
-    int num_cols = 0;
 
     if (file.is_open()) {
         std::string line;
@@ -162,6 +155,27 @@ auto loadtxt_to_vector(const std::filesystem::path &fname,
         }
 
         while (std::getline(file, line)) {
+            op(line);
+        }
+
+        file.close();
+    }
+}
+
+// Load all the data in a single vector and return the number of columns.
+template <typename DataType>
+auto loadtxt_to_vector(const std::filesystem::path &fname,
+                       char delimiter,
+                       int skiprows,
+                       const ConvertersDict &converters) {
+    std::vector<DataType> res(0);
+    bool is_first_row = true;
+    int num_cols = 0;
+
+    iterate_file(
+        fname,
+        skiprows,
+        [&is_first_row, &num_cols, &res, delimiter, converters](auto line) {
             int line_cols = detail::push_string_to_vector(
                 res, line.data(), delimiter, converters);
 
@@ -172,10 +186,7 @@ auto loadtxt_to_vector(const std::filesystem::path &fname,
             }
 
             is_first_row = false;
-        }
-
-        file.close();
-    }
+        });
 
     return std::make_tuple(res, num_cols);
 }
@@ -185,7 +196,7 @@ template <class EigenMatrix,
 EigenMatrix loadtxt(const std::filesystem::path &fname,
                     char delimiter,
                     int skiprows,
-                    const ConvertersDict &converters = {}) {
+                    const ConvertersDict &converters) {
     using T = typename EigenMatrix::value_type;
 
     const auto [data, num_cols] =
@@ -203,7 +214,7 @@ template <typename DataType = double,
 auto loadtxt(const std::filesystem::path &fname,
              char delimiter,
              int skiprows,
-             const ConvertersDict &converters = {}) {
+             const ConvertersDict &converters) {
     return loadtxt<Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>>(
         fname, delimiter, skiprows, converters);
 }
@@ -213,27 +224,13 @@ template <typename... DataTypes,
 auto loadtxt(const std::filesystem::path &fname,
              char delimiter,
              int skiprows,
-             [[maybe_unused]] const ConvertersDict &converters = {}) {
+             const ConvertersDict &converters) {
     std::vector<std::tuple<DataTypes...>> res;
 
-    std::ifstream file(fname);
-    int skip = skiprows;
-
-    if (file.is_open()) {
-        std::string line;
-
-        while (skip > 0) {
-            --skip;
-            std::getline(file, line);
-        }
-
-        while (std::getline(file, line)) {
-            res.push_back(detail::load_line_to_tuple<DataTypes...>(line.data(),
-                                                                   delimiter));
-        }
-
-        file.close();
-    }
+    iterate_file(fname, skiprows, [&res, delimiter, converters](auto line) {
+        res.push_back(detail::load_line_to_tuple<DataTypes...>(
+            line.data(), delimiter, converters));
+    });
 
     return res;
 }
