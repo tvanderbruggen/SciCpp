@@ -78,7 +78,7 @@ int push_string_to_vector(std::vector<DataType> &vec,
     return len;
 }
 
-auto tokenize(const char *str, char sep) {
+auto inline tokenize(const char *str, char sep) {
     std::stringstream ss(str);
     std::string tmp;
     std::vector<std::string> tokens;
@@ -238,7 +238,7 @@ auto loadtxt(const std::filesystem::path &fname,
 template <typename... DataTypes>
 class TxtLoader {
   public:
-    TxtLoader() {}
+    TxtLoader() = default;
 
     auto delimiter(char delimiter) {
         m_delimiter = delimiter;

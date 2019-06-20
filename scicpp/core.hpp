@@ -4,10 +4,8 @@
 #ifndef SCICPP_CORE_HEADER
 #define SCICPP_CORE_HEADER
 
-// TODO This header should not have a dependency on Eigen.
-// => Remains Eigen matrix type traits in meta.hpp
-
 #include "core/functional.hpp"
+#include "core/io.hpp"
 #include "core/macros.hpp"
 #include "core/maths.hpp"
 #include "core/meta.hpp"
