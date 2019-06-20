@@ -24,12 +24,16 @@ template <typename T>
 constexpr auto type_to_format() {
     if constexpr (std::is_floating_point_v<T>) {
         return "%f";
-    } else if constexpr (std::is_unsigned_v<T>) {
+    } else if constexpr (std::is_same_v<T, long unsigned int>) {
         return "%lu";
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        return "%u";
     } else if constexpr (std::is_same_v<T, long int>) {
         return "%li";
     } else if constexpr (std::is_same_v<T, int>) {
         return "%i";
+    } else if constexpr (std::is_same_v<T, bool>) {
+        return "%u";
     }
 }
 

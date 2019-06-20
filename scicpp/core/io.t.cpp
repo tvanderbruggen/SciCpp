@@ -34,23 +34,27 @@ TEST_CASE("scicpp::loadtxt to tuple") {
                           .delimiter(',')
                           .skiprows(1)
                           .load("tests/data0.csv");
-    // print(data);
+    print(data);
     REQUIRE(data.size() == 39);
     REQUIRE(std::get<0>(data[0]) == 1);
     REQUIRE(std::get<0>(data[25]) == 26);
     REQUIRE(almost_equal(std::get<4>(data[0]), 0.76));
 }
 
-TEST_CASE("scicpp::TxtLoader to vector with converters") {
-    const auto m = TxtLoader<double>()
-                       .delimiter(',')
-                       .skiprows(1)
-                       .converters({{0, [](auto x) { return -std::atof(x); }}})
-                       .load("tests/data0.csv");
-
-    REQUIRE(m.size() == 195);
-    REQUIRE(almost_equal(m(0), -1.));
-    REQUIRE(almost_equal(m(m.size() - 1), 0.02));
+TEST_CASE("scicpp::loadtxt to tuple with converters") {
+    const auto data =
+        TxtLoader<int, bool, int, double, double>()
+            .delimiter(',')
+            .skiprows(1)
+            .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
+                         {2, [](auto x) { return 10 + std::atoi(x); }}})
+            .load("tests/data0.csv");
+    print(data);
+    REQUIRE(data.size() == 39);
+    REQUIRE(std::get<1>(data[0]) == 0);
+    REQUIRE(std::get<1>(data[25]) == 1);
+    REQUIRE(std::get<2>(data[25]) == 10);
+    REQUIRE(almost_equal(std::get<4>(data[0]), 0.76));
 }
 
 TEST_CASE("scicpp::TxtLoader to Eigen matrix") {
@@ -67,6 +71,18 @@ TEST_CASE("scicpp::TxtLoader to Eigen matrix") {
     REQUIRE(m2.rows() == 39);
     REQUIRE(m2.cols() == 5);
     REQUIRE(m2(0, 0) == 1);
+}
+
+TEST_CASE("scicpp::TxtLoader to Eigen matrix with converters") {
+    const auto m = TxtLoader<double>()
+                       .delimiter(',')
+                       .skiprows(1)
+                       .converters({{0, [](auto x) { return -std::atof(x); }}})
+                       .load("tests/data0.csv");
+
+    REQUIRE(m.size() == 195);
+    REQUIRE(almost_equal(m(0), -1.));
+    REQUIRE(almost_equal(m(m.size() - 1), 0.02));
 }
 
 } // namespace scicpp

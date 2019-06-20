@@ -35,7 +35,7 @@ auto to_number(const char *str) {
     if constexpr (std::is_floating_point_v<T>) {
         return std::atof(str);
     } else if constexpr (std::is_integral_v<T>) {
-        return std::atoi(str);
+        return static_cast<T>(std::atoi(str));
     }
 }
 
@@ -240,18 +240,18 @@ class TxtLoader {
   public:
     TxtLoader() {}
 
-    auto delimiter(char delimiter_) {
-        m_delimiter = delimiter_;
+    auto delimiter(char delimiter) {
+        m_delimiter = delimiter;
         return *this;
     }
 
-    auto skiprows(int skiprows_) {
-        m_skiprows = skiprows_;
+    auto skiprows(int skiprows) {
+        m_skiprows = skiprows;
         return *this;
     }
 
-    auto converters(ConvertersDict converters_) {
-        m_converters = converters_;
+    auto converters(ConvertersDict converters) {
+        m_converters = converters;
         return *this;
     }
 
