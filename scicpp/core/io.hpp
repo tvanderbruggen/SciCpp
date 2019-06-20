@@ -45,6 +45,23 @@ auto to_number(const std::string &str) {
 }
 
 template <typename DataType>
+auto convert(const std::string &str,
+             signed_size_t idx,
+             const ConvertersDict &converters) {
+    if (!converters.empty()) {
+        const auto converter = converters.find(idx);
+
+        if (converter != converters.end()) {
+            return std::any_cast<DataType>(converter->second(str.data()));
+        } else {
+            return to_number<DataType>(str);
+        }
+    } else {
+        return to_number<DataType>(str);
+    }
+}
+
+template <typename DataType>
 int push_string_to_vector(std::vector<DataType> &vec,
                           const char *str,
                           char sep,
@@ -54,18 +71,7 @@ int push_string_to_vector(std::vector<DataType> &vec,
     int len = 0;
 
     while (std::getline(ss, tmp, sep)) {
-        if (!converters.empty()) {
-            const auto converter = converters.find(len);
-
-            if (converter != converters.end()) {
-                vec.push_back(std::any_cast<DataType>(converter->second(tmp.data())));
-            } else {
-                vec.push_back(to_number<DataType>(tmp));
-            }
-        } else {
-            vec.push_back(to_number<DataType>(tmp));
-        }
-
+        vec.push_back(convert<DataType>(tmp, len, converters));
         ++len;
     }
 
@@ -88,20 +94,8 @@ template <typename DataType0, typename... DataTypes>
 auto tokens_to_tuple(const std::vector<std::string> &tokens,
                      const ConvertersDict &converters = {}) {
     const auto idx = tokens.size() - sizeof...(DataTypes) - 1;
-    DataType0 res;
-
-    if (!converters.empty()) {
-        const auto converter = converters.find(signed_size_t(idx));
-
-        if (converter != converters.end()) {
-            res =
-                std::any_cast<DataType0>(converter->second(tokens[idx].data()));
-        } else {
-            res = to_number<DataType0>(tokens[idx]);
-        }
-    } else {
-        res = to_number<DataType0>(tokens[idx]);
-    }
+    const auto res =
+        convert<DataType0>(tokens[idx], signed_size_t(idx), converters);
 
     if constexpr (sizeof...(DataTypes) == 0) {
         return std::make_tuple(res);
@@ -216,11 +210,10 @@ auto loadtxt(const std::filesystem::path &fname,
 
 template <typename... DataTypes,
           std::enable_if_t<(sizeof...(DataTypes) > 1), int> = 0>
-auto loadtxt(
-    const std::filesystem::path &fname,
-    char delimiter,
-    int skiprows,
-    [[maybe_unused]] const ConvertersDict &converters = {}) {
+auto loadtxt(const std::filesystem::path &fname,
+             char delimiter,
+             int skiprows,
+             [[maybe_unused]] const ConvertersDict &converters = {}) {
     std::vector<std::tuple<DataTypes...>> res;
 
     std::ifstream file(fname);
