@@ -61,10 +61,12 @@ void fprint_element(FILE *stream, T value) {
             std::fprintf(stream, fmt_.c_str(), value.real(), -value.imag());
         }
     } else if constexpr (meta::is_std_tuple_v<T>) {
+        std::fprintf(stream, "(");
         std::apply(
             [stream](auto... x) { (fprint_tuple_element(stream, x), ...); },
             meta::subtuple<1>(value));
         fprint_element(stream, std::get<std::tuple_size_v<T> - 1>(value));
+        std::fprintf(stream, ")");
     } else {
         std::fprintf(stream, type_to_format<T>(), value);
     }

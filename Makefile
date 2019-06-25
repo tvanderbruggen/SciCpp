@@ -9,7 +9,7 @@ SCICPP_SRC=scicpp
 
 TMP=tmp
 
-COMPILER ?= clang
+# COMPILER ?= clang
 COMPILER ?= gcc
 
 CROSS_COMPILE = 

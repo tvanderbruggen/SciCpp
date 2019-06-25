@@ -66,18 +66,24 @@ template <class Array, class UnaryOp>
 
 // Binary operations
 
-// TODO Binary operations should accept two arrays of different types
-// ex. an array of real numbers and one of complex numbers.
+// Array can be of different types (ex. std::array and std::vector),
+// data types can also be different (ex. complex and doubles).
+//
+// However, arrays must have the same size.
 
-template <class Array, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, Array &&a1, const Array &a2) {
-    using InputType = typename Array::value_type;
+template <class Array1,
+          class Array2,
+          class BinaryOp,
+          std::enable_if_t<!std::is_lvalue_reference_v<Array1>, int> = 0>
+[[nodiscard]] auto map(BinaryOp op, Array1 &&a1, const Array2 &a2) {
+    using InputType1 = typename Array1::value_type;
+    using InputType2 = typename Array2::value_type;
     using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
+        typename std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     scicpp_require(a1.size() == a2.size());
 
-    if constexpr (std::is_same_v<InputType, ReturnType>) {
+    if constexpr (std::is_same_v<InputType1, ReturnType>) {
         std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
         return std::move(a1);
     } else {
@@ -87,15 +93,19 @@ template <class Array, class BinaryOp>
     }
 }
 
-template <class Array, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, const Array &a1, Array &&a2) {
-    using InputType = typename Array::value_type;
+template <class Array1,
+          class Array2,
+          class BinaryOp,
+          std::enable_if_t<!std::is_lvalue_reference_v<Array2>, int> = 0>
+[[nodiscard]] auto map(BinaryOp op, const Array1 &a1, Array2 &&a2) {
+    using InputType1 = typename Array1::value_type;
+    using InputType2 = typename Array2::value_type;
     using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
+        typename std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     scicpp_require(a1.size() == a2.size());
 
-    if constexpr (std::is_same_v<InputType, ReturnType>) {
+    if constexpr (std::is_same_v<InputType2, ReturnType>) {
         std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);
         return std::move(a2);
     } else {
@@ -105,14 +115,28 @@ template <class Array, class BinaryOp>
     }
 }
 
-template <class Array, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, Array &&a1, Array &&a2) {
-    return map(op, std::move(a1), a2);
+template <class Array1,
+          class Array2,
+          class BinaryOp,
+          std::enable_if_t<!std::is_lvalue_reference_v<Array1> &&
+                               !std::is_lvalue_reference_v<Array2>,
+                           int> = 0>
+[[nodiscard]] auto map(BinaryOp op, Array1 &&a1, Array2 &&a2) {
+    using InputType1 = typename Array1::value_type;
+    using InputType2 = typename Array2::value_type;
+    using ReturnType =
+        typename std::invoke_result_t<BinaryOp, InputType1, InputType2>;
+
+    if constexpr (std::is_same_v<InputType2, ReturnType>) {
+        return map(op, a1, std::move(a2));
+    } else {
+        return map(op, std::move(a1), a2);
+    }
 }
 
-template <class Array, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, const Array &a1, const Array &a2) {
-    return map(op, Array(a1), a2);
+template <class Array1, class Array2, class BinaryOp>
+[[nodiscard]] auto map(BinaryOp op, const Array1 &a1, const Array2 &a2) {
+    return map(op, Array1(a1), a2);
 }
 
 //---------------------------------------------------------------------------------
