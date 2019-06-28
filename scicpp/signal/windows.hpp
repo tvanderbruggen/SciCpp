@@ -16,6 +16,10 @@ namespace scicpp::signal::windows {
 
 namespace detail {
 
+// Window functions are symmetric.
+// So we compute only one half and mirror it to the upper
+// region of the vector.
+
 template <class Array, typename Func>
 void symmetric_filler(Array &w, Func f) {
     const auto half_len = signed_size_t(w.size()) / 2;

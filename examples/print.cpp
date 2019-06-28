@@ -12,35 +12,33 @@ using namespace sci::operators;
 using namespace std::literals;
 
 int main() {
-    // Print a long vector
+    // ---- Print a long vector
     const auto v = sci::linspace(0., 10., 100000000);
     sci::print(v);
 
-    // Print a short array of reals
-    constexpr std::array HFT90D{1., 1.942604, 1.340318, 0.440811, 0.043097};
-    const auto window =
-        sci::signal::windows::general_cosine<double, 16>(HFT90D);
+    // ---- Print a short array of reals
+    const auto window = sci::signal::windows::hann<double, 16>();
     sci::print(window);
 
-    // Print a short array of complex
-    const auto window_cplx =
-        window * sci::exp(1.i * sci::linspace<window.size()>(0., 2. * M_PI));
+    // ---- Print a short array of complex
+    const auto phi = sci::linspace<window.size()>(0., 2. * M_PI);
+    const auto window_cplx = window * sci::exp(1.i * phi);
     sci::print(window_cplx);
 
-    // Print a short array of tuples
+    // ---- Print a short array of tuples
     std::array<std::tuple<int, bool, double>, 10> atup{};
 
     for (size_t i = 0; i < atup.size(); ++i) {
-        atup[i] = std::make_tuple(int(i), i % 2, 3.14 * i * i);
+        atup[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
     }
 
     sci::print(atup);
 
-    // Print a long vector of tuples
+    // ---- Print a long vector of tuples
     std::vector<std::tuple<int, bool, double>> vtup(10000000);
 
     for (size_t i = 0; i < vtup.size(); ++i) {
-        vtup[i] = std::make_tuple(int(i), i % 2, 3.14 * i * i);
+        vtup[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
     }
 
     sci::print(vtup);
