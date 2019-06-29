@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # ---- Print a short array of reals
     window = hann(16)
     print(window)
-
+ 
     #  ---- Print a short array of complex
     phi = np.linspace(0., 2. * np.pi, window.size)
     window_cplx = window * np.exp(1j * phi)

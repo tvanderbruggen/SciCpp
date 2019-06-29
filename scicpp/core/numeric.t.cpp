@@ -178,7 +178,7 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(a1 * a, {2., 8., 18.}));
     REQUIRE(almost_equal(a1i * ai, {2, 8, 18}));
     REQUIRE(almost_equal(v1 * v, {2., 8., 18.}));
-    EQUIRE(almost_equal(v1 * 2.i * v, {2., 8., 18.}));
+    REQUIRE(almost_equal(v1 * 2.i * v, {4.i, 16.i, 36.i}));
 
     REQUIRE(almost_equal(a1 + a, {3., 6., 9.}));
     REQUIRE(almost_equal(a1i + ai, {3, 6, 9}));

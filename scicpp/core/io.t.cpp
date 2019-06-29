@@ -34,7 +34,7 @@ TEST_CASE("scicpp::loadtxt to tuple") {
                           .delimiter(',')
                           .skiprows(1)
                           .load("tests/data0.csv");
-    print(data);
+    // print(data);
     REQUIRE(data.size() == 39);
     REQUIRE(std::get<0>(data[0]) == 1);
     REQUIRE(std::get<0>(data[25]) == 26);
@@ -49,7 +49,7 @@ TEST_CASE("scicpp::loadtxt to tuple with converters") {
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
                          {2, [](auto x) { return 10 + std::atoi(x); }}})
             .load("tests/data0.csv");
-    print(data);
+    // print(data);
     REQUIRE(data.size() == 39);
     REQUIRE(std::get<1>(data[0]) == 0);
     REQUIRE(std::get<1>(data[25]) == 1);
@@ -60,7 +60,6 @@ TEST_CASE("scicpp::loadtxt to tuple with converters") {
 TEST_CASE("scicpp::TxtLoader to Eigen matrix") {
     const auto m1 =
         TxtLoader<double>().delimiter(',').skiprows(1).load("tests/data0.csv");
-    ;
     // std::cout << m1 << '\n';
     REQUIRE(m1.rows() == 39);
     REQUIRE(m1.cols() == 5);
@@ -83,6 +82,36 @@ TEST_CASE("scicpp::TxtLoader to Eigen matrix with converters") {
     REQUIRE(m.size() == 195);
     REQUIRE(almost_equal(m(0), -1.));
     REQUIRE(almost_equal(m(m.size() - 1), 0.02));
+}
+
+TEST_CASE("scicpp::TxtLoader to Eigen matrix with usecols and converters") {
+    const auto m = TxtLoader<double>()
+                       .delimiter(',')
+                       .skiprows(1)
+                       .usecols({0, 2})
+                       .converters({{0, [](auto x) { return -std::atof(x); }}})
+                       .load("tests/data0.csv");
+
+    // std::cout << m << '\n';
+    REQUIRE(m.size() == 2 * 39);
+    REQUIRE(almost_equal(m(0), -1.));
+    REQUIRE(almost_equal(m(m.size() - 1), 0.25));
+}
+
+TEST_CASE("scicpp::loadtxt to tuple with usecols with converters") {
+    const auto data =
+        TxtLoader<bool, int, double>()
+            .delimiter(',')
+            .skiprows(1)
+            .usecols({1, 2, 4})
+            .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
+                         {2, [](auto x) { return 10 + std::atoi(x); }}})
+            .load("tests/data0.csv");
+    // print(data);
+    REQUIRE(data.size() == 39);
+    REQUIRE(std::get<0>(data[0]) == 0);
+    REQUIRE(std::get<1>(data[25]) == 10);
+    REQUIRE(almost_equal(std::get<2>(data[38]), 0.02));
 }
 
 } // namespace scicpp
