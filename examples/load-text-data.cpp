@@ -6,15 +6,10 @@
 //
 // We present how data from this dataset can be loaded using SciCpp.
 
-#include <algorithm>
+#include <cstdio>
 #include <scicpp/core.hpp>
 
 namespace sci = scicpp;
-
-auto is_male(const char *x) {
-    const auto end = x + sizeof(x);
-    return std::find(x, end, 'F') == end;
-}
 
 int main() {
     // We use type aliasing to define the data type of each column.
@@ -24,9 +19,12 @@ int main() {
     const auto a = sci::TxtLoader<gender, height>()
                        .skiprows(10)
                        .usecols(1, 3)
-                       .converters({{1, is_male}})
+                       .converters({{1, [](auto x) { return x[0] == 'M'; }}})
                        .load("examples/data1.csv");
 
     sci::print(a);
-    sci::print(sci::utils::get_elements<height>(a));
+
+    const auto [genders, heights] = sci::unpack(a);
+    const auto m_av = sci::stats::mean(sci::mask(heights, genders));
+    printf("Male average: %.2f m\n", m_av);
 }

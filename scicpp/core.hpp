@@ -14,6 +14,7 @@
 #include "core/random.hpp"
 #include "core/range.hpp"
 #include "core/stats.hpp"
+#include "core/tuple.hpp"
 #include "core/utils.hpp"
 
 #endif // SCICPP_CORE_HEADER
