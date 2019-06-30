@@ -520,6 +520,45 @@ bool scicpp_pure almost_equal(const Array &f1, const Array &f2) {
         });
 }
 
+//---------------------------------------------------------------------------------
+// mask
+//---------------------------------------------------------------------------------
+
+template <class Array, class Mask>
+auto mask(const Array &a, const Mask &m) {
+    scicpp_require(a.size() == m.size());
+    static_assert(std::is_integral_v<typename Mask::value_type>);
+
+    auto res = std::vector<typename Array::value_type>(0);
+    res.reserve(a.size());
+
+    for (std::size_t i = 0; i < a.size(); ++i) {
+        if (m[i]) {
+            res.push_back(a[i]);
+        }
+    }
+
+    return res;
+}
+
+template <typename T, class Mask>
+auto mask(std::vector<T> &&a, const Mask &m) {
+    scicpp_require(a.size() == m.size());
+    static_assert(std::is_integral_v<typename Mask::value_type>);
+
+    std::size_t idx = 0;
+
+    for (std::size_t i = 0; i < a.size(); ++i) {
+        if (m[i]) {
+            a[idx] = a[i];
+            ++idx;
+        }
+    }
+
+    a.resize(idx);
+    return std::move(a);
+}
+
 } // namespace scicpp
 
 #endif // SCICPP_CORE_NUMERIC

@@ -1,19 +1,32 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-#include <cstdio>
+// This example is inspired from:
+// https://scipython.com/book/chapter-6-numpy/examples/using-numpys-loadtxt-method/
+//
+// We present how data from this dataset can be loaded using SciCpp.
+
+#include <algorithm>
 #include <scicpp/core.hpp>
 
 namespace sci = scicpp;
 
-int main() {
-    using gender = bool;
+auto is_male(const char *x) {
+    const auto end = x + sizeof(x);
+    return std::find(x, end, 'F') == end;
+}
 
-    const auto data =
-        TxtLoader<int, bool, int, double, double>()
-            .delimiter(',')
-            .skiprows(1)
-            .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
-                         {2, [](auto x) { return 10 + std::atoi(x); }}})
-            .load("examples/data1.csv");
+int main() {
+    // We use type aliasing to define the data type of each column.
+    using gender = bool; // True = M, False = F
+    using height = double;
+
+    const auto a = sci::TxtLoader<gender, height>()
+                       .skiprows(10)
+                       .usecols(1, 3)
+                       .converters({{1, is_male}})
+                       .load("examples/data1.csv");
+
+    sci::print(a);
+    sci::print(sci::utils::get_elements<height>(a));
 }

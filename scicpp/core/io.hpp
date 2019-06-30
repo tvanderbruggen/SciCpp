@@ -85,43 +85,47 @@ auto push_string_to_vector(std::vector<DataType> &vec,
     signed_size_t col_idx = 0;
 
     while (std::getline(ss, tmp, sep)) {
-        if (is_used_col(usecols, col_idx)) {
-            vec.push_back(convert<DataType>(tmp, len, converters));
-            ++len;
-        }
+        if (!tmp.empty()) {
+            if (is_used_col(usecols, col_idx)) {
+                vec.push_back(convert<DataType>(tmp, len, converters));
+                ++len;
+            }
 
-        ++col_idx;
+            ++col_idx;
+        }
     }
 
     return len;
 }
+
+using tokens_t = typename std::vector<std::pair<signed_size_t, std::string>>;
 
 auto inline tokenize(const char *str,
                      char sep,
                      const std::vector<signed_size_t> &usecols) {
     std::stringstream ss(str);
     std::string tmp;
-    std::vector<std::pair<signed_size_t, std::string>> tokens(0);
+    tokens_t tokens(0);
     signed_size_t idx = 0;
 
     while (std::getline(ss, tmp, sep)) {
-        if (is_used_col(usecols, idx)) {
-            tokens.push_back(std::make_pair(idx, tmp));
-        }
+        if (!tmp.empty()) {
+            if (is_used_col(usecols, idx)) {
+                tokens.push_back(std::make_pair(idx, tmp));
+            }
 
-        ++idx;
+            ++idx;
+        }
     }
 
     return tokens;
 }
 
 template <typename DataType0, typename... DataTypes>
-auto tokens_to_tuple(
-    const std::vector<std::pair<signed_size_t, std::string>> &tokens,
-    const ConvertersDict &converters) {
+auto tokens_to_tuple(const tokens_t &tokens, const ConvertersDict &converters) {
     const auto idx = tokens.size() - sizeof...(DataTypes) - 1;
-    const auto res = convert<DataType0>(
-        tokens[idx].second, signed_size_t(tokens[idx].first), converters);
+    const auto [tok_idx, tok_val] = tokens[idx];
+    const auto res = convert<DataType0>(tok_val, tok_idx, converters);
 
     if constexpr (sizeof...(DataTypes) == 0) {
         return std::make_tuple(res);
@@ -143,7 +147,10 @@ auto load_line_to_tuple(const char *str,
 }
 
 template <class LineOp>
-void iterate_file(const std::filesystem::path &fname, int skiprows, LineOp op) {
+void iterate_file(const std::filesystem::path &fname,
+                  char comments,
+                  int skiprows,
+                  LineOp op) {
     std::ifstream file(fname);
     int skip = skiprows;
 
@@ -156,7 +163,9 @@ void iterate_file(const std::filesystem::path &fname, int skiprows, LineOp op) {
         }
 
         while (std::getline(file, line)) {
-            op(line);
+            if (line[0] != comments) {
+                op(line);
+            }
         }
 
         file.close();
@@ -166,6 +175,7 @@ void iterate_file(const std::filesystem::path &fname, int skiprows, LineOp op) {
 // Load all the data in a single vector and return the number of columns.
 template <typename DataType>
 auto loadtxt_to_vector(const std::filesystem::path &fname,
+                       char comments,
                        char delimiter,
                        int skiprows,
                        const std::vector<signed_size_t> &usecols,
@@ -174,7 +184,7 @@ auto loadtxt_to_vector(const std::filesystem::path &fname,
     bool is_first_row = true;
     signed_size_t num_cols = 0;
 
-    iterate_file(fname, skiprows, [&](auto line) {
+    iterate_file(fname, comments, skiprows, [&](auto line) {
         signed_size_t line_cols = detail::push_string_to_vector(
             res, line.data(), delimiter, converters, usecols);
 
@@ -219,6 +229,7 @@ auto fromstring(const std::string &str,
 template <class EigenMatrix,
           std::enable_if_t<meta::is_eigen_matrix_v<EigenMatrix>, int> = 0>
 EigenMatrix loadtxt(const std::filesystem::path &fname,
+                    char comments,
                     char delimiter,
                     int skiprows,
                     const std::vector<signed_size_t> &usecols,
@@ -226,7 +237,7 @@ EigenMatrix loadtxt(const std::filesystem::path &fname,
     using T = typename EigenMatrix::value_type;
 
     const auto [data, num_cols] = detail::loadtxt_to_vector<T>(
-        fname, delimiter, skiprows, usecols, converters);
+        fname, comments, delimiter, skiprows, usecols, converters);
 
     return Eigen::Map<const Eigen::Matrix<typename EigenMatrix::Scalar,
                                           EigenMatrix::RowsAtCompileTime,
@@ -238,30 +249,39 @@ EigenMatrix loadtxt(const std::filesystem::path &fname,
 template <typename DataType = double,
           std::enable_if_t<std::is_arithmetic_v<DataType>, int> = 0>
 auto loadtxt(const std::filesystem::path &fname,
+             char comments,
              char delimiter,
              int skiprows,
              const std::vector<signed_size_t> &usecols,
              const ConvertersDict &converters) {
     return loadtxt<Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>>(
-        fname, delimiter, skiprows, usecols, converters);
+        fname, comments, delimiter, skiprows, usecols, converters);
 }
 
 template <typename... DataTypes,
           std::enable_if_t<(sizeof...(DataTypes) > 1), int> = 0>
 auto loadtxt(const std::filesystem::path &fname,
+             char comments,
              char delimiter,
              int skiprows,
              const std::vector<signed_size_t> &usecols,
              const ConvertersDict &converters) {
     std::vector<std::tuple<DataTypes...>> res;
 
-    detail::iterate_file(fname, skiprows, [&](auto line) {
+    detail::iterate_file(fname, comments, skiprows, [&](auto line) {
         res.push_back(detail::load_line_to_tuple<DataTypes...>(
             line.data(), delimiter, converters, usecols));
     });
 
     return res;
 }
+
+//---------------------------------------------------------------------------------
+// TxtLoader
+//
+// A more versatile API to call loadtxt with default parameter values
+// and explicit parameters naming.
+//---------------------------------------------------------------------------------
 
 template <typename... DataTypes>
 class TxtLoader {
@@ -278,6 +298,11 @@ class TxtLoader {
         return *this;
     }
 
+    auto comments(char comments) {
+        m_comments = comments;
+        return *this;
+    }
+
     auto usecols(const std::vector<signed_size_t> &usecols) {
         m_usecols = usecols;
         return *this;
@@ -288,19 +313,32 @@ class TxtLoader {
         return *this;
     }
 
+    template <typename... Columns>
+    auto usecols(Columns... usecols) {
+        m_usecols.reserve(sizeof...(usecols));
+        std::apply([this](auto... x) { (this->m_usecols.push_back(x), ...); },
+                   std::forward_as_tuple(usecols...));
+        return *this;
+    }
+
     auto converters(ConvertersDict converters) {
         m_converters = converters;
         return *this;
     }
 
     auto load(const std::filesystem::path &fname) {
-        return loadtxt<DataTypes...>(
-            fname, m_delimiter, m_skiprows, m_usecols, m_converters);
+        return loadtxt<DataTypes...>(fname,
+                                     m_comments,
+                                     m_delimiter,
+                                     m_skiprows,
+                                     m_usecols,
+                                     m_converters);
     }
 
   private:
     char m_delimiter = ' ';
     int m_skiprows = 0;
+    char m_comments = '#';
     std::vector<signed_size_t> m_usecols = {};
     ConvertersDict m_converters = {};
 }; // class TxtLoader

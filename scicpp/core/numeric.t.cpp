@@ -257,4 +257,16 @@ TEST_CASE("almost_equal complex") {
     }
 }
 
+TEST_CASE("mask") {
+    const std::array a{1., 2., 3.};
+    const std::vector v{1., 2., 3.};
+
+    const std::array m1{0, 1, 0};
+    const std::vector m2{1, 0, 1};
+
+    REQUIRE(almost_equal(mask(a, m2), {1., 3.}));
+    REQUIRE(almost_equal(mask(v, m1), {2.}));
+    REQUIRE(almost_equal(mask(std::vector{1., 2., 3.}, m1), {2.}));
+}
+
 } // namespace scicpp

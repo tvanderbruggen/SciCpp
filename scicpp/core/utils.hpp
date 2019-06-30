@@ -71,6 +71,28 @@ auto get_elements(const std::vector<T> &a) {
     return res;
 }
 
+template <typename EltType, typename T, std::size_t N>
+auto get_elements(const std::array<T, N> &a) {
+    static_assert(meta::is_std_tuple_v<T>);
+
+    auto res = std::array<EltType, N>{};
+    std::transform(a.cbegin(), a.cend(), res.begin(), [](auto t) {
+        return std::get<EltType>(t);
+    });
+    return res;
+}
+
+template <typename EltType, typename T>
+auto get_elements(const std::vector<T> &a) {
+    static_assert(meta::is_std_tuple_v<T>);
+
+    auto res = std::vector<EltType>(a.size());
+    std::transform(a.cbegin(), a.cend(), res.begin(), [](auto t) {
+        return std::get<EltType>(t);
+    });
+    return res;
+}
+
 } // namespace scicpp::utils
 
 #endif // SCICPP_CORE_UTILS
