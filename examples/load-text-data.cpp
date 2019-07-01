@@ -4,12 +4,13 @@
 // This example is inspired from:
 // https://scipython.com/book/chapter-6-numpy/examples/using-numpys-loadtxt-method/
 //
-// We present how data from this dataset can be loaded using SciCpp.
+// We present how data from this dataset can be loaded and manipulated using SciCpp.
 
 #include <cstdio>
 #include <scicpp/core.hpp>
 
 namespace sci = scicpp;
+using namespace sci::operators;
 
 int main() {
     // We use type aliasing to define the data type of each column.
@@ -26,5 +27,6 @@ int main() {
 
     const auto [genders, heights] = sci::unpack(a);
     const auto m_av = sci::stats::mean(sci::mask(heights, genders));
-    printf("Male average: %.2f m\n", m_av);
+    const auto f_av = sci::stats::mean(sci::mask(heights, !genders));
+    printf("Male average: %.2f m, Female average: %.2f m\n", m_av, f_av);
 }

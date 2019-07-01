@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-// Some utility fuctions to deal with arrays of tuples.
+// Some utility functions to deal with arrays of tuples.
 
 #ifndef SCICPP_CORE_TUPLE
 #define SCICPP_CORE_TUPLE

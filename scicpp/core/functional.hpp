@@ -34,7 +34,7 @@ namespace scicpp {
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, Array &&a) {
     using InputType = typename std::remove_reference_t<Array>::value_type;
-    using ReturnType = typename std::invoke_result_t<UnaryOp, InputType>;
+    using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {
         std::transform(a.cbegin(), a.cend(), a.begin(), op);
@@ -57,7 +57,7 @@ template <class Array, class UnaryOp>
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, const Array &a) {
     using InputType = typename Array::value_type;
-    using ReturnType = typename std::invoke_result_t<UnaryOp, InputType>;
+    using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     auto res = utils::set_array<ReturnType>(a);
     std::transform(a.cbegin(), a.cend(), res.begin(), op);
@@ -78,8 +78,7 @@ template <class Array1,
 [[nodiscard]] auto map(BinaryOp op, Array1 &&a1, const Array2 &a2) {
     using InputType1 = typename Array1::value_type;
     using InputType2 = typename Array2::value_type;
-    using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType1, InputType2>;
+    using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     scicpp_require(a1.size() == a2.size());
 
@@ -100,8 +99,7 @@ template <class Array1,
 [[nodiscard]] auto map(BinaryOp op, const Array1 &a1, Array2 &&a2) {
     using InputType1 = typename Array1::value_type;
     using InputType2 = typename Array2::value_type;
-    using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType1, InputType2>;
+    using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     scicpp_require(a1.size() == a2.size());
 
@@ -124,8 +122,7 @@ template <class Array1,
 [[nodiscard]] auto map(BinaryOp op, Array1 &&a1, Array2 &&a2) {
     using InputType1 = typename Array1::value_type;
     using InputType2 = typename Array2::value_type;
-    using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType1, InputType2>;
+    using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     if constexpr (std::is_same_v<InputType2, ReturnType>) {
         return map(op, a1, std::move(a2));
@@ -366,8 +363,7 @@ template <class Array,
 template <class Array, class BinaryOp, class UnaryPredicate>
 auto cumacc(Array &&a, BinaryOp op, UnaryPredicate p) {
     using InputType = typename std::remove_reference_t<Array>::value_type;
-    using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
+    using ReturnType = std::invoke_result_t<BinaryOp, InputType, InputType>;
     static_assert(
         std::is_integral_v<std::invoke_result_t<UnaryPredicate, InputType>>);
     static_assert(std::is_same_v<InputType, ReturnType>);

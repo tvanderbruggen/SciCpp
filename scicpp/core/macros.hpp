@@ -28,7 +28,7 @@
 namespace scicpp {
 
 // Define a signed integer for sizes
-using signed_size_t = typename std::make_signed_t<std::size_t>;
+using signed_size_t = std::make_signed_t<std::size_t>;
 
 } // namespace scicpp
 

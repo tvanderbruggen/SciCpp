@@ -216,7 +216,7 @@ constexpr auto inner(InputItLhs first1,
                      InputItRhs first2,
                      InputItRhs last2,
                      ProductOp op) {
-    using T = typename std::common_type_t<
+    using T = std::common_type_t<
         typename std::iterator_traits<InputItLhs>::value_type,
         typename std::iterator_traits<InputItRhs>::value_type>;
 
@@ -303,6 +303,13 @@ using enable_if_scalar =
 template <class Array, detail::enable_if_operator_iterable<Array> = 0>
 auto operator-(Array &&a) {
     return map(std::negate<>(), std::forward<Array>(a));
+}
+
+// logical not
+
+template <class Array, detail::enable_if_operator_iterable<Array> = 0>
+auto operator!(Array &&a) {
+    return map(std::logical_not<>(), std::forward<Array>(a));
 }
 
 // scalar multiply

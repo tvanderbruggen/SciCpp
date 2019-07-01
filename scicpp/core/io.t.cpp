@@ -122,12 +122,13 @@ TEST_CASE("scicpp::loadtxt to tuple with usecols list and converters") {
             .usecols(1, 2, 4)
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
                          {2, [](auto x) { return 10 + std::atoi(x); }}})
+            .max_rows(10)
             .load("tests/data0.csv");
     // print(data);
-    REQUIRE(data.size() == 38);
+    REQUIRE(data.size() == 10);
     REQUIRE(std::get<0>(data[0]) == 0);
-    REQUIRE(std::get<1>(data[25]) == 10);
-    REQUIRE(almost_equal(std::get<2>(data[37]), 0.02));
+    REQUIRE(std::get<1>(data[9]) == 10);
+    REQUIRE(almost_equal(std::get<2>(data[9]), 0.8));
 }
 
 } // namespace scicpp

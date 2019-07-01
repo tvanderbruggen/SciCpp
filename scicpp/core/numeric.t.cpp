@@ -126,6 +126,7 @@ TEST_CASE("Arithmetic operators") {
     using namespace operators;
 
     const std::array a{1., 2., 3.};
+    const std::array b{1, 0, 1};
     const std::array ai{1, 2, 3};
     const std::vector v{1., 2., 3.};
 
@@ -136,6 +137,7 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(-a, {-1., -2., -3.}));
     REQUIRE(almost_equal(-ai, {-1, -2, -3}));
     REQUIRE(almost_equal(-v, {-1., -2., -3.}));
+    REQUIRE(almost_equal(!b, {0, 1, 0}));
     REQUIRE(almost_equal(2. * a, {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2., {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2.i, {2.i, 4.i, 6.i}));

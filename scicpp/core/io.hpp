@@ -149,13 +149,15 @@ auto load_line_to_tuple(const char *str,
 template <class LineOp>
 void iterate_file(const std::filesystem::path &fname,
                   char comments,
-                  int skiprows,
+                  signed_size_t skiprows,
+                  signed_size_t max_rows,
                   LineOp op) {
     std::ifstream file(fname);
-    int skip = skiprows;
+    signed_size_t skip = skiprows;
 
     if (file.is_open()) {
         std::string line;
+        signed_size_t line_cnt = max_rows;
 
         while (skip > 0) {
             --skip;
@@ -163,8 +165,9 @@ void iterate_file(const std::filesystem::path &fname,
         }
 
         while (std::getline(file, line)) {
-            if (line[0] != comments) {
+            if (line[0] != comments && max_rows != 0) {
                 op(line);
+                --max_rows;
             }
         }
 
@@ -177,14 +180,15 @@ template <typename DataType>
 auto loadtxt_to_vector(const std::filesystem::path &fname,
                        char comments,
                        char delimiter,
-                       int skiprows,
+                       signed_size_t skiprows,
                        const std::vector<signed_size_t> &usecols,
-                       const ConvertersDict &converters) {
+                       const ConvertersDict &converters,
+                       signed_size_t max_rows) {
     std::vector<DataType> res(0);
     bool is_first_row = true;
     signed_size_t num_cols = 0;
 
-    iterate_file(fname, comments, skiprows, [&](auto line) {
+    iterate_file(fname, comments, skiprows, max_rows, [&](auto line) {
         signed_size_t line_cols = detail::push_string_to_vector(
             res, line.data(), delimiter, converters, usecols);
 
@@ -231,13 +235,14 @@ template <class EigenMatrix,
 EigenMatrix loadtxt(const std::filesystem::path &fname,
                     char comments,
                     char delimiter,
-                    int skiprows,
+                    signed_size_t skiprows,
                     const std::vector<signed_size_t> &usecols,
-                    const ConvertersDict &converters) {
+                    const ConvertersDict &converters,
+                    signed_size_t max_rows) {
     using T = typename EigenMatrix::value_type;
 
     const auto [data, num_cols] = detail::loadtxt_to_vector<T>(
-        fname, comments, delimiter, skiprows, usecols, converters);
+        fname, comments, delimiter, skiprows, usecols, converters, max_rows);
 
     return Eigen::Map<const Eigen::Matrix<typename EigenMatrix::Scalar,
                                           EigenMatrix::RowsAtCompileTime,
@@ -251,11 +256,12 @@ template <typename DataType = double,
 auto loadtxt(const std::filesystem::path &fname,
              char comments,
              char delimiter,
-             int skiprows,
+             signed_size_t skiprows,
              const std::vector<signed_size_t> &usecols,
-             const ConvertersDict &converters) {
+             const ConvertersDict &converters,
+             signed_size_t max_rows) {
     return loadtxt<Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>>(
-        fname, comments, delimiter, skiprows, usecols, converters);
+        fname, comments, delimiter, skiprows, usecols, converters, max_rows);
 }
 
 template <typename... DataTypes,
@@ -263,12 +269,13 @@ template <typename... DataTypes,
 auto loadtxt(const std::filesystem::path &fname,
              char comments,
              char delimiter,
-             int skiprows,
+             signed_size_t skiprows,
              const std::vector<signed_size_t> &usecols,
-             const ConvertersDict &converters) {
+             const ConvertersDict &converters,
+             signed_size_t max_rows) {
     std::vector<std::tuple<DataTypes...>> res;
 
-    detail::iterate_file(fname, comments, skiprows, [&](auto line) {
+    detail::iterate_file(fname, comments, skiprows, max_rows, [&](auto line) {
         res.push_back(detail::load_line_to_tuple<DataTypes...>(
             line.data(), delimiter, converters, usecols));
     });
@@ -326,21 +333,28 @@ class TxtLoader {
         return *this;
     }
 
+    auto max_rows(signed_size_t max_rows) {
+        m_max_rows = max_rows;
+        return *this;
+    }
+
     auto load(const std::filesystem::path &fname) {
         return loadtxt<DataTypes...>(fname,
                                      m_comments,
                                      m_delimiter,
                                      m_skiprows,
                                      m_usecols,
-                                     m_converters);
+                                     m_converters,
+                                     m_max_rows);
     }
 
   private:
     char m_delimiter = ' ';
-    int m_skiprows = 0;
+    signed_size_t m_skiprows = 0;
     char m_comments = '#';
     std::vector<signed_size_t> m_usecols = {};
     ConvertersDict m_converters = {};
+    signed_size_t m_max_rows = -1;
 }; // class TxtLoader
 
 } // namespace scicpp
