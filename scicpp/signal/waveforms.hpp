@@ -60,7 +60,7 @@ auto sawtooth(Array &&t, T width = T{1}) {
 
             if (tmod < width * T{2} * pi<T>) {
                 scicpp_require(width > T{0});
-                return tmod / (width * pi<T>) - T{1};
+                return tmod / (width * pi<T>)-T{1};
             } else {
                 scicpp_require(width < T{1});
                 return (width + T{1} - tmod / pi<T>) / (T{1} - width);
