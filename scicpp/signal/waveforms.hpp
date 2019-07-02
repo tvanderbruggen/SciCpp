@@ -4,6 +4,7 @@
 #ifndef SCICPP_SIGNAL_WAVEFORMS
 #define SCICPP_SIGNAL_WAVEFORMS
 
+#include "scicpp/core/constants.hpp"
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/maths.hpp"
@@ -55,14 +56,14 @@ auto sawtooth(Array &&t, T width = T{1}) {
 
     return map(
         [width](auto t_) scicpp_pure {
-            const auto tmod = std::fmod(t_, T{2} * M_PI);
+            const auto tmod = std::fmod(t_, T{2} * pi<T>);
 
-            if (tmod < width * T{2} * M_PI) {
+            if (tmod < width * T{2} * pi<T>) {
                 scicpp_require(width > T{0});
-                return tmod / (width * M_PI) - T{1};
+                return tmod / (width * pi<T>) - T{1};
             } else {
                 scicpp_require(width < T{1});
-                return M_1_PI * (M_PI * (width + T{1}) - tmod) / (T{1} - width);
+                return (width + T{1} - tmod / pi<T>) / (T{1} - width);
             }
         },
         std::forward<Array>(t));
@@ -82,8 +83,8 @@ auto sweep_poly(Array &&t, const Poly &poly, T phi = T{0}) {
     using namespace scicpp::operators;
     using namespace polynomial;
 
-    return cos(T{2} * M_PI * polyval(std::forward<Array>(t), polyint(poly)) +
-               phi * M_PI / T{180});
+    return cos(T{2} * pi<T> * polyval(std::forward<Array>(t), polyint(poly)) +
+               phi * pi<T> / T{180});
 }
 
 } // namespace scicpp::signal

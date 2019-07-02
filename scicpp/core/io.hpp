@@ -157,15 +157,14 @@ void iterate_file(const std::filesystem::path &fname,
 
     if (file.is_open()) {
         std::string line;
-        signed_size_t line_cnt = max_rows;
 
         while (skip > 0) {
             --skip;
             std::getline(file, line);
         }
 
-        while (std::getline(file, line)) {
-            if (line[0] != comments && max_rows != 0) {
+        while (std::getline(file, line) && max_rows != 0) {
+            if (line[0] != comments) {
                 op(line);
                 --max_rows;
             }

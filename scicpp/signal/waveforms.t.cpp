@@ -28,7 +28,7 @@ TEST_CASE("sawtooth") {
     using namespace scicpp::operators;
 
     SECTION("std::array") {
-        const auto res = sawtooth(2. * M_PI * 5. * linspace<20>(0., 1.));
+        const auto res = sawtooth(2. * pi<double> * 5. * linspace<20>(0., 1.));
         // print(res);
 
         REQUIRE(almost_equal<8>(
@@ -42,7 +42,7 @@ TEST_CASE("sawtooth") {
     }
 
     SECTION("std::vector") {
-        const auto t = 2. * M_PI * 5. * linspace(0., 1., 20);
+        const auto t = 2. * pi<double> * 5. * linspace(0., 1., 20);
         const auto res = sawtooth(t);
 
         REQUIRE(almost_equal<8>(

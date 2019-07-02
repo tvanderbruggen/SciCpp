@@ -4,6 +4,7 @@
 #ifndef SCICPP_CORE_HEADER
 #define SCICPP_CORE_HEADER
 
+#include "core/constants.hpp"
 #include "core/functional.hpp"
 #include "core/io.hpp"
 #include "core/macros.hpp"
