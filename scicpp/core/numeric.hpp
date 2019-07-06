@@ -7,6 +7,7 @@
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/units.hpp"
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
@@ -124,19 +125,31 @@ auto nancumprod(const std::vector<T> &v) {
 //---------------------------------------------------------------------------------
 
 template <class InputIt,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T trapz(InputIt first, InputIt last, T dx) {
+          typename T = typename std::iterator_traits<InputIt>::value_type,
+          units::disable_if_is_quantity<T> = 0>
+constexpr auto trapz(InputIt first, InputIt last, T dx) {
     if (std::distance(first, last) == 0) {
         return T{0};
     }
 
-    // https://en.wikipedia.org/wiki/Trapezoidal_rule
     return T{0.5} * dx *
            (*first + T{2} * sum(first + 1, last - 1) + *(last - 1));
 }
 
+template <class InputIt,
+          typename T = typename std::iterator_traits<InputIt>::value_type,
+          units::enable_if_is_quantity<T> = 0>
+constexpr auto trapz(InputIt first, InputIt last, T dx) {
+    scicpp_require(std::distance(first, last) != 0);
+    using raw_t = typename T::value_type;
+
+    return static_cast<raw_t>(0.5) * dx *
+           (*first + static_cast<raw_t>(2) * sum(first + 1, last - 1) +
+            *(last - 1));
+}
+
 template <class Array, typename T = typename Array::value_type>
-constexpr T trapz(const Array &f, T dx) {
+constexpr auto trapz(const Array &f, T dx) {
     return trapz(f.cbegin(), f.cend(), dx);
 }
 
@@ -291,6 +304,12 @@ constexpr bool is_operator_iterable_v =
 template <class T>
 using enable_if_operator_iterable =
     std::enable_if_t<detail::is_operator_iterable_v<T>, int>;
+
+// template <class T>
+// using enable_if_scalar =
+//     std::enable_if_t<std::is_arithmetic_v<T> || meta::is_complex_v<T> ||
+//                          units::is_quantity_v<T>,
+//                      int>;
 
 template <class T>
 using enable_if_scalar =
@@ -470,62 +489,6 @@ auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
 }
 
 } // namespace operators
-
-//---------------------------------------------------------------------------------
-// almost_equal
-//---------------------------------------------------------------------------------
-
-namespace detail {
-
-template <typename T>
-bool is_zero(T a) {
-    return std::fpclassify(a) == FP_ZERO;
-}
-
-template <int rel_tol, typename T>
-bool fp_equal_predicate(T a, T b) {
-    static_assert(rel_tol >= 0);
-
-    constexpr T tol = rel_tol * std::numeric_limits<T>::epsilon() / 2;
-
-    if (std::isnan(a) && std::isnan(b)) {
-        return true;
-    }
-
-    if (std::isinf(a) && std::isinf(b)) {
-        return std::signbit(a) == std::signbit(b);
-    }
-
-    if (is_zero(a) || is_zero(b)) {
-        return std::fabs(a - b) <= tol;
-    }
-
-    return std::fabs(a - b) <= tol * std::max(std::fabs(a), std::fabs(b));
-}
-
-} // namespace detail
-
-template <int rel_tol = 1,
-          typename T,
-          std::enable_if_t<!meta::is_iterable_v<T>, int> = 0>
-bool almost_equal(T a, T b) {
-    if constexpr (meta::is_complex_v<T>) {
-        return (detail::fp_equal_predicate<rel_tol>(a.real(), b.real())) &&
-               (detail::fp_equal_predicate<rel_tol>(a.imag(), b.imag()));
-    } else {
-        return detail::fp_equal_predicate<rel_tol>(a, b);
-    }
-}
-
-template <int rel_tol = 1,
-          class Array,
-          std::enable_if_t<meta::is_iterable_v<Array>, int> = 0>
-bool scicpp_pure almost_equal(const Array &f1, const Array &f2) {
-    return std::equal(
-        f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend(), [](auto a, auto b) {
-            return almost_equal<rel_tol>(a, b);
-        });
-}
 
 //---------------------------------------------------------------------------------
 // mask

@@ -5,7 +5,6 @@
 #define SCICPP_CORE_UNITS
 
 #include "scicpp/core/meta.hpp"
-#include "scicpp/core/numeric.hpp"
 
 #include <cstdio>
 #include <ratio>
@@ -39,6 +38,9 @@ inline constexpr bool is_quantity_v = detail::is_quantity<T>::value;
 
 template <class T>
 using enable_if_is_quantity = std::enable_if_t<is_quantity_v<T>, int>;
+
+template <class T>
+using disable_if_is_quantity = std::enable_if_t<!is_quantity_v<T>, int>;
 
 // common_quantity
 
@@ -109,14 +111,14 @@ struct quantity {
         return !(*this == rhs);
     }
 
-    template <int rel_tol = 1, typename Scale2>
-    auto is_approx(const quantity<T, Unit, Scale2> &rhs) const {
-        constexpr auto lhs_factor = T(Scale::num) / T(Scale::den);
-        constexpr auto rhs_factor = T(Scale2::num) / T(Scale2::den);
+    // template <int rel_tol = 1, typename Scale2>
+    // auto is_approx(const quantity<T, Unit, Scale2> &rhs) const {
+    //     constexpr auto lhs_factor = T(Scale::num) / T(Scale::den);
+    //     constexpr auto rhs_factor = T(Scale2::num) / T(Scale2::den);
 
-        return almost_equal<rel_tol>(m_value * lhs_factor,
-                                     rhs.value() * rhs_factor);
-    }
+    //     return almost_equal<rel_tol>(m_value * lhs_factor,
+    //                                  rhs.value() * rhs_factor);
+    // }
 
     constexpr auto operator>=(const quantity<T, Unit, Scale> &rhs) const {
         return m_value >= rhs.m_value;
@@ -196,8 +198,7 @@ struct quantity {
 template <typename T1, typename T2, typename Unit, typename Scale>
 constexpr auto operator*(T1 factor, const quantity<T2, Unit, Scale> &rhs) {
     using T = std::common_type_t<T1, T2>;
-    using cq = quantity<T, Unit, Scale>;
-    return cq(T(factor) * T(rhs.value()));
+    return quantity<T, Unit, Scale>(T(factor) * T(rhs.value()));
 }
 
 template <typename T1, typename T2, typename Unit, typename Scale>
@@ -224,9 +225,6 @@ void print(const quantity<T, Unit, Scale> &q) {
                 Unit::num,
                 Unit::den);
 }
-
-template <typename Quantity1, typename Quantity2>
-constexpr bool is_same_quantity = std::is_same_v<Quantity1, Quantity2>;
 
 template <typename Quantity1, typename Quantity2>
 using quantity_multiply =
@@ -382,6 +380,26 @@ constexpr auto operator"" _inch(long double inches) {
     return length<long double, std::ratio<254, 10000>>{inches};
 }
 
+// ---------- Surface
+
+constexpr auto operator"" _m2(long double squaremeters) {
+    return surface<long double>{squaremeters};
+}
+
+constexpr auto operator"" _km2(long double kilosquaremeters) {
+    return surface<long double, std::mega>{kilosquaremeters};
+}
+
+constexpr auto operator"" _ha(long double hectares) {
+    return surface<long double, std::ratio<10000, 1>>{hectares};
+}
+
+// ---------- Volume
+
+constexpr auto operator"" _m3(long double cubicmeters) {
+    return volume<long double>{cubicmeters};
+}
+
 // ---------- Time
 
 constexpr auto operator"" _ms(long double milliseconds) {
@@ -532,6 +550,10 @@ constexpr auto operator"" _kPa(long double kilopascals) {
 
 constexpr auto operator"" _bar(long double bars) {
     return pressure<long double, std::ratio<100000, 1>>{bars};
+}
+
+constexpr auto operator"" _mmHg(long double mmhg) {
+    return pressure<long double, std::ratio<101325, 760>>{mmhg};
 }
 
 } // namespace literals

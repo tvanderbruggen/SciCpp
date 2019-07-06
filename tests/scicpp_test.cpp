@@ -11,7 +11,7 @@ using namespace std::literals;
 // #include "scicpp/signal/fft.t.cpp"
 // #include "scicpp/signal/waveforms.t.cpp"
 // #include "scicpp/signal/windows.t.cpp"
-// #include "scicpp/core/numeric.t.cpp"
+#include "scicpp/core/numeric.t.cpp"
 // #include "scicpp/core/maths.t.cpp"
 // #include "scicpp/core/range.t.cpp"
 // #include "scicpp/polynomials/polynomial.t.cpp"
@@ -24,3 +24,4 @@ using namespace std::literals;
 // #include "scicpp/linalg/utils.t.cpp"
 // #include "scicpp/core/functional.t.cpp"
 #include "scicpp/core/units.t.cpp"
+// #include "scicpp/core/equal.t.cpp"

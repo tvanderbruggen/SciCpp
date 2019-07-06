@@ -3,8 +3,10 @@
 
 #include "numeric.hpp"
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
+#include "scicpp/core/units.hpp"
 
 namespace scicpp {
 
@@ -30,6 +32,12 @@ TEST_CASE("sum") {
     REQUIRE(std::fabs(sum(v) - double(v.size()) / 10.) < 1E-10);
 }
 
+TEST_CASE("sum physical quantities") {
+    using namespace units::literals;
+    REQUIRE(almost_equal(sum(std::array{1._m, 2._m, 3.141_m}), 6.141_m));
+    REQUIRE(almost_equal(sum(std::vector{1._kg, 2._kg, 3._kg}), 6._kg));
+}
+
 TEST_CASE("prod") {
     REQUIRE(almost_equal(prod(std::array<double, 0>{}), 1.));
     REQUIRE(almost_equal(prod(std::array{1., 2., 3.141}), 6.282));
@@ -43,6 +51,15 @@ TEST_CASE("prod") {
     REQUIRE(almost_equal(prod(v), 1.));
 }
 
+// Not working
+// filter_reduce would need to make the type evolve at each call of
+// init = op(init, *first);
+// TEST_CASE("prod physical quantities") {
+//     using namespace units::literals;
+//     REQUIRE(prod(std::array{1._m, 2._m, 3.141_m}).is_approx(6.141_m3));
+//     REQUIRE(prod(std::vector{1._m, 2._m, 3._m}).is_approx(6._m3));
+// }
+
 TEST_CASE("cumsum") {
     REQUIRE(cumsum(std::array<double, 0>{}).empty());
     REQUIRE(almost_equal(cumsum(std::array{1., 3., 6., 10., 15., 21.}),
@@ -55,6 +72,16 @@ TEST_CASE("cumsum") {
     REQUIRE(almost_equal(
         nancumsum(std::vector{1., 3., nan, 6., 10., 15., nan, 21.}),
         {1., 4., 10., 20., 35., 56.}));
+}
+
+TEST_CASE("cumsum physical quantities") {
+    using namespace units::literals;
+    REQUIRE(
+        almost_equal(cumsum(std::array{1._m, 3._m, 6._m, 10._m, 15._m, 21._m}),
+                     {1._m, 4._m, 10._m, 20._m, 35._m, 56._m}));
+    REQUIRE(
+        almost_equal(cumsum(std::vector{1._m, 3._m, 6._m, 10._m, 15._m, 21._m}),
+                     {1._m, 4._m, 10._m, 20._m, 35._m, 56._m}));
 }
 
 TEST_CASE("cumprod") {
@@ -72,9 +99,16 @@ TEST_CASE("cumprod") {
 }
 
 TEST_CASE("trapz") {
+    using namespace units::literals;
+
     REQUIRE(almost_equal(trapz(std::array<double, 0>{}, 1.), 0.));
     REQUIRE(almost_equal(trapz(std::array{1., 2., 3.}, 1.), 4.));
     REQUIRE(almost_equal(trapz(std::vector{1., 2., 3.}, 1.), 4.));
+
+    REQUIRE(almost_equal(trapz(std::array{1._m, 2._m, 3._m}, 1._m), 4._m2));
+
+    // Why does this compile ?
+    REQUIRE(almost_equal(trapz(std::array{1._m2, 2._m2, 3._m2}, 1._m), 4._m3));
 }
 
 TEST_CASE("diff") {
@@ -197,66 +231,6 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(a1 % a, {0., 0., 0.}));
     REQUIRE(almost_equal(a1i % ai, {0, 0, 0}));
     REQUIRE(almost_equal(v1 % v, {0., 0., 0.}));
-}
-
-TEST_CASE("almost_equal real") {
-    SECTION("NaNs") {
-        constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
-        REQUIRE(almost_equal(nan, nan));
-    }
-
-    SECTION("Inf") {
-        constexpr auto inf = std::numeric_limits<double>::infinity();
-        REQUIRE(almost_equal(inf, inf));
-        REQUIRE(!almost_equal(inf, -inf));
-    }
-
-    SECTION("near zero") {
-        REQUIRE(almost_equal(0., 0.00000000000000011102));
-        REQUIRE(almost_equal(0.00000000000000011102, 0.));
-        REQUIRE(almost_equal(0.00000000000000011102, 0.00000000000000011102));
-    }
-
-    SECTION("std::array") {
-        const std::array f1{1., 2., 3.141};
-        const auto f2 = f1;
-        REQUIRE(almost_equal(f1, f2));
-    }
-
-    SECTION("std::vector") {
-        const std::vector f1{1., 2., 3.141};
-        const auto f2 = f1;
-        REQUIRE(almost_equal(f1, f2));
-
-        const std::vector f3{1., 2.};
-        REQUIRE(!almost_equal(f1, f3));
-
-        const std::vector f4{1., 2.1, 3.141};
-        REQUIRE(!almost_equal(f1, f4));
-    }
-}
-
-TEST_CASE("almost_equal complex") {
-    SECTION("scalar") {
-        constexpr auto eps = std::numeric_limits<double>::epsilon();
-        const auto z1 = 3.141 + 42.i;
-        const auto z2 = 3.141 + 2. * eps + 42.i;
-        REQUIRE(almost_equal(z1, z1));
-        REQUIRE(!almost_equal(z1, z2));
-        REQUIRE(almost_equal<2>(z1, z2));
-    }
-
-    SECTION("std::array") {
-        const std::array f1{1. + 2.i, 3.141 + 42.i};
-        const auto f2 = f1;
-        REQUIRE(almost_equal(f1, f2));
-    }
-
-    SECTION("std::vector") {
-        const std::vector f1{1. + 2.i, 3.141 + 42.i};
-        const auto f2 = f1;
-        REQUIRE(almost_equal(f1, f2));
-    }
 }
 
 TEST_CASE("mask") {
