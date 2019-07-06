@@ -331,7 +331,7 @@ filter_reduce_associative(InputIt first,
         // No precision problem for integers, as long as you don't overflow ...
         return filter_reduce(first, last, op, id_elt, filter);
     } else {
-        static_assert(std::is_floating_point_v<T> || meta::is_complex_v<T>);
+        //static_assert(std::is_floating_point_v<T> || meta::is_complex_v<T> || units::is_quantity_v<T>);
 
         return pairwise_accumulate<64>(
             first,
