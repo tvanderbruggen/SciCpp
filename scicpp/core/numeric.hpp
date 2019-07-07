@@ -124,31 +124,51 @@ auto nancumprod(const std::vector<T> &v) {
 // trapz
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          typename T = typename std::iterator_traits<InputIt>::value_type,
-          units::disable_if_is_quantity<T> = 0>
-constexpr auto trapz(InputIt first, InputIt last, T dx) {
-    if (std::distance(first, last) == 0) {
-        return T{0};
-    }
+namespace detail {
 
-    return T{0.5} * dx *
-           (*first + T{2} * sum(first + 1, last - 1) + *(last - 1));
-}
-
-template <class InputIt,
-          typename T = typename std::iterator_traits<InputIt>::value_type,
-          units::enable_if_is_quantity<T> = 0>
-constexpr auto trapz(InputIt first, InputIt last, T dx) {
-    scicpp_require(std::distance(first, last) != 0);
-    using raw_t = typename T::value_type;
-
+template <typename raw_t, class InputIt, typename T>
+constexpr auto trapz_impl(InputIt first, InputIt last, T dx) {
     return static_cast<raw_t>(0.5) * dx *
            (*first + static_cast<raw_t>(2) * sum(first + 1, last - 1) +
             *(last - 1));
 }
 
-template <class Array, typename T = typename Array::value_type>
+} // namespace detail
+
+template <class InputIt,
+          typename T1 = typename std::iterator_traits<InputIt>::value_type,
+          typename T2,
+          units::disable_if_is_quantity<T1> = 0>
+constexpr auto trapz(InputIt first, InputIt last, T2 dx) {
+    using T = std::common_type_t<T1, T2>;
+
+    if (std::distance(first, last) == 0) {
+        return T{0};
+    }
+
+    return detail::trapz_impl<T>(first, last, T(dx));
+}
+
+template <class InputIt,
+          typename T1 = typename std::iterator_traits<InputIt>::value_type,
+          typename T2,
+          units::enable_if_is_quantity<T1> = 0>
+constexpr auto trapz(InputIt first, InputIt last, T2 dx) {
+    using ret_t = decltype(std::declval<T1>() * std::declval<T2>());
+    using raw_t = typename ret_t::value_type;
+
+    if (std::distance(first, last) == 0) {
+        return ret_t(raw_t{0});
+    }
+
+    if constexpr (units::is_quantity_v<T2>) {
+        return detail::trapz_impl<raw_t>(first, last, dx);
+    } else {
+        return detail::trapz_impl<raw_t>(first, last, raw_t(dx));
+    }
+}
+
+template <class Array, typename T>
 constexpr auto trapz(const Array &f, T dx) {
     return trapz(f.cbegin(), f.cend(), dx);
 }
@@ -229,7 +249,8 @@ constexpr auto inner(InputItLhs first1,
                      InputItRhs first2,
                      InputItRhs last2,
                      ProductOp op) {
-    using T = std::common_type_t<
+    using T = std::invoke_result_t<
+        ProductOp,
         typename std::iterator_traits<InputItLhs>::value_type,
         typename std::iterator_traits<InputItRhs>::value_type>;
 
@@ -250,20 +271,22 @@ constexpr auto inner(InputItLhs first1,
         std::plus<>());
 }
 
-template <class InputIt>
-constexpr auto
-inner(InputIt first1, InputIt last1, InputIt first2, InputIt last2) {
+template <class InputItLhs, class InputItRhs>
+constexpr auto inner(InputItLhs first1,
+                     InputItLhs last1,
+                     InputItRhs first2,
+                     InputItRhs last2) {
     return inner(first1, last1, first2, last2, std::multiplies<>());
 }
 
-template <class Array>
-constexpr auto inner(const Array &a1, const Array &a2) {
+template <class Array1, class Array2>
+constexpr auto inner(const Array1 &a1, const Array2 &a2) {
     return inner(a1.cbegin(), a1.cend(), a2.cbegin(), a2.cend());
 }
 
 // inner and dot are the same for 1D arrays
-template <class Array>
-constexpr auto dot(const Array &a1, const Array &a2) {
+template <class Array1, class Array2>
+constexpr auto dot(const Array1 &a1, const Array2 &a2) {
     return inner(a1, a2);
 }
 
@@ -305,15 +328,11 @@ template <class T>
 using enable_if_operator_iterable =
     std::enable_if_t<detail::is_operator_iterable_v<T>, int>;
 
-// template <class T>
-// using enable_if_scalar =
-//     std::enable_if_t<std::is_arithmetic_v<T> || meta::is_complex_v<T> ||
-//                          units::is_quantity_v<T>,
-//                      int>;
-
 template <class T>
 using enable_if_scalar =
-    std::enable_if_t<std::is_arithmetic_v<T> || meta::is_complex_v<T>, int>;
+    std::enable_if_t<std::is_arithmetic_v<T> || meta::is_complex_v<T> ||
+                         units::is_quantity_v<T>,
+                     int>;
 
 } // namespace detail
 

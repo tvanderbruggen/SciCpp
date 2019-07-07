@@ -90,7 +90,9 @@ TEST_CASE("Multiply by constant") {
 TEST_CASE("Equivalence") {
     SECTION("Length") {
         REQUIRE(almost_equal(1._km, 1000._m));
-        REQUIRE(almost_equal(1._inch, 2.54_cm));
+        REQUIRE(almost_equal(1._in, 2.54_cm));
+        REQUIRE(almost_equal(1._ft, 12._in));
+        REQUIRE(almost_equal(1._yd, 3._ft));
         REQUIRE(almost_equal(1._angstrom, 0.1_nm));
     }
 
@@ -120,6 +122,20 @@ TEST_CASE("Equivalence") {
     SECTION("Pressure") {
         REQUIRE(almost_equal(1._bar, 100._kPa));
         REQUIRE(almost_equal(1._mmHg, 133.3223684210526315789_Pa));
+        REQUIRE(almost_equal(1._mmHg, 1._torr));
+        REQUIRE(almost_equal(1._psi, 0.0689476_bar));
+        REQUIRE(almost_equal(1._atm, 101.325_kPa));
+    }
+
+    SECTION("Data quantity") {
+        REQUIRE(1_B == 8_b);
+        REQUIRE(1_B >= 8_b);
+        REQUIRE(1_B <= 8_b);
+        REQUIRE(1_B >= 8_b);
+        REQUIRE(1_MiB >= 2_kiB);
+        REQUIRE(1_MiB > 2_kiB);
+        REQUIRE(2_kiB < 1_MiB);
+        REQUIRE(1_kiB == 1024_B);
     }
 }
 

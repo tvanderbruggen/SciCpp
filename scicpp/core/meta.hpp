@@ -69,6 +69,12 @@ static_assert(is_iterable_v<std::array<double, 3>>);
 static_assert(is_iterable_v<std::vector<float>>);
 static_assert(!is_iterable_v<double>);
 
+template <typename T>
+using enable_if_iterable = std::enable_if_t<is_iterable_v<T>, int>;
+
+template <typename T>
+using disable_if_iterable = std::enable_if_t<!is_iterable_v<T>, int>;
+
 //---------------------------------------------------------------------------------
 // std::vector traits
 //---------------------------------------------------------------------------------

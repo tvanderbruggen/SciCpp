@@ -51,15 +51,6 @@ TEST_CASE("prod") {
     REQUIRE(almost_equal(prod(v), 1.));
 }
 
-// Not working
-// filter_reduce would need to make the type evolve at each call of
-// init = op(init, *first);
-// TEST_CASE("prod physical quantities") {
-//     using namespace units::literals;
-//     REQUIRE(prod(std::array{1._m, 2._m, 3.141_m}).is_approx(6.141_m3));
-//     REQUIRE(prod(std::vector{1._m, 2._m, 3._m}).is_approx(6._m3));
-// }
-
 TEST_CASE("cumsum") {
     REQUIRE(cumsum(std::array<double, 0>{}).empty());
     REQUIRE(almost_equal(cumsum(std::array{1., 3., 6., 10., 15., 21.}),
@@ -99,16 +90,20 @@ TEST_CASE("cumprod") {
 }
 
 TEST_CASE("trapz") {
-    using namespace units::literals;
-
     REQUIRE(almost_equal(trapz(std::array<double, 0>{}, 1.), 0.));
     REQUIRE(almost_equal(trapz(std::array{1., 2., 3.}, 1.), 4.));
     REQUIRE(almost_equal(trapz(std::vector{1., 2., 3.}, 1.), 4.));
+    REQUIRE(almost_equal(trapz(std::vector{1., 2., 3.}, 1.F), 4.));
+}
 
+TEST_CASE("trapz physical quantity") {
+    using namespace units::literals;
+    REQUIRE(almost_equal(
+        trapz(std::array<units::length<long double>, 0>{}, 1._m), 0._m2));
     REQUIRE(almost_equal(trapz(std::array{1._m, 2._m, 3._m}, 1._m), 4._m2));
-
-    // Why does this compile ?
+    REQUIRE(almost_equal(trapz(std::vector{1._m, 2._m, 3._m}, 1.), 4._m));
     REQUIRE(almost_equal(trapz(std::array{1._m2, 2._m2, 3._m2}, 1._m), 4._m3));
+    REQUIRE(almost_equal(trapz(std::vector{1._V, 2._V, 3._V}, 1._mA), 4._mW));
 }
 
 TEST_CASE("diff") {
@@ -132,14 +127,24 @@ TEST_CASE("diff") {
     REQUIRE(almost_equal(diff(v, 2), {1., 1., -10.}));
 }
 
+TEST_CASE("diff physical quantity") {
+    using namespace units::literals;
+    REQUIRE(almost_equal(diff(std::vector{1._m, 2._m, 4._m, 7._m, 0._m}),
+                         {1._m, 2._m, 3._m, -7._m}));
+    REQUIRE(almost_equal(diff(std::array{1._m, 2._m, 4._m, 7._m, 0._m}),
+                         {1._m, 2._m, 3._m, -7._m}));
+}
+
 TEST_CASE("inner") {
     using namespace scicpp::operators;
 
     static_assert(inner(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) ==
                   -32);
     REQUIRE(inner(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) == -32);
+    REQUIRE(inner(std::array{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
     REQUIRE(inner(std::vector{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
     REQUIRE(dot(std::vector{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
+    REQUIRE(dot(std::vector{1, 2, 4, 7}, std::array{1, 2, 3, -7}) == -32);
     // printf("%.20f\n",
     //        inner(linspace(0., 1253., 1000000), linspace(0., 148253., 1000000)));
     REQUIRE(almost_equal<2>(
@@ -154,6 +159,19 @@ TEST_CASE("inner") {
                         linspace(0., 156., 1000000));
     // printf("%.20f, %.20f\n", p.real(), p.imag());
     REQUIRE(almost_equal<10>(p, 14359830059918.605 - 12429942070974.137i));
+}
+
+TEST_CASE("inner physical quantity") {
+    using namespace units::literals;
+    REQUIRE(almost_equal(inner(std::array{1._m, 2._m, 4._m, 7._m},
+                               std::array{1._m, 2._m, 3._m, -7._m}),
+                         -32._m2));
+    REQUIRE(almost_equal(
+        inner(std::array{1._m, 2._m, 4._m, 7._m}, std::vector{1., 2., 3., -7.}),
+        -32._m));
+    REQUIRE(almost_equal(inner(std::array{1._V, 2._V, 4._V, 7._V},
+                               std::array{1._A, 2._A, 3._A, -7._A}),
+                         -32._W));
 }
 
 TEST_CASE("Arithmetic operators") {
@@ -231,6 +249,69 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(a1 % a, {0., 0., 0.}));
     REQUIRE(almost_equal(a1i % ai, {0, 0, 0}));
     REQUIRE(almost_equal(v1 % v, {0., 0., 0.}));
+}
+
+TEST_CASE("Arithmetic operators  physical quantity") {
+    using namespace operators;
+    using namespace units::literals;
+
+    const std::array a{1._m, 2._m, 3._m};
+    const std::array t{1._s, 2._s, 3._s};
+    const std::vector v{1._m, 2._m, 3._m};
+
+    const std::array a1{2._m, 4._m, 6._m};
+    const std::array b1{2., 4., 6.};
+    const std::vector v1{2._m, 4._m, 6._m};
+
+    REQUIRE(almost_equal(-a, {-1._m, -2._m, -3._m}));
+    REQUIRE(almost_equal(-v, {-1._m, -2._m, -3._m}));
+
+    REQUIRE(almost_equal(2. * a, {2._m, 4._m, 6._m}));
+    REQUIRE(almost_equal(2._m * a, {2._m2, 4._m2, 6._m2}));
+    REQUIRE(almost_equal(a * 2., {2._m, 4._m, 6._m}));
+    REQUIRE(almost_equal(a * 2._m, {2._m2, 4._m2, 6._m2}));
+    REQUIRE(almost_equal(2. * v, {2._m, 4._m, 6._m}));
+    REQUIRE(almost_equal(2._m * v, {2._m2, 4._m2, 6._m2}));
+    REQUIRE(almost_equal(v * 2., {2._m, 4._m, 6._m}));
+    REQUIRE(almost_equal(v * 2._m, {2._m2, 4._m2, 6._m2}));
+
+    REQUIRE(almost_equal(2._m + a, {3._m, 4._m, 5._m}));
+    REQUIRE(almost_equal(a + 2._m, {3._m, 4._m, 5._m}));
+    REQUIRE(almost_equal(2._m + v, {3._m, 4._m, 5._m}));
+    REQUIRE(almost_equal(v + 2._m, {3._m, 4._m, 5._m}));
+
+    REQUIRE(almost_equal(2._m - a, {1._m, 0._m, -1._m}));
+    REQUIRE(almost_equal(a - 2._m, {-1._m, 0._m, 1._m}));
+    REQUIRE(almost_equal(2._m - v, {1._m, 0._m, -1._m}));
+    REQUIRE(almost_equal(v - 2._m, {-1._m, 0._m, 1._m}));
+
+    REQUIRE(almost_equal(3._m2 / a, {3._m, 1.5_m, 1._m}));
+    REQUIRE(almost_equal(3. / t, {3._Hz, 1.5_Hz, 1._Hz}));
+    REQUIRE(almost_equal(a / 2., {0.5_m, 1._m, 1.5_m}));
+    REQUIRE(almost_equal(a / 2._s, {0.5_m_per_s, 1._m_per_s, 1.5_m_per_s}));
+
+    // TODO Define modulo for quantities
+    // REQUIRE(almost_equal(2. % a, {0., 0., 2.}));
+    // REQUIRE(almost_equal(a % 2., {1., 0., 1.}));
+
+    REQUIRE(almost_equal(a1 * a, {2._m2, 8._m2, 18._m2}));
+    REQUIRE(almost_equal(a * b1, {2._m, 8._m, 18._m}));
+    REQUIRE(almost_equal(b1 * a, {2._m, 8._m, 18._m}));
+    REQUIRE(almost_equal(v1 * v, {2._m2, 8._m2, 18._m2}));
+
+    REQUIRE(almost_equal(a1 + a, {3._m, 6._m, 9._m}));
+    REQUIRE(almost_equal(v1 + v, {3._m, 6._m, 9._m}));
+    REQUIRE(almost_equal(a1 + v, {3._m, 6._m, 9._m}));
+
+    REQUIRE(almost_equal(a1 - a, {1._m, 2._m, 3._m}));
+    REQUIRE(almost_equal(v1 - v, {1._m, 2._m, 3._m}));
+
+    REQUIRE(almost_equal(a1 / t, {2._m_per_s, 2._m_per_s, 2._m_per_s}));
+    REQUIRE(almost_equal(v1 / t, {2._m_per_s, 2._m_per_s, 2._m_per_s}));
+
+    // TODO Define modulo for quantities
+    // REQUIRE(almost_equal(a1 % a, {0., 0., 0.}));
+    // REQUIRE(almost_equal(v1 % v, {0., 0., 0.}));
 }
 
 TEST_CASE("mask") {

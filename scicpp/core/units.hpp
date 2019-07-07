@@ -14,11 +14,11 @@ namespace scicpp::units {
 
 // Represents a physical quantity.
 // T is the underlying representation type.
-// Unit is a which uniquely identifies an physical quantity as the rational of primary quantities.
+// Dim is the dimension of the quantity, that is the rational of primary dimensions.
 // Scale is a rational for scaling the quantity.
 // TODO: Add Offset for temperature conversions (K <-> Celsius).
 
-template <typename T, typename Unit, typename Scale>
+template <typename T, typename Dim, typename Scale>
 struct quantity;
 
 // is_quantity
@@ -28,8 +28,8 @@ namespace detail {
 template <class T>
 struct is_quantity : std::false_type {};
 
-template <typename T, typename Unit, typename Scale>
-struct is_quantity<quantity<T, Unit, Scale>> : std::true_type {};
+template <typename T, typename Dim, typename Scale>
+struct is_quantity<quantity<T, Dim, Scale>> : std::true_type {};
 
 } // namespace detail
 
@@ -44,7 +44,7 @@ using disable_if_is_quantity = std::enable_if_t<!is_quantity_v<T>, int>;
 
 // common_quantity
 
-template <typename T, typename Unit, typename Scale1, typename Scale2>
+template <typename T, typename Dim, typename Scale1, typename Scale2>
 struct common_quantity {
   private:
     static constexpr auto gcd_num = std::gcd(Scale1::num, Scale2::num);
@@ -53,36 +53,36 @@ struct common_quantity {
         typename std::ratio<gcd_num, (Scale1::den / gcd_den) * Scale2::den>;
 
   public:
-    using type = quantity<T, Unit, CommonScale>;
+    using type = quantity<T, Dim, CommonScale>;
 };
 
-template <typename T, typename Unit, typename Scale1, typename Scale2>
+template <typename T, typename Dim, typename Scale1, typename Scale2>
 using common_quantity_t =
-    typename common_quantity<T, Unit, Scale1, Scale2>::type;
+    typename common_quantity<T, Dim, Scale1, Scale2>::type;
 
 // quantity_cast
 
 template <typename ToQty,
           typename T,
-          typename Unit,
+          typename Dim,
           typename Scale,
           enable_if_is_quantity<ToQty> = 0>
-auto quantity_cast(const quantity<T, Unit, Scale> &qty) {
+auto quantity_cast(const quantity<T, Dim, Scale> &qty) {
     constexpr auto conversion_factor =
         (T(ToQty::scale::den) / T(ToQty::scale::num)) *
         (T(Scale::num) / T(Scale::den));
     return ToQty(qty.value() * conversion_factor);
 }
 
-template <typename T, typename Unit, typename Scale>
+template <typename T, typename Dim, typename Scale>
 struct quantity {
-    static_assert(meta::is_ratio_v<Unit>);
+    static_assert(meta::is_ratio_v<Dim>);
     static_assert(meta::is_ratio_v<Scale>);
-    static_assert(Unit::num > 0);
+    static_assert(Dim::num > 0);
     static_assert(Scale::num > 0);
 
     using value_type = T;
-    using unit = Unit;
+    using dim = Dim;
     using scale = Scale;
 
     // Constructors, destructors, copy
@@ -94,8 +94,8 @@ struct quantity {
     explicit constexpr quantity(T value) : m_value(value) {}
 
     template <typename Scale2>
-    constexpr quantity(const quantity<T, Unit, Scale2> &qty)
-        : m_value(quantity_cast<quantity<T, Unit, Scale>>(qty).value()) {}
+    constexpr quantity(const quantity<T, Dim, Scale2> &qty)
+        : m_value(quantity_cast<quantity<T, Dim, Scale>>(qty).value()) {}
 
     ~quantity() = default;
 
@@ -103,47 +103,48 @@ struct quantity {
 
     // Comparisons
 
-    constexpr auto operator==(const quantity<T, Unit, Scale> &rhs) const {
-        return m_value == rhs.m_value;
+    template <typename RhsScale>
+    constexpr auto operator==(const quantity<T, Dim, RhsScale> &rhs) const {
+        constexpr auto factor1 = T(Scale::num) * T(RhsScale::den);
+        constexpr auto factor2 = T(RhsScale::num) * T(Scale::den);
+        return factor1 * m_value == factor2 * rhs.value();
     }
 
-    constexpr auto operator!=(const quantity<T, Unit, Scale> &rhs) const {
+    template <typename RhsScale>
+    constexpr auto operator!=(const quantity<T, Dim, RhsScale> &rhs) const {
         return !(*this == rhs);
     }
 
-    // template <int rel_tol = 1, typename Scale2>
-    // auto is_approx(const quantity<T, Unit, Scale2> &rhs) const {
-    //     constexpr auto lhs_factor = T(Scale::num) / T(Scale::den);
-    //     constexpr auto rhs_factor = T(Scale2::num) / T(Scale2::den);
-
-    //     return almost_equal<rel_tol>(m_value * lhs_factor,
-    //                                  rhs.value() * rhs_factor);
-    // }
-
-    constexpr auto operator>=(const quantity<T, Unit, Scale> &rhs) const {
-        return m_value >= rhs.m_value;
+    template <typename RhsScale>
+    constexpr auto operator<(const quantity<T, Dim, RhsScale> &rhs) const {
+        constexpr auto factor1 = T(Scale::num) * T(RhsScale::den);
+        constexpr auto factor2 = T(RhsScale::num) * T(Scale::den);
+        return factor1 * m_value < factor2 * rhs.value();
     }
 
-    constexpr auto operator<=(const quantity<T, Unit, Scale> &rhs) const {
-        return m_value <= rhs.m_value;
+    template <typename RhsScale>
+    constexpr auto operator<=(const quantity<T, Dim, RhsScale> &rhs) const {
+        return !(rhs < *this);
     }
 
-    constexpr auto operator>(const quantity<T, Unit, Scale> &rhs) const {
-        return m_value > rhs.m_value;
+    template <typename RhsScale>
+    constexpr auto operator>(const quantity<T, Dim, RhsScale> &rhs) const {
+        return rhs < *this;
     }
 
-    constexpr auto operator<(const quantity<T, Unit, Scale> &rhs) const {
-        return m_value < rhs.m_value;
+    template <typename RhsScale>
+    constexpr auto operator>=(const quantity<T, Dim, RhsScale> &rhs) const {
+        return !(*this < rhs);
     }
 
     // Arithmetic
 
-    constexpr auto operator+=(const quantity<T, Unit, Scale> &rhs) {
+    constexpr auto operator+=(const quantity<T, Dim, Scale> &rhs) {
         m_value += rhs.m_value;
         return *this;
     }
 
-    constexpr auto operator-=(const quantity<T, Unit, Scale> &rhs) {
+    constexpr auto operator-=(const quantity<T, Dim, Scale> &rhs) {
         m_value -= rhs.m_value;
         return *this;
     }
@@ -151,40 +152,40 @@ struct quantity {
     constexpr auto operator+() const { return *this; }
 
     template <typename RhsScale>
-    constexpr auto operator+(const quantity<T, Unit, RhsScale> &rhs) const {
-        using cq = common_quantity_t<T, Unit, Scale, RhsScale>;
+    constexpr auto operator+(const quantity<T, Dim, RhsScale> &rhs) const {
+        using cq = common_quantity_t<T, Dim, Scale, RhsScale>;
         return cq(cq(*this).value() + cq(rhs).value());
     }
 
     constexpr auto operator-() const {
-        return quantity<T, Unit, Scale>(-m_value);
+        return quantity<T, Dim, Scale>(-m_value);
     }
 
     template <typename RhsScale>
-    constexpr auto operator-(const quantity<T, Unit, RhsScale> &rhs) const {
-        using cq = common_quantity_t<T, Unit, Scale, RhsScale>;
+    constexpr auto operator-(const quantity<T, Dim, RhsScale> &rhs) const {
+        using cq = common_quantity_t<T, Dim, Scale, RhsScale>;
         return cq(cq(*this).value() - cq(rhs).value());
     }
 
-    template <typename RhsUnit, typename RhsScale>
-    constexpr auto operator*(const quantity<T, RhsUnit, RhsScale> &rhs) const {
+    template <typename RhsDim, typename RhsScale>
+    constexpr auto operator*(const quantity<T, RhsDim, RhsScale> &rhs) const {
         return quantity<T,
-                        typename std::ratio_multiply<Unit, RhsUnit>::type,
+                        typename std::ratio_multiply<Dim, RhsDim>::type,
                         typename std::ratio_multiply<Scale, RhsScale>::type>(
             m_value * rhs.value());
     }
 
-    template <typename RhsUnit, typename RhsScale>
-    constexpr auto operator/(const quantity<T, RhsUnit, RhsScale> &rhs) const {
+    template <typename RhsDim, typename RhsScale>
+    constexpr auto operator/(const quantity<T, RhsDim, RhsScale> &rhs) const {
         return quantity<T,
-                        typename std::ratio_divide<Unit, RhsUnit>::type,
+                        typename std::ratio_divide<Dim, RhsDim>::type,
                         typename std::ratio_divide<Scale, RhsScale>::type>(
             m_value / rhs.value());
     }
 
     constexpr auto inv() const {
         return quantity<T,
-                        typename std::ratio_divide<std::ratio<1>, Unit>::type,
+                        typename std::ratio_divide<std::ratio<1>, Dim>::type,
                         typename std::ratio_divide<std::ratio<1>, Scale>::type>(
             T{1} / m_value);
     }
@@ -195,35 +196,52 @@ struct quantity {
     T m_value = T{0};
 };
 
-template <typename T1, typename T2, typename Unit, typename Scale>
-constexpr auto operator*(T1 factor, const quantity<T2, Unit, Scale> &rhs) {
-    using T = std::common_type_t<T1, T2>;
-    return quantity<T, Unit, Scale>(T(factor) * T(rhs.value()));
+template <typename T1,
+          typename T2,
+          typename Dim,
+          typename Scale,
+          meta::disable_if_iterable<T1> = 0>
+constexpr auto operator*(T1 factor, const quantity<T2, Dim, Scale> &rhs) {
+    // using T = std::common_type_t<T1, T2>;
+    using T = decltype(std::declval<T1>() * std::declval<T2>());
+    return quantity<T, Dim, Scale>(T(factor) * T(rhs.value()));
 }
 
-template <typename T1, typename T2, typename Unit, typename Scale>
-constexpr auto operator*(const quantity<T1, Unit, Scale> &rhs, T2 factor) {
+template <typename T1,
+          typename T2,
+          typename Dim,
+          typename Scale,
+          meta::disable_if_iterable<T2> = 0>
+constexpr auto operator*(const quantity<T1, Dim, Scale> &rhs, T2 factor) {
     return factor * rhs;
 }
 
-template <typename T1, typename T2, typename Unit, typename Scale>
-constexpr auto operator/(T1 factor, const quantity<T2, Unit, Scale> &rhs) {
+template <typename T1,
+          typename T2,
+          typename Dim,
+          typename Scale,
+          meta::disable_if_iterable<T1> = 0>
+constexpr auto operator/(T1 factor, const quantity<T2, Dim, Scale> &rhs) {
     return factor * rhs.inv();
 }
 
-template <typename T1, typename T2, typename Unit, typename Scale>
-constexpr auto operator/(const quantity<T1, Unit, Scale> &rhs, T2 factor) {
+template <typename T1,
+          typename T2,
+          typename Dim,
+          typename Scale,
+          meta::disable_if_iterable<T2> = 0>
+constexpr auto operator/(const quantity<T1, Dim, Scale> &rhs, T2 factor) {
     return rhs * (T2{1} / factor);
 }
 
-template <typename T, typename Unit, typename Scale>
-void print(const quantity<T, Unit, Scale> &q) {
+template <typename T, typename Dim, typename Scale>
+void print(const quantity<T, Dim, Scale> &q) {
     std::printf("%Lf x %lu / %lu [%lu, %lu]\n",
                 q.value(),
                 Scale::num,
                 Scale::den,
-                Unit::num,
-                Unit::den);
+                Dim::num,
+                Dim::den);
 }
 
 template <typename Quantity1, typename Quantity2>
@@ -241,13 +259,19 @@ namespace primary_flags {
 
 // Each base quantity is identified by a prime number.
 // using Dimensionless = std::ratio<1>;
+
+// SI
 using Length = std::ratio<2>;
 using Time = std::ratio<3>;
 using Mass = std::ratio<5>;
 using Current = std::ratio<7>;
 using Temperature = std::ratio<9>;
-using QuantityOfMatter = std::ratio<11>;
-using Candela = std::ratio<13>;
+using AmountOfSubstance = std::ratio<11>;
+using LuminousIntensity = std::ratio<13>;
+
+// Data
+
+using DataQuantity = std::ratio<17>;
 
 } // namespace primary_flags
 
@@ -269,10 +293,14 @@ template <typename T, typename Scale = std::ratio<1>>
 using temperature = quantity<T, primary_flags::Temperature, Scale>;
 
 template <typename T, typename Scale = std::ratio<1>>
-using quantity_of_matter = quantity<T, primary_flags::QuantityOfMatter, Scale>;
+using amount_of_substance =
+    quantity<T, primary_flags::AmountOfSubstance, Scale>;
 
 template <typename T, typename Scale = std::ratio<1>>
-using candela = quantity<T, primary_flags::Candela, Scale>;
+using luminous_intensity = quantity<T, primary_flags::LuminousIntensity, Scale>;
+
+template <typename T, typename Scale = std::ratio<1>>
+using data_quantity = quantity<T, primary_flags::DataQuantity, Scale>;
 
 // Derived quantities
 
@@ -336,6 +364,9 @@ template <typename T, typename Scale = std::ratio<1>>
 using magnetic_field =
     quantity_divide<force<T, Scale>, quantity_multiply<charge<T>, speed<T>>>;
 
+template <typename T, typename Scale = std::ratio<1>>
+using data_rate = quantity_divide<data_quantity<T, Scale>, time<T>>;
+
 namespace literals {
 
 // ---------- Length
@@ -376,8 +407,16 @@ constexpr auto operator"" _angstrom(long double angstroms) {
     return length<long double, std::ratio<1, 10000000000>>{angstroms};
 }
 
-constexpr auto operator"" _inch(long double inches) {
+constexpr auto operator"" _in(long double inches) {
     return length<long double, std::ratio<254, 10000>>{inches};
+}
+
+constexpr auto operator"" _ft(long double inches) {
+    return length<long double, std::ratio<3048, 10000>>{inches};
+}
+
+constexpr auto operator"" _yd(long double yards) {
+    return length<long double, std::ratio<9144, 10000>>{yards};
 }
 
 // ---------- Surface
@@ -549,11 +588,60 @@ constexpr auto operator"" _kPa(long double kilopascals) {
 }
 
 constexpr auto operator"" _bar(long double bars) {
-    return pressure<long double, std::ratio<100000, 1>>{bars};
+    return pressure<long double, std::ratio<100000>>{bars};
 }
 
 constexpr auto operator"" _mmHg(long double mmhg) {
     return pressure<long double, std::ratio<101325, 760>>{mmhg};
+}
+
+constexpr auto operator"" _torr(long double torr) {
+    return pressure<long double, std::ratio<101325, 760>>{torr};
+}
+
+constexpr auto operator"" _psi(long double psi) {
+    return pressure<long double, std::ratio<689476, 100>>{psi};
+}
+
+constexpr auto operator"" _atm(long double atmospheres) {
+    return pressure<long double, std::ratio<101325>>{atmospheres};
+}
+
+// ---------- Quantity of data
+
+constexpr auto operator"" _b(unsigned long long bits) {
+    return data_quantity<unsigned long long>{bits};
+}
+
+constexpr auto operator"" _B(unsigned long long bytes) {
+    return data_quantity<unsigned long long, std::ratio<8>>{bytes};
+}
+
+constexpr auto operator"" _kiB(unsigned long long kilobytes) {
+    return data_quantity<unsigned long long, std::ratio<8LL * 1024LL>>{
+        kilobytes};
+}
+
+constexpr auto operator"" _MiB(unsigned long long megabytes) {
+    return data_quantity<unsigned long long, std::ratio<8LL * 1024LL * 1024LL>>{
+        megabytes};
+}
+
+constexpr auto operator"" _GiB(unsigned long long gigabytes) {
+    return data_quantity<unsigned long long,
+                         std::ratio<8LL * 1024LL * 1024LL * 1024LL>>{gigabytes};
+}
+
+constexpr auto operator"" _TiB(unsigned long long terabytes) {
+    return data_quantity<unsigned long long,
+                         std::ratio<8LL * 1024LL * 1024LL * 1024LL * 1024LL>>{
+        terabytes};
+}
+
+// ---------- Data rates
+
+constexpr auto operator"" _bps(long double bit_per_seconds) {
+    return data_rate<long double>{bit_per_seconds};
 }
 
 } // namespace literals
