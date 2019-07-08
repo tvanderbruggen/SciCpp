@@ -6,7 +6,9 @@
 
 #include "scicpp/core/meta.hpp"
 
+#include <cmath>
 #include <cstdio>
+#include <numeric>
 #include <ratio>
 #include <type_traits>
 
@@ -235,6 +237,11 @@ constexpr auto operator/(const quantity<T1, Dim, Scale> &rhs, T2 factor) {
 }
 
 template <typename T, typename Dim, typename Scale>
+bool isnan(const quantity<T, Dim, Scale> &q) {
+    return std::isnan(q.value());
+}
+
+template <typename T, typename Dim, typename Scale>
 void print(const quantity<T, Dim, Scale> &q) {
     std::printf("%Lf x %lu / %lu [%lu, %lu]\n",
                 q.value(),
@@ -243,6 +250,27 @@ void print(const quantity<T, Dim, Scale> &q) {
                 Dim::num,
                 Dim::den);
 }
+
+// representation_t: Get the representation type of a quantity
+
+namespace detail {
+
+template <class T>
+struct representation_type_impl {
+    using type = T;
+};
+
+template <typename T, typename Dim, typename Scale>
+struct representation_type_impl<quantity<T, Dim, Scale>> {
+    using type = T;
+};
+
+} // namespace detail
+
+template <class T>
+using representation_t = typename detail::representation_type_impl<T>::type;
+
+// Quantities type operations
 
 template <typename Quantity1, typename Quantity2>
 using quantity_multiply =
@@ -461,6 +489,10 @@ constexpr auto operator"" _h(long double hours) {
 
 constexpr auto operator"" _m_per_s(long double meters_per_seconds) {
     return speed<long double>{meters_per_seconds};
+}
+
+constexpr auto operator"" _km_per_s(long double kilometers_per_seconds) {
+    return speed<long double, std::kilo>{kilometers_per_seconds};
 }
 
 constexpr auto operator"" _km_per_h(long double kilometers_per_hours) {

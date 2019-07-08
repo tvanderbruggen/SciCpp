@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-#include "scicpp/core/io.hpp"
+#include "io.hpp"
+
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
+#include "scicpp/core/units.hpp"
 
 #include <iostream>
 
@@ -49,12 +52,35 @@ TEST_CASE("scicpp::loadtxt to tuple with converters") {
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
                          {2, [](auto x) { return 10 + std::atoi(x); }}})
             .load("tests/data0.csv");
-    // print(data);
+    print(data);
     REQUIRE(data.size() == 38);
     REQUIRE(std::get<1>(data[0]) == 0);
     REQUIRE(std::get<1>(data[25]) == 1);
     REQUIRE(std::get<2>(data[25]) == 10);
     REQUIRE(almost_equal(std::get<4>(data[0]), 0.76));
+}
+
+TEST_CASE("scicpp::loadtxt to tuple with converters and physical quantities") {
+    using namespace units::literals;
+
+    const auto data =
+        TxtLoader<int,
+                  bool,
+                  int,
+                  units::length<long double>,
+                  units::mass<long double>>()
+            .delimiter(',')
+            .skiprows(1)
+            .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
+                         {2, [](auto x) { return 10 + std::atoi(x); }}})
+            .load("tests/data0.csv");
+    // print(data);
+    REQUIRE(data.size() == 38);
+    REQUIRE(std::get<1>(data[0]) == 0);
+    REQUIRE(std::get<1>(data[25]) == 1);
+    REQUIRE(std::get<2>(data[25]) == 10);
+    REQUIRE(almost_equal<2000>(std::get<3>(data[0]), 19.78_m));
+    REQUIRE(almost_equal<250>(std::get<4>(data[0]), 0.76_kg));
 }
 
 TEST_CASE("scicpp::TxtLoader to Eigen matrix") {

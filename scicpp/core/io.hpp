@@ -6,6 +6,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/units.hpp"
 
 #include <Eigen/Dense>
 #include <algorithm>
@@ -34,8 +35,10 @@ namespace detail {
 
 template <typename T>
 auto to_number(const char *str) {
-    if constexpr (std::is_floating_point_v<T>) {
-        return std::atof(str);
+    if constexpr (units::is_quantity_v<T>) {
+        return T(to_number<typename T::value_type>(str));
+    } else if constexpr (std::is_floating_point_v<T>) {
+        return static_cast<T>(std::atof(str));
     } else if constexpr (std::is_integral_v<T>) {
         return static_cast<T>(std::atoi(str));
     }

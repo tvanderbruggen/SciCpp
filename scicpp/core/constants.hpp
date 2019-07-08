@@ -17,12 +17,28 @@ constexpr T pi = T(3.1415926535897932385);
 
 //---------------------------------------------------------------------------------
 // Physical constants
+//
+// From CODATA 2018
 //---------------------------------------------------------------------------------
 
 namespace cst {
 
-template <typename T>
-constexpr auto c = units::speed<T>(2.99792458E8);
+using namespace units;
+
+// Speed of light in vacuum
+template <typename T = double>
+constexpr auto c = speed<T>(299792458);
+
+// Planck constant
+template <typename T = double>
+constexpr auto h = quantity_multiply<energy<T>, time<T>>(T(6.62607015E-34));
+
+template <typename T = double>
+constexpr auto hbar = h<T> / (T{2} * pi<T>);
+
+// Elementaire charge
+template <typename T = double>
+constexpr auto e = charge<T>(T(1.602176634E-19));
 
 } // namespace cst
 

@@ -6,6 +6,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/units.hpp"
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
@@ -171,7 +172,13 @@ namespace filters {
 
 const auto all = []([[maybe_unused]] auto v) { return true; };
 const auto none = []([[maybe_unused]] auto v) { return false; };
-const auto not_nan = [](auto v) { return !std::isnan(v); };
+const auto not_nan = [](auto v) {
+    if constexpr (units::is_quantity_v<decltype(v)>) {
+        return !units::isnan(v);
+    } else {
+        return !std::isnan(v);
+    }
+};
 
 } // namespace filters
 
@@ -197,13 +204,15 @@ template <typename T, class UnaryPredicate>
 // filter_reduce
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          class UnaryPredicate,
-          class BinaryOp,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
+template <class InputIt, class UnaryPredicate, class BinaryOp, typename T>
 [[nodiscard]] constexpr scicpp_pure auto filter_reduce(
     InputIt first, InputIt last, BinaryOp op, T init, UnaryPredicate filter) {
-    static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
+    using IteratorType = typename std::iterator_traits<InputIt>::value_type;
+    using ReturnType = std::invoke_result_t<BinaryOp, T, IteratorType>;
+
+    static_assert(std::is_same_v<ReturnType, T>);
+    static_assert(
+        std::is_integral_v<std::invoke_result_t<UnaryPredicate, IteratorType>>);
 
     signed_size_t cnt = 0;
 
@@ -217,12 +226,9 @@ template <class InputIt,
     return std::make_tuple(init, cnt);
 }
 
-template <class Array,
-          class UnaryPredicate,
-          class BinaryOp,
-          typename T = typename Array::value_type>
+template <class Array, class UnaryPredicate, class BinaryOp, typename T2>
 [[nodiscard]] constexpr scicpp_pure auto
-filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
+filter_reduce(const Array &a, BinaryOp op, T2 init, UnaryPredicate filter) {
     return filter_reduce(a.cbegin(), a.cend(), op, init, filter);
 }
 
