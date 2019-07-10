@@ -141,12 +141,12 @@ struct quantity {
 
     // Arithmetic
 
-    constexpr auto operator+=(const quantity<T, Dim, Scale> &rhs) {
+    constexpr auto &operator+=(const quantity<T, Dim, Scale> &rhs) {
         m_value += rhs.m_value;
         return *this;
     }
 
-    constexpr auto operator-=(const quantity<T, Dim, Scale> &rhs) {
+    constexpr auto &operator-=(const quantity<T, Dim, Scale> &rhs) {
         m_value -= rhs.m_value;
         return *this;
     }
@@ -161,6 +161,24 @@ struct quantity {
 
     constexpr auto operator-() const {
         return quantity<T, Dim, Scale>(-m_value);
+    }
+
+    constexpr auto operator++(int) {
+        return quantity<T, Dim, Scale>(m_value++);
+    }
+
+    constexpr auto &operator++() {
+        ++m_value;
+        return *this;
+    }
+
+    constexpr auto operator--(int) {
+        return quantity<T, Dim, Scale>(m_value--);
+    }
+
+    constexpr auto &operator--() {
+        --m_value;
+        return *this;
     }
 
     template <typename RhsScale>
@@ -293,9 +311,9 @@ using Length = std::ratio<2>;
 using Time = std::ratio<3>;
 using Mass = std::ratio<5>;
 using Current = std::ratio<7>;
-using Temperature = std::ratio<9>;
-using AmountOfSubstance = std::ratio<11>;
-using LuminousIntensity = std::ratio<13>;
+using Temperature = std::ratio<11>;
+using AmountOfSubstance = std::ratio<13>;
+using LuminousIntensity = std::ratio<17>;
 
 // Data
 

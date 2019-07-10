@@ -39,6 +39,14 @@ TEST_CASE("Units additions") {
 
     REQUIRE(almost_equal(1._m + 1._km, 1001._m));
     REQUIRE(almost_equal(1._m + 1._km + 1._mm, 1001001._mm));
+
+    REQUIRE(almost_equal<2>(++1._m, 2._m));
+    L1++;
+    REQUIRE(almost_equal<2>(L1, 6.14_m));
+
+    REQUIRE(almost_equal<2>(--2._m, 1._m));
+    L1--;
+    REQUIRE(almost_equal<2>(L1, 5.14_m));
 }
 
 TEST_CASE("Units substractions") {

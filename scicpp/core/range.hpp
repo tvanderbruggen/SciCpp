@@ -26,6 +26,7 @@ namespace detail {
 template <class Array, typename T = typename Array::value_type>
 auto linspace_filler(Array &&a, T start, T stop) {
     using namespace scicpp::operators;
+    using raw_t = units::representation_t<T>;
 
     if (a.size() == 0) {
         return std::move(a);
@@ -36,9 +37,15 @@ auto linspace_filler(Array &&a, T start, T stop) {
         return std::move(a);
     }
 
-    const T step = (stop - start) / T(a.size() - 1);
-    std::iota(a.begin(), a.end(), T{0});
-    return start + a * step;
+    if constexpr (units::is_quantity_v<T>) {
+        const auto step = (stop.value() - start.value()) / raw_t(a.size() - 1);
+        std::iota(a.begin(), a.end(), T(0));
+        return start + a * step;
+    } else {
+        const auto step = (stop - start) / raw_t(a.size() - 1);
+        std::iota(a.begin(), a.end(), T(0));
+        return start + a * step;
+    }
 }
 
 } // namespace detail

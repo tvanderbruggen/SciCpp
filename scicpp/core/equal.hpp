@@ -4,6 +4,7 @@
 #ifndef SCICPP_CORE_EQUAL
 #define SCICPP_CORE_EQUAL
 
+#include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/units.hpp"
 

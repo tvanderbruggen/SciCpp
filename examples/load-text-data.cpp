@@ -23,10 +23,12 @@ int main() {
                        .converters({{1, [](auto x) { return x[0] == 'M'; }}})
                        .load("examples/data1.csv");
 
-    // sci::print(a);
+    sci::print(a);
 
     const auto [genders, heights] = sci::unpack(a);
-    // const auto m_av = sci::stats::mean(sci::mask(heights, genders));
-    // const auto f_av = sci::stats::mean(sci::mask(heights, !genders));
-    // printf("Male average: %.2f m, Female average: %.2f m\n", m_av, f_av);
+    const auto m_av = sci::stats::mean(sci::mask(heights, genders));
+    const auto f_av = sci::stats::mean(sci::mask(heights, !genders));
+    printf("Male average: %.2f m, Female average: %.2f m\n",
+           m_av.value(),
+           f_av.value());
 }

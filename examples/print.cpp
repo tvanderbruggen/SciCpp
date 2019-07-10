@@ -9,6 +9,7 @@
 
 namespace sci = scicpp;
 using namespace sci::operators;
+using namespace sci::units::literals;
 using namespace std::literals;
 
 int main() {
@@ -24,6 +25,9 @@ int main() {
     const auto phi = sci::linspace<window.size()>(0., 2. * M_PI);
     const auto window_cplx = window * sci::exp(1.i * phi);
     sci::print(window_cplx);
+
+    // ---- Print a short array of units
+    sci::print(std::array{1._m, 2._m, 3._m, 4._m});
 
     // ---- Print a short array of tuples
     std::array<std::tuple<int, bool, double>, 10> atup{};

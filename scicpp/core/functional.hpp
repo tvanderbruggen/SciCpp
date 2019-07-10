@@ -172,6 +172,7 @@ namespace filters {
 
 const auto all = []([[maybe_unused]] auto v) { return true; };
 const auto none = []([[maybe_unused]] auto v) { return false; };
+
 const auto not_nan = [](auto v) {
     if constexpr (units::is_quantity_v<decltype(v)>) {
         return !units::isnan(v);

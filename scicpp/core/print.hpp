@@ -5,6 +5,7 @@
 #define SCICPP_CORE_PRINT
 
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/units.hpp"
 
 #include <array>
 #include <cstdio>
@@ -22,8 +23,10 @@ void fprint_element(FILE *stream, T value);
 
 template <typename T>
 constexpr auto type_to_format() {
-    if constexpr (std::is_floating_point_v<T>) {
+    if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
         return "%f";
+    } else if constexpr (std::is_same_v<T, long double>) {
+        return "%Lf";
     } else if constexpr (std::is_same_v<T, long unsigned int>) {
         return "%lu";
     } else if constexpr (std::is_same_v<T, unsigned int>) {
@@ -67,6 +70,9 @@ void fprint_element(FILE *stream, T value) {
             meta::subtuple<1>(value));
         fprint_element(stream, std::get<std::tuple_size_v<T> - 1>(value));
         std::fprintf(stream, ")");
+    } else if constexpr (units::is_quantity_v<T>) {
+        using raw_t = typename T::value_type;
+        std::fprintf(stream, type_to_format<raw_t>(), value.value());
     } else {
         std::fprintf(stream, type_to_format<T>(), value);
     }

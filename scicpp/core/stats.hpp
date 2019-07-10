@@ -117,20 +117,21 @@ auto nanmean(const Array &f) {
 // var
 //---------------------------------------------------------------------------------
 
-namespace detail {
-
-// Pairwise recursive implementation of variance summation
-
 template <class InputIt,
           class Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr auto variance_helper(InputIt first, InputIt last, Predicate filter) {
+constexpr auto var(InputIt first, InputIt last, Predicate filter) {
     using raw_t = units::representation_t<T>;
     using prod_t = std::conditional_t<units::is_quantity_v<T>,
                                       units::quantity_multiply<T, T>,
                                       T>;
 
-    return pairwise_accumulate<64>(
+    if (std::distance(first, last) == 0) {
+        return prod_t(std::numeric_limits<raw_t>::quiet_NaN());
+    }
+
+    // Pairwise recursive implementation of variance summation
+    const auto [m_, v_, c_] = pairwise_accumulate<64>(
         first,
         last,
         [&](auto f, auto l) {
@@ -167,25 +168,8 @@ constexpr auto variance_helper(InputIt first, InputIt last, Predicate filter) {
                      raw_t(n2) * (var2 + (m2 - m_c) * (m2 - m_c)));
             return std::make_tuple(m_c, var_c, n_c);
         });
-}
 
-} // namespace detail
-
-template <class InputIt,
-          class Predicate,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr auto var(InputIt first, InputIt last, Predicate filter) {
-    using raw_t = units::representation_t<T>;
-    using prod_t = std::conditional_t<units::is_quantity_v<T>,
-                                      units::quantity_multiply<T, T>,
-                                      T>;
-
-    if (std::distance(first, last) == 0) {
-        return prod_t(std::numeric_limits<raw_t>::quiet_NaN());
-    }
-
-    const auto [m, v, c] = detail::variance_helper(first, last, filter);
-    return v;
+    return v_;
 }
 
 template <class Array, class Predicate>
