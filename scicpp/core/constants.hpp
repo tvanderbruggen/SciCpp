@@ -13,7 +13,10 @@ namespace scicpp {
 //---------------------------------------------------------------------------------
 
 template <typename T>
-constexpr T pi = T(3.1415926535897932385);
+constexpr T pi = T(3.1415926535897932384626433832795029);
+
+template <typename T>
+constexpr T e = T(2.7182818284590452353602874713526625);
 
 //---------------------------------------------------------------------------------
 // Physical constants
@@ -21,26 +24,43 @@ constexpr T pi = T(3.1415926535897932385);
 // From CODATA 2018
 //---------------------------------------------------------------------------------
 
-namespace cst {
+template <typename T>
+struct physical_constants {
+    static_assert(std::is_floating_point_v<T>);
 
-using namespace units;
+    // Speed of light in vacuum
+    static constexpr auto c = units::speed<T>(299792458);
 
-// Speed of light in vacuum
-template <typename T = double>
-constexpr auto c = speed<T>(299792458);
+    // Newtonian constant of gravitation
+    using newton_grav_cst_qty = units::quantity_divide<
+        units::volume<T>,
+        units::quantity_multiply<
+            units::mass<T>,
+            units::quantity_multiply<units::time<T>, units::time<T>>>>;
+    static constexpr auto G = newton_grav_cst_qty(6.67430E-11);
 
-// Planck constant
-template <typename T = double>
-constexpr auto h = quantity_multiply<energy<T>, time<T>>(T(6.62607015E-34));
+    // Planck constant
+    using planck_cst_qty =
+        units::quantity_multiply<units::energy<T>, units::time<T>>;
+    static constexpr auto h = planck_cst_qty(T(6.62607015E-34));
+    static constexpr auto hbar = h / (T{2} * pi<T>);
 
-template <typename T = double>
-constexpr auto hbar = h<T> / (T{2} * pi<T>);
+    // Elementaire charge
+    static constexpr auto e = units::electric_charge<T>(T(1.602176634E-19));
 
-// Elementaire charge
-template <typename T = double>
-constexpr auto e = charge<T>(T(1.602176634E-19));
+    // Fine-structure constant
+    static constexpr auto alpha = T(7.2973525693E-3);
 
-} // namespace cst
+    // Vacuum magnetic permeability
+    static constexpr auto mu0 = 4 * pi<T> * alpha * hbar / (e * e * c);
+
+    // Vacuum electric permittivity
+    static constexpr auto epsilon0 = T{1} / (mu0 * c * c);
+};
+
+using phys_cst_f = physical_constants<float>;
+using phys_cst = physical_constants<double>;
+using phys_cst_l = physical_constants<long double>;
 
 } // namespace scicpp
 

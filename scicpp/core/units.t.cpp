@@ -40,11 +40,11 @@ TEST_CASE("Units additions") {
     REQUIRE(almost_equal(1._m + 1._km, 1001._m));
     REQUIRE(almost_equal(1._m + 1._km + 1._mm, 1001001._mm));
 
-    REQUIRE(almost_equal<2>(++1._m, 2._m));
+    REQUIRE(almost_equal(++1._m, 2._m));
     L1++;
     REQUIRE(almost_equal<2>(L1, 6.14_m));
 
-    REQUIRE(almost_equal<2>(--2._m, 1._m));
+    REQUIRE(almost_equal(--2._m, 1._m));
     L1--;
     REQUIRE(almost_equal<2>(L1, 5.14_m));
 }
@@ -60,6 +60,7 @@ TEST_CASE("Units substractions") {
 
     REQUIRE(almost_equal(1._m - 1._km, -999._m));
     REQUIRE(almost_equal(-1._km, -1000._m));
+    REQUIRE(almost_equal(-1_km, -1000_m));
 }
 
 TEST_CASE("Units multiplications") {
@@ -84,24 +85,26 @@ TEST_CASE("Units inv") {
 }
 
 TEST_CASE("Divide by constant") {
-    REQUIRE(almost_equal<2500>(3.14 / 0.1_V, 31.4 * (1._V).inv()));
-    REQUIRE(almost_equal<2500>(3.14_V / 0.1, 31.4_V));
+    REQUIRE(almost_equal<2>(3.14 / 0.1_V, 31.4 * (1._V).inv()));
+    REQUIRE(almost_equal<2>(3.14_V / 0.1, 31.4_V));
 }
 
 TEST_CASE("Multiply by constant") {
     REQUIRE(almost_equal(10._V * 100._mA, 1._W));
-    REQUIRE(almost_equal<750>(3.14 * 10._V, 31.4_V));
-    REQUIRE(almost_equal<750>(3.14 * 10._V * 100._mA, 3140._mW));
-    REQUIRE(almost_equal<750>(10._V * 100._mA * 3.14, 3140._mW));
+    REQUIRE(almost_equal(10_V * 100_mA, 1_W));
+    REQUIRE(almost_equal<2>(3.14 * 10._V, 31.4_V));
+    REQUIRE(almost_equal(3.14 * 10._V * 100._mA, 3140._mW));
+    REQUIRE(almost_equal(10._V * 100._mA * 3.14, 3140._mW));
 }
 
 TEST_CASE("Equivalence") {
     SECTION("Length") {
         REQUIRE(almost_equal(1._km, 1000._m));
-        REQUIRE(almost_equal(1._in, 2.54_cm));
-        REQUIRE(almost_equal(1._ft, 12._in));
-        REQUIRE(almost_equal(1._yd, 3._ft));
-        REQUIRE(almost_equal(1._angstrom, 0.1_nm));
+        REQUIRE(almost_equal<2>(1._in, 2.54_cm));
+        REQUIRE(almost_equal<2>(1._ft, 12._in));
+        REQUIRE(almost_equal<2>(1_ft, 12_in));
+        REQUIRE(almost_equal<2>(1._yd, 3._ft));
+        REQUIRE(almost_equal<2>(1._angstrom, 0.1_nm));
     }
 
     SECTION("Surface") {
@@ -117,15 +120,26 @@ TEST_CASE("Equivalence") {
     SECTION("Speed") {
         REQUIRE(almost_equal(2._km / 1._s, 2000._m_per_s));
         REQUIRE(almost_equal(2._km / 1._ms, 2000000._m_per_s));
+        REQUIRE(almost_equal(2_mm / 1_ms, 2_m_per_s));
         REQUIRE(almost_equal(1._km_per_h, 3.6_m_per_s));
+    }
+
+    SECTION("Acceleration") {
+        REQUIRE(almost_equal(2_km / 10_s / 10_s, 20_m_per_s2));
     }
 
     SECTION("Time") {
         REQUIRE(almost_equal(1._h, 3600._s));
         REQUIRE(almost_equal(1._h, 60._min));
+        REQUIRE(almost_equal(1_h, 60_min));
     }
 
-    SECTION("Magnetic field") { REQUIRE(almost_equal<2>(1._mT, 10._G)); }
+    SECTION("Resistance") {
+        REQUIRE(almost_equal(1. / 10_Ohm, 0.1_S));
+        REQUIRE(almost_equal(10_Ohm * 100_mA, 1_V));
+    }
+
+    SECTION("Magnetic field") { REQUIRE(almost_equal(1._mT, 10._G)); }
 
     SECTION("Pressure") {
         REQUIRE(almost_equal(1._bar, 100._kPa));
@@ -136,14 +150,14 @@ TEST_CASE("Equivalence") {
     }
 
     SECTION("Data quantity") {
-        REQUIRE(1_B == 8_b);
+        REQUIRE(almost_equal(1_B, 8_b));
         REQUIRE(1_B >= 8_b);
         REQUIRE(1_B <= 8_b);
         REQUIRE(1_B >= 8_b);
         REQUIRE(1_MiB >= 2_kiB);
         REQUIRE(1_MiB > 2_kiB);
         REQUIRE(2_kiB < 1_MiB);
-        REQUIRE(1_kiB == 1024_B);
+        REQUIRE(almost_equal(1_kiB, 1024_B));
     }
 }
 

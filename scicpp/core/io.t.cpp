@@ -52,7 +52,7 @@ TEST_CASE("scicpp::loadtxt to tuple with converters") {
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
                          {2, [](auto x) { return 10 + std::atoi(x); }}})
             .load("tests/data0.csv");
-    print(data);
+    // print(data);
     REQUIRE(data.size() == 38);
     REQUIRE(std::get<1>(data[0]) == 0);
     REQUIRE(std::get<1>(data[25]) == 1);

@@ -121,7 +121,8 @@ static_assert(is_std_tuple_v<std::tuple<double, int, float>>);
 namespace detail {
 
 template <typename... T, std::size_t... I>
-auto subtuple_(const std::tuple<T...> &t, std::index_sequence<I...>) {
+auto subtuple_(const std::tuple<T...> &t,
+               std::index_sequence<I...> /*unused*/) {
     return std::make_tuple(std::get<I>(t)...);
 }
 

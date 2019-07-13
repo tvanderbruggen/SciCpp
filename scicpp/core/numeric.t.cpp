@@ -172,6 +172,15 @@ TEST_CASE("inner physical quantity") {
     REQUIRE(almost_equal(inner(std::array{1._V, 2._V, 4._V, 7._V},
                                std::array{1._A, 2._A, 3._A, -7._A}),
                          -32._W));
+    REQUIRE(almost_equal<3000>(inner(linspace(0._V, 1253._V, 1000000),
+                                     linspace(0._A, 148253._A, 1000000)),
+                               61920367293532.47_W));
+    REQUIRE(almost_equal(dot(std::array{1._m, 2._m, 4._m, 7._m},
+                             std::array{1._m, 2._m, 3._m, -7._m}),
+                         -32._m2));
+    REQUIRE(almost_equal(vdot(std::array{1._m, 2._m, 4._m, 7._m},
+                              std::array{1._m, 2._m, 3._m, -7._m}),
+                         -32._m2));
 }
 
 TEST_CASE("Arithmetic operators") {
@@ -251,7 +260,7 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(v1 % v, {0., 0., 0.}));
 }
 
-TEST_CASE("Arithmetic operators  physical quantity") {
+TEST_CASE("Arithmetic operators physical quantity") {
     using namespace operators;
     using namespace units::literals;
 
@@ -274,6 +283,8 @@ TEST_CASE("Arithmetic operators  physical quantity") {
     REQUIRE(almost_equal(2._m * v, {2._m2, 4._m2, 6._m2}));
     REQUIRE(almost_equal(v * 2., {2._m, 4._m, 6._m}));
     REQUIRE(almost_equal(v * 2._m, {2._m2, 4._m2, 6._m2}));
+    REQUIRE(almost_equal(1._m * b1, {2._m, 4._m, 6._m}));
+    REQUIRE(almost_equal(b1 * 1._m, {2._m, 4._m, 6._m}));
 
     REQUIRE(almost_equal(2._m + a, {3._m, 4._m, 5._m}));
     REQUIRE(almost_equal(a + 2._m, {3._m, 4._m, 5._m}));
@@ -289,6 +300,8 @@ TEST_CASE("Arithmetic operators  physical quantity") {
     REQUIRE(almost_equal(3. / t, {3._Hz, 1.5_Hz, 1._Hz}));
     REQUIRE(almost_equal(a / 2., {0.5_m, 1._m, 1.5_m}));
     REQUIRE(almost_equal(a / 2._s, {0.5_m_per_s, 1._m_per_s, 1.5_m_per_s}));
+    REQUIRE(almost_equal(b1 / 1._s, {2._Hz, 4._Hz, 6._Hz}));
+    REQUIRE(almost_equal<1500>(6._s / b1, {3._s, 1.5_s, 1._s}));
 
     // TODO Define modulo for quantities
     // REQUIRE(almost_equal(2. % a, {0., 0., 2.}));
@@ -324,6 +337,20 @@ TEST_CASE("mask") {
     REQUIRE(almost_equal(mask(a, m2), {1., 3.}));
     REQUIRE(almost_equal(mask(v, m1), {2.}));
     REQUIRE(almost_equal(mask(std::vector{1., 2., 3.}, m1), {2.}));
+}
+
+TEST_CASE("mask physical quantity") {
+    using namespace units::literals;
+
+    const std::array a{1._m, 2._m, 3._m};
+    const std::vector v{1._m, 2._m, 3._m};
+
+    const std::array m1{0, 1, 0};
+    const std::vector m2{1, 0, 1};
+
+    REQUIRE(almost_equal(mask(a, m2), {1._m, 3._m}));
+    REQUIRE(almost_equal(mask(v, m1), {2._m}));
+    REQUIRE(almost_equal(mask(std::vector{1._m, 2._m, 3._m}, m1), {2._m}));
 }
 
 } // namespace scicpp

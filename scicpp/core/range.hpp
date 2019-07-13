@@ -28,24 +28,18 @@ auto linspace_filler(Array &&a, T start, T stop) {
     using namespace scicpp::operators;
     using raw_t = units::representation_t<T>;
 
-    if (a.size() == 0) {
+    if (a.empty()) {
         return std::move(a);
     }
 
-    if (a.size() == 1) {
+    if (a.size() == 1U) {
         a[0] = start;
         return std::move(a);
     }
 
-    if constexpr (units::is_quantity_v<T>) {
-        const auto step = (stop.value() - start.value()) / raw_t(a.size() - 1);
-        std::iota(a.begin(), a.end(), T(0));
-        return start + a * step;
-    } else {
-        const auto step = (stop - start) / raw_t(a.size() - 1);
-        std::iota(a.begin(), a.end(), T(0));
-        return start + a * step;
-    }
+    std::iota(a.begin(), a.end(), T(0));
+    const auto step = units::value(stop - start) / raw_t(a.size() - 1);
+    return start + std::move(a) * step;
 }
 
 } // namespace detail

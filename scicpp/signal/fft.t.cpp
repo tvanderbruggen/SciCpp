@@ -3,11 +3,12 @@
 
 #include "fft.hpp"
 
-#include <scicpp/core/numeric.hpp>
-#include <scicpp/core/print.hpp>
-#include <scicpp/core/random.hpp>
-#include <scicpp/core/stats.hpp>
-#include <scicpp/signal/windows.hpp>
+#include "scicpp/core/equal.hpp"
+#include "scicpp/core/numeric.hpp"
+#include "scicpp/core/print.hpp"
+#include "scicpp/core/random.hpp"
+#include "scicpp/core/stats.hpp"
+#include "scicpp/signal/windows.hpp"
 
 namespace scicpp::signal {
 
