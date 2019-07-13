@@ -48,14 +48,41 @@ struct physical_constants {
     // Elementaire charge
     static constexpr auto e = units::electric_charge<T>(T(1.602176634E-19));
 
+    // Electron mass
+    static constexpr auto m_e = units::mass<T>(T(9.1093837015E-31));
+
+    // Proton mass
+    static constexpr auto m_p = units::mass<T>(T(1.67262192369E-27));
+
     // Fine-structure constant
     static constexpr auto alpha = T(7.2973525693E-3);
 
     // Vacuum magnetic permeability
-    static constexpr auto mu0 = 4 * pi<T> * alpha * hbar / (e * e * c);
+    static constexpr auto mu0 = T{2} * alpha * h / (e * e * c);
 
     // Vacuum electric permittivity
     static constexpr auto epsilon0 = T{1} / (mu0 * c * c);
+
+    // Josephson constant
+    static constexpr auto K_J = T{2} * e / h;
+
+    // von Klitzing constant
+    static constexpr auto R_K = h / (e * e);
+
+    // Magnetic flux quantum
+    static constexpr auto Phi0 = T{1} / K_J;
+
+    // Bohr magneton
+    static constexpr auto muB = T{0.5} * e * hbar / m_e;
+
+    // Nuclear magneton
+    static constexpr auto muN = T{0.5} * e * hbar / m_p;
+
+    // Rydberg constant
+    static constexpr auto Rinf = T{0.5} * alpha * alpha * m_e * c / h;
+
+    // Bohr radius
+    static constexpr auto a0 = hbar / (alpha * m_e * c);
 };
 
 using phys_cst_f = physical_constants<float>;

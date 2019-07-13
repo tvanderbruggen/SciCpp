@@ -876,6 +876,30 @@ SCICPP_UNITS_SET_LITERAL_RATIO(magnetic_flux_density, _G, 1, 10000)
 } // namespace literals
 
 // ----------------------------------------------------------------------------
+// Magnetic flux
+// ----------------------------------------------------------------------------
+
+// Magnetic field = Force / (Charge x Speed)
+template <typename T, typename Scale = std::ratio<1>>
+using magnetic_flux =
+    quantity_multiply<magnetic_flux_density<T, Scale>, area<T>>;
+
+namespace literals {
+
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _fWb, std::femto)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _pWb, std::pico)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _nWb, std::nano)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _uWb, std::micro)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _mWb, std::milli)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _Wb, std::ratio<1>)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _kWb, std::kilo)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _MWb, std::mega)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _GWb, std::giga)
+SCICPP_UNITS_SET_LITERAL(magnetic_flux, _TWb, std::tera)
+
+} // namespace literals
+
+// ----------------------------------------------------------------------------
 // Data rate
 // ----------------------------------------------------------------------------
 

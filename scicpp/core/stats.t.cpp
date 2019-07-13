@@ -86,13 +86,13 @@ TEST_CASE("average physical quantities") {
                                  std::array<units::length<double>, 0>{})));
     REQUIRE(units::isnan(
         average(std::vector{1._kg, 2._kg}, std::vector{3._kg, 4._kg, 5._kg})));
-    REQUIRE(almost_equal<300>(
+    REQUIRE(almost_equal<2>(
         average(std::array{1._s, 2._s, 3._s}, std::array{4., 5., 6.}),
         2.133333333333333333333_s));
-    REQUIRE(almost_equal<300>(
+    REQUIRE(almost_equal<2>(
         average(std::array{1._s, 2._s, 3._s}, std::array{4._kg, 5._kg, 6._kg}),
         2.133333333333333333333_s));
-    REQUIRE(almost_equal<300>(
+    REQUIRE(almost_equal<2>(
         average(std::array{1._s, 2._s, 3._s}, std::vector{4., 5., 6.}),
         2.133333333333333333333_s));
 }
@@ -138,15 +138,15 @@ TEST_CASE("var") {
 
 TEST_CASE("var physical units") {
     using namespace units::literals;
-    constexpr auto nan = units::length<long double>(
-        std::numeric_limits<long double>::quiet_NaN());
+    constexpr auto nan =
+        units::length<double>(std::numeric_limits<double>::quiet_NaN());
     REQUIRE(units::isnan(var(std::array<units::mass<double>, 0>{})));
-    REQUIRE(almost_equal<1500>(var(std::array{1._m, 2._m, 3._m}), 2._m2 / 3.));
-    REQUIRE(almost_equal<1500>(var(std::vector{1._m, 2._m, 3._m}), 2._m2 / 3.));
-    REQUIRE(almost_equal<1500>(nanvar(std::array{1._m, nan, 2._m, 3._m, nan}),
-                               2._m2 / 3.));
-    REQUIRE(almost_equal<1500>(nanvar(std::vector{1._m, 2._m, nan, 3._m}),
-                               2._m2 / 3.));
+    REQUIRE(almost_equal(var(std::array{1._m, 2._m, 3._m}), 2._m2 / 3.));
+    REQUIRE(almost_equal(var(std::vector{1._m, 2._m, 3._m}), 2._m2 / 3.));
+    REQUIRE(almost_equal(nanvar(std::array{1._m, nan, 2._m, 3._m, nan}),
+                         2._m2 / 3.));
+    REQUIRE(
+        almost_equal(nanvar(std::vector{1._m, 2._m, nan, 3._m}), 2._m2 / 3.));
 }
 
 TEST_CASE("std") {
@@ -161,16 +161,16 @@ TEST_CASE("std") {
 
 TEST_CASE("std physical units") {
     using namespace units::literals;
-    constexpr auto nan = units::length<long double>(
-        std::numeric_limits<long double>::quiet_NaN());
-    REQUIRE(almost_equal<2500>(std(std::array{1._m, 2._m, 3._m}),
-                               0.816496580927726_m));
-    REQUIRE(almost_equal<2500>(std(std::vector{4._m, 1._m, 12._m}),
-                               4.642796092394707_m));
-    REQUIRE(almost_equal<2500>(nanstd(std::array{1._m, nan, 2._m, 3._m}),
-                               0.816496580927726_m));
-    REQUIRE(almost_equal<2500>(nanstd(std::vector{4._m, nan, 1._m, nan, 12._m}),
-                               4.642796092394707_m));
+    constexpr auto nan =
+        units::length<double>(std::numeric_limits<double>::quiet_NaN());
+    REQUIRE(
+        almost_equal(std(std::array{1._m, 2._m, 3._m}), 0.816496580927726_m));
+    REQUIRE(
+        almost_equal(std(std::vector{4._m, 1._m, 12._m}), 4.642796092394707_m));
+    REQUIRE(almost_equal(nanstd(std::array{1._m, nan, 2._m, 3._m}),
+                         0.816496580927726_m));
+    REQUIRE(almost_equal(nanstd(std::vector{4._m, nan, 1._m, nan, 12._m}),
+                         4.642796092394707_m));
 }
 
 } // namespace scicpp::stats

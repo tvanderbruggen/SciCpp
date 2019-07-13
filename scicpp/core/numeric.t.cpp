@@ -98,8 +98,8 @@ TEST_CASE("trapz") {
 
 TEST_CASE("trapz physical quantity") {
     using namespace units::literals;
-    REQUIRE(almost_equal(
-        trapz(std::array<units::length<long double>, 0>{}, 1._m), 0._m2));
+    REQUIRE(almost_equal(trapz(std::array<units::length<double>, 0>{}, 1._m),
+                         0._m2));
     REQUIRE(almost_equal(trapz(std::array{1._m, 2._m, 3._m}, 1._m), 4._m2));
     REQUIRE(almost_equal(trapz(std::vector{1._m, 2._m, 3._m}, 1.), 4._m));
     REQUIRE(almost_equal(trapz(std::array{1._m2, 2._m2, 3._m2}, 1._m), 4._m3));
@@ -172,9 +172,9 @@ TEST_CASE("inner physical quantity") {
     REQUIRE(almost_equal(inner(std::array{1._V, 2._V, 4._V, 7._V},
                                std::array{1._A, 2._A, 3._A, -7._A}),
                          -32._W));
-    REQUIRE(almost_equal<3000>(inner(linspace(0._V, 1253._V, 1000000),
-                                     linspace(0._A, 148253._A, 1000000)),
-                               61920367293532.47_W));
+    REQUIRE(almost_equal<2>(inner(linspace(0._V, 1253._V, 1000000),
+                                  linspace(0._A, 148253._A, 1000000)),
+                            61920367293532.47_W));
     REQUIRE(almost_equal(dot(std::array{1._m, 2._m, 4._m, 7._m},
                              std::array{1._m, 2._m, 3._m, -7._m}),
                          -32._m2));

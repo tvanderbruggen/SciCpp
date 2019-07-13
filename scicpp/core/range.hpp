@@ -60,32 +60,40 @@ auto linspace(T start, T stop, std::size_t num) {
 
 namespace detail {
 
-template <class Array, typename T = typename Array::value_type>
-auto logspace_filler(Array &&a, T start, T stop, T base) {
+template <class Array, typename BaseTp, typename T = typename Array::value_type>
+auto logspace_filler(Array &&a, T start, T stop, BaseTp base) {
     if (a.size() == 0) {
         return std::move(a);
     }
 
     if (a.size() == 1) {
-        a[0] = std::pow(base, start);
+        a[0] = T(std::pow(base, units::value(start)));
         return std::move(a);
     }
 
-    const T step = (stop - start) / T(a.size() - 1);
-    std::iota(a.begin(), a.end(), T{0});
-    return map([=](auto x) { return std::pow(base, std::fma(x, step, start)); },
-               a);
+    std::iota(a.begin(), a.end(), T(0));
+    const auto step = (stop - start) / BaseTp(a.size() - 1);
+    return map(
+        [=](auto x) {
+            return T(std::pow(base,
+                              std::fma(units::value(x),
+                                       units::value(step),
+                                       units::value(start))));
+        },
+        a);
 }
 
 } // namespace detail
 
-template <std::size_t N, typename T>
-auto logspace(T start, T stop, T base = T{10}) {
+template <std::size_t N,
+          typename T,
+          typename BaseTp = units::representation_t<T>>
+auto logspace(T start, T stop, BaseTp base = BaseTp{10}) {
     return detail::logspace_filler(std::array<T, N>{}, start, stop, base);
 }
 
-template <typename T>
-auto logspace(T start, T stop, std::size_t num, T base = T{10}) {
+template <typename T, typename BaseTp = units::representation_t<T>>
+auto logspace(T start, T stop, std::size_t num, BaseTp base = BaseTp{10}) {
     return detail::logspace_filler(std::vector<T>(num), start, stop, base);
 }
 
@@ -101,12 +109,18 @@ auto arange(T start, T stop, T step = T{1}) {
         ((stop < start) && (step > T{0}))) {
         num = 0;
     } else {
-        num = static_cast<std::size_t>(std::fabs((stop - start) / step));
+        num = static_cast<std::size_t>(
+            std::fabs(units::value(stop - start) / units::value(step)));
     }
 
     std::vector<T> v(num);
     std::iota(v.begin(), v.end(), T{0});
-    return map([=](auto x) { return std::fma(x, step, start); }, std::move(v));
+    return map(
+        [=](auto x) {
+            return T(std::fma(
+                units::value(x), units::value(step), units::value(start)));
+        },
+        std::move(v));
 }
 
 } // namespace scicpp
