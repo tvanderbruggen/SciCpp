@@ -303,9 +303,8 @@ TEST_CASE("Arithmetic operators physical quantity") {
     REQUIRE(almost_equal(b1 / 1._s, {2._Hz, 4._Hz, 6._Hz}));
     REQUIRE(almost_equal<1500>(6._s / b1, {3._s, 1.5_s, 1._s}));
 
-    // TODO Define modulo for quantities
-    // REQUIRE(almost_equal(2. % a, {0., 0., 2.}));
-    // REQUIRE(almost_equal(a % 2., {1., 0., 1.}));
+    REQUIRE(almost_equal(2_m % a, {0_m, 0_m, 2_m}));
+    REQUIRE(almost_equal(a % 2_m, {1_m, 0_m, 1_m}));
 
     REQUIRE(almost_equal(a1 * a, {2._m2, 8._m2, 18._m2}));
     REQUIRE(almost_equal(a * b1, {2._m, 8._m, 18._m}));
@@ -322,9 +321,8 @@ TEST_CASE("Arithmetic operators physical quantity") {
     REQUIRE(almost_equal(a1 / t, {2._m_per_s, 2._m_per_s, 2._m_per_s}));
     REQUIRE(almost_equal(v1 / t, {2._m_per_s, 2._m_per_s, 2._m_per_s}));
 
-    // TODO Define modulo for quantities
-    // REQUIRE(almost_equal(a1 % a, {0., 0., 0.}));
-    // REQUIRE(almost_equal(v1 % v, {0., 0., 0.}));
+    REQUIRE(almost_equal(a1 % a, {0_m, 0_m, 0_m}));
+    REQUIRE(almost_equal(v1 % v, {0_m, 0_m, 0_m}));
 }
 
 TEST_CASE("mask") {

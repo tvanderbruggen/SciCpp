@@ -29,7 +29,7 @@ namespace scicpp {
 // column string into the desired value.
 
 using ConvertersDict =
-    typename std::map<signed_size_t, std::function<std::any(const char *str)>>;
+    std::map<signed_size_t, std::function<std::any(const char *str)>>;
 
 namespace detail {
 
@@ -101,7 +101,7 @@ auto push_string_to_vector(std::vector<DataType> &vec,
     return len;
 }
 
-using tokens_t = typename std::vector<std::pair<signed_size_t, std::string>>;
+using tokens_t = std::vector<std::pair<signed_size_t, std::string>>;
 
 auto inline tokenize(const char *str,
                      char sep,

@@ -215,7 +215,6 @@ template <typename T1,
           typename Scale,
           meta::disable_if_iterable<T1> = 0>
 constexpr auto operator*(T1 factor, const quantity<T2, Dim, Scale> &rhs) {
-    // using T = std::common_type_t<T1, T2>;
     using T = decltype(std::declval<T1>() * std::declval<T2>());
     return quantity<T, Dim, Scale>(T(factor) * T(rhs.value()));
 }

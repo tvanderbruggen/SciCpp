@@ -64,11 +64,7 @@ TEST_CASE("scicpp::loadtxt to tuple with converters and physical quantities") {
     using namespace units::literals;
 
     const auto data =
-        TxtLoader<int,
-                  bool,
-                  int,
-                  units::length<long double>,
-                  units::mass<long double>>()
+        TxtLoader<int, bool, int, units::length<double>, units::mass<double>>()
             .delimiter(',')
             .skiprows(1)
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
@@ -79,8 +75,8 @@ TEST_CASE("scicpp::loadtxt to tuple with converters and physical quantities") {
     REQUIRE(std::get<1>(data[0]) == 0);
     REQUIRE(std::get<1>(data[25]) == 1);
     REQUIRE(std::get<2>(data[25]) == 10);
-    REQUIRE(almost_equal<2000>(std::get<3>(data[0]), 19.78_m));
-    REQUIRE(almost_equal<250>(std::get<4>(data[0]), 0.76_kg));
+    REQUIRE(almost_equal(std::get<3>(data[0]), 19.78_m));
+    REQUIRE(almost_equal(std::get<4>(data[0]), 0.76_kg));
 }
 
 TEST_CASE("scicpp::TxtLoader to Eigen matrix") {

@@ -124,48 +124,20 @@ auto nancumprod(const std::vector<T> &v) {
 // trapz
 //---------------------------------------------------------------------------------
 
-namespace detail {
-
-template <typename raw_t, class InputIt, typename T>
-constexpr auto trapz_impl(InputIt first, InputIt last, T dx) {
-    return static_cast<raw_t>(0.5) * dx *
-           (*first + static_cast<raw_t>(2) * sum(first + 1, last - 1) +
-            *(last - 1));
-}
-
-} // namespace detail
-
 template <class InputIt,
           typename T1 = typename std::iterator_traits<InputIt>::value_type,
-          typename T2,
-          units::disable_if_is_quantity<T1> = 0>
-constexpr auto trapz(InputIt first, InputIt last, T2 dx) {
-    using T = std::common_type_t<T1, T2>;
-
-    if (std::distance(first, last) == 0) {
-        return T{0};
-    }
-
-    return detail::trapz_impl<T>(first, last, T(dx));
-}
-
-template <class InputIt,
-          typename T1 = typename std::iterator_traits<InputIt>::value_type,
-          typename T2,
-          units::enable_if_is_quantity<T1> = 0>
+          typename T2>
 constexpr auto trapz(InputIt first, InputIt last, T2 dx) {
     using ret_t = decltype(std::declval<T1>() * std::declval<T2>());
-    using raw_t = typename ret_t::value_type;
+    using raw_t = units::representation_t<ret_t>;
+    using dx_t = std::conditional_t<units::is_quantity_v<T2>, T2, raw_t>;
 
     if (std::distance(first, last) == 0) {
         return ret_t(raw_t{0});
     }
 
-    if constexpr (units::is_quantity_v<T2>) {
-        return detail::trapz_impl<raw_t>(first, last, dx);
-    } else {
-        return detail::trapz_impl<raw_t>(first, last, raw_t(dx));
-    }
+    return raw_t{0.5} * dx_t(dx) *
+           (*first + raw_t{2} * sum(first + 1, last - 1) + *(last - 1));
 }
 
 template <class Array, typename T>
@@ -427,10 +399,12 @@ namespace detail {
 
 template <typename T>
 auto modulus(T x, T y) {
-    if constexpr (std::is_floating_point_v<T>) {
-        return std::fmod(x, y);
+    using raw_t = units::representation_t<T>;
+
+    if constexpr (std::is_floating_point_v<raw_t>) {
+        return T(std::fmod(units::value(x), units::value(y)));
     } else {
-        return x % y;
+        return T(units::value(x) % units::value(y));
     }
 }
 
