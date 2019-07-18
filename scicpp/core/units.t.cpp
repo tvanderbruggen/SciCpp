@@ -37,6 +37,7 @@ TEST_CASE("Units additions") {
     // const auto T = 42._s;
     // L1 += T; // Doesn't compile
 
+    static_assert(meter<int>(1) + kilometer<int>(2) == meter<int>(2001));
     REQUIRE(almost_equal(1._m + 1._km, 1001._m));
     REQUIRE(almost_equal(1._m + 1._km + 1._mm, 1001001._mm));
 
@@ -47,6 +48,21 @@ TEST_CASE("Units additions") {
     REQUIRE(almost_equal(--2._m, 1._m));
     L1--;
     REQUIRE(almost_equal<2>(L1, 5.14_m));
+
+    REQUIRE(almost_equal(0_degC, 273.15_K));
+    REQUIRE(almost_equal(0_K, -273.15_degC));
+    // print(quantity_cast<kelvin<>>(10_degC));
+    // print(quantity_cast<celsius<>>(10_K));
+    REQUIRE(almost_equal(quantity_cast<kelvin<>>(10_degC), 283.15_K));
+    REQUIRE(almost_equal(quantity_cast<celsius<>>(10_K), -263.15_degC));
+
+    REQUIRE(almost_equal(10_degC + 15_degC, 298.15_K));
+    REQUIRE(almost_equal(quantity_cast<kelvin<>>(10_degC) + 15_K, 298.15_K));
+    REQUIRE(almost_equal<2>(0_degF, -17.77777777777777777777_degC));
+    REQUIRE(almost_equal<2>(32_degF, 0_degC));
+    REQUIRE(almost_equal<2>(212_degF, 100_degC));
+    REQUIRE(almost_equal<2>(quantity_cast<celsius<>>(32_degF) + 100_degC,
+                            100_degC));
 }
 
 TEST_CASE("Units substractions") {
@@ -58,9 +74,13 @@ TEST_CASE("Units substractions") {
     REQUIRE(almost_equal<2>(L1, -1.14_m));
     REQUIRE(almost_equal(L1 - L2, -4.28_m));
 
+    static_assert(kilometer<int>(2) - meter<int>(1) == meter<int>(1999));
     REQUIRE(almost_equal(1._m - 1._km, -999._m));
     REQUIRE(almost_equal(-1._km, -1000._m));
     REQUIRE(almost_equal(-1_km, -1000_m));
+
+    REQUIRE(almost_equal(10_degC - 15_degC, -5_degC));
+    REQUIRE(almost_equal(10_degF + 25_degF, 35_degF));
 }
 
 TEST_CASE("Units multiplications") {
@@ -69,6 +89,12 @@ TEST_CASE("Units multiplications") {
     const auto P = 6.1_W;
     REQUIRE(almost_equal(P, V * I));
     // REQUIRE(almost_equal(P, I)); // Doesn't compile
+
+    static_assert(volt<int>(10) * milliampere<int>(100) == watt<int>(1));
+    REQUIRE(almost_equal(10._V * 100._mA, 1._W));
+    REQUIRE(almost_equal(10_V * 100_mA, 1_W));
+
+    REQUIRE(almost_equal(5_degC * 1_m2, 5_K * 1_m2));
 }
 
 TEST_CASE("Units divisions") {
@@ -76,29 +102,36 @@ TEST_CASE("Units divisions") {
     const auto T = 2._s;
     const auto V = 2._m_per_s;
     REQUIRE(almost_equal(V, L / T));
+
+    REQUIRE(almost_equal(5_degC / 1_W, 5_K / 1_W));
+    REQUIRE(almost_equal(5_degC / 1_kW, 5_mK / 1_W));
 }
 
 TEST_CASE("Units inv") {
-    const auto T = 10._s;
-    const auto f = 0.1_Hz;
-    REQUIRE(almost_equal(f, T.inv()));
+    REQUIRE(almost_equal(0.1_Hz, (10_s).inv()));
+    REQUIRE(almost_equal((10_degC).inv(), 1. / 10_K));
 }
 
 TEST_CASE("Divide by constant") {
     REQUIRE(almost_equal<2>(3.14 / 0.1_V, 31.4 * (1._V).inv()));
     REQUIRE(almost_equal<2>(3.14_V / 0.1, 31.4_V));
+    REQUIRE(almost_equal<2>(3.14_degF / 0.1, 31.4_degF));
 }
 
 TEST_CASE("Multiply by constant") {
-    REQUIRE(almost_equal(10._V * 100._mA, 1._W));
-    REQUIRE(almost_equal(10_V * 100_mA, 1_W));
     REQUIRE(almost_equal<2>(3.14 * 10._V, 31.4_V));
     REQUIRE(almost_equal(3.14 * 10._V * 100._mA, 3140._mW));
     REQUIRE(almost_equal(10._V * 100._mA * 3.14, 3140._mW));
+    REQUIRE(almost_equal<2>(3.14_degF * 10, 31.4_degF));
+    REQUIRE(almost_equal<2>(10 * 3.14_degF, 31.4_degF));
 }
 
 TEST_CASE("Equivalence") {
     SECTION("Length") {
+        static_assert(meter<int>(2000) == kilometer<int>(2));
+        REQUIRE(almost_equal(meter<>(12), 12_m));
+        REQUIRE(almost_equal(millimeter<>(1), 1_mm));
+        REQUIRE(almost_equal(kilometer<>(1), 1_km));
         REQUIRE(almost_equal(1._km, 1000._m));
         REQUIRE(almost_equal<2>(1._in, 2.54_cm));
         REQUIRE(almost_equal<2>(1._ft, 12._in));
@@ -113,11 +146,14 @@ TEST_CASE("Equivalence") {
     }
 
     SECTION("Energy") {
+        static_assert(nanojoule<int64_t>(1) == picojoule<int64_t>(1000));
         REQUIRE(almost_equal(1._kWh, 3.6_MJ));
         REQUIRE(almost_equal(1._cal, 4.1855_J));
     }
 
     SECTION("Speed") {
+        static_assert(kilometer_per_second<int>(3) ==
+                      meter_per_second<int>(3000));
         REQUIRE(almost_equal(2._km / 1._s, 2000._m_per_s));
         REQUIRE(almost_equal(2._km / 1._ms, 2000000._m_per_s));
         REQUIRE(almost_equal(2_mm / 1_ms, 2_m_per_s));
@@ -129,19 +165,25 @@ TEST_CASE("Equivalence") {
     }
 
     SECTION("Time") {
+        static_assert(minute<int>(60) == hour<int>(1));
         REQUIRE(almost_equal(1._h, 3600._s));
         REQUIRE(almost_equal(1._h, 60._min));
         REQUIRE(almost_equal(1_h, 60_min));
     }
 
     SECTION("Resistance") {
+        static_assert(gigaohm<int>(1) == megaohm<int>(1000));
         REQUIRE(almost_equal(1. / 10_Ohm, 0.1_S));
         REQUIRE(almost_equal(10_Ohm * 100_mA, 1_V));
     }
 
-    SECTION("Magnetic field") { REQUIRE(almost_equal(1._mT, 10._G)); }
+    SECTION("Magnetic field") {
+        static_assert(millitesla<int>(10) == gauss<int>(100));
+        REQUIRE(almost_equal(1._mT, 10._G));
+    }
 
     SECTION("Pressure") {
+        static_assert(hectopascal<int>(1) == pascal<int>(100));
         REQUIRE(almost_equal(1._bar, 100._kPa));
         REQUIRE(almost_equal(1._mmHg, 133.3223684210526315789_Pa));
         REQUIRE(almost_equal(1._mmHg, 1._torr));
