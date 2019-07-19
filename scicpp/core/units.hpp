@@ -131,38 +131,59 @@ struct quantity {
 
     // Comparisons
 
-    // TODO Handle offset
-    template <typename RhsScale>
-    constexpr auto operator==(const quantity<T, Dim, RhsScale> &rhs) const {
-        constexpr auto factor1 = T(Scale::num) * T(RhsScale::den);
-        constexpr auto factor2 = T(RhsScale::num) * T(Scale::den);
-        return factor1 * m_value == factor2 * rhs.value();
+    template <typename RhsScale, typename RhsOffset>
+    constexpr auto
+    operator==(const quantity<T, Dim, RhsScale, RhsOffset> &rhs) const {
+        constexpr auto lhs_factor =
+            T(Scale::num * RhsScale::den * Offset::den * RhsOffset::den);
+        constexpr auto lhs_offset =
+            T(Offset::num * RhsScale::den * Scale::den * RhsOffset::den);
+        constexpr auto rhs_factor =
+            T(RhsScale::num * Scale::den * RhsOffset::den * Offset::den);
+        constexpr auto rhs_offset =
+            T(RhsOffset::num * Scale::den * RhsScale::den * Offset::den);
+
+        return lhs_factor * m_value + lhs_offset ==
+               rhs_factor * rhs.value() + rhs_offset;
     }
 
-    template <typename RhsScale>
-    constexpr auto operator!=(const quantity<T, Dim, RhsScale> &rhs) const {
+    template <typename RhsScale, typename RhsOffset>
+    constexpr auto
+    operator!=(const quantity<T, Dim, RhsScale, RhsOffset> &rhs) const {
         return !(*this == rhs);
     }
 
-    template <typename RhsScale>
-    constexpr auto operator<(const quantity<T, Dim, RhsScale> &rhs) const {
-        constexpr auto factor1 = T(Scale::num) * T(RhsScale::den);
-        constexpr auto factor2 = T(RhsScale::num) * T(Scale::den);
-        return factor1 * m_value < factor2 * rhs.value();
+    template <typename RhsScale, typename RhsOffset>
+    constexpr auto
+    operator<(const quantity<T, Dim, RhsScale, RhsOffset> &rhs) const {
+        constexpr auto lhs_factor =
+            T(Scale::num * RhsScale::den * Offset::den * RhsOffset::den);
+        constexpr auto lhs_offset =
+            T(Offset::num * RhsScale::den * Scale::den * RhsOffset::den);
+        constexpr auto rhs_factor =
+            T(RhsScale::num * Scale::den * RhsOffset::den * Offset::den);
+        constexpr auto rhs_offset =
+            T(RhsOffset::num * Scale::den * RhsScale::den * Offset::den);
+
+        return lhs_factor * m_value + lhs_offset <
+               rhs_factor * rhs.value() + rhs_offset;
     }
 
-    template <typename RhsScale>
-    constexpr auto operator<=(const quantity<T, Dim, RhsScale> &rhs) const {
+    template <typename RhsScale, typename RhsOffset>
+    constexpr auto
+    operator<=(const quantity<T, Dim, RhsScale, RhsOffset> &rhs) const {
         return !(rhs < *this);
     }
 
-    template <typename RhsScale>
-    constexpr auto operator>(const quantity<T, Dim, RhsScale> &rhs) const {
+    template <typename RhsScale, typename RhsOffset>
+    constexpr auto
+    operator>(const quantity<T, Dim, RhsScale, RhsOffset> &rhs) const {
         return rhs < *this;
     }
 
-    template <typename RhsScale>
-    constexpr auto operator>=(const quantity<T, Dim, RhsScale> &rhs) const {
+    template <typename RhsScale, typename RhsOffset>
+    constexpr auto
+    operator>=(const quantity<T, Dim, RhsScale, RhsOffset> &rhs) const {
         return !(*this < rhs);
     }
 
@@ -200,8 +221,6 @@ struct quantity {
     operator+(const quantity<T, Dim, RhsScale, RhsOffset> &rhs) const {
         using cq =
             common_quantity_t<T, Dim, Scale, RhsScale, Offset, RhsOffset>;
-        constexpr auto lhs_offset = T(Offset::num) / T(Offset::den);
-        constexpr auto rhs_offset = T(RhsOffset::num) / T(RhsOffset::den);
         return cq(cq(*this).value() + cq(rhs).value());
     }
 
@@ -502,6 +521,12 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _h, 3600, 1)
 
 template <typename T, typename Scale = std::ratio<1>>
 using mass = quantity<T, primary_flags::Mass, Scale>;
+
+template <typename T = double>
+using gram = mass<T, std::milli>;
+
+template <typename T = double>
+using kilogram = mass<T>;
 
 namespace literals {
 

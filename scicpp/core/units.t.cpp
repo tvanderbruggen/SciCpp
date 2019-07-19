@@ -63,6 +63,11 @@ TEST_CASE("Units additions") {
     REQUIRE(almost_equal<2>(212_degF, 100_degC));
     REQUIRE(almost_equal<2>(quantity_cast<celsius<>>(32_degF) + 100_degC,
                             100_degC));
+
+    static_assert(kelvin<int>(0) != celsius<int>(-73));
+    static_assert(kelvin<int>(0) < celsius<int>(0));
+    static_assert(kelvin<int>(273) < celsius<int>(0));
+    static_assert(kelvin<int>(300) > celsius<int>(0));
 }
 
 TEST_CASE("Units substractions") {
