@@ -42,18 +42,14 @@ auto parse_blood_pressure(const char *s) {
 }
 
 int main() {
-    const auto a = sci::TxtLoader<Gender, Height, Weight, BloodPressure>()
-                       .skiprows(10)
-                       .usecols(1, 3, 4, 5)
-                       .converters({{1, [](auto x) { return x[0] == 'M'; }},
-                                    {4, parse_weight},
-                                    {5, parse_blood_pressure}})
-                       .load("examples/data1.csv");
-
-    // sci::print(a);
-
-    // We unpack the columns into individual vectors
-    const auto [genders, heights, weights, blood_pressures] = sci::unpack(a);
+    const auto [genders, heights, weights, blood_pressures] =
+        sci::TxtLoader<Gender, Height, Weight, BloodPressure>()
+            .skiprows(10)
+            .usecols(1, 3, 4, 5)
+            .converters({{1, [](auto x) { return x[0] == 'M'; }},
+                         {4, parse_weight},
+                         {5, parse_blood_pressure}})
+            .load<sci::io::unpack>("examples/text-data.csv");
 
     const auto m_av = sci::stats::mean(sci::mask(heights, genders));
     const auto f_av = sci::stats::mean(sci::mask(heights, !genders));

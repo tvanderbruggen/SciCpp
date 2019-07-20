@@ -44,6 +44,19 @@ TEST_CASE("scicpp::loadtxt to tuple") {
     REQUIRE(almost_equal(std::get<4>(data[0]), 0.76));
 }
 
+TEST_CASE("scicpp::loadtxt to tuple and unpack") {
+    const auto [a, b, c] = TxtLoader<int, double, double>()
+                               .delimiter(',')
+                               .usecols(0, 1, 4)
+                               .skiprows(1)
+                               .load<io::unpack>("tests/data0.csv");
+    // print(data);
+    REQUIRE(a.size() == 38);
+    REQUIRE(a[0] == 1);
+    REQUIRE(a[24] == 26);
+    REQUIRE(almost_equal(c[0], 0.76));
+}
+
 TEST_CASE("scicpp::loadtxt to tuple with converters") {
     const auto data =
         TxtLoader<int, bool, int, double, double>()

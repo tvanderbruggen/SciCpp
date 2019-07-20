@@ -6,6 +6,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/tuple.hpp"
 #include "scicpp/core/units.hpp"
 
 #include <Eigen/Dense>
@@ -294,6 +295,12 @@ auto loadtxt(const std::filesystem::path &fname,
 // and explicit parameters naming.
 //---------------------------------------------------------------------------------
 
+namespace io {
+
+inline constexpr bool unpack = true;
+
+} // namespace io
+
 template <typename... DataTypes>
 class TxtLoader {
   public:
@@ -327,7 +334,7 @@ class TxtLoader {
     template <typename... Columns>
     auto usecols(Columns... usecols) {
         static_assert((std::is_integral_v<Columns> && ...));
-    
+
         m_usecols.reserve(sizeof...(usecols));
         std::apply([this](auto... x) { (this->m_usecols.push_back(x), ...); },
                    std::forward_as_tuple(usecols...));
@@ -344,14 +351,21 @@ class TxtLoader {
         return *this;
     }
 
+    template <bool unpack = false>
     auto load(const std::filesystem::path &fname) {
-        return loadtxt<DataTypes...>(fname,
-                                     m_comments,
-                                     m_delimiter,
-                                     m_skiprows,
-                                     m_usecols,
-                                     m_converters,
-                                     m_max_rows);
+        const auto data = loadtxt<DataTypes...>(fname,
+                                                m_comments,
+                                                m_delimiter,
+                                                m_skiprows,
+                                                m_usecols,
+                                                m_converters,
+                                                m_max_rows);
+
+        if constexpr (unpack && (sizeof...(DataTypes) > 1)) {
+            return scicpp::unpack(data);
+        } else {
+            return data;
+        }
     }
 
   private:

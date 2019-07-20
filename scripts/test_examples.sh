@@ -10,6 +10,7 @@ make COMPILER=$compiler EXAMPLE=estimate-zeros example
 make COMPILER=$compiler EXAMPLE=estimate-zeros example_py
 make COMPILER=$compiler EXAMPLE=white-noise example
 make COMPILER=$compiler EXAMPLE=white-noise example_py
+make COMPILER=$compiler EXAMPLE=load-text-data example
 
 # doc examples
 
