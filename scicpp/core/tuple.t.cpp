@@ -10,7 +10,7 @@
 namespace scicpp {
 
 TEST_CASE("get field by index") {
-    SECTION("std::array") {
+    SECTION("std::array tuple") {
         std::array<std::tuple<int, bool, double>, 10> a{};
 
         for (size_t i = 0; i < a.size(); ++i) {
@@ -33,6 +33,20 @@ TEST_CASE("get field by index") {
                               153.86,
                               200.96,
                               254.34}));
+    }
+
+    SECTION("std::array pair") {
+        std::array<std::pair<int, bool>, 10> a{};
+
+        for (size_t i = 0; i < a.size(); ++i) {
+            a[i] = std::make_pair(int(i), i % 2);
+        }
+
+        // print(get_field<2>(a));
+        REQUIRE(almost_equal(
+            get_field<0>(std::array<std::pair<int, bool>, 0>{}), {}));
+        REQUIRE(almost_equal(get_field<0>(a), {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+        REQUIRE(almost_equal(get_field<1>(a), {0, 1, 0, 1, 0, 1, 0, 1, 0, 1}));
     }
 
     SECTION("std::vector") {
@@ -89,6 +103,21 @@ TEST_CASE("get field by type") {
                               254.34}));
     }
 
+    SECTION("std::array pair") {
+        std::array<std::pair<int, bool>, 10> a{};
+
+        for (size_t i = 0; i < a.size(); ++i) {
+            a[i] = std::make_pair(int(i), i % 2);
+        }
+
+        REQUIRE(almost_equal(
+            get_field<int>(std::array<std::pair<int, bool>, 0>{}), {}));
+        REQUIRE(
+            almost_equal(get_field<int>(a), {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+        REQUIRE(
+            almost_equal(get_field<bool>(a), {0, 1, 0, 1, 0, 1, 0, 1, 0, 1}));
+    }
+
     SECTION("std::vector") {
         std::vector<std::tuple<int, bool, double>> a(10);
 
@@ -139,6 +168,19 @@ TEST_CASE("unpack") {
                               153.86,
                               200.96,
                               254.34}));
+    }
+
+    SECTION("std::array pair") {
+        std::array<std::tuple<int, bool>, 10> a{};
+
+        for (size_t i = 0; i < a.size(); ++i) {
+            a[i] = std::make_tuple(int(i), i % 2);
+        }
+
+        const auto [x, y] = unpack(a);
+
+        REQUIRE(almost_equal(x, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+        REQUIRE(almost_equal(y, {0, 1, 0, 1, 0, 1, 0, 1, 0, 1}));
     }
 
     SECTION("std::vector") {

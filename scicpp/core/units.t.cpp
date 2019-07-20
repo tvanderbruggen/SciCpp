@@ -8,10 +8,21 @@
 #include "scicpp/core/range.hpp"
 
 #include <cstdio>
+#include <type_traits>
 
 namespace scicpp::units {
 
 using namespace literals;
+
+// A quantity is an arithmetic-like type
+static_assert(std::is_trivial_v<meter<>>);
+static_assert(std::is_trivially_copyable_v<meter<>>);
+static_assert(std::is_trivially_destructible_v<meter<>>);
+static_assert(std::is_trivially_default_constructible_v<meter<>>);
+static_assert(std::is_trivially_copy_constructible_v<meter<>>);
+static_assert(std::is_trivially_copy_assignable_v<meter<>>);
+static_assert(std::is_trivially_move_constructible_v<meter<>>);
+static_assert(std::is_trivially_move_assignable_v<meter<>>);
 
 TEST_CASE("Units comparisons") {
     REQUIRE(length<int>(2) == length<int>(2));

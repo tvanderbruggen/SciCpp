@@ -41,6 +41,8 @@ auto to_number(const char *str) {
         return static_cast<T>(std::atof(str));
     } else if constexpr (std::is_integral_v<T>) {
         return static_cast<T>(std::atoi(str));
+    } else {
+        return T{};
     }
 }
 

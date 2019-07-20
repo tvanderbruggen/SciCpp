@@ -257,8 +257,8 @@ struct quantity {
 
     constexpr auto value() const { return m_value; }
 
-  protected:
-    T m_value = T{0};
+  private:
+    T m_value;
 };
 
 template <typename T1,
@@ -825,6 +825,21 @@ template <typename T, typename Scale = std::ratio<1>>
 using pressure = quantity_divide<force<T, Scale>, area<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(pressure, pascal)
+
+template <typename T = double>
+using bar = pressure<T, std::ratio<100000>>;
+
+template <typename T = double>
+using mmHg = pressure<T, std::ratio<101325, 760>>;
+
+template <typename T = double>
+using torr = mmHg<T>;
+
+template <typename T = double>
+using psi = pressure<T, std::ratio<689476, 100>>;
+
+template <typename T = double>
+using atm = pressure<T, std::ratio<101325>>;
 
 namespace literals {
 

@@ -10,6 +10,7 @@
 #include <ratio>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace scicpp::meta {
@@ -112,6 +113,25 @@ inline constexpr bool is_std_tuple_v = detail::is_std_tuple<T>::value;
 
 static_assert(!is_std_tuple_v<std::vector<double>>);
 static_assert(is_std_tuple_v<std::tuple<double, int, float>>);
+
+//---------------------------------------------------------------------------------
+// std::pair traits
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class T>
+struct is_std_pair : std::false_type {};
+template <typename T1, typename T2>
+struct is_std_pair<std::pair<T1, T2>> : std::true_type {};
+
+} // namespace detail
+
+template <class T>
+inline constexpr bool is_std_pair_v = detail::is_std_pair<T>::value;
+
+static_assert(!is_std_pair_v<std::vector<double>>);
+static_assert(is_std_pair_v<std::pair<double, int>>);
 
 //---------------------------------------------------------------------------------
 // subtuple
