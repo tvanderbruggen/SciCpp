@@ -35,10 +35,9 @@ auto parse_blood_pressure(const char *s) {
     double systolic, diastolic;
 
     if (std::sscanf(s, "%lf/%lf", &systolic, &diastolic) > 0) {
-        return std::make_pair(sci::units::mmHg<>(systolic),
-                              sci::units::mmHg<>(diastolic));
+        return BloodPressure(systolic, diastolic);
     } else { // Invalid input
-        return std::make_pair(-99_mmHg, -99_mmHg);
+        return BloodPressure(-99_mmHg, -99_mmHg);
     }
 }
 
@@ -84,6 +83,8 @@ int main() {
         sci::stats::mean(sci::mask(diastolic, !genders), blood_pressure_filter);
 
     printf("Male average: %.2f/%.2f mmHg, Female average: %.2f/%.2f mmHg\n",
-           m_syst_av.value(), m_diast_av.value(),
-           f_syst_av.value(), f_diast_av.value());
+           m_syst_av.value(),
+           m_diast_av.value(),
+           f_syst_av.value(),
+           f_diast_av.value());
 }

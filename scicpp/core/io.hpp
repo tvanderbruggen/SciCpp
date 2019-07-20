@@ -326,6 +326,8 @@ class TxtLoader {
 
     template <typename... Columns>
     auto usecols(Columns... usecols) {
+        static_assert((std::is_integral_v<Columns> && ...));
+    
         m_usecols.reserve(sizeof...(usecols));
         std::apply([this](auto... x) { (this->m_usecols.push_back(x), ...); },
                    std::forward_as_tuple(usecols...));
