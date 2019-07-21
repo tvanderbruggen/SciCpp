@@ -183,19 +183,21 @@ TEST_CASE("inner physical quantity") {
                          -32._m2));
 }
 
-TEST_CASE("Logical operators") {
+TEST_CASE("Logical/comparison operators") {
     using namespace operators;
 
-    const std::array ba{1, 0, 1};
-    const std::vector bv{1, 0, 1};
+    const std::array b1a{1, 0, 1};
+    const std::vector b1v{1, 0, 1};
+    const std::array b2a{1, 1, 0};
+    const std::vector b2v{1, 1, 0};
 
     const std::array a1{1, 2, 3};
     const std::array a2{-1, 4, 3};
     const std::vector v1{1, 2, 3};
     const std::vector v2{-1, 4, 3};
 
-    REQUIRE(array_equal(!ba, {0, 1, 0}));
-    REQUIRE(array_equal(!bv, {0, 1, 0}));
+    REQUIRE(array_equal(!b1a, {0, 1, 0}));
+    REQUIRE(array_equal(!b1v, {0, 1, 0}));
 
     REQUIRE(array_equal(a1 == 1, {1, 0, 0}));
     REQUIRE(array_equal(v1 == 1, {1, 0, 0}));
@@ -226,6 +228,9 @@ TEST_CASE("Logical operators") {
     REQUIRE(array_equal(v2 > 3, {0, 1, 0}));
     REQUIRE(array_equal(1 > a1, {0, 0, 0}));
     REQUIRE(array_equal(1 > v1, {0, 0, 0}));
+
+    REQUIRE(array_equal(b1a && b2a, {1, 0, 0}));
+    REQUIRE(array_equal(b1a || b2a, {1, 0, 0}));
 }
 
 TEST_CASE("Arithmetic operators") {

@@ -88,8 +88,7 @@ bool scicpp_pure almost_equal(const Array &f1, const Array &f2) {
         });
 }
 
-template <class Array,
-          meta::enable_if_iterable<Array> = 0>
+template <class Array, meta::enable_if_iterable<Array> = 0>
 bool array_equal(const Array &f1, const Array &f2) {
     return std::equal(f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend());
 }

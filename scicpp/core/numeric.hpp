@@ -535,6 +535,26 @@ auto operator*(ArrayLhs &&a, ArrayRhs &&b) {
                std::forward<ArrayRhs>(b));
 }
 
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
+auto operator&&(ArrayLhs &&a, ArrayRhs &&b) {
+    return map(std::logical_and<>(),
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
+auto operator||(ArrayLhs &&a, ArrayRhs &&b) {
+    return map(std::logical_or<>(),
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
+}
+
 // Sum of 3 vectors:
 // https://godbolt.org/z/zsZB29
 // No copy, similar assembly code than raw loop:
