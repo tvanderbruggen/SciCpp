@@ -183,6 +183,51 @@ TEST_CASE("inner physical quantity") {
                          -32._m2));
 }
 
+TEST_CASE("Logical operators") {
+    using namespace operators;
+
+    const std::array ba{1, 0, 1};
+    const std::vector bv{1, 0, 1};
+
+    const std::array a1{1, 2, 3};
+    const std::array a2{-1, 4, 3};
+    const std::vector v1{1, 2, 3};
+    const std::vector v2{-1, 4, 3};
+
+    REQUIRE(array_equal(!ba, {0, 1, 0}));
+    REQUIRE(array_equal(!bv, {0, 1, 0}));
+
+    REQUIRE(array_equal(a1 == 1, {1, 0, 0}));
+    REQUIRE(array_equal(v1 == 1, {1, 0, 0}));
+    REQUIRE(array_equal(1 == a1, {1, 0, 0}));
+    REQUIRE(array_equal(1 == v1, {1, 0, 0}));
+
+    REQUIRE(array_equal(a2 != 4, {1, 0, 1}));
+    REQUIRE(array_equal(v2 != 4, {1, 0, 1}));
+    REQUIRE(array_equal(4 != a2, {1, 0, 1}));
+    REQUIRE(array_equal(4 != v2, {1, 0, 1}));
+
+    REQUIRE(array_equal(a2 < 0, {1, 0, 0}));
+    REQUIRE(array_equal(v2 < 0, {1, 0, 0}));
+    REQUIRE(array_equal(1 < a1, {0, 1, 1}));
+    REQUIRE(array_equal(1 < v1, {0, 1, 1}));
+
+    REQUIRE(array_equal(a2 >= 3, {0, 1, 1}));
+    REQUIRE(array_equal(v2 >= 3, {0, 1, 1}));
+    REQUIRE(array_equal(1 >= a1, {1, 0, 0}));
+    REQUIRE(array_equal(1 >= v1, {1, 0, 0}));
+
+    REQUIRE(array_equal(a2 <= 3, {1, 0, 1}));
+    REQUIRE(array_equal(v2 <= 3, {1, 0, 1}));
+    REQUIRE(array_equal(1 <= a1, {1, 1, 1}));
+    REQUIRE(array_equal(1 <= v1, {1, 1, 1}));
+
+    REQUIRE(array_equal(a2 > 3, {0, 1, 0}));
+    REQUIRE(array_equal(v2 > 3, {0, 1, 0}));
+    REQUIRE(array_equal(1 > a1, {0, 0, 0}));
+    REQUIRE(array_equal(1 > v1, {0, 0, 0}));
+}
+
 TEST_CASE("Arithmetic operators") {
     using namespace operators;
 
@@ -198,7 +243,6 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(-a, {-1., -2., -3.}));
     REQUIRE(almost_equal(-ai, {-1, -2, -3}));
     REQUIRE(almost_equal(-v, {-1., -2., -3.}));
-    REQUIRE(almost_equal(!b, {0, 1, 0}));
     REQUIRE(almost_equal(2. * a, {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2., {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2.i, {2.i, 4.i, 6.i}));

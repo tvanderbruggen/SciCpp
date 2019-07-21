@@ -80,4 +80,22 @@ TEST_CASE("almost_equal physical quantity") {
     }
 }
 
+TEST_CASE("operator==") {
+    SECTION("std::array") {
+        const std::array f1{1, 2, 3};
+        const auto f2 = f1;
+        REQUIRE(array_equal(f1, f2));
+        REQUIRE(!array_equal(f1, {1, 2, 42}));
+        REQUIRE(!array_equal(f1, {1, 2}));
+    }
+
+    SECTION("std::vector") {
+        const std::vector f1{1, 2, 3};
+        const auto f2 = f1;
+        REQUIRE(array_equal(f1, f2));
+        REQUIRE(!array_equal(f1, {1, 2, 42}));
+        REQUIRE(!array_equal(f1, {1, 2}));
+    }
+}
+
 } // namespace scicpp

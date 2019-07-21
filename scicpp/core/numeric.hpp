@@ -322,6 +322,103 @@ auto operator!(Array &&a) {
     return map(std::logical_not<>(), std::forward<Array>(a));
 }
 
+// scalar compare
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator==(Array &&a, T scalar) {
+    return map([=](auto v) { return v == scalar; }, std::forward<Array>(a));
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator==(T scalar, Array &&a) {
+    return a == scalar;
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator!=(Array &&a, T scalar) {
+    return !(a == scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator!=(T scalar, Array &&a) {
+    return !(a == scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator<(Array &&a, T scalar) {
+    return map([=](auto v) { return v < scalar; }, std::forward<Array>(a));
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator>=(Array &&a, T scalar) {
+    return !(a < scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator<(T scalar, Array &&a) {
+    return map([=](auto v) { return scalar < v; }, std::forward<Array>(a));
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator>=(T scalar, Array &&a) {
+    return !(scalar < a);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator<=(Array &&a, T scalar) {
+    return !(scalar < a);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator<=(T scalar, Array &&a) {
+    return !(a < scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator>(Array &&a, T scalar) {
+    return !(a <= scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator>(T scalar, Array &&a) {
+    return !(scalar <= a);
+}
+
 // scalar multiply
 template <class Array,
           typename T = typename Array::value_type,
