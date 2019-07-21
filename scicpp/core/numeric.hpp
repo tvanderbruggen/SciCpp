@@ -601,7 +601,7 @@ auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
 } // namespace operators
 
 //---------------------------------------------------------------------------------
-// mask
+// Masking
 //---------------------------------------------------------------------------------
 
 template <class Array, class Mask>
@@ -637,6 +637,14 @@ auto mask(std::vector<T> &&a, const Mask &m) {
 
     a.resize(idx);
     return std::move(a);
+}
+
+// Mask a std::vector inplace
+// Not possible for std::array since return size is not known at compile time.
+
+template <typename T, class Mask>
+void mask_array(std::vector<T> &a, const Mask &m) {
+    a = mask(std::move(a), m);
 }
 
 } // namespace scicpp

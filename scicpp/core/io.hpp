@@ -35,7 +35,7 @@ using ConvertersDict =
 namespace detail {
 
 template <typename T>
-auto to_number(const char *str) {
+auto to_number([[maybe_unused]] const char *str) {
     if constexpr (units::is_quantity_v<T>) {
         return T(to_number<typename T::value_type>(str));
     } else if constexpr (std::is_floating_point_v<T>) {

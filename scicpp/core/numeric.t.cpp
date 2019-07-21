@@ -398,6 +398,10 @@ TEST_CASE("mask physical quantity") {
     REQUIRE(almost_equal(mask(a, m2), {1._m, 3._m}));
     REQUIRE(almost_equal(mask(v, m1), {2._m}));
     REQUIRE(almost_equal(mask(std::vector{1._m, 2._m, 3._m}, m1), {2._m}));
+
+    std::vector v1{1._m, 2._m, 3._m};
+    mask_array(v1, m1);
+    REQUIRE(almost_equal(v1, {2_m}));
 }
 
 } // namespace scicpp

@@ -9,8 +9,8 @@ SCICPP_SRC=scicpp
 
 TMP=tmp
 
-COMPILER ?= clang
-# COMPILER ?= gcc
+# COMPILER ?= clang
+COMPILER ?= gcc
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native
