@@ -230,7 +230,7 @@ TEST_CASE("Logical/comparison operators") {
     REQUIRE(array_equal(1 > v1, {0, 0, 0}));
 
     REQUIRE(array_equal(b1a && b2a, {1, 0, 0}));
-    REQUIRE(array_equal(b1a || b2a, {1, 0, 0}));
+    REQUIRE(array_equal(b1a || b2a, {1, 1, 1}));
 }
 
 TEST_CASE("Arithmetic operators") {

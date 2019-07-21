@@ -22,7 +22,7 @@ INCLUDES = -I. -I$(SCICPP_SRC)
 WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
 WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion
 WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
-WARNINGS += -Wfloat-equal -Weffc++
+WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
 
 ifeq ($(COMPILER),gcc)
   CC = $(CROSS_COMPILE)gcc-8
