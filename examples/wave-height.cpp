@@ -20,10 +20,10 @@ int main() {
     // https://www.qld.gov.au/environment/coasts-waterways/beach/monitoring/waves-glossary#wave-height
     //
     // From these definitions, we define the data types for each column
-    using Hsig = sci::units::meter<>; // Significant wave height
-    using Hmax = sci::units::meter<>; // Highest single wave height
-    using Tz = sci::units::second<>; // Average of the zero up-crossing wave periods
-    using Tp = sci::units::second<>; // Period of waves producing the most energy.
+    using Hsig = sci::units::meter<>;  // Significant wave height
+    using Hmax = sci::units::meter<>;  // Highest single wave height
+    using Tz = sci::units::second<>;   // Average of the wave periods
+    using Tp = sci::units::second<>;   // Period of most energetic waves
     using SST = sci::units::celsius<>; // Sea surface temperature
 
     auto [hsig, hmax, tz, tp, sst] =
@@ -61,9 +61,10 @@ int main() {
     // Wave power (per meter of wavefront)
     // https://en.wikipedia.org/wiki/Wave_power
     constexpr auto rho = 1000_kg / 1_m3; // Water density
-    constexpr auto g = 9.81_m_per_s2; // Acceleration by gravity
+    constexpr auto g = 9.81_m_per_s2;    // Acceleration by gravity
     const auto P = (rho * g * g / (64 * sci::pi<double>)) * hsig * hsig * tz;
     printf("Average wave power %.2f W/m\n", sci::stats::mean(P).value());
     const auto E = (rho * g / 16.) * hsig * hsig;
-    printf("Average wave energy density %.2f J/m^2\n", sci::stats::mean(E).value());
+    printf("Average wave energy density %.2f J/m^2\n",
+           sci::stats::mean(E).value());
 }

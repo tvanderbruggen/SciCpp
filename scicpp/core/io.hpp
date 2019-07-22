@@ -36,6 +36,8 @@ namespace detail {
 
 template <typename T>
 auto to_number([[maybe_unused]] const char *str) {
+    // Should use from_chars when implemented
+    // https://en.cppreference.com/w/cpp/utility/from_chars
     if constexpr (units::is_quantity_v<T>) {
         return T(to_number<typename T::value_type>(str));
     } else if constexpr (std::is_floating_point_v<T>) {
@@ -79,27 +81,42 @@ inline bool is_used_col(const std::vector<signed_size_t> &usecols,
     }
 }
 
+// TODO Look-up table for usecols
+// usecols[idx] == true if used
+
+template <class TokenOp>
+inline void iterate_line(const char *str,
+                         char sep,
+                         const std::vector<signed_size_t> &usecols,
+                         TokenOp op) {
+    std::stringstream ss(str);
+    std::string tmp;
+    signed_size_t col_idx = 0;
+
+    while (std::getline(ss, tmp, sep)) {
+        if (!tmp.empty()) {
+            if (is_used_col(usecols, col_idx)) {
+                op(tmp, col_idx);
+            }
+
+            ++col_idx;
+        }
+    }
+}
+
 template <typename DataType>
 auto push_string_to_vector(std::vector<DataType> &vec,
                            const char *str,
                            char sep,
                            const ConvertersDict &converters,
                            const std::vector<signed_size_t> &usecols = {}) {
-    std::stringstream ss(str);
-    std::string tmp;
     signed_size_t len = 0;
-    signed_size_t col_idx = 0;
 
-    while (std::getline(ss, tmp, sep)) {
-        if (!tmp.empty()) {
-            if (is_used_col(usecols, col_idx)) {
-                vec.push_back(convert<DataType>(tmp, len, converters));
-                ++len;
-            }
-
-            ++col_idx;
-        }
-    }
+    iterate_line(
+        str, sep, usecols, [&](const auto &token, [[maybe_unused]] auto idx) {
+            vec.push_back(convert<DataType>(token, len, converters));
+            ++len;
+        });
 
     return len;
 }
@@ -109,20 +126,12 @@ using tokens_t = std::vector<std::pair<signed_size_t, std::string>>;
 auto inline tokenize(const char *str,
                      char sep,
                      const std::vector<signed_size_t> &usecols) {
-    std::stringstream ss(str);
-    std::string tmp;
+
     tokens_t tokens(0);
-    signed_size_t idx = 0;
 
-    while (std::getline(ss, tmp, sep)) {
-        if (!tmp.empty()) {
-            if (is_used_col(usecols, idx)) {
-                tokens.push_back(std::make_pair(idx, tmp));
-            }
-
-            ++idx;
-        }
-    }
+    iterate_line(str, sep, usecols, [&](const auto &token, auto idx) {
+        tokens.push_back(std::make_pair(idx, token));
+    });
 
     return tokens;
 }
@@ -327,13 +336,22 @@ class TxtLoader {
     }
 
     auto usecols(std::vector<signed_size_t> &&usecols) {
+        scicpp_require((sizeof...(DataTypes) > 1 &&
+                        usecols.size() == sizeof...(DataTypes)) ||
+                       (sizeof...(DataTypes) == 1));
         m_usecols = std::move(usecols);
         return *this;
     }
 
     template <typename... Columns>
     auto usecols(Columns... usecols) {
-        static_assert((std::is_integral_v<Columns> && ...));
+        static_assert((std::is_integral_v<Columns> && ...),
+                      "Used columns must be specified as an integer");
+        static_assert(
+            (sizeof...(DataTypes) > 1 &&
+             sizeof...(Columns) == sizeof...(DataTypes)) ||
+                (sizeof...(DataTypes) == 1),
+            "Number of used columns must match the number of tuple elements");
 
         m_usecols.reserve(sizeof...(usecols));
         std::apply([this](auto... x) { (this->m_usecols.push_back(x), ...); },
