@@ -71,20 +71,6 @@ auto convert(const std::string &str,
     }
 }
 
-inline bool is_used_col(const std::vector<signed_size_t> &usecols,
-                        signed_size_t col_idx) {
-    if (usecols.empty()) {
-        return true;
-    } else {
-        return std::find(usecols.cbegin(), usecols.cend(), col_idx) !=
-               usecols.cend();
-    }
-}
-
-// TODO Look-up table for usecols
-// usecols[idx] == true if used
-// Need iterate_first_line()
-
 template <class TokenOp>
 inline void iterate_line(const char *str,
                          char sep,
@@ -93,11 +79,17 @@ inline void iterate_line(const char *str,
     std::stringstream ss(str);
     std::string tok;
     signed_size_t col_idx = 0;
+    std::size_t usecol_idx = 0;
 
     while (std::getline(ss, tok, sep)) {
         if (!tok.empty()) {
-            if (is_used_col(usecols, col_idx)) {
+            if (usecols.empty() || usecols[usecol_idx] == col_idx) {
                 op(tok, col_idx);
+                ++usecol_idx;
+
+                if (usecol_idx == usecols.size()) {
+                    break;
+                }
             }
 
             ++col_idx;
@@ -347,6 +339,7 @@ class TxtLoader {
                         usecols.size() == sizeof...(DataTypes)) ||
                        (sizeof...(DataTypes) == 1));
         m_usecols = std::move(usecols);
+        std::sort(m_usecols.begin(), m_usecols.end());
         return *this;
     }
 
@@ -363,6 +356,7 @@ class TxtLoader {
         m_usecols.reserve(sizeof...(usecols));
         std::apply([this](auto... x) { (this->m_usecols.push_back(x), ...); },
                    std::forward_as_tuple(usecols...));
+        std::sort(m_usecols.begin(), m_usecols.end());
         return *this;
     }
 
