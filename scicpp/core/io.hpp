@@ -83,6 +83,7 @@ inline bool is_used_col(const std::vector<signed_size_t> &usecols,
 
 // TODO Look-up table for usecols
 // usecols[idx] == true if used
+// Need iterate_first_line()
 
 template <class TokenOp>
 inline void iterate_line(const char *str,
@@ -90,13 +91,13 @@ inline void iterate_line(const char *str,
                          const std::vector<signed_size_t> &usecols,
                          TokenOp op) {
     std::stringstream ss(str);
-    std::string tmp;
+    std::string tok;
     signed_size_t col_idx = 0;
 
-    while (std::getline(ss, tmp, sep)) {
-        if (!tmp.empty()) {
+    while (std::getline(ss, tok, sep)) {
+        if (!tok.empty()) {
             if (is_used_col(usecols, col_idx)) {
-                op(tmp, col_idx);
+                op(tok, col_idx);
             }
 
             ++col_idx;
@@ -121,22 +122,25 @@ auto push_string_to_vector(std::vector<DataType> &vec,
     return len;
 }
 
-using tokens_t = std::vector<std::pair<signed_size_t, std::string>>;
+template <class tokens_t>
+auto tokenize(tokens_t &tokens,
+              const char *str,
+              char sep,
+              const std::vector<signed_size_t> &usecols) {
 
-auto inline tokenize(const char *str,
-                     char sep,
-                     const std::vector<signed_size_t> &usecols) {
-
-    tokens_t tokens(0);
+    std::size_t tok_idx = 0;
 
     iterate_line(str, sep, usecols, [&](const auto &token, auto idx) {
-        tokens.push_back(std::make_pair(idx, token));
+        scicpp_require(tok_idx < tokens.size()); // Too many columns
+        tokens[tok_idx] = std::make_pair(idx, token);
+        ++tok_idx;
     });
 
+    scicpp_require(tok_idx == tokens.size()); // Too few columns
     return tokens;
 }
 
-template <typename DataType0, typename... DataTypes>
+template <class tokens_t, typename DataType0, typename... DataTypes>
 auto tokens_to_tuple(const tokens_t &tokens, const ConvertersDict &converters) {
     const auto idx = tokens.size() - sizeof...(DataTypes) - 1;
     const auto [tok_idx, tok_val] = tokens[idx];
@@ -147,7 +151,7 @@ auto tokens_to_tuple(const tokens_t &tokens, const ConvertersDict &converters) {
     } else {
         return std::tuple_cat(
             std::make_tuple(res),
-            tokens_to_tuple<DataTypes...>(tokens, converters));
+            tokens_to_tuple<tokens_t, DataTypes...>(tokens, converters));
     }
 }
 
@@ -156,9 +160,12 @@ auto load_line_to_tuple(const char *str,
                         char sep,
                         const ConvertersDict &converters,
                         const std::vector<signed_size_t> &usecols) {
-    const auto tokens = tokenize(str, sep, usecols);
-    scicpp_require(tokens.size() == sizeof...(DataTypes));
-    return tokens_to_tuple<DataTypes...>(tokens, converters);
+    using tokens_t =
+        std::array<std::pair<signed_size_t, std::string>, sizeof...(DataTypes)>;
+
+    tokens_t tokens{};
+    tokenize(tokens, str, sep, usecols);
+    return tokens_to_tuple<tokens_t, DataTypes...>(tokens, converters);
 }
 
 template <class LineOp>
