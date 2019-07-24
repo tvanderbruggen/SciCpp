@@ -33,7 +33,7 @@ int main() {
     std::array<std::tuple<int, bool, double>, 10> atup{};
 
     for (size_t i = 0; i < atup.size(); ++i) {
-        atup[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
+        atup[i] = {int(i), i % 2, 3.14 * double(i * i)};
     }
 
     sci::print(atup);
@@ -42,7 +42,7 @@ int main() {
     std::vector<std::tuple<int, bool, double>> vtup(10000000);
 
     for (size_t i = 0; i < vtup.size(); ++i) {
-        vtup[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
+        vtup[i] = {int(i), i % 2, 3.14 * double(i * i)};
     }
 
     sci::print(vtup);

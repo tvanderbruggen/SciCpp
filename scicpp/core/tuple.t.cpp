@@ -14,7 +14,7 @@ TEST_CASE("get field by index") {
         std::array<std::tuple<int, bool, double>, 10> a{};
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
+            a[i] = {int(i), i % 2, 3.14 * double(i * i)};
         }
 
         // print(get_field<2>(a));
@@ -39,7 +39,7 @@ TEST_CASE("get field by index") {
         std::array<std::pair<int, bool>, 10> a{};
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_pair(int(i), i % 2);
+            a[i] = {int(i), i % 2};
         }
 
         // print(get_field<2>(a));
@@ -53,7 +53,7 @@ TEST_CASE("get field by index") {
         std::vector<std::tuple<int, bool, double>> a(10);
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
+            a[i] = {int(i), i % 2, 3.14 * double(i * i)};
         }
 
         // print(get_field<2>(a));
@@ -80,7 +80,7 @@ TEST_CASE("get field by type") {
         std::array<std::tuple<int, bool, double>, 10> a{};
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
+            a[i] = {int(i), i % 2, 3.14 * double(i * i)};
         }
 
         REQUIRE(almost_equal(
@@ -107,7 +107,7 @@ TEST_CASE("get field by type") {
         std::array<std::pair<int, bool>, 10> a{};
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_pair(int(i), i % 2);
+            a[i] = {int(i), i % 2};
         }
 
         REQUIRE(almost_equal(
@@ -122,7 +122,7 @@ TEST_CASE("get field by type") {
         std::vector<std::tuple<int, bool, double>> a(10);
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
+            a[i] = {int(i), i % 2, 3.14 * double(i * i)};
         }
 
         REQUIRE(almost_equal(
@@ -150,7 +150,7 @@ TEST_CASE("unpack") {
         std::array<std::tuple<int, bool, double>, 10> a{};
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
+            a[i] = {int(i), i % 2, 3.14 * double(i * i)};
         }
 
         const auto [x, y, z] = unpack(a);
@@ -174,7 +174,7 @@ TEST_CASE("unpack") {
         std::array<std::tuple<int, bool>, 10> a{};
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_tuple(int(i), i % 2);
+            a[i] = {int(i), i % 2};
         }
 
         const auto [x, y] = unpack(a);
@@ -187,7 +187,7 @@ TEST_CASE("unpack") {
         std::vector<std::tuple<int, bool, double>> a(10);
 
         for (size_t i = 0; i < a.size(); ++i) {
-            a[i] = std::make_tuple(int(i), i % 2, 3.14 * double(i * i));
+            a[i] = {int(i), i % 2, 3.14 * double(i * i)};
         }
 
         const auto [x, y, z] = unpack(a);

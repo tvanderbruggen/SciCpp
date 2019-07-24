@@ -612,6 +612,7 @@ auto mask(const Array &a, const Mask &m) {
     auto res = std::vector<typename Array::value_type>(0);
     res.reserve(a.size());
 
+    // transform_reduce ?
     for (std::size_t i = 0; i < a.size(); ++i) {
         if (m[i]) {
             res.push_back(a[i]);

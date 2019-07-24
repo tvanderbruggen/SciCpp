@@ -54,20 +54,21 @@ auto to_number(const std::string &str) {
     return to_number<T>(str.data());
 }
 
+using token_t = std::pair<signed_size_t, std::string>;
+
 template <typename DataType>
-auto convert(const std::string &str,
-             signed_size_t idx,
-             const ConvertersDict &converters) {
+auto convert(const token_t &tok, const ConvertersDict &converters) {
     if (!converters.empty()) {
-        const auto converter = converters.find(idx);
+        const auto converter = converters.find(tok.first);
 
         if (converter != converters.end()) {
-            return std::any_cast<DataType>(converter->second(str.data()));
+            return std::any_cast<DataType>(
+                converter->second(tok.second.data()));
         } else {
-            return to_number<DataType>(str);
+            return to_number<DataType>(tok.second);
         }
     } else {
-        return to_number<DataType>(str);
+        return to_number<DataType>(tok.second);
     }
 }
 
@@ -107,7 +108,7 @@ auto push_string_to_vector(std::vector<DataType> &vec,
 
     iterate_line(
         str, sep, usecols, [&](const auto &token, [[maybe_unused]] auto idx) {
-            vec.push_back(convert<DataType>(token, len, converters));
+            vec.push_back(convert<DataType>({len, token}, converters));
             ++len;
         });
 
@@ -124,7 +125,7 @@ auto tokenize(tokens_t &tokens,
 
     iterate_line(str, sep, usecols, [&](const auto &token, auto idx) {
         scicpp_require(tok_idx < tokens.size()); // Too many columns
-        tokens[tok_idx] = std::make_pair(idx, token);
+        tokens[tok_idx] = {idx, token};
         ++tok_idx;
     });
 
@@ -132,18 +133,15 @@ auto tokenize(tokens_t &tokens,
     return tokens;
 }
 
-template <class tokens_t, typename DataType0, typename... DataTypes>
-auto tokens_to_tuple(const tokens_t &tokens, const ConvertersDict &converters) {
-    const auto idx = tokens.size() - sizeof...(DataTypes) - 1;
-    const auto [tok_idx, tok_val] = tokens[idx];
-    const auto res = convert<DataType0>(tok_val, tok_idx, converters);
+template <std::size_t idx = 0, class tokens_t, typename... DataTypes>
+auto tokens_to_tuple(const tokens_t &tokens,
+                     const ConvertersDict &converters,
+                     std::tuple<DataTypes...> &res) {
+    using DataType = std::tuple_element_t<idx, std::tuple<DataTypes...>>;
+    std::get<idx>(res) = convert<DataType>(std::get<idx>(tokens), converters);
 
-    if constexpr (sizeof...(DataTypes) == 0) {
-        return std::make_tuple(res);
-    } else {
-        return std::tuple_cat(
-            std::make_tuple(res),
-            tokens_to_tuple<tokens_t, DataTypes...>(tokens, converters));
+    if constexpr (idx < sizeof...(DataTypes) - 1) {
+        tokens_to_tuple<idx + 1>(tokens, converters, res);
     }
 }
 
@@ -152,12 +150,13 @@ auto load_line_to_tuple(const char *str,
                         char sep,
                         const ConvertersDict &converters,
                         const std::vector<signed_size_t> &usecols) {
-    using tokens_t =
-        std::array<std::pair<signed_size_t, std::string>, sizeof...(DataTypes)>;
+    using tokens_t = std::array<token_t, sizeof...(DataTypes)>;
 
     tokens_t tokens{};
     tokenize(tokens, str, sep, usecols);
-    return tokens_to_tuple<tokens_t, DataTypes...>(tokens, converters);
+    std::tuple<DataTypes...> res{};
+    tokens_to_tuple(tokens, converters, res);
+    return res;
 }
 
 template <class LineOp>
@@ -371,7 +370,7 @@ class TxtLoader {
     }
 
     template <bool unpack = false>
-    auto load(const std::filesystem::path &fname) {
+    auto load(const std::filesystem::path &fname) const {
         const auto data = loadtxt<DataTypes...>(fname,
                                                 m_comments,
                                                 m_delimiter,

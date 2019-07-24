@@ -3,6 +3,11 @@
 
 #include "io.hpp"
 
+// constexpr auto csv_filename =
+//     "examples/townsville_2019-01-01t00_00-2019-06-30t23_30.csv";
+
+constexpr auto csv_filename = "tests/data0.csv";
+
 NONIUS_BENCHMARK("Load csv file", [](nonius::chronometer meter) {
     // From examples/wave-height.cpp
 
@@ -15,13 +20,11 @@ NONIUS_BENCHMARK("Load csv file", [](nonius::chronometer meter) {
         using Tp = sci::units::second<>;   // Period of most energetic waves
         using SST = sci::units::celsius<>; // Sea surface temperature
 
-        auto data =
-            sci::TxtLoader<Hsig, Hmax, Tz, Tp, SST>()
-                .delimiter(',')
-                .skiprows(1)
-                .usecols(1, 2, 3, 4, 6)
-                .load("examples/"
-                      "townsville_2019-01-01t00_00-2019-06-30t23_30.csv");
+        auto data = sci::TxtLoader<Hsig, Hmax, Tz, Tp, SST>()
+                        .delimiter(',')
+                        .skiprows(1)
+                        .usecols(1, 2, 3, 4, 6)
+                        .load(csv_filename);
     });
 })
 
@@ -42,8 +45,6 @@ NONIUS_BENCHMARK("Load csv file and unpack", [](nonius::chronometer meter) {
                 .delimiter(',')
                 .skiprows(1)
                 .usecols(1, 2, 3, 4, 6)
-                .load<sci::io::unpack>(
-                    "examples/"
-                    "townsville_2019-01-01t00_00-2019-06-30t23_30.csv");
+                .load<sci::io::unpack>(csv_filename);
     });
 })
