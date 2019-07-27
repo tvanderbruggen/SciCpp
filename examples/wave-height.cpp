@@ -38,12 +38,13 @@ int main() {
     // Clean up data
     // -----------------------------------------------------------------------------
 
-    // In the dataset invalid values are represented by -99.9
+    // In the dataset invalid values are represented by -99.9,
+    // but only positive values are valid.
     // We create a mask to filter out these values:
     const auto valid_mask = (hsig >= 0_m) && (hmax >= 0_m) && (tz >= 0_s) &&
                             (tp >= 0_s) && (sst >= 0_degC);
 
-    // We then mask the data to keep only the valid values.
+    // We then mask the data to keep only the valid values:
     sci::mask_array(hsig, valid_mask);
     sci::mask_array(hmax, valid_mask);
     sci::mask_array(tz, valid_mask);
@@ -57,6 +58,8 @@ int main() {
     // Some simple stats:
     printf("Highest wave is %.2f m\n", sci::stats::amax(hmax).value());
     printf("Longest period is %.2f s\n", sci::stats::amax(tz).value());
+    printf("Average sea surface temperature is %.2f deg. C\n",
+           sci::stats::mean(sst).value());
 
     // Wave power (per meter of wavefront)
     // https://en.wikipedia.org/wiki/Wave_power

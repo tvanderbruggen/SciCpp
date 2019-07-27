@@ -79,24 +79,9 @@ auto get_field(const std::vector<T> &a) {
 
 namespace detail {
 
-template <signed_size_t I,
-          class Array,
-          typename DataType0,
-          typename... DataTypes>
-auto unpack_impl(const Array &a,
-                 std::tuple<DataType0, DataTypes...> /* unused */) {
-    if constexpr (sizeof...(DataTypes) == 0) {
-        return std::make_tuple(get_field<I>(a));
-    } else {
-        return std::tuple_cat(
-            std::make_tuple(get_field<I>(a)),
-            unpack_impl<I + 1>(a, std::tuple<DataTypes...>{}));
-    }
-}
-
-template <signed_size_t I, class Array, typename DataType0, typename DataType1>
-auto unpack_impl(const Array &a, std::pair<DataType0, DataType1> /* unused */) {
-    return std::make_pair(get_field<0>(a), get_field<1>(a));
+template <class Array, class Tuple, std::size_t... I>
+auto unpack_impl(const Array &a, Tuple, std::index_sequence<I...>) {
+    return std::make_tuple(get_field<I>(a)...);
 }
 
 } // namespace detail
@@ -106,7 +91,8 @@ auto unpack(const Array &a) {
     using T = typename Array::value_type;
     static_assert(meta::is_std_tuple_v<T> || meta::is_std_pair_v<T>);
 
-    return detail::unpack_impl<0>(a, T{});
+    return detail::unpack_impl(
+        a, T{}, std::make_index_sequence<std::tuple_size_v<T>>{});
 }
 
 } // namespace scicpp

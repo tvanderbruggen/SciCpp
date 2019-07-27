@@ -133,17 +133,13 @@ auto tokenize(tokens_t &tokens,
     return tokens;
 }
 
-template <std::size_t idx = 0,
-          class tokens_t,
-          typename... DataTypes,
-          std::size_t... I>
+template <class tokens_t, class Tuple, std::size_t... I>
 auto tokens_to_tuple(const tokens_t &tokens,
                      const ConvertersDict &converters,
-                     std::tuple<DataTypes...>,
+                     Tuple,
                      std::index_sequence<I...>) {
-    return std::make_tuple(
-        convert<std::tuple_element_t<I, std::tuple<DataTypes...>>>(
-            std::get<I>(tokens), converters)...);
+    return std::make_tuple(convert<std::tuple_element_t<I, Tuple>>(
+        std::get<I>(tokens), converters)...);
 }
 
 template <typename... DataTypes>

@@ -343,8 +343,8 @@ struct representation_type_impl {
     using type = T;
 };
 
-template <typename T, typename Dim, typename Scale>
-struct representation_type_impl<quantity<T, Dim, Scale>> {
+template <typename T, typename Dim, typename Scale, typename Offset>
+struct representation_type_impl<quantity<T, Dim, Scale, Offset>> {
     using type = T;
 };
 
