@@ -124,12 +124,14 @@ auto tokenize(tokens_t &tokens,
     std::size_t tok_idx = 0;
 
     iterate_line(str, sep, usecols, [&](const auto &token, auto idx) {
-        scicpp_require(tok_idx < tokens.size()); // Too many columns
+        scicpp_require(tok_idx < tokens.size() &&
+                       "Too many columns in delimiter-separated file");
         tokens[tok_idx] = {idx, token};
         ++tok_idx;
     });
 
-    scicpp_require(tok_idx == tokens.size()); // Too few columns
+    scicpp_require(tok_idx == tokens.size() &&
+                   "Too few columns in delimiter-separated file");
     return tokens;
 }
 
@@ -203,7 +205,9 @@ auto loadtxt_to_vector(const std::filesystem::path &fname,
         if (is_first_row) {
             num_cols = line_cols;
         } else {
-            scicpp_require(line_cols == num_cols);
+            scicpp_require(line_cols == num_cols &&
+                           "Delimiter-separated file must have the same number "
+                           "of columns on each line");
         }
 
         is_first_row = false;
@@ -306,6 +310,8 @@ inline constexpr bool unpack = true;
 
 template <typename... DataTypes>
 class TxtLoader {
+    static constexpr auto Ntypes = sizeof...(DataTypes);
+
   public:
     TxtLoader() = default;
 
@@ -330,9 +336,9 @@ class TxtLoader {
     }
 
     auto usecols(std::vector<signed_size_t> &&usecols) {
-        scicpp_require((sizeof...(DataTypes) > 1 &&
-                        usecols.size() == sizeof...(DataTypes)) ||
-                       (sizeof...(DataTypes) == 1));
+        scicpp_require(
+            ((Ntypes > 1 && usecols.size() == Ntypes) || (Ntypes == 1)) &&
+            "Number of used columns must match the number of tuple elements");
         m_usecols = std::move(usecols);
         std::sort(m_usecols.begin(), m_usecols.end());
         return *this;
@@ -343,9 +349,7 @@ class TxtLoader {
         static_assert((std::is_integral_v<Columns> && ...),
                       "Used columns must be specified as an integer");
         static_assert(
-            (sizeof...(DataTypes) > 1 &&
-             sizeof...(Columns) == sizeof...(DataTypes)) ||
-                (sizeof...(DataTypes) == 1),
+            (Ntypes > 1 && sizeof...(Columns) == Ntypes) || (Ntypes == 1),
             "Number of used columns must match the number of tuple elements");
 
         m_usecols.reserve(sizeof...(usecols));
@@ -375,7 +379,7 @@ class TxtLoader {
                                                 m_converters,
                                                 m_max_rows);
 
-        if constexpr (unpack && (sizeof...(DataTypes) > 1)) {
+        if constexpr (unpack && (Ntypes > 1)) {
             return scicpp::unpack(data);
         } else {
             return data;
