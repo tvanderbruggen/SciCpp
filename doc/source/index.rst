@@ -6,8 +6,10 @@
 SciCpp's documentation
 ==================================
 
-SciCpp has for objective to provide an implementation of the `SciPy <https://scipy.org/>`_ 
-functions for C++ 1D array types: ``std::array`` and ``std::vector``.
+SciCpp is a data and signal processing C++ library.
+
+SciCpp objective is to follow the `SciPy <https://scipy.org/>`_ API while using standard C++
+containers (``std::array`` and ``std::vector``) whenever possible.
 
 SciCpp is a lightweight header only library.
 Its only dependence is the `Eigen <http://eigen.tuxfamily.org/index.php?title=Main_Page>`_
@@ -16,7 +18,7 @@ linear algebra library, which is also header only.
 SciCpp uses the C++-17 standard.
 It is tested with the GCC and Clang compilers under Linux.
 
-SciCpp is released under the MIT licence.
+SciCpp is released under the MIT licence and `sources are available on Github <https://github.com/tvanderbruggen/SciCpp>`_.
 
 Modules:
 --------
@@ -40,57 +42,85 @@ memory resources may be too limited for the Python runtime.
 
 SciCpp ambitions to facilitate the transition from
 SciPy to C++ implementation. Therefore, SciCpp goal is
-to follow SciPy in terms of functions naming and behavior,
+to mimic the SciPy API in terms of functions naming and behavior,
 to avoid surprises in the transition process.
 
-Array generation
-*****************
+Example
+--------
 
-Size related parameters are template parameters for ``std::array``
-and function parameters for ``std::vector``.
-For example:
+This example load and exploits some real world data.
+Data are `wave parameters (height, period, ...) measured by a buoy <https://www.qld.gov.au/environment/coasts-waterways/beach/monitoring>`_.
+
+It presents how SciCpp can be used to load data fron a CSV file, to clean up the data, and to extract information.
 ::
-    // Generate fixed size arrays (std::array):
-    //     The fixed array size (5) is specified as the template parameter
-    auto a = scicpp::linspace<double, 5>(1., 10.);
-    auto a = scicpp::rand<double, 5>();
-    auto a = scicpp::signal::hann<double, 5>();
-    
-    // Generate dynamic size arrays (std::vector):
-    //     The dynamic array size (5) is specified as the function parameter
-    auto v = scicpp::linspace<double>(1., 10., 5);
-    auto v = scicpp::rand<double>(5);
-    auto v = scicpp::signal::hann<double>(5);
+    #include <cstdio>
+    #include <scicpp/core.hpp>
 
-Using arrays
-*****************
+    namespace sci = scicpp;
+    using namespace sci::operators;
+    using namespace sci::units::literals;
 
-Most functions accept both fixed sized (``std::array``)
-and dynamic size (``std::vector``) arrays:
-::
-    auto a = scicpp::rand<double, 5>(); // std::array
-    auto v = scicpp::rand<double>(5);   // std::vector
+    int main() {
+        // -----------------------------------------------------------------------------
+        // Load data
+        // -----------------------------------------------------------------------------
 
-    // No size related parameter: same call
-    double m = scicpp::mean(a);
-    double m = scicpp::mean(v);
+        // The data fields are defined here:
+        // https://www.qld.gov.au/environment/coasts-waterways/beach/monitoring/waves-glossary#wave-height
+        //
+        // From these definitions, we define the data types for each column
+        using Hsig = sci::units::meter<>;  // Significant wave height
+        using Hmax = sci::units::meter<>;  // Highest single wave height
+        using Tz = sci::units::second<>;   // Average of the wave periods
+        using Tp = sci::units::second<>;   // Period of most energetic waves
+        using SST = sci::units::celsius<>; // Sea surface temperature
 
-    auto c = scicpp::cumsum(a);
-    auto c = scicpp::cumsum(v);
+        auto [hsig, hmax, tz, tp, sst] =
+            sci::TxtLoader<Hsig, Hmax, Tz, Tp, SST>()
+                .delimiter(',')
+                .skiprows(1)
+                .usecols(1, 2, 3, 4, 6)
+                .load<sci::io::unpack>(
+                    "examples/townsville_2019-01-01t00_00-2019-06-30t23_30.csv");
 
-    // A size related parameter:
-    //     Here, the returned array size depends on the number of differentiations
-    auto d = scicpp::diff<2>(a); // Fixed template parameter
-    auto d = scicpp::diff(v, 2); // Dynamic function parameter
+        // -----------------------------------------------------------------------------
+        // Clean up data
+        // -----------------------------------------------------------------------------
 
+        // In the dataset invalid values are represented by -99.9,
+        // but only positive values are valid.
+        // We create a mask to filter out these values:
+        const auto valid_mask = (hsig >= 0_m) && (hmax >= 0_m) && (tz >= 0_s) &&
+                                (tp >= 0_s) && (sst >= 0_degC);
 
-Shoudl I use a fixed size or a dynamic array ?
-*****************
+        // We then mask the data to keep only the valid values:
+        sci::mask_array(hsig, valid_mask);
+        sci::mask_array(hmax, valid_mask);
+        sci::mask_array(tz, valid_mask);
+        sci::mask_array(tp, valid_mask);
+        sci::mask_array(sst, valid_mask);
 
-Well, basicaly if you know the size at compile time use a ``std::array`` else use a ``std::vector``.
+        // -----------------------------------------------------------------------------
+        // Explore data
+        // -----------------------------------------------------------------------------
 
-Sometimes the size is known at compile but it is large (the exact size depends on your system and on 
-your workload but let's say a few 1000s), then you might want to prefer to use a ```std::vector```.
+        // Some simple stats:
+        printf("Highest wave is %.2f m\n", sci::stats::amax(hmax).value());
+        printf("Longest period is %.2f s\n", sci::stats::amax(tz).value());
+        printf("Average sea surface temperature is %.2f deg. C\n",
+            sci::stats::mean(sst).value());
 
-Finally, ```std::vector``` is a resizable array, so it is well suited for algorithms requiring dynamical
-resizing of the data container (ex. :ref:`filter <core_filter>`).
+        // Analyze the energetic potential of the waves.
+        // https://en.wikipedia.org/wiki/Wave_power
+        constexpr auto rho = 1000_kg / 1_m3; // Water density
+        constexpr auto g = 9.81_m_per_s2;    // Acceleration by gravity
+
+        // Wave power (per meter of wavefront)
+        const auto P = (rho * g * g / (64 * sci::pi<double>)) * hsig * hsig * tz;
+        printf("Average wave power %.2f W/m\n", sci::stats::mean(P).value());
+
+        // Wave energy density
+        const auto E = (rho * g / 16.) * hsig * hsig;
+        printf("Average wave energy density %.2f J/m^2\n",
+            sci::stats::mean(E).value());
+    }

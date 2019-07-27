@@ -3,6 +3,8 @@ core
 
 Core functions defined in header <scicpp/core.hpp>
 
+:ref:`Quick overview comparing function calls for fixed and variable size arrays <core_fixed_vs_variable_size_array>`.
+
 Mathematical functions
 -------------
 
