@@ -133,16 +133,17 @@ auto tokenize(tokens_t &tokens,
     return tokens;
 }
 
-template <std::size_t idx = 0, class tokens_t, typename... DataTypes>
+template <std::size_t idx = 0,
+          class tokens_t,
+          typename... DataTypes,
+          std::size_t... I>
 auto tokens_to_tuple(const tokens_t &tokens,
                      const ConvertersDict &converters,
-                     std::tuple<DataTypes...> &res) {
-    using DataType = std::tuple_element_t<idx, std::tuple<DataTypes...>>;
-    std::get<idx>(res) = convert<DataType>(std::get<idx>(tokens), converters);
-
-    if constexpr (idx < sizeof...(DataTypes) - 1) {
-        tokens_to_tuple<idx + 1>(tokens, converters, res);
-    }
+                     std::tuple<DataTypes...>,
+                     std::index_sequence<I...>) {
+    return std::make_tuple(
+        convert<std::tuple_element_t<I, std::tuple<DataTypes...>>>(
+            std::get<I>(tokens), converters)...);
 }
 
 template <typename... DataTypes>
@@ -150,13 +151,12 @@ auto load_line_to_tuple(const char *str,
                         char sep,
                         const ConvertersDict &converters,
                         const std::vector<signed_size_t> &usecols) {
-    using tokens_t = std::array<token_t, sizeof...(DataTypes)>;
-
-    tokens_t tokens{};
+    std::array<token_t, sizeof...(DataTypes)> tokens{};
     tokenize(tokens, str, sep, usecols);
-    std::tuple<DataTypes...> res{};
-    tokens_to_tuple(tokens, converters, res);
-    return res;
+    return tokens_to_tuple(tokens,
+                           converters,
+                           std::tuple<DataTypes...>{},
+                           std::make_index_sequence<sizeof...(DataTypes)>{});
 }
 
 template <class LineOp>
