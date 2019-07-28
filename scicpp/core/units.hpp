@@ -87,7 +87,7 @@ template <typename ToQty,
           enable_if_is_quantity<ToQty> = 0>
 constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
     static_assert(std::is_same_v<Dim, typename ToQty::dim>,
-                  "Cannot cast to a quantity with different dimensions");
+                  "Cannot cast to a quantity with different dimension");
 
     using to_rep_t = typename ToQty::value_type;
     using rep_t = std::common_type_t<T, to_rep_t>;
@@ -425,8 +425,11 @@ using Temperature = std::ratio<11>;
 using AmountOfSubstance = std::ratio<13>;
 using LuminousIntensity = std::ratio<17>;
 
+// Angle
+using Angle = std::ratio<19>;
+
 // Data
-using DataQuantity = std::ratio<19>;
+using DataQuantity = std::ratio<23>;
 
 } // namespace primary_flags
 
@@ -683,6 +686,34 @@ SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _Cd, std::ratio<1>)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _kCd, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _MCd, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _GCd, std::giga)
+
+} // namespace literals
+
+// ----------------------------------------------------------------------------
+// Angle
+// ----------------------------------------------------------------------------
+
+template <typename T, typename Scale = std::ratio<1>>
+using angle = quantity<T, primary_flags::Angle, Scale>;
+
+SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(angle, radian)
+
+template <typename T = double>
+using degree = angle<T, std::ratio<31415926535897932, 1800000000000000000>>;
+
+namespace literals {
+
+SCICPP_CORE_UNITS_SET_LITERAL(angle, _frad, std::femto)
+SCICPP_CORE_UNITS_SET_LITERAL(angle, _prad, std::pico)
+SCICPP_CORE_UNITS_SET_LITERAL(angle, _nrad, std::nano)
+SCICPP_CORE_UNITS_SET_LITERAL(angle, _urad, std::micro)
+SCICPP_CORE_UNITS_SET_LITERAL(angle, _mrad, std::milli)
+SCICPP_CORE_UNITS_SET_LITERAL(angle, _rad, std::ratio<1>)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(angle,
+                                    _deg,
+                                    31415926535897932,
+                                    1800000000000000000)
 
 } // namespace literals
 
