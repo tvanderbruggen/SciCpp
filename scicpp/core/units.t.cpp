@@ -91,7 +91,7 @@ TEST_CASE("Units additions") {
     REQUIRE(almost_equal<2>(L1, 5.14_m));
 
     L1 += 6_cm;
-     REQUIRE(almost_equal<2>(L1, 5.2_m));
+    REQUIRE(almost_equal<2>(L1, 5.2_m));
 
     REQUIRE(almost_equal(0_degC, 273.15_K));
     REQUIRE(almost_equal(0_K, -273.15_degC));

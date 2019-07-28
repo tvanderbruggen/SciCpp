@@ -86,6 +86,9 @@ template <typename ToQty,
           typename Offset,
           enable_if_is_quantity<ToQty> = 0>
 constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
+    static_assert(std::is_same_v<Dim, typename ToQty::dim>,
+                  "Cannot cast to a quantity with different dimensions");
+
     using to_rep_t = typename ToQty::value_type;
     using rep_t = std::common_type_t<T, to_rep_t>;
     using OffsetDiff = std::ratio_subtract<Offset, typename ToQty::offset>;

@@ -23,3 +23,19 @@ Operators
 - Asignment operator: :code:`=`
 - Arithmetic operators: :code:`++`, :code:`--`, :code:`+=`, :code:`-=`, :code:`*=`, :code:`/=`, :code:`+`, :code:`-`, :code:`*`, :code:`/`
 - Comparison operators: :code:`==`, :code:`!=`, :code:`>=`, :code:`<=`, :code:`>`, :code:`<`
+
+Member functions
+-------------------------
+
+.. function:: constexpr T value() const
+
+Return the underlying value of the quantity.
+Should mostly be used for printing.
+
+Non-member functions
+-------------------------
+
+.. function:: template <typename ToQuantity, typename T, typename Dim, typename Scale, typename Offset> \
+              constexpr ToQuantity quantity_cast(const quantity<T, Dim, Scale, Offset> &qty)
+
+Convert `qty` to a quantity of type `ToQuantity`.
