@@ -24,6 +24,36 @@ static_assert(std::is_trivially_copy_assignable_v<meter<>>);
 static_assert(std::is_trivially_move_constructible_v<meter<>>);
 static_assert(std::is_trivially_move_assignable_v<meter<>>);
 
+TEST_CASE("Casting") {
+    SECTION("Implicit conversions") {
+        // Implicit conversions between floating point types are allowed
+        const auto L = 1_m;
+        REQUIRE(almost_equal(length<float>(L).value(), float(L.value())));
+
+        // Implicit conversions from int to float are allowed
+        const auto Mk = kilogram<int>(1);
+        REQUIRE(almost_equal<200>(gram<double>(Mk).value(),
+                                  1000. * double(Mk.value())));
+
+        const auto Mg = gram<int>(1);
+        REQUIRE(almost_equal<200>(1000. * kilogram<double>(Mg).value(),
+                                  double(Mg.value())));
+
+        // Implicit conversion between integral types are allowed
+        // only if input Scale is an exact multiple of output scale
+        REQUIRE(millisecond<int32_t>(second<int64_t>(1)) ==
+                millisecond<int32_t>(1000));
+
+        // Does not compile
+        // REQUIRE(second<int32_t>(millisecond<int64_t>(1)) == second<int32_t>(1000));
+    }
+
+    SECTION("Explicit conversions") {
+        REQUIRE(quantity_cast<second<int32_t>>(millisecond<int64_t>(1)) ==
+                second<int32_t>(0));
+    }
+}
+
 TEST_CASE("Units comparisons") {
     REQUIRE(length<int>(2) == length<int>(2));
     REQUIRE(length<int>(2) != length<int>(3));

@@ -86,12 +86,19 @@ template <typename ToQty,
           typename Offset,
           enable_if_is_quantity<ToQty> = 0>
 constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
-    constexpr auto to_qty_inv_scale =
-        T(ToQty::scale::den) / T(ToQty::scale::num);
-    constexpr auto qty_scale = T(Scale::num) / T(Scale::den);
+    using to_rep_t = typename ToQty::value_type;
+    using rep_t = std::common_type_t<T, to_rep_t>;
     using OffsetDiff = std::ratio_subtract<Offset, typename ToQty::offset>;
-    constexpr auto offset_diff = T(OffsetDiff::num) / T(OffsetDiff::den);
-    return ToQty(to_qty_inv_scale * (qty_scale * qty.value() + offset_diff));
+
+    constexpr auto to_qty_inv_scale =
+        rep_t(ToQty::scale::den) / rep_t(ToQty::scale::num);
+    constexpr auto qty_scale =
+        to_qty_inv_scale * rep_t(Scale::num) / rep_t(Scale::den);
+    constexpr auto offset_diff =
+        to_qty_inv_scale * rep_t(OffsetDiff::num) / rep_t(OffsetDiff::den);
+
+    return ToQty(static_cast<to_rep_t>(
+        qty_scale * static_cast<rep_t>(qty.value()) + offset_diff));
 }
 
 template <typename T,
@@ -99,6 +106,22 @@ template <typename T,
           typename Scale,
           typename Offset = std::ratio<0>>
 struct quantity {
+  private:
+    template <typename Scale2>
+    static constexpr bool
+        is_harmonic = (std::ratio_divide<Scale2, Scale>::den == 1);
+
+    template <typename T2, typename Scale2>
+    static constexpr bool is_implicitly_convertible =
+        std::is_floating_point_v<T> ||
+        (!std::is_floating_point_v<T2> && is_harmonic<Scale2>);
+
+    template <typename T2>
+    static constexpr bool is_convertible_rep =
+        std::is_convertible_v<const T2 &, T> ||
+        (std::is_floating_point_v<T> && !std::is_floating_point_v<T2>);
+
+  public:
     static_assert(meta::is_ratio_v<Dim>);
     static_assert(Dim::num > 0);
     static_assert(Dim::den != 0);
@@ -119,10 +142,18 @@ struct quantity {
 
     quantity(const quantity &) = default;
 
-    explicit constexpr quantity(T value) : m_value(value) {}
+    template <typename T2, std::enable_if_t<is_convertible_rep<T2>, int> = 0>
+    explicit constexpr quantity(const T2 &value)
+        : m_value(static_cast<T>(value)) {}
 
-    template <typename Scale2, typename Offset2>
-    constexpr quantity(const quantity<T, Dim, Scale2, Offset2> &qty)
+    // We follow std::chrono and only allow implicit conversion
+    // between units if this does not result in a loss in precision.
+    // Else quantity_cast must be explicitly called.
+    template <typename T2,
+              typename Scale2,
+              typename Offset2,
+              std::enable_if_t<is_implicitly_convertible<T2, Scale2>, int> = 0>
+    constexpr quantity(const quantity<T2, Dim, Scale2, Offset2> &qty)
         : m_value(quantity_cast<quantity>(qty).value()) {}
 
     ~quantity() = default;

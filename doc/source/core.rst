@@ -110,12 +110,14 @@ Sums, products, differences
 :ref:`vdot <core_vdot>`
     Return the dot product of two vectors.
 
-
 Comparisons
 ----------------
 
 :ref:`almost_equal <core_almost_equal>`
     Compare floating points or arrays of floating points.
+
+:ref:`array_equal <core_array_equal>`
+    True if two arrays have the same size and elements (strict equality).
 
 Random
 -------------
@@ -158,6 +160,12 @@ Statistics
 
 :ref:`stats::nanstd <core_stats_nanstd>`
     Compute the standard deviation, ignoring NaNs.
+
+Units
+-------------
+
+:ref:`units::quantity <core_units_quantity>`
+    An arithmetic-like type representing a quantity.
 
 Functional programming
 ---------------
