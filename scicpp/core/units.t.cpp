@@ -90,6 +90,9 @@ TEST_CASE("Units additions") {
     L1--;
     REQUIRE(almost_equal<2>(L1, 5.14_m));
 
+    L1 += 6_cm;
+     REQUIRE(almost_equal<2>(L1, 5.2_m));
+
     REQUIRE(almost_equal(0_degC, 273.15_K));
     REQUIRE(almost_equal(0_K, -273.15_degC));
     // print(quantity_cast<kelvin<>>(10_degC));
@@ -141,6 +144,10 @@ TEST_CASE("Units multiplications") {
     REQUIRE(almost_equal(10_V * 100_mA, 1_W));
 
     REQUIRE(almost_equal(5_degC * 1_m2, 5_K * 1_m2));
+
+    auto L = 1_m;
+    L *= 1000.;
+    REQUIRE(almost_equal(L, 1_km));
 }
 
 TEST_CASE("Units divisions") {
@@ -151,6 +158,10 @@ TEST_CASE("Units divisions") {
 
     REQUIRE(almost_equal(5_degC / 1_W, 5_K / 1_W));
     REQUIRE(almost_equal(5_degC / 1_kW, 5_mK / 1_W));
+
+    auto M = 1_kg;
+    M /= 1000.;
+    REQUIRE(almost_equal(M, 1_g));
 }
 
 TEST_CASE("Units inv") {

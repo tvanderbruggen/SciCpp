@@ -230,6 +230,16 @@ struct quantity {
         return *this;
     }
 
+    constexpr auto &operator*=(const T &rhs) {
+        m_value *= rhs;
+        return *this;
+    }
+
+    constexpr auto &operator/=(const T &rhs) {
+        m_value /= rhs;
+        return *this;
+    }
+
     constexpr auto operator+() const { return *this; }
     constexpr auto operator-() const { return quantity(-m_value); }
 
@@ -351,6 +361,7 @@ auto value(T x) {
     }
 }
 
+// To debug
 template <typename T, typename Dim, typename Scale, typename Offset>
 void print(const quantity<T, Dim, Scale, Offset> &q) {
     std::printf("%f x (%li / %li) + (%li / %li) = %f [%li, %li]\n",
