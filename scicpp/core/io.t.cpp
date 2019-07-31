@@ -36,7 +36,7 @@ TEST_CASE("scicpp::loadtxt to tuple") {
     const auto data = TxtLoader<int, double, double, double, double>()
                           .delimiter(',')
                           .skiprows(1)
-                          .load("tests/data0.csv");
+                          .load<io::pack>("tests/data0.csv");
     // print(data);
     REQUIRE(data.size() == 38);
     REQUIRE(std::get<0>(data[0]) == 1);
@@ -49,7 +49,7 @@ TEST_CASE("scicpp::loadtxt to tuple and unpack") {
                                .delimiter(',')
                                .usecols(0, 1, 4)
                                .skiprows(1)
-                               .load<io::unpack>("tests/data0.csv");
+                               .load("tests/data0.csv");
     // print(data);
     REQUIRE(a.size() == 38);
     REQUIRE(a[0] == 1);
@@ -64,7 +64,7 @@ TEST_CASE("scicpp::loadtxt to tuple with converters") {
             .skiprows(1)
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
                          {2, [](auto x) { return 10 + std::atoi(x); }}})
-            .load("tests/data0.csv");
+            .load<io::pack>("tests/data0.csv");
     // print(data);
     REQUIRE(data.size() == 38);
     REQUIRE(std::get<1>(data[0]) == 0);
@@ -82,7 +82,7 @@ TEST_CASE("scicpp::loadtxt to tuple with converters and physical quantities") {
             .skiprows(1)
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
                          {2, [](auto x) { return 10 + std::atoi(x); }}})
-            .load("tests/data0.csv");
+            .load<io::pack>("tests/data0.csv");
     // print(data);
     REQUIRE(data.size() == 38);
     REQUIRE(std::get<1>(data[0]) == 0);
@@ -141,12 +141,31 @@ TEST_CASE("scicpp::loadtxt to tuple with usecols and converters") {
             .usecols({1, 2, 4})
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
                          {2, [](auto x) { return 10 + std::atoi(x); }}})
-            .load("tests/data0.csv");
+            .load<io::pack>("tests/data0.csv");
     // print(data);
     REQUIRE(data.size() == 38);
     REQUIRE(std::get<0>(data[0]) == 0);
     REQUIRE(std::get<1>(data[25]) == 10);
     REQUIRE(almost_equal(std::get<2>(data[37]), 0.02));
+}
+
+TEST_CASE("scicpp::loadtxt to tuple with usecols, converters and filters") {
+    const auto data =
+        TxtLoader<bool, int, double>()
+            .delimiter(',')
+            .skiprows(1)
+            .usecols({1, 2, 4})
+            .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
+                         {2, [](auto x) { return 10 + std::atoi(x); }}})
+            .filters({{1, [](auto x) { return io::cast<bool>(x); }},
+                      {2, [](auto x) { return io::cast<int>(x) < 12; }}})
+            .load<io::pack>("tests/data0.csv");
+
+    // print(data);
+    REQUIRE(data.size() == 26);
+    REQUIRE(std::get<0>(data[0]) == 1);
+    REQUIRE(std::get<1>(data[25]) == 10);
+    REQUIRE(almost_equal(std::get<2>(data[25]), 0.02));
 }
 
 TEST_CASE("scicpp::loadtxt to tuple with usecols list and converters") {
@@ -158,7 +177,7 @@ TEST_CASE("scicpp::loadtxt to tuple with usecols list and converters") {
             .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
                          {2, [](auto x) { return 10 + std::atoi(x); }}})
             .max_rows(10)
-            .load("tests/data0.csv");
+            .load<io::pack>("tests/data0.csv");
     // print(data);
     REQUIRE(data.size() == 10);
     REQUIRE(std::get<0>(data[0]) == 0);

@@ -202,7 +202,7 @@ TEST_CASE("Equivalence") {
         static_assert(radian<int>(0) == degree<int>(0));
         REQUIRE(almost_equal(radian<>(pi<double>), degree<>(180.)));
         REQUIRE(almost_equal<500>(radian<long double>(pi<long double>),
-                             degree<long double>(180.)));
+                                  degree<long double>(180.)));
         REQUIRE(almost_equal(radian<>(pi<double> / 2), degree<>(90.)));
         REQUIRE(almost_equal(radian<>(pi<double> / 4), degree<>(45.)));
         REQUIRE(almost_equal(3.1415926535897932_rad, 180_deg));

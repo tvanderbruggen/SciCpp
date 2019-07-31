@@ -17,6 +17,7 @@
 #include <fstream>
 #include <functional>
 #include <map>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -31,6 +32,14 @@ namespace scicpp {
 
 using ConvertersDict =
     std::map<signed_size_t, std::function<std::any(const char *str)>>;
+
+// template <typename... Converters>
+// using ConvertersDict = std::tuple<std::pair<signed_size_t, Converters...>>;
+
+using FiltersDict = std::map<signed_size_t, std::function<bool(std::any)>>;
+
+// template <typename... Filters>
+// using FiltersDict = std::tuple<std::pair<signed_size_t, Filters...>>;
 
 namespace detail {
 
@@ -57,18 +66,33 @@ auto to_number(const std::string &str) {
 using token_t = std::pair<signed_size_t, std::string>;
 
 template <typename DataType>
-auto convert(const token_t &tok, const ConvertersDict &converters) {
+std::optional<DataType> convert(const token_t &tok,
+                                const ConvertersDict &converters,
+                                const FiltersDict &filters) {
+    DataType res{};
+
     if (!converters.empty()) {
         const auto converter = converters.find(tok.first);
 
         if (converter != converters.end()) {
-            return std::any_cast<DataType>(
-                converter->second(tok.second.data()));
+            res = std::any_cast<DataType>(converter->second(tok.second.data()));
         } else {
-            return to_number<DataType>(tok.second);
+            res = to_number<DataType>(tok.second);
         }
     } else {
-        return to_number<DataType>(tok.second);
+        res = to_number<DataType>(tok.second);
+    }
+
+    if (filters.empty()) {
+        return res;
+    }
+
+    const auto filter = filters.find(tok.first);
+
+    if (filter != filters.end()) {
+        return filter->second(res) ? std::make_optional(res) : std::nullopt;
+    } else {
+        return res;
     }
 }
 
@@ -103,12 +127,19 @@ auto push_string_to_vector(std::vector<DataType> &vec,
                            const char *str,
                            char sep,
                            const ConvertersDict &converters,
+                           const FiltersDict &filters = {},
                            const std::vector<signed_size_t> &usecols = {}) {
     signed_size_t len = 0;
 
     iterate_line(
         str, sep, usecols, [&](const auto &token, [[maybe_unused]] auto idx) {
-            vec.push_back(convert<DataType>({len, token}, converters));
+            const auto res =
+                convert<DataType>({len, token}, converters, filters);
+
+            if (res.has_value()) {
+                vec.push_back(res.value());
+            }
+
             ++len;
         });
 
@@ -124,6 +155,7 @@ auto tokenize(tokens_t &tokens,
     std::size_t tok_idx = 0;
 
     iterate_line(str, sep, usecols, [&](const auto &token, auto idx) {
+        // FIXME Is this really an error, or should we just return here ?
         scicpp_require(tok_idx < tokens.size() &&
                        "Too many columns in delimiter-separated file");
         tokens[tok_idx] = {idx, token};
@@ -138,21 +170,24 @@ auto tokenize(tokens_t &tokens,
 template <class tokens_t, class Tuple, std::size_t... I>
 auto tokens_to_tuple(const tokens_t &tokens,
                      const ConvertersDict &converters,
+                     const FiltersDict &filters,
                      Tuple,
                      std::index_sequence<I...>) {
     return std::make_tuple(convert<std::tuple_element_t<I, Tuple>>(
-        std::get<I>(tokens), converters)...);
+        std::get<I>(tokens), converters, filters)...);
 }
 
 template <typename... DataTypes>
 auto load_line_to_tuple(const char *str,
                         char sep,
                         const ConvertersDict &converters,
+                        const FiltersDict &filters,
                         const std::vector<signed_size_t> &usecols) {
     std::array<token_t, sizeof...(DataTypes)> tokens{};
     tokenize(tokens, str, sep, usecols);
     return tokens_to_tuple(tokens,
                            converters,
+                           filters,
                            std::tuple<DataTypes...>{},
                            std::make_index_sequence<sizeof...(DataTypes)>{});
 }
@@ -193,6 +228,7 @@ auto loadtxt_to_vector(const std::filesystem::path &fname,
                        signed_size_t skiprows,
                        const std::vector<signed_size_t> &usecols,
                        const ConvertersDict &converters,
+                       const FiltersDict &filters,
                        signed_size_t max_rows) {
     std::vector<DataType> res(0);
     bool is_first_row = true;
@@ -200,7 +236,7 @@ auto loadtxt_to_vector(const std::filesystem::path &fname,
 
     iterate_file(fname, comments, skiprows, max_rows, [&](auto line) {
         signed_size_t line_cols = detail::push_string_to_vector(
-            res, line.data(), delimiter, converters, usecols);
+            res, line.data(), delimiter, converters, filters, usecols);
 
         if (is_first_row) {
             num_cols = line_cols;
@@ -250,11 +286,18 @@ EigenMatrix loadtxt(const std::filesystem::path &fname,
                     signed_size_t skiprows,
                     const std::vector<signed_size_t> &usecols,
                     const ConvertersDict &converters,
+                    const FiltersDict &filters,
                     signed_size_t max_rows) {
     using T = typename EigenMatrix::value_type;
 
-    const auto [data, num_cols] = detail::loadtxt_to_vector<T>(
-        fname, comments, delimiter, skiprows, usecols, converters, max_rows);
+    const auto [data, num_cols] = detail::loadtxt_to_vector<T>(fname,
+                                                               comments,
+                                                               delimiter,
+                                                               skiprows,
+                                                               usecols,
+                                                               converters,
+                                                               filters,
+                                                               max_rows);
 
     return Eigen::Map<const Eigen::Matrix<typename EigenMatrix::Scalar,
                                           EigenMatrix::RowsAtCompileTime,
@@ -271,10 +314,27 @@ auto loadtxt(const std::filesystem::path &fname,
              signed_size_t skiprows,
              const std::vector<signed_size_t> &usecols,
              const ConvertersDict &converters,
+             const FiltersDict &filters,
              signed_size_t max_rows) {
     return loadtxt<Eigen::Matrix<DataType, Eigen::Dynamic, Eigen::Dynamic>>(
-        fname, comments, delimiter, skiprows, usecols, converters, max_rows);
+        fname,
+        comments,
+        delimiter,
+        skiprows,
+        usecols,
+        converters,
+        filters,
+        max_rows);
 }
+
+namespace detail {
+
+template <class Tuple, std::size_t... I>
+auto get_tuple_values(Tuple tup, std::index_sequence<I...>) {
+    return std::make_tuple(std::get<I>(tup).value()...);
+}
+
+} // namespace detail
 
 template <typename... DataTypes,
           std::enable_if_t<(sizeof...(DataTypes) > 1), int> = 0>
@@ -284,12 +344,21 @@ auto loadtxt(const std::filesystem::path &fname,
              signed_size_t skiprows,
              const std::vector<signed_size_t> &usecols,
              const ConvertersDict &converters,
+             const FiltersDict &filters,
              signed_size_t max_rows) {
     std::vector<std::tuple<DataTypes...>> res;
 
     detail::iterate_file(fname, comments, skiprows, max_rows, [&](auto line) {
-        res.push_back(detail::load_line_to_tuple<DataTypes...>(
-            line.data(), delimiter, converters, usecols));
+        const auto tup = detail::load_line_to_tuple<DataTypes...>(
+            line.data(), delimiter, converters, filters, usecols);
+
+        const bool has_values =
+            std::apply([](auto... x) { return (x.has_value() && ...); }, tup);
+
+        if (has_values) {
+            res.push_back(detail::get_tuple_values(
+                tup, std::make_index_sequence<sizeof...(DataTypes)>{}));
+        }
     });
 
     return res;
@@ -304,7 +373,12 @@ auto loadtxt(const std::filesystem::path &fname,
 
 namespace io {
 
-inline constexpr bool unpack = true;
+inline constexpr bool pack = true;
+
+template <typename T>
+auto cast(std::any x) {
+    return std::any_cast<T>(x);
+}
 
 } // namespace io
 
@@ -369,7 +443,12 @@ class TxtLoader {
         return *this;
     }
 
-    template <bool unpack = false>
+    auto filters(FiltersDict filters) {
+        m_filters = filters;
+        return *this;
+    }
+
+    template <bool pack = false>
     auto load(const std::filesystem::path &fname) const {
         const auto data = loadtxt<DataTypes...>(fname,
                                                 m_comments,
@@ -377,9 +456,11 @@ class TxtLoader {
                                                 m_skiprows,
                                                 m_usecols,
                                                 m_converters,
+                                                m_filters,
                                                 m_max_rows);
 
-        if constexpr (unpack && (Ntypes > 1)) {
+        if constexpr (!pack && (Ntypes > 1)) {
+            // By default tuple output data are unpacked
             return scicpp::unpack(data);
         } else {
             return data;
@@ -392,6 +473,7 @@ class TxtLoader {
     char m_comments = '#';
     std::vector<signed_size_t> m_usecols = {};
     ConvertersDict m_converters = {};
+    FiltersDict m_filters = {};
     signed_size_t m_max_rows = -1;
 }; // class TxtLoader
 
