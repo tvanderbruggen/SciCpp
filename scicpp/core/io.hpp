@@ -41,6 +41,10 @@ using FiltersDict = std::map<signed_size_t, std::function<bool(std::any)>>;
 // template <typename... Filters>
 // using FiltersDict = std::tuple<std::pair<signed_size_t, Filters...>>;
 
+// template <typename... DataTypes>
+// using FiltersDict =
+//     std::map<signed_size_t, std::function<bool(std::variant<DataTypes...>)>>;
+
 namespace detail {
 
 template <typename T>

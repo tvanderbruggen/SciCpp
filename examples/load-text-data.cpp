@@ -49,7 +49,13 @@ int main() {
             .converters({{1, [](auto x) { return x[0] == 'M'; }},
                          {4, parse_weight},
                          {5, parse_blood_pressure}})
-            .load<sci::io::unpack>("examples/text-data.csv");
+            .filters( // Use filters to keep only lines with valid (positives) values
+                {{4, [](auto x) { return sci::io::cast<Weight>(x) > 0_kg; }},
+                 {5,
+                  [](auto x) {
+                      return sci::io::cast<BloodPressure>(x).first > 0_mmHg;
+                  }}})
+            .load("examples/text-data.csv");
 
     const auto m_av = sci::stats::mean(sci::mask(heights, genders));
     const auto f_av = sci::stats::mean(sci::mask(heights, !genders));
@@ -57,26 +63,17 @@ int main() {
            m_av.value(),
            f_av.value());
 
-    // We use the mean function with a filter
-    const auto weight_filter = [](auto w) { return w > 0_kg; };
-    const auto m_wav =
-        sci::stats::mean(sci::mask(weights, genders), weight_filter);
-    const auto f_wav =
-        sci::stats::mean(sci::mask(weights, !genders), weight_filter);
+    const auto m_wav = sci::stats::mean(sci::mask(weights, genders));
+    const auto f_wav = sci::stats::mean(sci::mask(weights, !genders));
     printf("Male average: %.2f kg, Female average: %.2f kg\n",
            m_wav.value(),
            f_wav.value());
 
     const auto [systolic, diastolic] = sci::unpack(blood_pressures);
-    const auto blood_pressure_filter = [](auto p) { return p > 0_mmHg; };
-    const auto m_syst_av =
-        sci::stats::mean(sci::mask(systolic, genders), blood_pressure_filter);
-    const auto f_syst_av =
-        sci::stats::mean(sci::mask(systolic, !genders), blood_pressure_filter);
-    const auto m_diast_av =
-        sci::stats::mean(sci::mask(diastolic, genders), blood_pressure_filter);
-    const auto f_diast_av =
-        sci::stats::mean(sci::mask(diastolic, !genders), blood_pressure_filter);
+    const auto m_syst_av = sci::stats::mean(sci::mask(systolic, genders));
+    const auto f_syst_av = sci::stats::mean(sci::mask(systolic, !genders));
+    const auto m_diast_av = sci::stats::mean(sci::mask(diastolic, genders));
+    const auto f_diast_av = sci::stats::mean(sci::mask(diastolic, !genders));
 
     printf("Male average: %.2f/%.2f mmHg, Female average: %.2f/%.2f mmHg\n",
            m_syst_av.value(),
