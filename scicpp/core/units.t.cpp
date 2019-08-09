@@ -15,15 +15,49 @@ namespace scicpp::units {
 
 using namespace literals;
 
-// A quantity is an arithmetic-like type
-static_assert(std::is_trivial_v<meter<>>);
-static_assert(std::is_trivially_copyable_v<meter<>>);
-static_assert(std::is_trivially_destructible_v<meter<>>);
-static_assert(std::is_trivially_default_constructible_v<meter<>>);
-static_assert(std::is_trivially_copy_constructible_v<meter<>>);
-static_assert(std::is_trivially_copy_assignable_v<meter<>>);
-static_assert(std::is_trivially_move_constructible_v<meter<>>);
-static_assert(std::is_trivially_move_assignable_v<meter<>>);
+TEST_CASE("A quantity is an arithmetic-like type") {
+    static_assert(std::is_trivial_v<meter<>>);
+    static_assert(std::is_trivially_copyable_v<meter<>>);
+    static_assert(std::is_trivially_destructible_v<meter<>>);
+    static_assert(std::is_trivially_default_constructible_v<meter<>>);
+    static_assert(std::is_trivially_copy_constructible_v<meter<>>);
+    static_assert(std::is_trivially_copy_assignable_v<meter<>>);
+    static_assert(std::is_trivially_move_constructible_v<meter<>>);
+    static_assert(std::is_trivially_move_assignable_v<meter<>>);
+}
+
+TEST_CASE("Dimension") {
+    SECTION("Multiply / Exponent = 1") {
+        using Dim1 = dimension<std::ratio<1, 2>>;
+        using Dim2 = dimension<std::ratio<3>>;
+        using DimMult = dimension_multiply<Dim1, Dim2>;
+
+        static_assert(DimMult::num == 3 && DimMult::den == 2);
+    }
+
+    SECTION("Multiply / Exponent != 1") {
+        using Dim1 = dimension<std::ratio<1, 2>, 2>;
+        using Dim2 = dimension<std::ratio<3>, 3>;
+        using Dim3 = dimension<std::ratio<1, 3>, 2>;
+        using Dim4 = dimension<std::ratio<1, 2>, 3>;
+
+        using DimMult1 = dimension_multiply<Dim1, Dim2>;
+        static_assert(DimMult1::num == 9 && DimMult1::den == 8 &&
+                      DimMult1::inv_exp == 6);
+
+        using DimMult2 = dimension_multiply<Dim1, Dim3>;
+        static_assert(DimMult2::num == 1 && DimMult2::den == 6 &&
+                      DimMult2::inv_exp == 2);
+
+        using DimMult3 = dimension_multiply<Dim1, Dim4>;
+        static_assert(DimMult3::num == 1 && DimMult3::den == 32 &&
+                      DimMult3::inv_exp == 6);
+
+        using Dim1Sqr = dimension_multiply<Dim1, Dim1>;
+        static_assert(Dim1Sqr::num == 1 && Dim1Sqr::den == 2 &&
+                      Dim1Sqr::inv_exp == 1);
+    }
+}
 
 TEST_CASE("Casting") {
     SECTION("Implicit conversions") {

@@ -73,25 +73,26 @@ template <typename DataType>
 std::optional<DataType> convert(const token_t &tok,
                                 const ConvertersDict &converters,
                                 const FiltersDict &filters) {
+    const auto [col_id, token] = tok;
     DataType res{};
 
     if (!converters.empty()) {
-        const auto converter = converters.find(tok.first);
+        const auto converter = converters.find(col_id);
 
         if (converter != converters.end()) {
-            res = std::any_cast<DataType>(converter->second(tok.second.data()));
+            res = std::any_cast<DataType>(converter->second(token.data()));
         } else {
-            res = to_number<DataType>(tok.second);
+            res = to_number<DataType>(token);
         }
     } else {
-        res = to_number<DataType>(tok.second);
+        res = to_number<DataType>(token);
     }
 
     if (filters.empty()) {
         return res;
     }
 
-    const auto filter = filters.find(tok.first);
+    const auto filter = filters.find(col_id);
 
     if (filter != filters.end()) {
         return filter->second(res) ? std::make_optional(res) : std::nullopt;

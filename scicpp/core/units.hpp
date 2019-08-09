@@ -7,12 +7,94 @@
 #include "scicpp/core/meta.hpp"
 
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <numeric>
 #include <ratio>
 #include <type_traits>
 
 namespace scicpp::units {
+
+// ----------------------------------------------------------------------------
+// Dimension
+// ----------------------------------------------------------------------------
+
+// Rational of primary dimensions to a given inverse power.
+//
+// Let q1, ..., qN and r1, ..., rN be primary dimensions (prime numbers),
+// a dimension can be represented as:
+// Ratio ^ (1 / InvExp)
+// where Ratio = (q1^p1 x ... x qN^pN) / (r1^p1' x ... x rN^pN'),
+// and InvExp is an integer (for example 2 for sqrt).
+template <typename Ratio, intmax_t InvExp = 1>
+struct dimension {
+    static_assert(meta::is_ratio_v<Ratio>);
+    static_assert(Ratio::num > 0);
+    static_assert(Ratio::den != 0);
+    static_assert(InvExp > 0);
+
+    using ratio = Ratio;
+
+    static constexpr auto num = Ratio::num;
+    static constexpr auto den = Ratio::den;
+    static constexpr auto inv_exp = InvExp;
+};
+
+namespace detail {
+
+// ----- Compile-time exponentiation
+//https://stackoverflow.com/questions/27270541/is-there-no-built-in-way-to-compute-a-power-at-compile-time-in-c
+template <typename T>
+constexpr T sqr(T a) {
+    return a * a;
+}
+
+template <typename T>
+constexpr T power(T a, intmax_t n) {
+    return n == 0 ? 1 : sqr(power(a, n / 2)) * (n % 2 == 0 ? 1 : a);
+}
+
+template <typename Dim1, typename Dim2>
+struct dimension_multiply_impl {
+    // (Q1/P1)^(1/E1) x (Q2/P2)^(1/E2) = (Q/P)^(1/E)
+    // where:
+    // Q = Q1^E2 x Q2^E1
+    // P = P1^E2 x P2^E1
+    // E = E1 x E2
+
+    static constexpr auto Q1 = Dim1::num;
+    static constexpr auto Q2 = Dim2::num;
+    static constexpr auto P1 = Dim1::den;
+    static constexpr auto P2 = Dim2::den;
+    static constexpr auto E1 = Dim1::inv_exp;
+    static constexpr auto E2 = Dim2::inv_exp;
+
+    // TODO Use std::ratio_multiply if E1 = E2 = 1
+
+    static constexpr auto G = std::gcd(E1, E2);
+    static constexpr auto e1 = E1 / G;
+    static constexpr auto e2 = E2 / G;
+
+    static constexpr auto Q = power(Q1, e2) * power(Q2, e1);
+    static constexpr auto P = power(P1, e2) * power(P2, e1);
+
+    using type = dimension<std::ratio<Q, P>, G * e1 * e2>;
+};
+
+// template <typename  Dim1, typename Dim2>
+// struct dimension_divide_impl {
+
+// };
+
+} // namespace detail
+
+template <typename Dim1, typename Dim2>
+using dimension_multiply =
+    typename detail::dimension_multiply_impl<Dim1, Dim2>::type;
+
+// ----------------------------------------------------------------------------
+// Quantity
+// ----------------------------------------------------------------------------
 
 // Represents a physical quantity.
 // T is the underlying representation type.
@@ -1202,6 +1284,11 @@ using chemical_potential =
 
 template <typename T, typename Scale = std::ratio<1>>
 using thermal_resistance = quantity_divide<temperature<T, Scale>, power<T>>;
+
+#undef SCICPP_CORE_UNITS_SET_LITERAL
+#undef SCICPP_CORE_UNITS_SET_LITERAL_RATIO
+#undef SCICPP_CORE_UNITS_SET_LITERAL_RATIO2
+#undef SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS
 
 } // namespace scicpp::units
 

@@ -350,7 +350,7 @@ TEST_CASE("Arithmetic operators physical quantity") {
     REQUIRE(almost_equal(a / 2., {0.5_m, 1._m, 1.5_m}));
     REQUIRE(almost_equal(a / 2._s, {0.5_m_per_s, 1._m_per_s, 1.5_m_per_s}));
     REQUIRE(almost_equal(b1 / 1._s, {2._Hz, 4._Hz, 6._Hz}));
-    REQUIRE(almost_equal<1500>(6._s / b1, {3._s, 1.5_s, 1._s}));
+    REQUIRE(almost_equal(6._s / b1, {3._s, 1.5_s, 1._s}));
 
     REQUIRE(almost_equal(2_m % a, {0_m, 0_m, 2_m}));
     REQUIRE(almost_equal(a % 2_m, {1_m, 0_m, 1_m}));

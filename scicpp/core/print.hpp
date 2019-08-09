@@ -63,7 +63,7 @@ void fprint_element(FILE *stream, T value) {
             auto fmt_ = fmt + " - " + fmt + "i";
             std::fprintf(stream, fmt_.c_str(), value.real(), -value.imag());
         }
-    } else if constexpr (meta::is_std_tuple_v<T>) {
+    } else if constexpr (meta::is_std_tuple_v<T> || meta::is_std_pair_v<T>) {
         std::fprintf(stream, "(");
         std::apply(
             [stream](auto... x) { (fprint_tuple_element(stream, x), ...); },

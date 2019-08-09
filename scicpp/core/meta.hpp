@@ -154,6 +154,11 @@ auto subtuple(const std::tuple<T...> &t) {
                              std::make_index_sequence<sizeof...(T) - Trim>());
 }
 
+template <int Trim = 1, typename T1, typename T2>
+auto subtuple(const std::pair<T1, T2> &t) {
+    return std::make_tuple(t.first);
+}
+
 //---------------------------------------------------------------------------------
 // is_ratio
 //---------------------------------------------------------------------------------

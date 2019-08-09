@@ -25,4 +25,10 @@ TEST_CASE("move_subvector") {
     REQUIRE(move_subvector(std::vector{1, 2, 3}, 4) == std::vector{1, 2, 3});
 }
 
+TEST_CASE("prime_factors") {
+
+    const auto factors = prime_factors<10>().values();
+    print(factors);
+}
+
 } // namespace scicpp::utils
