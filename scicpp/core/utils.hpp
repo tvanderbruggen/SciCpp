@@ -69,7 +69,7 @@ struct prime_factors {
         }
     }
 
-    auto values() const { return factors; }
+    constexpr auto values() const { return factors; }
 
   private:
     // https://hbfs.wordpress.com/2016/03/22/log2-with-c-metaprogramming/
@@ -92,12 +92,12 @@ struct prime_factors {
         }
 
         // prime not in array
-        factors[i] = {prime, 1};
+        factors[i].first = prime;
+        factors[i].second = 1;
     }
 
     // There is at most log2(n) prime factors
     std::array<std::pair<prime_t, intmax_t>, std::size_t(ct_log2(n))> factors{};
-
 };
 
 } // namespace scicpp::utils

@@ -23,21 +23,21 @@ namespace scicpp::units {
 //
 // Let q1, ..., qN and r1, ..., rN be primary dimensions (prime numbers),
 // a dimension can be represented as:
-// Ratio ^ (1 / InvExp)
+// Ratio ^ (1 / Root)
 // where Ratio = (q1^p1 x ... x qN^pN) / (r1^p1' x ... x rN^pN'),
-// and InvExp is an integer (for example 2 for sqrt).
-template <typename Ratio, intmax_t InvExp = 1>
+// and Root is an integer (for example 2 for sqrt).
+template <typename Ratio, intmax_t Root = 1>
 struct dimension {
     static_assert(meta::is_ratio_v<Ratio>);
     static_assert(Ratio::num > 0);
     static_assert(Ratio::den != 0);
-    static_assert(InvExp > 0);
+    static_assert(Root > 0);
 
     using ratio = Ratio;
 
     static constexpr auto num = Ratio::num;
     static constexpr auto den = Ratio::den;
-    static constexpr auto inv_exp = InvExp;
+    static constexpr auto root = Root;
 };
 
 namespace detail {
@@ -66,8 +66,8 @@ struct dimension_multiply_impl {
     static constexpr auto Q2 = Dim2::num;
     static constexpr auto P1 = Dim1::den;
     static constexpr auto P2 = Dim2::den;
-    static constexpr auto E1 = Dim1::inv_exp;
-    static constexpr auto E2 = Dim2::inv_exp;
+    static constexpr auto E1 = Dim1::root;
+    static constexpr auto E2 = Dim2::root;
 
     // TODO Use std::ratio_multiply if E1 = E2 = 1
 
