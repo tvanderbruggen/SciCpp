@@ -5,6 +5,7 @@
 #define SCICPP_CORE_UNITS
 
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/utils.hpp"
 
 #include <cmath>
 #include <cstdint>
@@ -14,6 +15,8 @@
 #include <type_traits>
 
 namespace scicpp::units {
+
+// http://web.mit.edu/2.25/www/pdf/DA_unified.pdf
 
 // ----------------------------------------------------------------------------
 // Dimension
@@ -54,43 +57,80 @@ constexpr T power(T a, intmax_t n) {
     return n == 0 ? 1 : sqr(power(a, n / 2)) * (n % 2 == 0 ? 1 : a);
 }
 
+template <typename PrimeFactors>
+constexpr bool is_exact_root(PrimeFactors factors, intmax_t root) {
+    for (const auto &factor : factors) {
+        if (factor.second % root != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template <typename PrimeFactors>
+constexpr auto compute_root(PrimeFactors factors, intmax_t root) {
+    intmax_t res = 1;
+
+    for (const auto &factor : factors) {
+        res *= power(factor.first, factor.second / root);
+    }
+
+    return res;
+}
+
 template <typename Dim1, typename Dim2>
-struct dimension_multiply_impl {
-    // (Q1/P1)^(1/E1) x (Q2/P2)^(1/E2) = (Q/P)^(1/E)
-    // where:
-    // Q = Q1^E2 x Q2^E1
-    // P = P1^E2 x P2^E1
-    // E = E1 x E2
+constexpr auto dimension_multiply_impl() {
+    constexpr auto Q1 = Dim1::num;
+    constexpr auto Q2 = Dim2::num;
+    constexpr auto P1 = Dim1::den;
+    constexpr auto P2 = Dim2::den;
+    constexpr auto R1 = Dim1::root;
+    constexpr auto R2 = Dim2::root;
 
-    static constexpr auto Q1 = Dim1::num;
-    static constexpr auto Q2 = Dim2::num;
-    static constexpr auto P1 = Dim1::den;
-    static constexpr auto P2 = Dim2::den;
-    static constexpr auto E1 = Dim1::root;
-    static constexpr auto E2 = Dim2::root;
+    if constexpr (R1 == 1 && R2 == 1) {
+        return dimension<
+            std::ratio_multiply<typename Dim1::ratio, typename Dim2::ratio>,
+            1>{};
+    } else {
+        // Reduce under common root:
+        // (Q1/P1)^(1/R1) x (Q2/P2)^(1/R2) = (Q/P)^(1/R)
+        // where:
+        // Q = Q1^r2 x Q2^r1
+        // P = P1^r2 x P2^r1
+        // R = G r1 r2
+        // and
+        // G = gcd(R1, R2),
+        // Ri = G ri
 
-    // TODO Use std::ratio_multiply if E1 = E2 = 1
+        constexpr auto G = std::gcd(R1, R2);
+        constexpr auto r1 = R1 / G;
+        constexpr auto r2 = R2 / G;
 
-    static constexpr auto G = std::gcd(E1, E2);
-    static constexpr auto e1 = E1 / G;
-    static constexpr auto e2 = E2 / G;
+        constexpr auto Q = power(Q1, r2) * power(Q2, r1);
+        constexpr auto P = power(P1, r2) * power(P2, r1);
+        constexpr auto R = G * r1 * r2;
 
-    static constexpr auto Q = power(Q1, e2) * power(Q2, e1);
-    static constexpr auto P = power(P1, e2) * power(P2, e1);
+        // If Q and P are exact roots of R we can further reduce the result
+        constexpr auto q_factors = utils::prime_factors<Q>().values();
+        constexpr auto p_factors = utils::prime_factors<P>().values();
 
-    using type = dimension<std::ratio<Q, P>, G * e1 * e2>;
-};
-
-// template <typename  Dim1, typename Dim2>
-// struct dimension_divide_impl {
-
-// };
+        if constexpr (is_exact_root(q_factors, R) &&
+                      is_exact_root(p_factors, R)) {
+            return dimension<std::ratio<compute_root(q_factors, R),
+                                        compute_root(p_factors, R)>,
+                             1>{};
+        } else {
+            return dimension<std::ratio<Q, P>, R>{};
+        }
+    }
+}
 
 } // namespace detail
 
 template <typename Dim1, typename Dim2>
 using dimension_multiply =
-    typename detail::dimension_multiply_impl<Dim1, Dim2>::type;
+    decltype(detail::dimension_multiply_impl<Dim1, Dim2>());
 
 // ----------------------------------------------------------------------------
 // Quantity

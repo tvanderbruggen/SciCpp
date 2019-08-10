@@ -74,7 +74,7 @@ struct prime_factors {
   private:
     // https://hbfs.wordpress.com/2016/03/22/log2-with-c-metaprogramming/
     static constexpr intmax_t ct_log2(intmax_t num) {
-        return (num < 2) ? 1 : 1 + ct_log2(num / 2);
+        return (num < 2) ? 1 : 1 + ct_log2(num >> 1);
     }
 
     constexpr void append(prime_t prime) {

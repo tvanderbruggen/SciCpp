@@ -27,6 +27,15 @@ TEST_CASE("A quantity is an arithmetic-like type") {
 }
 
 TEST_CASE("Dimension") {
+    SECTION("is_exact_root") {
+        static_assert(
+            detail::is_exact_root(utils::prime_factors<4>().values(), 2));
+        static_assert(
+            !detail::is_exact_root(utils::prime_factors<10>().values(), 2));
+        static_assert(detail::is_exact_root(
+            utils::prime_factors<23435281>().values(), 2));
+    }
+
     SECTION("Multiply / Exponent = 1") {
         using Dim1 = dimension<std::ratio<1, 2>>;
         using Dim2 = dimension<std::ratio<3>>;
@@ -43,19 +52,19 @@ TEST_CASE("Dimension") {
 
         using DimMult1 = dimension_multiply<Dim1, Dim2>;
         static_assert(DimMult1::num == 9 && DimMult1::den == 8 &&
-                      DimMult1::inv_exp == 6);
+                      DimMult1::root == 6);
 
         using DimMult2 = dimension_multiply<Dim1, Dim3>;
         static_assert(DimMult2::num == 1 && DimMult2::den == 6 &&
-                      DimMult2::inv_exp == 2);
+                      DimMult2::root == 2);
 
         using DimMult3 = dimension_multiply<Dim1, Dim4>;
         static_assert(DimMult3::num == 1 && DimMult3::den == 32 &&
-                      DimMult3::inv_exp == 6);
+                      DimMult3::root == 6);
 
         using Dim1Sqr = dimension_multiply<Dim1, Dim1>;
         static_assert(Dim1Sqr::num == 1 && Dim1Sqr::den == 2 &&
-                      Dim1Sqr::inv_exp == 1);
+                      Dim1Sqr::root == 1);
     }
 }
 
