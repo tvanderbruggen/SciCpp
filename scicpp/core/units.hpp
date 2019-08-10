@@ -81,10 +81,6 @@ constexpr auto compute_root(PrimeFactors factors, intmax_t root) {
 
 template <typename Dim1, typename Dim2>
 constexpr auto dimension_multiply_impl() {
-    constexpr auto Q1 = Dim1::num;
-    constexpr auto Q2 = Dim2::num;
-    constexpr auto P1 = Dim1::den;
-    constexpr auto P2 = Dim2::den;
     constexpr auto R1 = Dim1::root;
     constexpr auto R2 = Dim2::root;
 
@@ -93,6 +89,10 @@ constexpr auto dimension_multiply_impl() {
             std::ratio_multiply<typename Dim1::ratio, typename Dim2::ratio>,
             1>{};
     } else {
+        constexpr auto Q1 = Dim1::num;
+        constexpr auto Q2 = Dim2::num;
+        constexpr auto P1 = Dim1::den;
+        constexpr auto P2 = Dim2::den;
         // Reduce under common root:
         // (Q1/P1)^(1/R1) x (Q2/P2)^(1/R2) = (Q/P)^(1/R)
         // where:
@@ -111,7 +111,9 @@ constexpr auto dimension_multiply_impl() {
         constexpr auto P = power(P1, r2) * power(P2, r1);
         constexpr auto R = G * r1 * r2;
 
-        // If Q and P are exact roots of R we can further reduce the result
+        // If Q and P are exact roots of R (Q=q^R and P=p^R),
+        // we can reduce the result:
+        // (Q/P)^(1/R) = (q^R / p^R)^(1/R) = q/p
         constexpr auto q_factors = utils::prime_factors<Q>().values();
         constexpr auto p_factors = utils::prime_factors<P>().values();
 
@@ -126,11 +128,25 @@ constexpr auto dimension_multiply_impl() {
     }
 }
 
+template <typename Dim1, typename Dim2>
+constexpr auto dimension_divide_impl() {
+    constexpr auto Q2 = Dim2::num;
+    constexpr auto P2 = Dim2::den;
+    constexpr auto R2 = Dim2::root;
+
+    using Dim2Inv = dimension<std::ratio<P2, Q2>, R2>;
+    return dimension_multiply_impl<Dim1, Dim2Inv>();
+}
+
 } // namespace detail
 
 template <typename Dim1, typename Dim2>
 using dimension_multiply =
     decltype(detail::dimension_multiply_impl<Dim1, Dim2>());
+
+template <typename Dim1, typename Dim2>
+using dimension_divide =
+    decltype(detail::dimension_divide_impl<Dim1, Dim2>());
 
 // ----------------------------------------------------------------------------
 // Quantity

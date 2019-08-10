@@ -50,21 +50,21 @@ TEST_CASE("Dimension") {
         using Dim3 = dimension<std::ratio<1, 3>, 2>;
         using Dim4 = dimension<std::ratio<1, 2>, 3>;
 
-        using DimMult1 = dimension_multiply<Dim1, Dim2>;
-        static_assert(DimMult1::num == 9 && DimMult1::den == 8 &&
-                      DimMult1::root == 6);
+        static_assert(std::is_same_v<dimension_multiply<Dim1, Dim2>,
+                                     dimension<std::ratio<9, 8>, 6>>);
+        static_assert(std::is_same_v<dimension_multiply<Dim1, Dim3>,
+                                     dimension<std::ratio<1, 6>, 2>>);
+        static_assert(std::is_same_v<dimension_multiply<Dim1, Dim4>,
+                                     dimension<std::ratio<1, 32>, 6>>);
+        static_assert(std::is_same_v<dimension_multiply<Dim1, Dim1>,
+                                     dimension<std::ratio<1, 2>, 1>>);
+        static_assert(std::is_same_v<
+                      dimension_multiply<Dim1, dimension_multiply<Dim1, Dim1>>,
+                      dimension<std::ratio<1, 8>, 2>>);
+    }
 
-        using DimMult2 = dimension_multiply<Dim1, Dim3>;
-        static_assert(DimMult2::num == 1 && DimMult2::den == 6 &&
-                      DimMult2::root == 2);
+    SECTION("Divide") {
 
-        using DimMult3 = dimension_multiply<Dim1, Dim4>;
-        static_assert(DimMult3::num == 1 && DimMult3::den == 32 &&
-                      DimMult3::root == 6);
-
-        using Dim1Sqr = dimension_multiply<Dim1, Dim1>;
-        static_assert(Dim1Sqr::num == 1 && Dim1Sqr::den == 2 &&
-                      Dim1Sqr::root == 1);
     }
 }
 
