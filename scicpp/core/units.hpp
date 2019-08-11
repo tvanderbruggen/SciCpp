@@ -33,7 +33,7 @@ template <typename Ratio, intmax_t Root = 1>
 struct dimension {
     static_assert(meta::is_ratio_v<Ratio>);
     static_assert(Ratio::num > 0);
-    static_assert(Ratio::den != 0);
+    static_assert(Ratio::den > 0);
     static_assert(Root > 0);
 
     using ratio = Ratio;
@@ -79,6 +79,26 @@ constexpr auto compute_root(PrimeFactors factors, intmax_t root) {
     return res;
 }
 
+template <typename Dim, intmax_t Root = 1>
+constexpr auto dimension_root_impl() {
+    constexpr auto Q = Dim::num;
+    constexpr auto P = Dim::den;
+    constexpr auto R = Dim::root * Root;
+
+    // If Q and P are exact roots of R (Q=q^R and P=p^R),
+    // we can reduce the dimension to a ratio only:
+    // (Q/P)^(1/R) = (q^R / p^R)^(1/R) = q/p
+    constexpr auto q_factors = utils::prime_factors<Q>().values();
+    constexpr auto p_factors = utils::prime_factors<P>().values();
+
+    if constexpr (is_exact_root(q_factors, R) && is_exact_root(p_factors, R)) {
+        return dimension<std::ratio<compute_root(q_factors, R),
+                                    compute_root(p_factors, R)>>{};
+    } else {
+        return dimension<std::ratio<Q, P>, R>{};
+    }
+}
+
 template <typename Dim1, typename Dim2>
 constexpr auto dimension_multiply_impl() {
     constexpr auto R1 = Dim1::root;
@@ -86,13 +106,13 @@ constexpr auto dimension_multiply_impl() {
 
     if constexpr (R1 == 1 && R2 == 1) {
         return dimension<
-            std::ratio_multiply<typename Dim1::ratio, typename Dim2::ratio>,
-            1>{};
+            std::ratio_multiply<typename Dim1::ratio, typename Dim2::ratio>>{};
     } else {
         constexpr auto Q1 = Dim1::num;
         constexpr auto Q2 = Dim2::num;
         constexpr auto P1 = Dim1::den;
         constexpr auto P2 = Dim2::den;
+
         // Reduce under common root:
         // (Q1/P1)^(1/R1) x (Q2/P2)^(1/R2) = (Q/P)^(1/R)
         // where:
@@ -111,20 +131,8 @@ constexpr auto dimension_multiply_impl() {
         constexpr auto P = power(P1, r2) * power(P2, r1);
         constexpr auto R = G * r1 * r2;
 
-        // If Q and P are exact roots of R (Q=q^R and P=p^R),
-        // we can reduce the result:
-        // (Q/P)^(1/R) = (q^R / p^R)^(1/R) = q/p
-        constexpr auto q_factors = utils::prime_factors<Q>().values();
-        constexpr auto p_factors = utils::prime_factors<P>().values();
-
-        if constexpr (is_exact_root(q_factors, R) &&
-                      is_exact_root(p_factors, R)) {
-            return dimension<std::ratio<compute_root(q_factors, R),
-                                        compute_root(p_factors, R)>,
-                             1>{};
-        } else {
-            return dimension<std::ratio<Q, P>, R>{};
-        }
+        // Compute the root to reduce the dimension if exact root
+        return dimension_root_impl<dimension<std::ratio<Q, P>, R>>();
     }
 }
 
@@ -140,13 +148,15 @@ constexpr auto dimension_divide_impl() {
 
 } // namespace detail
 
+template <typename Dim, intmax_t Root>
+using dimension_root = decltype(detail::dimension_root_impl<Dim, Root>());
+
 template <typename Dim1, typename Dim2>
 using dimension_multiply =
     decltype(detail::dimension_multiply_impl<Dim1, Dim2>());
 
 template <typename Dim1, typename Dim2>
-using dimension_divide =
-    decltype(detail::dimension_divide_impl<Dim1, Dim2>());
+using dimension_divide = decltype(detail::dimension_divide_impl<Dim1, Dim2>());
 
 // ----------------------------------------------------------------------------
 // Quantity
@@ -263,9 +273,9 @@ struct quantity {
         (std::is_floating_point_v<T> && !std::is_floating_point_v<T2>);
 
   public:
-    static_assert(meta::is_ratio_v<Dim>);
-    static_assert(Dim::num > 0);
-    static_assert(Dim::den != 0);
+    // static_assert(meta::is_ratio_v<Dim>);
+    // static_assert(Dim::num > 0);
+    // static_assert(Dim::den != 0);
     static_assert(meta::is_ratio_v<Scale>);
     static_assert(Scale::num > 0);
     static_assert(Scale::den != 0);
@@ -417,7 +427,7 @@ struct quantity {
     template <typename RhsDim, typename RhsScale>
     constexpr auto operator*(const quantity<T, RhsDim, RhsScale> &rhs) const {
         return quantity<T,
-                        std::ratio_multiply<Dim, RhsDim>,
+                        dimension_multiply<Dim, RhsDim>,
                         std::ratio_multiply<Scale, RhsScale>>(m_value *
                                                               rhs.value());
     }
@@ -425,14 +435,14 @@ struct quantity {
     template <typename RhsDim, typename RhsScale>
     constexpr auto operator/(const quantity<T, RhsDim, RhsScale> &rhs) const {
         return quantity<T,
-                        std::ratio_divide<Dim, RhsDim>,
+                        dimension_divide<Dim, RhsDim>,
                         std::ratio_divide<Scale, RhsScale>>(m_value /
                                                             rhs.value());
     }
 
     constexpr auto inv() const {
         return quantity<T,
-                        std::ratio_divide<std::ratio<1>, Dim>,
+                        dimension_divide<dimension<std::ratio<1>>, Dim>,
                         std::ratio_divide<std::ratio<1>, Scale>>(T{1} /
                                                                  m_value);
     }
@@ -555,19 +565,19 @@ namespace primary_flags {
 // using Dimensionless = std::ratio<1>;
 
 // SI
-using Length = std::ratio<2>;
-using Time = std::ratio<3>;
-using Mass = std::ratio<5>;
-using ElectricCurrent = std::ratio<7>;
-using Temperature = std::ratio<11>;
-using AmountOfSubstance = std::ratio<13>;
-using LuminousIntensity = std::ratio<17>;
+using Length = dimension<std::ratio<2>>;
+using Time = dimension<std::ratio<3>>;
+using Mass = dimension<std::ratio<5>>;
+using ElectricCurrent = dimension<std::ratio<7>>;
+using Temperature = dimension<std::ratio<11>>;
+using AmountOfSubstance = dimension<std::ratio<13>>;
+using LuminousIntensity = dimension<std::ratio<17>>;
 
 // Angle
-using Angle = std::ratio<19>;
+using Angle = dimension<std::ratio<19>>;
 
 // Data
-using DataQuantity = std::ratio<23>;
+using DataQuantity = dimension<std::ratio<23>>;
 
 } // namespace primary_flags
 

@@ -81,13 +81,13 @@ struct prime_factors {
         std::size_t i = 0;
 
         for (; i < factors.size(); ++i) {
+            if (factors[i].first == 0) {
+                break;
+            }
+
             if (factors[i].first == prime) {
                 ++factors[i].second;
                 return;
-            }
-
-            if (factors[i].first == 0) {
-                break;
             }
         }
 

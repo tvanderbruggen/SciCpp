@@ -36,6 +36,15 @@ TEST_CASE("Dimension") {
             utils::prime_factors<23435281>().values(), 2));
     }
 
+    SECTION("Root") {
+        using Dim = dimension<std::ratio<1, 4>>;
+
+        static_assert(std::is_same_v<dimension_root<Dim, 2>,
+                                     dimension<std::ratio<1, 2>>>);
+        static_assert(std::is_same_v<dimension_root<Dim, 3>,
+                                     dimension<std::ratio<1, 4>, 3>>);
+    }
+
     SECTION("Multiply / Exponent = 1") {
         using Dim1 = dimension<std::ratio<1, 2>>;
         using Dim2 = dimension<std::ratio<3>>;
@@ -57,14 +66,20 @@ TEST_CASE("Dimension") {
         static_assert(std::is_same_v<dimension_multiply<Dim1, Dim4>,
                                      dimension<std::ratio<1, 32>, 6>>);
         static_assert(std::is_same_v<dimension_multiply<Dim1, Dim1>,
-                                     dimension<std::ratio<1, 2>, 1>>);
+                                     dimension<std::ratio<1, 2>>>);
         static_assert(std::is_same_v<
                       dimension_multiply<Dim1, dimension_multiply<Dim1, Dim1>>,
                       dimension<std::ratio<1, 8>, 2>>);
     }
 
     SECTION("Divide") {
+        using Dim1 = dimension<std::ratio<1, 2>, 2>;
+        using Dim2 = dimension<std::ratio<3>, 3>;
 
+        static_assert(std::is_same_v<dimension_divide<Dim1, Dim1>,
+                                     dimension<std::ratio<1>>>);
+        static_assert(std::is_same_v<dimension_multiply<Dim1, Dim2>,
+                                     dimension<std::ratio<9, 8>, 6>>);
     }
 }
 
