@@ -29,6 +29,8 @@ TEST_CASE("scicpp::fabs") {
 }
 
 TEST_CASE("Trigonometric functions") {
+    using namespace units::literals;
+
     REQUIRE(almost_equal(sin(std::array{1., 2., 3.}),
                          {std::sin(1.), std::sin(2.), std::sin(3.)}));
     REQUIRE(almost_equal(sin(std::array{1.i, 2.i, 3.i}),
@@ -49,6 +51,16 @@ TEST_CASE("Trigonometric functions") {
     REQUIRE(almost_equal(
         hypot(std::array{1., 2., 3.}, std::array{3., 2., 1.}),
         {std::hypot(1., 3.), std::hypot(2., 2.), std::hypot(3., 1.)}));
+
+    // Angular units
+    REQUIRE(almost_equal<2>(sin(std::array{0_deg, 90_deg, 180_deg, 270_deg}),
+                            {0., 1., 0., -1.}));
+    REQUIRE(almost_equal(sin(std::array{1_rad, 2_rad, 3_rad}),
+                         {std::sin(1.), std::sin(2.), std::sin(3.)}));
+    REQUIRE(almost_equal<2>(cos(std::array{0_deg, 90_deg, 180_deg, 270_deg}),
+                            {1., 0., -1., 0.}));
+    REQUIRE(almost_equal(cos(std::array{1_rad, 2_rad, 3_rad}),
+                         {std::cos(1.), std::cos(2.), std::cos(3.)}));
 }
 
 TEST_CASE("Hyperbolic functions") {

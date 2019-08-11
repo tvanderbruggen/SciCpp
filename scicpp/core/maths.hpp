@@ -3,6 +3,7 @@
 
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/units.hpp"
 
 #include <array>
 #include <cmath>
@@ -43,11 +44,31 @@ constexpr auto fabs(T &&x) {
 // vectorized maths functions
 //---------------------------------------------------------------------------------
 
+namespace detail {
+
+template <typename T>
+constexpr auto to_radian(T x) {
+    if constexpr (units::is_angle_v<T>) {
+        using rad = units::radian<typename T::value_type>;
+        return units::quantity_cast<rad>(x).value();
+    } else {
+        return x;
+    }
+}
+
+} // namespace detail
+
 // Trigonometric functions
 
-const auto sin = vectorize([](auto x) { return std::sin(x); });
-const auto cos = vectorize([](auto x) { return std::cos(x); });
-const auto tan = vectorize([](auto x) { return std::tan(x); });
+const auto sin =
+    vectorize([](auto x) { return std::sin(detail::to_radian(x)); });
+
+const auto cos =
+    vectorize([](auto x) { return std::cos(detail::to_radian(x)); });
+
+const auto tan =
+    vectorize([](auto x) { return std::tan(detail::to_radian(x)); });
+
 const auto arcsin = vectorize([](auto x) { return std::asin(x); });
 const auto arccos = vectorize([](auto x) { return std::acos(x); });
 const auto arctan = vectorize([](auto x) { return std::atan(x); });
@@ -87,8 +108,8 @@ const auto imag = vectorize([](auto z) { return std::imag(z); });
 const auto angle = vectorize([](auto z) { return std::arg(z); });
 const auto norm = vectorize([](auto z) { return std::norm(z); });
 const auto conj = vectorize([](auto z) { return std::conj(z); });
-const auto polar =
-    vectorize([](auto r, auto theta) { return std::polar(r, theta); });
+const auto polar = vectorize(
+    [](auto r, auto theta) { return std::polar(r, detail::to_radian(theta)); });
 
 // Rational routines
 

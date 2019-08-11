@@ -81,6 +81,8 @@ constexpr auto compute_root(PrimeFactors factors, intmax_t root) {
 
 template <typename Dim, intmax_t Root = 1>
 constexpr auto dimension_root_impl() {
+    static_assert(Root > 0);
+
     constexpr auto Q = Dim::num;
     constexpr auto P = Dim::den;
     constexpr auto R = Dim::root * Root;
@@ -273,9 +275,6 @@ struct quantity {
         (std::is_floating_point_v<T> && !std::is_floating_point_v<T2>);
 
   public:
-    // static_assert(meta::is_ratio_v<Dim>);
-    // static_assert(Dim::num > 0);
-    // static_assert(Dim::den != 0);
     static_assert(meta::is_ratio_v<Scale>);
     static_assert(Scale::num > 0);
     static_assert(Scale::den != 0);
@@ -447,6 +446,19 @@ struct quantity {
                                                                  m_value);
     }
 
+    // template <intmax_t Root>
+    // auto root() const {
+    //     static_assert(Root > 0);
+
+    //     using DimRoot = dimension_root<Dim, Root>;
+
+    //     T val = 0;
+
+    //     if constexpr (Root == 1) {
+
+    //     }
+    // }
+
     constexpr auto value() const { return m_value; }
 
   private:
@@ -560,18 +572,21 @@ template <typename Quantity>
 using quantity_invert = decltype(std::declval<Quantity>().inv());
 
 namespace primary_flags {
-
 // Each base quantity is identified by a prime number.
-// using Dimensionless = std::ratio<1>;
+
+template <intmax_t PrimeNumber>
+using primary_dimension = dimension<std::ratio<PrimeNumber>>;
+
+// using Dimensionless = dimension<std::ratio<1>>;
 
 // SI
-using Length = dimension<std::ratio<2>>;
-using Time = dimension<std::ratio<3>>;
-using Mass = dimension<std::ratio<5>>;
-using ElectricCurrent = dimension<std::ratio<7>>;
-using Temperature = dimension<std::ratio<11>>;
-using AmountOfSubstance = dimension<std::ratio<13>>;
-using LuminousIntensity = dimension<std::ratio<17>>;
+using Length = primary_dimension<2>;
+using Time = primary_dimension<3>;
+using Mass = primary_dimension<5>;
+using ElectricCurrent = primary_dimension<7>;
+using Temperature = primary_dimension<11>;
+using AmountOfSubstance = primary_dimension<13>;
+using LuminousIntensity = primary_dimension<17>;
 
 // Angle
 using Angle = dimension<std::ratio<19>>;
@@ -846,8 +861,11 @@ using angle = quantity<T, primary_flags::Angle, Scale>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(angle, radian)
 
+using pi_ratio = std::ratio<21053343141, 6701487259>;
+using deg_to_rad_ratio = std::ratio_divide<pi_ratio, std::ratio<180>>;
+
 template <typename T = double>
-using degree = angle<T, std::ratio<31415926535897932, 1800000000000000000>>;
+using degree = angle<T, deg_to_rad_ratio>;
 
 namespace literals {
 
@@ -860,10 +878,21 @@ SCICPP_CORE_UNITS_SET_LITERAL(angle, _rad, std::ratio<1>)
 
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(angle,
                                     _deg,
-                                    31415926535897932,
-                                    1800000000000000000)
+                                    deg_to_rad_ratio::num,
+                                    deg_to_rad_ratio::den)
 
 } // namespace literals
+
+// is_angle trait
+
+template <class T>
+struct is_angle : std::false_type {};
+
+template <typename T, typename Scale>
+struct is_angle<angle<T, Scale>> : std::true_type {};
+
+template <class T>
+inline constexpr bool is_angle_v = is_angle<T>::value;
 
 // ----------------------------------------------------------------------------
 // Data quantity

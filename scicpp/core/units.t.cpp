@@ -257,9 +257,13 @@ TEST_CASE("Equivalence") {
     }
 
     SECTION("Angle") {
+        static_assert(is_angle_v<radian<>>);
+        static_assert(is_angle_v<degree<>>);
+        static_assert(!is_angle_v<meter<>>);
         static_assert(radian<int>(0) == degree<int>(0));
+
         REQUIRE(almost_equal(radian<>(pi<double>), degree<>(180.)));
-        REQUIRE(almost_equal<500>(radian<long double>(pi<long double>),
+        REQUIRE(almost_equal<750>(radian<long double>(pi<long double>),
                                   degree<long double>(180.)));
         REQUIRE(almost_equal(radian<>(pi<double> / 2), degree<>(90.)));
         REQUIRE(almost_equal(radian<>(pi<double> / 4), degree<>(45.)));
