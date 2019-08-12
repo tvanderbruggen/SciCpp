@@ -7,6 +7,7 @@
 
 using namespace std::literals;
 
+#include "scicpp/core/arithmetic.t.cpp"
 #include "scicpp/signal/convolve.t.cpp"
 #include "scicpp/signal/fft.t.cpp"
 #include "scicpp/signal/waveforms.t.cpp"

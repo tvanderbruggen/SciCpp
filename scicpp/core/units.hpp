@@ -4,8 +4,8 @@
 #ifndef SCICPP_CORE_UNITS
 #define SCICPP_CORE_UNITS
 
+#include "scicpp/core/arithmetic.hpp"
 #include "scicpp/core/meta.hpp"
-#include "scicpp/core/utils.hpp"
 
 #include <cmath>
 #include <cstdint>
@@ -29,136 +29,34 @@ namespace scicpp::units {
 // Ratio ^ (1 / Root)
 // where Ratio = (q1^p1 x ... x qN^pN) / (r1^p1' x ... x rN^pN'),
 // and Root is an integer (for example 2 for sqrt).
+
 template <typename Ratio, intmax_t Root = 1>
-struct dimension {
-    static_assert(meta::is_ratio_v<Ratio>);
-    static_assert(Ratio::num > 0);
-    static_assert(Ratio::den > 0);
-    static_assert(Root > 0);
-
-    using ratio = Ratio;
-
-    static constexpr auto num = Ratio::num;
-    static constexpr auto den = Ratio::den;
-    static constexpr auto root = Root;
-};
-
-namespace detail {
-
-// ----- Compile-time exponentiation
-//https://stackoverflow.com/questions/27270541/is-there-no-built-in-way-to-compute-a-power-at-compile-time-in-c
-template <typename T>
-constexpr T sqr(T a) {
-    return a * a;
-}
-
-template <typename T>
-constexpr T power(T a, intmax_t n) {
-    return n == 0 ? 1 : sqr(power(a, n / 2)) * (n % 2 == 0 ? 1 : a);
-}
-
-template <typename PrimeFactors>
-constexpr bool is_exact_root(PrimeFactors factors, intmax_t root) {
-    for (const auto &factor : factors) {
-        if (factor.second % root != 0) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-template <typename PrimeFactors>
-constexpr auto compute_root(PrimeFactors factors, intmax_t root) {
-    intmax_t res = 1;
-
-    for (const auto &factor : factors) {
-        res *= power(factor.first, factor.second / root);
-    }
-
-    return res;
-}
-
-template <typename Dim, intmax_t Root = 1>
-constexpr auto dimension_root_impl() {
-    static_assert(Root > 0);
-
-    constexpr auto Q = Dim::num;
-    constexpr auto P = Dim::den;
-    constexpr auto R = Dim::root * Root;
-
-    // If Q and P are exact roots of R (Q=q^R and P=p^R),
-    // we can reduce the dimension to a ratio only:
-    // (Q/P)^(1/R) = (q^R / p^R)^(1/R) = q/p
-    constexpr auto q_factors = utils::prime_factors<Q>().values();
-    constexpr auto p_factors = utils::prime_factors<P>().values();
-
-    if constexpr (is_exact_root(q_factors, R) && is_exact_root(p_factors, R)) {
-        return dimension<std::ratio<compute_root(q_factors, R),
-                                    compute_root(p_factors, R)>>{};
-    } else {
-        return dimension<std::ratio<Q, P>, R>{};
-    }
-}
-
-template <typename Dim1, typename Dim2>
-constexpr auto dimension_multiply_impl() {
-    constexpr auto R1 = Dim1::root;
-    constexpr auto R2 = Dim2::root;
-
-    if constexpr (R1 == 1 && R2 == 1) {
-        return dimension<
-            std::ratio_multiply<typename Dim1::ratio, typename Dim2::ratio>>{};
-    } else {
-        constexpr auto Q1 = Dim1::num;
-        constexpr auto Q2 = Dim2::num;
-        constexpr auto P1 = Dim1::den;
-        constexpr auto P2 = Dim2::den;
-
-        // Reduce under common root:
-        // (Q1/P1)^(1/R1) x (Q2/P2)^(1/R2) = (Q/P)^(1/R)
-        // where:
-        // Q = Q1^r2 x Q2^r1
-        // P = P1^r2 x P2^r1
-        // R = G r1 r2
-        // and
-        // G = gcd(R1, R2),
-        // Ri = G ri
-
-        constexpr auto G = std::gcd(R1, R2);
-        constexpr auto r1 = R1 / G;
-        constexpr auto r2 = R2 / G;
-
-        constexpr auto Q = power(Q1, r2) * power(Q2, r1);
-        constexpr auto P = power(P1, r2) * power(P2, r1);
-        constexpr auto R = G * r1 * r2;
-
-        // Compute the root to reduce the dimension if exact root
-        return dimension_root_impl<dimension<std::ratio<Q, P>, R>>();
-    }
-}
-
-template <typename Dim1, typename Dim2>
-constexpr auto dimension_divide_impl() {
-    constexpr auto Q2 = Dim2::num;
-    constexpr auto P2 = Dim2::den;
-    constexpr auto R2 = Dim2::root;
-
-    using Dim2Inv = dimension<std::ratio<P2, Q2>, R2>;
-    return dimension_multiply_impl<Dim1, Dim2Inv>();
-}
-
-} // namespace detail
+using dimension = arithmetic::root_ratio<Ratio, Root>;
 
 template <typename Dim, intmax_t Root>
-using dimension_root = decltype(detail::dimension_root_impl<Dim, Root>());
+using dimension_root = arithmetic::root_ratio_root<Dim, Root>;
 
 template <typename Dim1, typename Dim2>
-using dimension_multiply =
-    decltype(detail::dimension_multiply_impl<Dim1, Dim2>());
+using dimension_multiply = arithmetic::root_ratio_multiply<Dim1, Dim2>;
 
 template <typename Dim1, typename Dim2>
-using dimension_divide = decltype(detail::dimension_divide_impl<Dim1, Dim2>());
+using dimension_divide = arithmetic::root_ratio_divide<Dim1, Dim2>;
+
+// ----------------------------------------------------------------------------
+// Scale
+// ----------------------------------------------------------------------------
+
+template <typename Ratio, intmax_t Root = 1>
+using scale = arithmetic::root_ratio<Ratio, Root>;
+
+template <typename Scale, intmax_t Root>
+using scale_root = arithmetic::root_ratio_root<Scale, Root>;
+
+template <typename Scale1, typename Scale2>
+using scale_multiply = arithmetic::root_ratio_multiply<Scale1, Scale2>;
+
+template <typename Scale1, typename Scale2>
+using scale_divide = arithmetic::root_ratio_divide<Scale1, Scale2>;
 
 // ----------------------------------------------------------------------------
 // Quantity
@@ -244,7 +142,7 @@ constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
     using OffsetDiff = std::ratio_subtract<Offset, typename ToQty::offset>;
 
     constexpr auto to_qty_inv_scale =
-        rep_t(ToQty::scale::den) / rep_t(ToQty::scale::num);
+        rep_t(ToQty::scal::den) / rep_t(ToQty::scal::num);
     constexpr auto qty_scale =
         to_qty_inv_scale * rep_t(Scale::num) / rep_t(Scale::den);
     constexpr auto offset_diff =
@@ -275,15 +173,12 @@ struct quantity {
         (std::is_floating_point_v<T> && !std::is_floating_point_v<T2>);
 
   public:
-    static_assert(meta::is_ratio_v<Scale>);
-    static_assert(Scale::num > 0);
-    static_assert(Scale::den != 0);
     static_assert(meta::is_ratio_v<Offset>);
     static_assert(Offset::den != 0);
 
     using value_type = T;
     using dim = Dim;
-    using scale = Scale;
+    using scal = Scale;
     using offset = Offset;
 
     // Constructors, destructors, copy
@@ -425,39 +320,41 @@ struct quantity {
 
     template <typename RhsDim, typename RhsScale>
     constexpr auto operator*(const quantity<T, RhsDim, RhsScale> &rhs) const {
-        return quantity<T,
-                        dimension_multiply<Dim, RhsDim>,
-                        std::ratio_multiply<Scale, RhsScale>>(m_value *
-                                                              rhs.value());
+        using DimMul = dimension_multiply<Dim, RhsDim>;
+        using ScalMul = scale_multiply<Scale, RhsScale>;
+        return quantity<T, DimMul, ScalMul>(m_value * rhs.value());
     }
 
     template <typename RhsDim, typename RhsScale>
     constexpr auto operator/(const quantity<T, RhsDim, RhsScale> &rhs) const {
-        return quantity<T,
-                        dimension_divide<Dim, RhsDim>,
-                        std::ratio_divide<Scale, RhsScale>>(m_value /
-                                                            rhs.value());
+        using DimDiv = dimension_divide<Dim, RhsDim>;
+        using ScalDiv = scale_divide<Scale, RhsScale>;
+        return quantity<T, DimDiv, ScalDiv>(m_value / rhs.value());
     }
 
     constexpr auto inv() const {
-        return quantity<T,
-                        dimension_divide<dimension<std::ratio<1>>, Dim>,
-                        std::ratio_divide<std::ratio<1>, Scale>>(T{1} /
-                                                                 m_value);
+        using DimInv = dimension_divide<dimension<std::ratio<1>>, Dim>;
+        using ScaleInv = scale_divide<scale<std::ratio<1>>, Scale>;
+        return quantity<T, DimInv, ScaleInv>(T{1} / m_value);
     }
 
-    // template <intmax_t Root>
-    // auto root() const {
-    //     static_assert(Root > 0);
+    template <intmax_t Root>
+    auto root() const {
+        static_assert(Root > 0);
 
-    //     using DimRoot = dimension_root<Dim, Root>;
+        using DimRoot = dimension_root<Dim, Root>;
+        using ScalRoot = scale_root<Scale, Root>;
 
-    //     T val = 0;
-
-    //     if constexpr (Root == 1) {
-
-    //     }
-    // }
+        if constexpr (Root == 1) {
+            return quantity<T, DimRoot, ScalRoot>(m_value);
+        } else if constexpr (Root == 2) {
+            return quantity<T, DimRoot, ScalRoot>(std::sqrt(m_value));
+        } else if constexpr (Root == 3) {
+            return quantity<T, DimRoot, ScalRoot>(std::cbrt(m_value));
+        } else {
+            return quantity<T, DimRoot, ScalRoot>(std::pow(m_value, T{1} / Root));
+        }
+    }
 
     constexpr auto value() const { return m_value; }
 
@@ -589,30 +486,30 @@ using AmountOfSubstance = primary_dimension<13>;
 using LuminousIntensity = primary_dimension<17>;
 
 // Angle
-using Angle = dimension<std::ratio<19>>;
+using Angle = primary_dimension<19>;
 
 // Data
-using DataQuantity = dimension<std::ratio<23>>;
+using DataQuantity = primary_dimension<23>;
 
 } // namespace primary_flags
 
-#define SCICPP_CORE_UNITS_SET_LITERAL(quantity, literal, scale)                \
+#define SCICPP_CORE_UNITS_SET_LITERAL(quantity, literal, scale_ratio)          \
     constexpr auto operator""##literal(long double x) {                        \
-        return quantity<double, scale>{static_cast<double>(x)};                \
+        return quantity<double, scale<scale_ratio>>{static_cast<double>(x)};   \
     }                                                                          \
                                                                                \
     constexpr auto operator""##literal(unsigned long long x) {                 \
-        return quantity<double, scale>{static_cast<double>(x)};                \
+        return quantity<double, scale<scale_ratio>>{static_cast<double>(x)};   \
     }
 
 #define SCICPP_CORE_UNITS_SET_LITERAL_RATIO(quantity, literal, num, den)       \
     constexpr auto operator""##literal(long double x) {                        \
-        return quantity<double, std::ratio<(num), (den)>>{                     \
+        return quantity<double, scale<std::ratio<(num), (den)>>>{              \
             static_cast<double>(x)};                                           \
     }                                                                          \
                                                                                \
     constexpr auto operator""##literal(unsigned long long x) {                 \
-        return quantity<double, std::ratio<(num), (den)>>{                     \
+        return quantity<double, scale<std::ratio<(num), (den)>>>{              \
             static_cast<double>(x)};                                           \
     }
 
@@ -620,51 +517,51 @@ using DataQuantity = dimension<std::ratio<23>>;
     quantity, literal, num1, den1, num2, den2)                                 \
     constexpr auto operator""##literal(long double x) {                        \
         return quantity<double,                                                \
-                        std::ratio<(num1), (den1)>,                            \
+                        scale<std::ratio<(num1), (den1)>>,                     \
                         std::ratio<(num2), (den2)>>{static_cast<double>(x)};   \
     }                                                                          \
                                                                                \
     constexpr auto operator""##literal(unsigned long long x) {                 \
         return quantity<double,                                                \
-                        std::ratio<(num1), (den1)>,                            \
+                        scale<std::ratio<(num1), (den1)>>,                     \
                         std::ratio<(num2), (den2)>>{static_cast<double>(x)};   \
     }
 
 #define SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(quantity, base_unit)           \
     template <typename T = double>                                             \
-    using atto##base_unit = quantity<T, std::atto>;                            \
+    using atto##base_unit = quantity<T, scale<std::atto>>;                     \
     template <typename T = double>                                             \
-    using femto##base_unit = quantity<T, std::femto>;                          \
+    using femto##base_unit = quantity<T, scale<std::femto>>;                   \
     template <typename T = double>                                             \
-    using pico##base_unit = quantity<T, std::pico>;                            \
+    using pico##base_unit = quantity<T, scale<std::pico>>;                     \
     template <typename T = double>                                             \
-    using nano##base_unit = quantity<T, std::nano>;                            \
+    using nano##base_unit = quantity<T, scale<std::nano>>;                     \
     template <typename T = double>                                             \
-    using micro##base_unit = quantity<T, std::micro>;                          \
+    using micro##base_unit = quantity<T, scale<std::micro>>;                   \
     template <typename T = double>                                             \
-    using milli##base_unit = quantity<T, std::milli>;                          \
+    using milli##base_unit = quantity<T, scale<std::milli>>;                   \
     template <typename T = double>                                             \
-    using centi##base_unit = quantity<T, std::centi>;                          \
+    using centi##base_unit = quantity<T, scale<std::centi>>;                   \
     template <typename T = double>                                             \
-    using deci##base_unit = quantity<T, std::deci>;                            \
+    using deci##base_unit = quantity<T, scale<std::deci>>;                     \
     template <typename T = double>                                             \
     using base_unit = quantity<T>;                                             \
     template <typename T = double>                                             \
-    using deca##base_unit = quantity<T, std::deca>;                            \
+    using deca##base_unit = quantity<T, scale<std::deca>>;                     \
     template <typename T = double>                                             \
-    using hecto##base_unit = quantity<T, std::hecto>;                          \
+    using hecto##base_unit = quantity<T, scale<std::hecto>>;                   \
     template <typename T = double>                                             \
-    using kilo##base_unit = quantity<T, std::kilo>;                            \
+    using kilo##base_unit = quantity<T, scale<std::kilo>>;                     \
     template <typename T = double>                                             \
-    using mega##base_unit = quantity<T, std::mega>;                            \
+    using mega##base_unit = quantity<T, scale<std::mega>>;                     \
     template <typename T = double>                                             \
-    using giga##base_unit = quantity<T, std::giga>;                            \
+    using giga##base_unit = quantity<T, scale<std::giga>>;                     \
     template <typename T = double>                                             \
-    using tera##base_unit = quantity<T, std::tera>;                            \
+    using tera##base_unit = quantity<T, scale<std::tera>>;                     \
     template <typename T = double>                                             \
-    using peta##base_unit = quantity<T, std::peta>;                            \
+    using peta##base_unit = quantity<T, scale<std::peta>>;                     \
     template <typename T = double>                                             \
-    using exa##base_unit = quantity<T, std::exa>;
+    using exa##base_unit = quantity<T, scale<std::exa>>;
 
 // Primary quantities
 
@@ -672,7 +569,7 @@ using DataQuantity = dimension<std::ratio<23>>;
 // Length
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using length = quantity<T, primary_flags::Length, Scale>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(length, meter)
@@ -702,16 +599,16 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _yd, 9144, 10000)
 // Time
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using time = quantity<T, primary_flags::Time, Scale>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(time, second)
 
 template <typename T = double>
-using minute = time<T, std::ratio<60>>;
+using minute = time<T, scale<std::ratio<60>>>;
 
 template <typename T = double>
-using hour = time<T, std::ratio<3600>>;
+using hour = time<T, scale<std::ratio<3600>>>;
 
 namespace literals {
 
@@ -730,11 +627,11 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _h, 3600, 1)
 // Mass
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using mass = quantity<T, primary_flags::Mass, Scale>;
 
 template <typename T = double>
-using gram = mass<T, std::milli>;
+using gram = mass<T, scale<std::milli>>;
 
 template <typename T = double>
 using kilogram = mass<T>;
@@ -758,7 +655,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(mass, _Tton, std::exa)
 // Electric current
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using electric_current = quantity<T, primary_flags::ElectricCurrent, Scale>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(electric_current, ampere)
@@ -783,17 +680,18 @@ SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _TA, std::tera)
 // ----------------------------------------------------------------------------
 
 template <typename T,
-          typename Scale = std::ratio<1>,
+          typename Scale = scale<std::ratio<1>>,
           typename Offset = std::ratio<0>>
 using temperature = quantity<T, primary_flags::Temperature, Scale, Offset>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(temperature, kelvin)
 
 template <typename T = double>
-using celsius = temperature<T, std::ratio<1>, std::ratio<27315, 100>>;
+using celsius = temperature<T, scale<std::ratio<1>>, std::ratio<27315, 100>>;
 
 template <typename T = double>
-using fahrhenheit = temperature<T, std::ratio<5, 9>, std::ratio<45967, 180>>;
+using fahrhenheit =
+    temperature<T, scale<std::ratio<5, 9>>, std::ratio<45967, 180>>;
 
 namespace literals {
 
@@ -812,7 +710,7 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO2(temperature, _degF, 5, 9, 45967, 180)
 // Amount of substance
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using amount_of_substance =
     quantity<T, primary_flags::AmountOfSubstance, Scale>;
 
@@ -833,7 +731,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _mol, std::ratio<1>)
 // Luminous intensity
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using luminous_intensity = quantity<T, primary_flags::LuminousIntensity, Scale>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(luminous_intensity, candela)
@@ -856,7 +754,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _GCd, std::giga)
 // Angle
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using angle = quantity<T, primary_flags::Angle, Scale>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(angle, radian)
@@ -865,7 +763,7 @@ using pi_ratio = std::ratio<21053343141, 6701487259>;
 using deg_to_rad_ratio = std::ratio_divide<pi_ratio, std::ratio<180>>;
 
 template <typename T = double>
-using degree = angle<T, deg_to_rad_ratio>;
+using degree = angle<T, scale<deg_to_rad_ratio>>;
 
 namespace literals {
 
@@ -898,7 +796,7 @@ inline constexpr bool is_angle_v = is_angle<T>::value;
 // Data quantity
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using data_quantity = quantity<T, primary_flags::DataQuantity, Scale>;
 
 namespace literals {
@@ -927,7 +825,7 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity,
 // Speed
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using speed = quantity_divide<length<T, Scale>, time<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(speed, meter_per_second)
@@ -949,7 +847,7 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(speed, _km_per_h, 3600, 1000)
 // Acceleration
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using acceleration = quantity_divide<speed<T, Scale>, time<T>>;
 
 namespace literals {
@@ -968,7 +866,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _km_per_s2, std::kilo)
 // area
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using area = quantity_multiply<length<T, Scale>, length<T>>;
 
 namespace literals {
@@ -983,7 +881,7 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _ha, 10000, 1)
 // Volume
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using volume = quantity_multiply<area<T, Scale>, length<T>>;
 
 namespace literals {
@@ -997,7 +895,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(volume, _m3, std::ratio<1>)
 // ----------------------------------------------------------------------------
 
 // Force = Mass x Acceleration
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using force = quantity_multiply<mass<T, Scale>, acceleration<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(force, newton)
@@ -1022,7 +920,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(force, _TN, std::tera)
 // ----------------------------------------------------------------------------
 
 // Power = Force x Speed
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using power = quantity_multiply<force<T, Scale>, speed<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(power, watt)
@@ -1047,7 +945,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(power, _TW, std::tera)
 // ----------------------------------------------------------------------------
 
 // Energy = Power x Time
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using energy = quantity_multiply<power<T, Scale>, time<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(energy, joule)
@@ -1074,25 +972,25 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _cal, 41855, 10000)
 // Pressure
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using pressure = quantity_divide<force<T, Scale>, area<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(pressure, pascal)
 
 template <typename T = double>
-using bar = pressure<T, std::ratio<100000>>;
+using bar = pressure<T, scale<std::ratio<100000>>>;
 
 template <typename T = double>
-using mmHg = pressure<T, std::ratio<101325, 760>>;
+using mmHg = pressure<T, scale<std::ratio<101325, 760>>>;
 
 template <typename T = double>
 using torr = mmHg<T>;
 
 template <typename T = double>
-using psi = pressure<T, std::ratio<689476, 100>>;
+using psi = pressure<T, scale<std::ratio<689476, 100>>>;
 
 template <typename T = double>
-using atm = pressure<T, std::ratio<101325>>;
+using atm = pressure<T, scale<std::ratio<101325>>>;
 
 namespace literals {
 
@@ -1119,7 +1017,7 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(pressure, _atm, 101325, 1)
 // Frequency
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using frequency = quantity_invert<time<T, Scale>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(frequency, hertz)
@@ -1144,7 +1042,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(frequency, _THz, std::tera)
 // ----------------------------------------------------------------------------
 
 // Resistance = Power / Current^2
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using electrical_resistance = quantity_divide<
     power<T, Scale>,
     quantity_multiply<electric_current<T>, electric_current<T>>>;
@@ -1170,7 +1068,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(electrical_resistance, _TOhm, std::tera)
 // Electrical conductivity
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using electrical_conductivity =
     quantity_invert<electrical_resistance<T, Scale>>;
 
@@ -1196,7 +1094,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(electrical_conductivity, _TS, std::tera)
 // ----------------------------------------------------------------------------
 
 // Voltage = Power / Current
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using electric_potential =
     quantity_divide<power<T, Scale>, electric_current<T>>;
 
@@ -1222,7 +1120,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(electric_potential, _TV, std::tera)
 // ----------------------------------------------------------------------------
 
 // Capacitance = Time / Resistance
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using capacitance = quantity_divide<time<T, Scale>, electrical_resistance<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(capacitance, farad)
@@ -1247,7 +1145,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(capacitance, _TF, std::tera)
 // ----------------------------------------------------------------------------
 
 // Charge = Capacitance x Voltage
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using electric_charge =
     quantity_multiply<capacitance<T, Scale>, electric_potential<T>>;
 
@@ -1273,7 +1171,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(electric_charge, _TC, std::tera)
 // ----------------------------------------------------------------------------
 
 // Inductance = Voltage x Time / Current
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using inductance =
     quantity_divide<quantity_multiply<electric_potential<T, Scale>, time<T>>,
                     electric_current<T>>;
@@ -1300,7 +1198,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(inductance, _TH, std::tera)
 // ----------------------------------------------------------------------------
 
 // Magnetic field = Force / (Charge x Speed)
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using magnetic_flux_density =
     quantity_divide<force<T, Scale>,
                     quantity_multiply<electric_charge<T>, speed<T>>>;
@@ -1308,7 +1206,7 @@ using magnetic_flux_density =
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(magnetic_flux_density, tesla)
 
 template <typename T = double>
-using gauss = magnetic_flux_density<T, std::ratio<1, 10000>>;
+using gauss = magnetic_flux_density<T, scale<std::ratio<1, 10000>>>;
 
 namespace literals {
 
@@ -1327,7 +1225,7 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(magnetic_flux_density, _G, 1, 10000)
 // ----------------------------------------------------------------------------
 
 // Magnetic field = Force / (Charge x Speed)
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using magnetic_flux =
     quantity_multiply<magnetic_flux_density<T, Scale>, area<T>>;
 
@@ -1352,7 +1250,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(magnetic_flux, _TWb, std::tera)
 // Data rate
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using data_rate = quantity_divide<data_quantity<T, Scale>, time<T>>;
 
 namespace literals {
@@ -1369,7 +1267,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _Tbps, std::tera)
 // Chemical potential
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using chemical_potential =
     quantity_divide<energy<T, Scale>, amount_of_substance<T>>;
 
@@ -1377,7 +1275,7 @@ using chemical_potential =
 // Thermal resistance
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = std::ratio<1>>
+template <typename T, typename Scale = scale<std::ratio<1>>>
 using thermal_resistance = quantity_divide<temperature<T, Scale>, power<T>>;
 
 #undef SCICPP_CORE_UNITS_SET_LITERAL
