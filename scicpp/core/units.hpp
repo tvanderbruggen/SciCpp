@@ -105,6 +105,8 @@ struct common_quantity {
                   "Do not add/subtract units with different offset, this is "
                   "confusing. Use an explicit call to quantity_cast.");
 
+    // TODO: Handle root
+
   private:
     static constexpr auto gcd_num = std::gcd(Scale1::num, Scale2::num);
     static constexpr auto gcd_den = std::gcd(Scale1::den, Scale2::den);
@@ -136,6 +138,8 @@ template <typename ToQty,
 constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
     static_assert(std::is_same_v<Dim, typename ToQty::dim>,
                   "Cannot cast to a quantity with different dimension");
+
+    // TODO: Handle root
 
     using to_rep_t = typename ToQty::value_type;
     using rep_t = std::common_type_t<T, to_rep_t>;
@@ -334,27 +338,26 @@ struct quantity {
 
     constexpr auto inv() const {
         using DimInv = dimension_divide<dimension<std::ratio<1>>, Dim>;
-        using ScaleInv = scale_divide<scale<std::ratio<1>>, Scale>;
-        return quantity<T, DimInv, ScaleInv>(T{1} / m_value);
+        return quantity<T, DimInv, Scale>(T{1} / m_value);
     }
 
-    template <intmax_t Root>
-    auto root() const {
-        static_assert(Root > 0);
+    // template <intmax_t Root>
+    // auto root() const {
+    //     static_assert(Root > 0);
 
-        using DimRoot = dimension_root<Dim, Root>;
-        using ScalRoot = scale_root<Scale, Root>;
+    //     using DimRoot = dimension_root<Dim, Root>;
+    //     using ScalRoot = scale_root<Scale, Root>;
 
-        if constexpr (Root == 1) {
-            return quantity<T, DimRoot, ScalRoot>(m_value);
-        } else if constexpr (Root == 2) {
-            return quantity<T, DimRoot, ScalRoot>(std::sqrt(m_value));
-        } else if constexpr (Root == 3) {
-            return quantity<T, DimRoot, ScalRoot>(std::cbrt(m_value));
-        } else {
-            return quantity<T, DimRoot, ScalRoot>(std::pow(m_value, T{1} / Root));
-        }
-    }
+    //     if constexpr (Root == 1) {
+    //         return quantity<T, DimRoot, ScalRoot>(m_value);
+    //     } else if constexpr (Root == 2) {
+    //         return quantity<T, DimRoot, ScalRoot>(std::sqrt(m_value));
+    //     } else if constexpr (Root == 3) {
+    //         return quantity<T, DimRoot, ScalRoot>(std::cbrt(m_value));
+    //     } else {
+    //         return quantity<T, DimRoot, ScalRoot>(std::pow(m_value, T{1} / Root));
+    //     }
+    // }
 
     constexpr auto value() const { return m_value; }
 
@@ -407,8 +410,8 @@ constexpr auto operator/(const quantity<T1, Dim, Scale, Offset> &rhs,
     return rhs * (T2{1} / factor);
 }
 
-template <typename T, typename Dim, typename Scale>
-bool isnan(const quantity<T, Dim, Scale> &q) {
+template <typename T, typename Dim, typename Scale, typename Offset>
+bool isnan(const quantity<T, Dim, Scale, Offset> &q) {
     return std::isnan(q.value());
 }
 
@@ -419,6 +422,28 @@ auto value(T x) {
     } else {
         return x;
     }
+}
+
+template <typename T, typename Dim, typename Scale>
+auto sqrt(const quantity<T, Dim, Scale> &q) {
+    using DimRoot = dimension_root<Dim, 2>;
+    using ScalRoot = scale_root<Scale, 2>;
+    return quantity<T, DimRoot, ScalRoot>(std::sqrt(q.value()));
+}
+
+template <typename T, typename Dim, typename Scale>
+auto cbrt(const quantity<T, Dim, Scale> &q) {
+    using DimRoot = dimension_root<Dim, 3>;
+    using ScalRoot = scale_root<Scale, 3>;
+    return quantity<T, DimRoot, ScalRoot>(std::cbrt(q.value()));
+}
+
+template <intmax_t Root, typename T, typename Dim, typename Scale>
+auto root(const quantity<T, Dim, Scale> &q) {
+    static_assert(Root > 0);
+    using DimRoot = dimension_root<Dim, Root>;
+    using ScalRoot = scale_root<Scale, Root>;
+    return quantity<T, DimRoot, ScalRoot>(std::pow(q.value(), T{1} / Root));
 }
 
 // To debug

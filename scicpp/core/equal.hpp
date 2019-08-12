@@ -74,10 +74,17 @@ auto almost_equal(const units::quantity<T, Dim, Scale1, Offset1> &q1,
                   const units::quantity<T, Dim, Scale2, Offset2> &q2) {
     constexpr auto factor1 = T(Scale1::num) / T(Scale1::den);
     constexpr auto factor2 = T(Scale2::num) / T(Scale2::den);
-    constexpr auto offset1 = T(Offset1::num) / T(Offset1::den);
-    constexpr auto offset2 = T(Offset2::num) / T(Offset2::den);
-    return almost_equal<rel_tol>(q1.value() * factor1 + offset1,
-                                 q2.value() * factor2 + offset2);
+
+    if constexpr (Dim::root == 1) {
+        constexpr auto offset1 = T(Offset1::num) / T(Offset1::den);
+        constexpr auto offset2 = T(Offset2::num) / T(Offset2::den);
+        return almost_equal<rel_tol>(q1.value() * factor1 + offset1,
+                                     q2.value() * factor2 + offset2);
+    } else {
+        return almost_equal<rel_tol>(
+            std::pow(q1.value(), Scale1::root) * factor1,
+            std::pow(q2.value(), Scale2::root) * factor2);
+    }
 }
 
 template <int rel_tol = 1, class Array, meta::enable_if_iterable<Array> = 0>
