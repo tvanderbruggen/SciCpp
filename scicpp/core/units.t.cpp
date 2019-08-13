@@ -174,13 +174,18 @@ TEST_CASE("Units inv") {
 TEST_CASE("Units root") {
     static_assert(std::is_same_v<scale_root<scale<std::mega>, 2>::ratio,
                                  std::ratio<1000>>);
-    static_assert(std::is_same_v<decltype(sqrt(1_MHz))::scal::ratio,
-                                 std::ratio<1000>>);
+    static_assert(
+        std::is_same_v<decltype(sqrt(1_MHz))::scal::ratio, std::ratio<1000>>);
 
     REQUIRE(almost_equal(sqrt(9_Hz), 3. * sqrt(1_Hz)));
     REQUIRE(almost_equal(sqrt(9_MHz), 3000. * sqrt(1_Hz)));
     REQUIRE(almost_equal(sqrt(9_uHz), 0.003 * sqrt(1_Hz)));
     REQUIRE(almost_equal(sqrt(1_uHz) * sqrt(9_Hz), 3_mHz));
+
+    REQUIRE(almost_equal(sqrt(9_Hz) + sqrt(9_Hz), 6. * sqrt(1_Hz)));
+    REQUIRE(almost_equal(sqrt(9_MHz) + sqrt(9_Hz), 3003. * sqrt(1_Hz)));
+    REQUIRE(almost_equal(cbrt(8_Hz) + cbrt(8_Hz), 4. * cbrt(1_Hz)));
+    REQUIRE(almost_equal(root<4>(16_Hz) + root<4>(16_Hz), 4. * root<4>(1_Hz)));
 }
 
 TEST_CASE("Divide by constant") {

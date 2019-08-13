@@ -105,16 +105,7 @@ struct common_quantity {
                   "Do not add/subtract units with different offset, this is "
                   "confusing. Use an explicit call to quantity_cast.");
 
-    // TODO: Handle root
-
-  private:
-    static constexpr auto gcd_num = std::gcd(Scale1::num, Scale2::num);
-    static constexpr auto gcd_den = std::gcd(Scale1::den, Scale2::den);
-    using CommonScale =
-        typename std::ratio<gcd_num,
-                            (Scale1::den / gcd_den) * Scale2::den>::type;
-
-  public:
+    using CommonScale = arithmetic::common_root_ratio_t<Scale1, Scale2>;
     using type = quantity<T, Dim, CommonScale, Offset1>;
 };
 
@@ -340,24 +331,6 @@ struct quantity {
         using DimInv = dimension_divide<dimension<std::ratio<1>>, Dim>;
         return quantity<T, DimInv, Scale>(T{1} / m_value);
     }
-
-    // template <intmax_t Root>
-    // auto root() const {
-    //     static_assert(Root > 0);
-
-    //     using DimRoot = dimension_root<Dim, Root>;
-    //     using ScalRoot = scale_root<Scale, Root>;
-
-    //     if constexpr (Root == 1) {
-    //         return quantity<T, DimRoot, ScalRoot>(m_value);
-    //     } else if constexpr (Root == 2) {
-    //         return quantity<T, DimRoot, ScalRoot>(std::sqrt(m_value));
-    //     } else if constexpr (Root == 3) {
-    //         return quantity<T, DimRoot, ScalRoot>(std::cbrt(m_value));
-    //     } else {
-    //         return quantity<T, DimRoot, ScalRoot>(std::pow(m_value, T{1} / Root));
-    //     }
-    // }
 
     constexpr auto value() const { return m_value; }
 

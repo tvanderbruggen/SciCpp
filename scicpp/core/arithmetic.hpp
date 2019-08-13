@@ -24,7 +24,7 @@ constexpr intmax_t ct_log2(intmax_t num) {
 }
 
 //---------------------------------------------------------------------------------
-// Compile-time exponentiation
+// Compile-time power
 //https://stackoverflow.com/questions/27270541/is-there-no-built-in-way-to-compute-a-power-at-compile-time-in-c
 //---------------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ struct prime_factors {
     }
 
     // There is at most log2(n) prime factors
-    std::array<std::pair<prime_t, intmax_t>, std::size_t(ct_log2(n))> factors{};
+    std::array<std::pair<prime_t, pow_t>, std::size_t(ct_log2(n))> factors{};
 };
 
 //---------------------------------------------------------------------------------
@@ -139,13 +139,13 @@ constexpr auto compute_root(PrimeFactors factors, intmax_t root) {
     return res;
 }
 
-template <typename Dim, intmax_t Root = 1>
+template <typename RR, intmax_t Root = 1>
 constexpr auto root_ratio_root_impl() {
     static_assert(Root > 0);
 
-    constexpr auto Q = Dim::num;
-    constexpr auto P = Dim::den;
-    constexpr auto R = Dim::root * Root;
+    constexpr auto Q = RR::num;
+    constexpr auto P = RR::den;
+    constexpr auto R = RR::root * Root;
 
     // If Q and P are exact roots of R (Q=q^R and P=p^R),
     // we can reduce the dimension to a ratio only:
@@ -161,19 +161,19 @@ constexpr auto root_ratio_root_impl() {
     }
 }
 
-template <typename Dim1, typename Dim2>
+template <typename RR1, typename RR2>
 constexpr auto root_ratio_multiply_impl() {
-    constexpr auto R1 = Dim1::root;
-    constexpr auto R2 = Dim2::root;
+    constexpr auto R1 = RR1::root;
+    constexpr auto R2 = RR2::root;
 
     if constexpr (R1 == 1 && R2 == 1) {
         return root_ratio<
-            std::ratio_multiply<typename Dim1::ratio, typename Dim2::ratio>>{};
+            std::ratio_multiply<typename RR1::ratio, typename RR2::ratio>>{};
     } else {
-        constexpr auto Q1 = Dim1::num;
-        constexpr auto Q2 = Dim2::num;
-        constexpr auto P1 = Dim1::den;
-        constexpr auto P2 = Dim2::den;
+        constexpr auto Q1 = RR1::num;
+        constexpr auto Q2 = RR2::num;
+        constexpr auto P1 = RR1::den;
+        constexpr auto P2 = RR2::den;
 
         // Reduce under common root:
         // (Q1/P1)^(1/R1) x (Q2/P2)^(1/R2) = (Q/P)^(1/R)
@@ -198,28 +198,43 @@ constexpr auto root_ratio_multiply_impl() {
     }
 }
 
-template <typename Dim1, typename Dim2>
+template <typename RR1, typename RR2>
 constexpr auto root_ratio_divide_impl() {
-    constexpr auto Q2 = Dim2::num;
-    constexpr auto P2 = Dim2::den;
-    constexpr auto R2 = Dim2::root;
-
-    using Dim2Inv = root_ratio<std::ratio<P2, Q2>, R2>;
-    return root_ratio_multiply_impl<Dim1, Dim2Inv>();
+    using RR2Inv = root_ratio<std::ratio<RR2::den, RR2::num>, RR2::root>;
+    return root_ratio_multiply_impl<RR1, RR2Inv>();
 }
 
 } // namespace detail
 
-template <typename Dim, intmax_t Root>
-using root_ratio_root = decltype(detail::root_ratio_root_impl<Dim, Root>());
+template <typename RR, intmax_t Root = 1>
+using root_ratio_root = decltype(detail::root_ratio_root_impl<RR, Root>());
 
-template <typename Dim1, typename Dim2>
+template <typename RR1, typename RR2>
 using root_ratio_multiply =
-    decltype(detail::root_ratio_multiply_impl<Dim1, Dim2>());
+    decltype(detail::root_ratio_multiply_impl<RR1, RR2>());
 
-template <typename Dim1, typename Dim2>
-using root_ratio_divide =
-    decltype(detail::root_ratio_divide_impl<Dim1, Dim2>());
+template <typename RR1, typename RR2>
+using root_ratio_divide = decltype(detail::root_ratio_divide_impl<RR1, RR2>());
+
+template <typename RR1, typename RR2>
+struct common_root_ratio {
+    static constexpr auto Q1_R2 = power(RR1::num, RR2::root);
+    static constexpr auto Q2_R1 = power(RR2::num, RR1::root);
+    static constexpr auto P1_R2 = power(RR1::den, RR2::root);
+    static constexpr auto P2_R1 = power(RR2::den, RR1::root);
+    static constexpr auto R = RR1::root * RR2::root;
+
+    static constexpr auto G_Q = std::gcd(Q1_R2, Q2_R1);
+    static constexpr auto G_P = std::gcd(Q2_R1, P2_R1);
+
+    static constexpr auto Q = G_Q;
+    static constexpr auto P = (P1_R2 / G_P) * P2_R1;
+
+    using type = root_ratio_root<root_ratio<std::ratio<Q, P>, R>>;
+};
+
+template <typename RR1, typename RR2>
+using common_root_ratio_t = typename common_root_ratio<RR1, RR2>::type;
 
 } // namespace scicpp::arithmetic
 
