@@ -225,7 +225,7 @@ struct common_root_ratio {
     static constexpr auto R = RR1::root * RR2::root;
 
     static constexpr auto G_Q = std::gcd(Q1_R2, Q2_R1);
-    static constexpr auto G_P = std::gcd(Q2_R1, P2_R1);
+    static constexpr auto G_P = std::gcd(P1_R2, P2_R1);
 
     static constexpr auto Q = G_Q;
     static constexpr auto P = (P1_R2 / G_P) * P2_R1;
