@@ -8,6 +8,7 @@
 
 #include <array>
 #include <cstdint>
+#include <limits>
 #include <numeric>
 #include <ratio>
 #include <utility>
@@ -25,7 +26,7 @@ constexpr intmax_t ct_log2(intmax_t num) {
 
 //---------------------------------------------------------------------------------
 // Compile-time power
-//https://stackoverflow.com/questions/27270541/is-there-no-built-in-way-to-compute-a-power-at-compile-time-in-c
+// https://stackoverflow.com/questions/27270541/is-there-no-built-in-way-to-compute-a-power-at-compile-time-in-c
 //---------------------------------------------------------------------------------
 
 template <typename T>
@@ -36,6 +37,41 @@ constexpr T power(T a, intmax_t n) {
 
     const auto p = power(a, n / 2);
     return p * p * (n % 2 == 0 ? 1 : a);
+}
+
+//---------------------------------------------------------------------------------
+// Compile-time root
+// Use Newton-Raphson method, generalizing
+// https://stackoverflow.com/questions/8622256/in-c11-is-sqrt-defined-as-constexpr
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <intmax_t N, typename T>
+constexpr T rootNewtonRaphson(T x, T curr, T prev) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+    if (curr == prev) {
+        return curr;
+    } else {
+        return rootNewtonRaphson<N>(
+            x, (T(N - 1) * curr + x / power(curr, N - 1)) / T{N}, curr);
+    }
+}
+#pragma GCC diagnostic pop
+} // namespace detail
+
+template <intmax_t N, typename T>
+constexpr T root(T x) {
+    if (x < 0) {
+        return T(std::numeric_limits<double>::quiet_NaN());
+    }
+
+    if constexpr (N == 1) {
+        return x;
+    } else {
+        return detail::rootNewtonRaphson<N>(x, x, T{0});
+    }
 }
 
 //---------------------------------------------------------------------------------
@@ -114,6 +150,11 @@ struct root_ratio {
     static constexpr auto den = Ratio::den;
     static constexpr auto root = Root;
 };
+
+template <typename T, typename Ratio, intmax_t Root = 1>
+constexpr auto eval(root_ratio<Ratio, Root> /* unused */) {
+    return root<Root>(T(Ratio::num) / T(Ratio::den));
+}
 
 namespace detail {
 

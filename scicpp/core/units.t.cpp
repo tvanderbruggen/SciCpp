@@ -83,6 +83,7 @@ TEST_CASE("Units additions") {
     static_assert(meter<int>(1) + kilometer<int>(2) == meter<int>(2001));
     REQUIRE(almost_equal(1._m + 1._km, 1001._m));
     REQUIRE(almost_equal(1._m + 1._km + 1._mm, 1001001._mm));
+    REQUIRE(almost_equal(1_mmHg + 2_mmHg, 3_mmHg));
 
     REQUIRE(almost_equal(++1._m, 2._m));
     L1++;
@@ -114,8 +115,6 @@ TEST_CASE("Units additions") {
     static_assert(kelvin<int>(0) < celsius<int>(0));
     static_assert(kelvin<int>(273) < celsius<int>(0));
     static_assert(kelvin<int>(300) > celsius<int>(0));
-
-    REQUIRE(almost_equal(1_mmHg + 2_mmHg, 3_mmHg));
 }
 
 TEST_CASE("Units substractions") {
@@ -185,7 +184,7 @@ TEST_CASE("Units root") {
     REQUIRE(almost_equal(sqrt(1_uHz) * sqrt(9_Hz), 3_mHz));
 
     REQUIRE(almost_equal(sqrt(9_Hz) + sqrt(9_Hz), 6. * sqrt(1_Hz)));
-    // REQUIRE(almost_equal(sqrt(2_kHz) + sqrt(2_Hz), sqrt(2000_Hz) + sqrt(2_Hz)));
+    REQUIRE(almost_equal(sqrt(2_kHz) + sqrt(2_Hz), sqrt(2000_Hz) + sqrt(2_Hz)));
     REQUIRE(almost_equal(sqrt(9_MHz) + sqrt(9_Hz), 3003. * sqrt(1_Hz)));
     REQUIRE(almost_equal(cbrt(8_Hz) + cbrt(8_Hz), 4. * cbrt(1_Hz)));
     REQUIRE(almost_equal(root<4>(16_Hz) + root<4>(16_Hz), 4. * root<4>(1_Hz)));

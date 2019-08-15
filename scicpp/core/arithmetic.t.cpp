@@ -5,6 +5,11 @@
 
 namespace scicpp::arithmetic {
 
+TEST_CASE("compile-time root") {
+    static_assert(root<2>(1.) == 1.);
+    // More tests...
+}
+
 TEST_CASE("prime_factors") {
     constexpr auto factors = prime_factors<84628766448>().values();
     static_assert(factors[0].first == 2 && factors[0].second == 4);
