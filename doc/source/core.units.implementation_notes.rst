@@ -26,7 +26,8 @@ Note that a fractionnal power is possible, for example the square-root of a quan
 Dimension representation
 -----------------------
 
-Here we implement :math:`\alpha_{i} \in \mathbb{Q}`.
+Here we implement :math:`\alpha_{i} \in \mathbb{Q}`, thus approximating a real number by a rational number.
+
 Let :math:`\alpha_{i} = n_{i} / d_{i}`, with :math:`n_{i} \in \mathbb{Z}`, :math:`d_{i} \in \mathbb{N}^{*}` and :math:`\gcd(n_{i}, d_{i}) = 1`, then
 
 .. math::
@@ -36,11 +37,18 @@ Let :math:`\alpha_{i} = n_{i} / d_{i}`, with :math:`n_{i} \in \mathbb{Z}`, :math
 where :math:`m_{i} = n_{i} \prod_{j \neq i} d_{j} \in \mathbb{Z}` and :math:`R = \prod_{i=1}^{N} d_{i} \in \mathbb{N}^{*}`.
 
 To each base quantity :math:`q_{i}` we associate an unique **prime number** :math:`p_{i}`.
-The quantity :math:`D` can thus be represented as :math:`D \equiv \left[ \prod_{i=1}^{N} p_{i}^{m_{i}} \right]^{1/R} = (P/Q)^{1/R}`,
+The quantity :math:`D` can thus be represented as 
+
+.. math::
+
+    D \equiv \left[ \prod_{i=1}^{N} p_{i}^{m_{i}} \right]^{1/R} = (P/Q)^{1/R},
+
 where :math:`P/Q \in \mathbb{Q}`. Therefore, a dimension can be modelled as the **root of a ratio** and a set of three integers: :math:`\mathrm{Dim} \langle P, Q, R \rangle`.
 
+The base quantities content of :math:`\mathrm{Dim} \langle P, Q, R \rangle` can be recovered by performing a prime factor decompostion of :math:`P` and :math:`Q`. 
+
 A dimension representation :math:`\mathrm{Dim} \langle P, Q, R \rangle` is **irreducible** iff :math:`\gcd(P, Q) = 1` and :math:`Q` and :math:`P` are not perfect :math:`R^{\mathrm{th}}` powers
-(`Wikipedia <https://en.wikipedia.org/wiki/Perfect_power>`_).
+(`Wikipedia <https://en.wikipedia.org/wiki/Perfect_power>`_).   Two quantities are identical if they have the same irreducible dimension representation.
 
 Dimension multiplication
 -----------------------

@@ -12,10 +12,10 @@ Defined in header <scicpp/core.hpp>
 An arithmetic-like type representing a quantity. The class only stores a value of type `T`.
 
 It performs compile-time `Dimensional analysis <https://en.wikipedia.org/wiki/Dimensional_analysis>`_ to validate Dimensional homogeneity.
-The quantity dimension Dim is a compile-time rational constant representing the quantity dimension (for example L^2 T / L).
-See :ref:`Implementation notes for more details <core_units_implementation_notes>`.
+The quantity dimension Dim is a compile-time constant representing the quantity dimension (for example L^2 T / L).
+See :ref:`Implementation notes <core_units_implementation_notes>`.
 
-It provides conversion between units (for example meters to miles), whith conversion factor calculated at compile-time.
+It also provides conversion between units (for example meters to miles), whith conversion factor calculated at compile-time.
 Scale and Offset are compile-time rational constant representing the affine transform coefficients to convert between units.
 
 Operators
@@ -40,3 +40,4 @@ Non-member functions
               constexpr ToQuantity quantity_cast(const quantity<T, Dim, Scale, Offset> &qty)
 
 Convert `qty` to a quantity of type `ToQuantity`.
+Used to convert between units when implicit conversion is not allowed, that is if it would result in a loss of precision.

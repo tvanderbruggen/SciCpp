@@ -20,7 +20,7 @@ namespace scicpp::arithmetic {
 // https://hbfs.wordpress.com/2016/03/22/log2-with-c-metaprogramming/
 //---------------------------------------------------------------------------------
 
-constexpr intmax_t ct_log2(intmax_t num) {
+constexpr inline intmax_t ct_log2(intmax_t num) {
     return (num < 2) ? 1 : 1 + ct_log2(num >> 1);
 }
 
@@ -32,11 +32,11 @@ constexpr intmax_t ct_log2(intmax_t num) {
 template <typename T>
 constexpr T power(T a, intmax_t n) {
     if (n == 0) {
-        return 1;
+        return T{1};
     }
 
     const auto p = power(a, n / 2);
-    return p * p * (n % 2 == 0 ? 1 : a);
+    return p * p * (n % 2 == 0 ? T{1} : a);
 }
 
 //---------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ constexpr T power(T a, intmax_t n) {
 namespace detail {
 
 template <intmax_t N, typename T>
-constexpr T rootNewtonRaphson(T x, T curr, T prev) {
+constexpr T root_newton_raphson(T x, T curr, T prev) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
     if (curr == prev) {
@@ -56,7 +56,7 @@ constexpr T rootNewtonRaphson(T x, T curr, T prev) {
     }
 #pragma GCC diagnostic pop
 
-    return rootNewtonRaphson<N>(
+    return root_newton_raphson<N>(
         x, (T(N - 1) * curr + x / power(curr, N - 1)) / T{N}, curr);
 }
 
@@ -71,7 +71,7 @@ constexpr T root(T x) {
     if constexpr (N == 1) {
         return x;
     } else {
-        return detail::rootNewtonRaphson<N>(x, x, T{0});
+        return detail::root_newton_raphson<N>(x, x, T{0});
     }
 }
 

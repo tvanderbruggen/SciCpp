@@ -132,34 +132,15 @@ constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
 
     using to_rep_t = typename ToQty::value_type;
     using rep_t = std::common_type_t<T, to_rep_t>;
+
+    using QtyScale = scale_divide<Scale, typename ToQty::scal>;
+    constexpr auto qty_scale = arithmetic::eval<rep_t>(QtyScale());
+
     using OffsetDiff = std::ratio_subtract<Offset, typename ToQty::offset>;
+    constexpr auto offset_diff = rep_t(OffsetDiff::num) / rep_t(OffsetDiff::den);
 
-    if constexpr (ToQty::scal::root == 1 && Scale::root == 1) {
-        constexpr auto to_qty_inv_scale =
-            rep_t(ToQty::scal::den) / rep_t(ToQty::scal::num);
-        constexpr auto qty_scale =
-            to_qty_inv_scale * rep_t(Scale::num) / rep_t(Scale::den);
-        constexpr auto offset_diff =
-            to_qty_inv_scale * rep_t(OffsetDiff::num) / rep_t(OffsetDiff::den);
-
-        return ToQty(static_cast<to_rep_t>(
-            qty_scale * static_cast<rep_t>(qty.value()) + offset_diff));
-    } else {
-        using QtyScale = scale_divide<Scale, typename ToQty::scal>;
-        constexpr auto qty_scale = arithmetic::eval<rep_t>(QtyScale());
-
-        return ToQty(
-            static_cast<to_rep_t>(qty_scale * static_cast<rep_t>(qty.value())));
-    }
-
-    // constexpr auto offset_diff =
-    // (rep_t(ToQty::scal::den) / rep_t(ToQty::scal::num)) * (rep_t(OffsetDiff::num) / rep_t(OffsetDiff::den));
-
-    // using QtyScale = scale_divide<Scale, typename ToQty::scal>;
-    // constexpr auto qty_scale = arithmetic::eval<rep_t>(QtyScale());
-
-    // return ToQty(
-    //     static_cast<to_rep_t>(qty_scale * static_cast<rep_t>(qty.value() + offset_diff)));
+    return ToQty(
+        static_cast<to_rep_t>(qty_scale * static_cast<rep_t>(qty.value())  + offset_diff));
 }
 
 template <typename T,
