@@ -9,6 +9,7 @@
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/maths.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/units.hpp"
 #include "scicpp/polynomials/polynomial.hpp"
 
 #include <algorithm>
@@ -79,12 +80,15 @@ auto sawtooth(Array &&t, T width = T{1}) {
 template <class Array,
           class Poly,
           typename T = typename std::remove_reference_t<Array>::value_type>
-auto sweep_poly(Array &&t, const Poly &poly, T phi = T{0}) {
+auto sweep_poly(Array &&t,
+                const Poly &poly,
+                units::angle<T>(phi) = units::angle<T>(0)) {
     using namespace scicpp::operators;
     using namespace polynomial;
 
-    return cos(T{2} * pi<T> * polyval(std::forward<Array>(t), polyint(poly)) +
-               phi * pi<T> / T{180});
+    return cos(units::radian<T>(T{2} * pi<T>) *
+                   polyval(std::forward<Array>(t), polyint(poly)) +
+               phi);
 }
 
 } // namespace scicpp::signal

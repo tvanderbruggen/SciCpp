@@ -31,13 +31,17 @@ TEST_CASE("scicpp::fabs") {
 TEST_CASE("Trigonometric functions") {
     using namespace units::literals;
 
-    REQUIRE(almost_equal(sin(std::array{1., 2., 3.}),
+    REQUIRE(almost_equal<2>(sin(std::array{0_deg, 90_deg, 180_deg, 270_deg}),
+                            {0., 1., 0., -1.}));
+    REQUIRE(almost_equal(sin(std::array{1_rad, 2_rad, 3_rad}),
                          {std::sin(1.), std::sin(2.), std::sin(3.)}));
     REQUIRE(almost_equal(sin(std::array{1.i, 2.i, 3.i}),
                          {std::sin(1.i), std::sin(2.i), std::sin(3.i)}));
-    REQUIRE(almost_equal(cos(std::vector{1., 2., 3.}),
+    REQUIRE(almost_equal<2>(cos(std::array{0_deg, 90_deg, 180_deg, 270_deg}),
+                            {1., 0., -1., 0.}));
+    REQUIRE(almost_equal(cos(std::array{1_rad, 2_rad, 3_rad}),
                          {std::cos(1.), std::cos(2.), std::cos(3.)}));
-    REQUIRE(almost_equal(tan(std::array{1., 2., 3.}),
+    REQUIRE(almost_equal(tan(std::array{1_rad, 2_rad, 3_rad}),
                          {std::tan(1.), std::tan(2.), std::tan(3.)}));
     REQUIRE(almost_equal(arcsin(std::vector{0.1, 0.2, 0.3}),
                          {std::asin(0.1), std::asin(0.2), std::asin(0.3)}));
@@ -51,16 +55,6 @@ TEST_CASE("Trigonometric functions") {
     REQUIRE(almost_equal(
         hypot(std::array{1., 2., 3.}, std::array{3., 2., 1.}),
         {std::hypot(1., 3.), std::hypot(2., 2.), std::hypot(3., 1.)}));
-
-    // Angular units
-    REQUIRE(almost_equal<2>(sin(std::array{0_deg, 90_deg, 180_deg, 270_deg}),
-                            {0., 1., 0., -1.}));
-    REQUIRE(almost_equal(sin(std::array{1_rad, 2_rad, 3_rad}),
-                         {std::sin(1.), std::sin(2.), std::sin(3.)}));
-    REQUIRE(almost_equal<2>(cos(std::array{0_deg, 90_deg, 180_deg, 270_deg}),
-                            {1., 0., -1., 0.}));
-    REQUIRE(almost_equal(cos(std::array{1_rad, 2_rad, 3_rad}),
-                         {std::cos(1.), std::cos(2.), std::cos(3.)}));
 }
 
 TEST_CASE("Hyperbolic functions") {
@@ -111,6 +105,8 @@ TEST_CASE("Rounding") {
 }
 
 TEST_CASE("Complex numbers") {
+    using namespace units::literals;
+
     const std::vector v{1. - 1.i, -42. + 3.i, -64. + 42.i};
 
     REQUIRE(almost_equal(real(v), {1., -42., -64.}));
@@ -123,7 +119,7 @@ TEST_CASE("Complex numbers") {
         norm(v),
         {std::norm(1. - 1.i), std::norm(-42. + 3.i), std::norm(-64. + 42.i)}));
     REQUIRE(almost_equal(
-        polar(std::vector{1., 2., 3.}, std::vector{3., 2., 1.}),
+        polar(std::vector{1., 2., 3.}, std::vector{3_rad, 2_rad, 1_rad}),
         {std::polar(1., 3.), std::polar(2., 2.), std::polar(3., 1.)}));
 }
 

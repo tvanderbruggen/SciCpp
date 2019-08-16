@@ -137,10 +137,11 @@ constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
     constexpr auto qty_scale = arithmetic::eval<rep_t>(QtyScale());
 
     using OffsetDiff = std::ratio_subtract<Offset, typename ToQty::offset>;
-    constexpr auto offset_diff = rep_t(OffsetDiff::num) / rep_t(OffsetDiff::den);
+    constexpr auto offset_diff =
+        rep_t(OffsetDiff::num) / rep_t(OffsetDiff::den);
 
-    return ToQty(
-        static_cast<to_rep_t>(qty_scale * static_cast<rep_t>(qty.value())  + offset_diff));
+    return ToQty(static_cast<to_rep_t>(
+        qty_scale * static_cast<rep_t>(qty.value()) + offset_diff));
 }
 
 template <typename T,
@@ -465,25 +466,26 @@ using quantity_invert = decltype(std::declval<Quantity>().inv());
 namespace primary_flags {
 // Each base quantity is identified by a prime number.
 
+// FIXME static_assert(is_prime_number(PrimeNumber))
 template <intmax_t PrimeNumber>
-using primary_dimension = dimension<std::ratio<PrimeNumber>>;
+using base_dimension = dimension<std::ratio<PrimeNumber>>;
 
 // using Dimensionless = dimension<std::ratio<1>>;
 
 // SI
-using Length = primary_dimension<2>;
-using Time = primary_dimension<3>;
-using Mass = primary_dimension<5>;
-using ElectricCurrent = primary_dimension<7>;
-using Temperature = primary_dimension<11>;
-using AmountOfSubstance = primary_dimension<13>;
-using LuminousIntensity = primary_dimension<17>;
+using Length = base_dimension<2>;
+using Time = base_dimension<3>;
+using Mass = base_dimension<5>;
+using ElectricCurrent = base_dimension<7>;
+using Temperature = base_dimension<11>;
+using AmountOfSubstance = base_dimension<13>;
+using LuminousIntensity = base_dimension<17>;
 
 // Angle
-using Angle = primary_dimension<19>;
+using Angle = base_dimension<19>;
 
 // Data
-using DataQuantity = primary_dimension<23>;
+using DataQuantity = base_dimension<23>;
 
 } // namespace primary_flags
 

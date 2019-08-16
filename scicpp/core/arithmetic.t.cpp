@@ -3,10 +3,10 @@
 
 #include "arithmetic.hpp"
 
-#include  <cmath>
-
-#include "scicpp/core/equal.hpp"
 #include "scicpp/core/constants.hpp"
+#include "scicpp/core/equal.hpp"
+
+#include <cmath>
 
 namespace scicpp::arithmetic {
 
