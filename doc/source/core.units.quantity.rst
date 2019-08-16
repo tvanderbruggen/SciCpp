@@ -13,6 +13,7 @@ An arithmetic-like type representing a quantity. The class only stores a value o
 
 It performs compile-time `Dimensional analysis <https://en.wikipedia.org/wiki/Dimensional_analysis>`_ to validate Dimensional homogeneity.
 The quantity dimension Dim is a compile-time rational constant representing the quantity dimension (for example L^2 T / L).
+See :ref:`Implementation notes for more details <core_units_implementation_notes>`.
 
 It provides conversion between units (for example meters to miles), whith conversion factor calculated at compile-time.
 Scale and Offset are compile-time rational constant representing the affine transform coefficients to convert between units.

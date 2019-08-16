@@ -53,18 +53,19 @@ constexpr T rootNewtonRaphson(T x, T curr, T prev) {
 #pragma GCC diagnostic ignored "-Wfloat-equal"
     if (curr == prev) {
         return curr;
-    } else {
-        return rootNewtonRaphson<N>(
-            x, (T(N - 1) * curr + x / power(curr, N - 1)) / T{N}, curr);
     }
-}
 #pragma GCC diagnostic pop
+
+    return rootNewtonRaphson<N>(
+        x, (T(N - 1) * curr + x / power(curr, N - 1)) / T{N}, curr);
+}
+
 } // namespace detail
 
 template <intmax_t N, typename T>
 constexpr T root(T x) {
-    if (x < 0) {
-        return T(std::numeric_limits<double>::quiet_NaN());
+    if (x < T{0}) {
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
     if constexpr (N == 1) {
