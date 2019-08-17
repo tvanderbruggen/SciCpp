@@ -147,7 +147,7 @@ TEST_CASE("Miscellaneous") {
         {units::sqrt(1_uH), units::sqrt(2_uH), units::sqrt(3_uH)}));
     REQUIRE(almost_equal<2>(cbrt(std::vector{1., 2., 3.}),
                             {std::cbrt(1.), std::cbrt(2.), std::cbrt(3.)}));
-    REQUIRE(almost_equal(
+    REQUIRE(almost_equal<2>(
         cbrt(std::vector{1_mF, 2_mF, 3_mF}),
         {units::cbrt(1_mF), units::cbrt(2_mF), units::cbrt(3_mF)}));
 }
