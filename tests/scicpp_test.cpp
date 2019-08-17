@@ -7,7 +7,7 @@
 
 using namespace std::literals;
 
-#include "scicpp/core/arithmetic.t.cpp"
+#include "scicpp/core/units/arithmetic.t.cpp"
 #include "scicpp/signal/convolve.t.cpp"
 #include "scicpp/signal/fft.t.cpp"
 #include "scicpp/signal/waveforms.t.cpp"
@@ -24,6 +24,6 @@ using namespace std::literals;
 #include "scicpp/linalg/solve.t.cpp"
 #include "scicpp/linalg/utils.t.cpp"
 #include "scicpp/core/functional.t.cpp"
-#include "scicpp/core/units.t.cpp"
+#include "scicpp/core/units/units.t.cpp"
 #include "scicpp/core/constants.t.cpp"
 #include "scicpp/core/equal.t.cpp"

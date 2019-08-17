@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-#ifndef SCICPP_CORE_ARITHMETIC
-#define SCICPP_CORE_ARITHMETIC
+#ifndef SCICPP_CORE_UNITS_ARITHMETIC
+#define SCICPP_CORE_UNITS_ARITHMETIC
 
 #include "scicpp/core/meta.hpp"
 
@@ -280,4 +280,4 @@ using common_root_ratio_t = typename common_root_ratio<RR1, RR2>::type;
 
 } // namespace scicpp::arithmetic
 
-#endif // SCICPP_CORE_ARITHMETIC
+#endif // SCICPP_CORE_UNITS_ARITHMETIC

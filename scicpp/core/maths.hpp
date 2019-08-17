@@ -3,7 +3,7 @@
 
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/meta.hpp"
-#include "scicpp/core/units.hpp"
+#include "scicpp/core/units/units.hpp"
 
 #include <array>
 #include <cmath>

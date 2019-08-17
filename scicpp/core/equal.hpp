@@ -6,7 +6,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
-#include "scicpp/core/units.hpp"
+#include "scicpp/core/units/quantity.hpp"
 
 #include <algorithm>
 #include <cmath>

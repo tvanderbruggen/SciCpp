@@ -9,7 +9,7 @@
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/maths.hpp"
 #include "scicpp/core/numeric.hpp"
-#include "scicpp/core/units.hpp"
+#include "scicpp/core/units/units.hpp"
 #include "scicpp/polynomials/polynomial.hpp"
 
 #include <algorithm>

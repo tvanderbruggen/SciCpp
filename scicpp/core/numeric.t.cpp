@@ -6,7 +6,7 @@
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
-#include "scicpp/core/units.hpp"
+#include "scicpp/core/units/units.hpp"
 
 namespace scicpp {
 

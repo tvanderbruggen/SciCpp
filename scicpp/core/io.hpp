@@ -7,7 +7,7 @@
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/tuple.hpp"
-#include "scicpp/core/units.hpp"
+#include "scicpp/core/units/quantity.hpp"
 
 #include <Eigen/Dense>
 #include <algorithm>

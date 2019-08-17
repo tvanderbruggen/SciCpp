@@ -1,6 +1,6 @@
 #include "equal.hpp"
 
-#include "scicpp/core/units.hpp"
+#include "scicpp/core/units/units.hpp"
 
 namespace scicpp {
 

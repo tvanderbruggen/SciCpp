@@ -5,7 +5,7 @@
 #define SCICPP_CORE_PRINT
 
 #include "scicpp/core/meta.hpp"
-#include "scicpp/core/units.hpp"
+#include "scicpp/core/units/quantity.hpp"
 
 #include <array>
 #include <cstdio>

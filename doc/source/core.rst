@@ -167,6 +167,15 @@ Units
 :ref:`units::quantity <core_units_quantity>`
     An arithmetic-like type representing a quantity.
 
+Masking
+----------------
+
+:ref:`mask <core_mask>`
+    Return a vector with masked values.
+
+:ref:`mask_array <core_mask_array>`
+    Mask a vector in-place.
+
 Functional programming
 ---------------
 
