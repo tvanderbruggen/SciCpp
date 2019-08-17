@@ -129,12 +129,12 @@ const auto absolute = vectorize([](auto x) {
     if constexpr (meta::is_complex_v<decltype(x)>) {
         return std::abs(x);
     } else {
-        return std::fabs(x);
+        return units::fabs(x);
     }
 });
 
-const auto sqrt = vectorize([](auto x) { return std::sqrt(x); });
-const auto cbrt = vectorize([](auto x) { return std::cbrt(x); });
+const auto sqrt = vectorize([](auto x) { return units::sqrt(x); });
+const auto cbrt = vectorize([](auto x) { return units::cbrt(x); });
 
 } // namespace scicpp
 

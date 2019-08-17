@@ -20,9 +20,7 @@ namespace detail {
 
 template <class Array>
 auto quiet_nan() {
-    using T = typename Array::value_type;
-    using raw_t = units::representation_t<T>;
-    return T(std::numeric_limits<raw_t>::quiet_NaN());
+    return std::numeric_limits<typename Array::value_type>::quiet_NaN();
 }
 
 } // namespace detail
@@ -88,14 +86,12 @@ template <class InputIt,
           class Predicate,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 constexpr T mean(InputIt first, InputIt last, Predicate filter) {
-    using raw_t = units::representation_t<T>;
-
     if (std::distance(first, last) == 0) {
-        return T(std::numeric_limits<raw_t>::quiet_NaN());
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
     const auto [res, cnt] = sum(first, last, filter);
-    return res / raw_t(cnt);
+    return res / units::representation_t<T>(cnt);
 }
 
 template <class Array, class Predicate>
@@ -127,7 +123,7 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
                                       T>;
 
     if (std::distance(first, last) == 0) {
-        return prod_t(std::numeric_limits<raw_t>::quiet_NaN());
+        return std::numeric_limits<prod_t>::quiet_NaN();
     }
 
     // Pairwise recursive implementation of variance summation
@@ -193,24 +189,12 @@ auto nanvar(const Array &f) {
 
 template <class Array>
 auto std(const Array &a) {
-    using T = typename Array::value_type;
-
-    if constexpr (units::is_quantity_v<T>) {
-        return T(std::sqrt(var(a).value()));
-    } else {
-        return std::sqrt(var(a));
-    }
+    return units::sqrt(var(a));
 }
 
 template <class Array>
 auto nanstd(const Array &a) {
-    using T = typename Array::value_type;
-
-    if constexpr (units::is_quantity_v<T>) {
-        return T(std::sqrt(nanvar(a).value()));
-    } else {
-        return std::sqrt(nanvar(a));
-    }
+    return units::sqrt(nanvar(a));
 }
 
 } // namespace scicpp::stats

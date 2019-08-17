@@ -6,6 +6,7 @@
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
+#include "scicpp/core/units/units.hpp"
 
 namespace scicpp {
 
@@ -131,14 +132,24 @@ TEST_CASE("Rational routines") {
 }
 
 TEST_CASE("Miscellaneous") {
+    using namespace units::literals;
+
     REQUIRE(almost_equal(absolute(std::array{1., -42., -64.}), {1., 42., 64.}));
+    REQUIRE(almost_equal(absolute(std::array{1_m3, -42_m3, -64_m3}),
+                         {1_m3, 42_m3, 64_m3}));
     REQUIRE(almost_equal(
         absolute(std::vector{1. - 1.i, -42. + 3.i, -64. + 42.i}),
         {std::abs(1. - 1.i), std::abs(-42. + 3.i), std::abs(-64. + 42.i)}));
     REQUIRE(almost_equal(sqrt(std::vector{1., 2., 3.}),
                          {std::sqrt(1.), std::sqrt(2.), std::sqrt(3.)}));
+    REQUIRE(almost_equal(
+        sqrt(std::vector{1_uH, 2_uH, 3_uH}),
+        {units::sqrt(1_uH), units::sqrt(2_uH), units::sqrt(3_uH)}));
     REQUIRE(almost_equal<2>(cbrt(std::vector{1., 2., 3.}),
                             {std::cbrt(1.), std::cbrt(2.), std::cbrt(3.)}));
+    REQUIRE(almost_equal(
+        cbrt(std::vector{1_mF, 2_mF, 3_mF}),
+        {units::cbrt(1_mF), units::cbrt(2_mF), units::cbrt(3_mF)}));
 }
 
 } // namespace scicpp
