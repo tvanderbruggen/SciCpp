@@ -35,8 +35,8 @@ using Temperature = base_dimension<11>;
 using AmountOfSubstance = base_dimension<13>;
 using LuminousIntensity = base_dimension<17>;
 
-// Angle
-using Angle = base_dimension<19>;
+// Planar angle
+using PlanarAngle = base_dimension<19>;
 
 // Data
 using DataQuantity = base_dimension<23>;
@@ -305,42 +305,42 @@ SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _GCd, std::giga)
 // ----------------------------------------------------------------------------
 
 template <typename T, typename Scale = scale<std::ratio<1>>>
-using angle = quantity<T, primary_flags::Angle, Scale>;
+using planar_angle = quantity<T, primary_flags::PlanarAngle, Scale>;
 
-SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(angle, radian)
+SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(planar_angle, radian)
 
 using pi_ratio = std::ratio<21053343141, 6701487259>;
 using deg_to_rad_ratio = std::ratio_divide<pi_ratio, std::ratio<180>>;
 
 template <typename T = double>
-using degree = angle<T, scale<deg_to_rad_ratio>>;
+using degree = planar_angle<T, scale<deg_to_rad_ratio>>;
 
 namespace literals {
 
-SCICPP_CORE_UNITS_SET_LITERAL(angle, _frad, std::femto)
-SCICPP_CORE_UNITS_SET_LITERAL(angle, _prad, std::pico)
-SCICPP_CORE_UNITS_SET_LITERAL(angle, _nrad, std::nano)
-SCICPP_CORE_UNITS_SET_LITERAL(angle, _urad, std::micro)
-SCICPP_CORE_UNITS_SET_LITERAL(angle, _mrad, std::milli)
-SCICPP_CORE_UNITS_SET_LITERAL(angle, _rad, std::ratio<1>)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _frad, std::femto)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _prad, std::pico)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _nrad, std::nano)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _urad, std::micro)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _mrad, std::milli)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _rad, std::ratio<1>)
 
-SCICPP_CORE_UNITS_SET_LITERAL_RATIO(angle,
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(planar_angle,
                                     _deg,
                                     deg_to_rad_ratio::num,
                                     deg_to_rad_ratio::den)
 
 } // namespace literals
 
-// is_angle trait
+// is_planar_angle trait
 
 template <class T>
-struct is_angle : std::false_type {};
+struct is_planar_angle : std::false_type {};
 
 template <typename T, typename Scale>
-struct is_angle<angle<T, Scale>> : std::true_type {};
+struct is_planar_angle<planar_angle<T, Scale>> : std::true_type {};
 
 template <class T>
-inline constexpr bool is_angle_v = is_angle<T>::value;
+inline constexpr bool is_planar_angle_v = is_planar_angle<T>::value;
 
 // ----------------------------------------------------------------------------
 // Data quantity

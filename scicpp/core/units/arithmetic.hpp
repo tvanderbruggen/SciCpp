@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
+// Compile time arithmetic functions.
+// MOstly implements root_ratio used for dimensional analysis.
+
 #ifndef SCICPP_CORE_UNITS_ARITHMETIC
 #define SCICPP_CORE_UNITS_ARITHMETIC
 
@@ -63,7 +66,7 @@ constexpr T root_newton_raphson(T x, T curr, T prev) {
 } // namespace detail
 
 template <intmax_t N, typename T>
-constexpr T root(T x) {
+constexpr T ct_root(T x) {
     if (x < T{0}) {
         return std::numeric_limits<T>::quiet_NaN();
     }
@@ -154,7 +157,7 @@ struct root_ratio {
 
 template <typename T, typename Ratio, intmax_t Root = 1>
 constexpr auto eval(root_ratio<Ratio, Root> /* unused */) {
-    return root<Root>(T(Ratio::num) / T(Ratio::den));
+    return ct_root<Root>(T(Ratio::num) / T(Ratio::den));
 }
 
 namespace detail {

@@ -380,11 +380,6 @@ constexpr auto operator/(const quantity<T1, Dim, Scale, Offset> &rhs,
     return rhs * (T2{1} / factor);
 }
 
-template <typename T, typename Dim, typename Scale, typename Offset>
-bool isnan(const quantity<T, Dim, Scale, Offset> &q) {
-    return std::isnan(q.value());
-}
-
 template <typename T>
 auto value(T x) {
     if constexpr (is_quantity_v<T>) {
@@ -392,28 +387,6 @@ auto value(T x) {
     } else {
         return x;
     }
-}
-
-template <typename T, typename Dim, typename Scale>
-auto sqrt(const quantity<T, Dim, Scale> &q) {
-    using DimRoot = dimension_root<Dim, 2>;
-    using ScalRoot = scale_root<Scale, 2>;
-    return quantity<T, DimRoot, ScalRoot>(std::sqrt(q.value()));
-}
-
-template <typename T, typename Dim, typename Scale>
-auto cbrt(const quantity<T, Dim, Scale> &q) {
-    using DimRoot = dimension_root<Dim, 3>;
-    using ScalRoot = scale_root<Scale, 3>;
-    return quantity<T, DimRoot, ScalRoot>(std::cbrt(q.value()));
-}
-
-template <intmax_t Root, typename T, typename Dim, typename Scale>
-auto root(const quantity<T, Dim, Scale> &q) {
-    static_assert(Root > 0);
-    using DimRoot = dimension_root<Dim, Root>;
-    using ScalRoot = scale_root<Scale, Root>;
-    return quantity<T, DimRoot, ScalRoot>(std::pow(q.value(), T{1} / Root));
 }
 
 // To debug

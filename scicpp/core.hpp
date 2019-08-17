@@ -17,6 +17,7 @@
 #include "core/range.hpp"
 #include "core/stats.hpp"
 #include "core/tuple.hpp"
+#include "core/units/maths.hpp"
 #include "core/units/quantity.hpp"
 #include "core/units/units.hpp"
 #include "core/utils.hpp"

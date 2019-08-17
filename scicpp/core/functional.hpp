@@ -6,7 +6,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
-#include "scicpp/core/units/quantity.hpp"
+#include "scicpp/core/units/maths.hpp"
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
@@ -170,16 +170,9 @@ auto vectorize(Func &&f) {
 
 namespace filters {
 
-const auto all = []([[maybe_unused]] auto v) { return true; };
-const auto none = []([[maybe_unused]] auto v) { return false; };
-
-const auto not_nan = [](auto v) {
-    if constexpr (units::is_quantity_v<decltype(v)>) {
-        return !units::isnan(v);
-    } else {
-        return !std::isnan(v);
-    }
-};
+constexpr auto all = []([[maybe_unused]] auto v) { return true; };
+constexpr auto none = []([[maybe_unused]] auto v) { return false; };
+constexpr auto not_nan = [](auto v) { return !units::isnan(v); };
 
 } // namespace filters
 

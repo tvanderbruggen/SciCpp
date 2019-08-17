@@ -11,12 +11,12 @@
 namespace scicpp::arithmetic {
 
 TEST_CASE("compile-time root") {
-    static_assert(root<2>(1) == 1);
-    static_assert(root<2>(9) == 3);
-    static_assert(root<3>(10648) == 22);
-    REQUIRE(std::isnan(root<2>(-2.)));
-    REQUIRE(almost_equal(root<2>(22.), 4.690415759823429554566));
-    REQUIRE(almost_equal(root<5>(pi<double>), 1.257274115669185059385));
+    static_assert(ct_root<2>(1) == 1);
+    static_assert(ct_root<2>(9) == 3);
+    static_assert(ct_root<3>(10648) == 22);
+    REQUIRE(std::isnan(ct_root<2>(-2.)));
+    REQUIRE(almost_equal(ct_root<2>(22.), 4.690415759823429554566));
+    REQUIRE(almost_equal(ct_root<5>(pi<double>), 1.257274115669185059385));
 }
 
 TEST_CASE("prime_factors") {

@@ -52,9 +52,9 @@ constexpr auto to_radian(T x) {
         return x;
     } else {
         static_assert(
-            units::is_angle_v<T>,
+            units::is_planar_angle_v<T>,
             "Trigonometric functions sin, cos, tan require an argument "
-            "of type units::angle (ex. radian or degree)");
+            "of type units::planar_angle (ex. radian or degree)");
         using rad = units::radian<typename T::value_type>;
         return units::quantity_cast<rad>(x).value();
     }
@@ -73,7 +73,7 @@ const auto cos =
 const auto tan =
     vectorize([](auto x) { return std::tan(detail::to_radian(x)); });
 
-// TODO Return angle type from arcXXX
+// TODO Return planar_angle type from arcXXX
 const auto arcsin = vectorize([](auto x) { return std::asin(x); });
 const auto arccos = vectorize([](auto x) { return std::acos(x); });
 const auto arctan = vectorize([](auto x) { return std::atan(x); });
