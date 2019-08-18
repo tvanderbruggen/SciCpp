@@ -17,28 +17,219 @@
 
 namespace scicpp::units {
 
-namespace primary_flags {
+using DimSystem = dimensional_system<11>;
 
-using dim_syst = dimensional_system<10>;
+// ----------------------------------------------------------------------------
+// Quantities
+// ----------------------------------------------------------------------------
 
-using Dimensionless = get_base_dimension<0, dim_syst>;
+// Base quantities
 
-// SI
-using Length = get_base_dimension<1, dim_syst>;
-using Time = get_base_dimension<2, dim_syst>;
-using Mass = get_base_dimension<3, dim_syst>;
-using ElectricCurrent = get_base_dimension<4, dim_syst>;
-using Temperature = get_base_dimension<5, dim_syst>;
-using AmountOfSubstance = get_base_dimension<6, dim_syst>;
-using LuminousIntensity = get_base_dimension<7, dim_syst>;
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using dimensionless = get_base_quantity<0, DimSystem, T, Scale>;
 
-// Planar angle
-using PlanarAngle = get_base_dimension<8, dim_syst>;
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using length = get_base_quantity<1, DimSystem, T, Scale>;
 
-// Data
-using DataQuantity = get_base_dimension<9, dim_syst>;
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using time = get_base_quantity<2, DimSystem, T, Scale>;
 
-} // namespace primary_flags
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using mass = get_base_quantity<3, DimSystem, T, Scale>;
+
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using electric_current = get_base_quantity<4, DimSystem, T, Scale>;
+
+template <typename T,
+          typename Scale = scale<std::ratio<1>>,
+          typename Offset = std::ratio<0>>
+using temperature = get_base_quantity<5, DimSystem, T, Scale, Offset>;
+
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using amount_of_substance = get_base_quantity<6, DimSystem, T, Scale>;
+
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using luminous_intensity = get_base_quantity<7, DimSystem, T, Scale>;
+
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using planar_angle = get_base_quantity<8, DimSystem, T, Scale>;
+
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using solid_angle = get_base_quantity<9, DimSystem, T, Scale>;
+
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using data_quantity = get_base_quantity<10, DimSystem, T, Scale>;
+
+// Derived quantities
+
+// Speed = Length / Time
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using speed = quantity_divide<length<T, Scale>, time<T>>;
+
+// Acceleration = Speed / Time
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using acceleration = quantity_divide<speed<T, Scale>, time<T>>;
+
+// Angular velocity = Planar angle / Time
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using angular_velocity = quantity_divide<planar_angle<T, Scale>, time<T>>;
+
+// Momentum = Mass x Speed
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using momentum = quantity_multiply<mass<T, Scale>, speed<T>>;
+
+// Area = Length x Length
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using area = quantity_multiply<length<T, Scale>, length<T>>;
+
+// Volume = Area x Length
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using volume = quantity_multiply<area<T, Scale>, length<T>>;
+
+// Force = Mass x Acceleration
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using force = quantity_multiply<mass<T, Scale>, acceleration<T>>;
+
+// Power = Force x Speed
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using power = quantity_multiply<force<T, Scale>, speed<T>>;
+
+// Energy = Power x Time
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using energy = quantity_multiply<power<T, Scale>, time<T>>;
+
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using work = energy<T, Scale>;
+
+// Pressure = Force / Area
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using pressure = quantity_divide<force<T, Scale>, area<T>>;
+
+// Frequency = 1 / Time
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using frequency = quantity_invert<time<T, Scale>>;
+
+// Electrical resistance = Power / Current^2
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using electrical_resistance = quantity_divide<
+    power<T, Scale>,
+    quantity_multiply<electric_current<T>, electric_current<T>>>;
+
+// Electrical conductivity = 1 / Electrical resistance
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using electrical_conductivity =
+    quantity_invert<electrical_resistance<T, Scale>>;
+
+// Voltage = Power / Current
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using electric_potential =
+    quantity_divide<power<T, Scale>, electric_current<T>>;
+
+// Capacitance = Time / Resistance
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using capacitance = quantity_divide<time<T, Scale>, electrical_resistance<T>>;
+
+// Charge = Capacitance x Voltage
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using electric_charge =
+    quantity_multiply<capacitance<T, Scale>, electric_potential<T>>;
+
+// Inductance = Voltage x Time / Current
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using inductance =
+    quantity_divide<quantity_multiply<electric_potential<T, Scale>, time<T>>,
+                    electric_current<T>>;
+
+// Magnetic field = Force / (Charge x Speed)
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using magnetic_flux_density =
+    quantity_divide<force<T, Scale>,
+                    quantity_multiply<electric_charge<T>, speed<T>>>;
+
+// Magnetic flux = Magnetic field / Area
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using magnetic_flux =
+    quantity_multiply<magnetic_flux_density<T, Scale>, area<T>>;
+
+// Data rate = Quantity of data / Time
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using data_rate = quantity_divide<data_quantity<T, Scale>, time<T>>;
+
+// Chemical potential = Energy / Amount of substance
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using chemical_potential =
+    quantity_divide<energy<T, Scale>, amount_of_substance<T>>;
+
+// Thermal resistance = Temperature / Power
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using thermal_resistance = quantity_divide<temperature<T, Scale>, power<T>>;
+
+// Thermal resistivity = Thermal resistance x Length
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using thermal_resistivity =
+    quantity_multiply<thermal_resistance<T, Scale>, length<T>>;
+
+// Thermal insulance = Temperature x Area
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using thermal_insulance =
+    quantity_multiply<thermal_resistance<T, Scale>, area<T>>;
+
+// Luminous flux = Luminous intensity x Solid angle
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using luminous_flux =
+    quantity_multiply<luminous_intensity<T, Scale>, solid_angle<T>>;
+
+// Luminous energy = Luminous flux x Time
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using luminous_energy = quantity_multiply<luminous_flux<T, Scale>, time<T>>;
+
+// Luminance = Luminous intensity / Area
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using luminance = quantity_divide<luminous_intensity<T, Scale>, area<T>>;
+
+// Illuminance = Luminous flux / Area
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using illuminance = quantity_divide<luminous_flux<T, Scale>, area<T>>;
+
+// Quantities traits
+
+#define QUANTITY_TRAIT(qty)                                                    \
+    template <class T>                                                         \
+    inline constexpr bool is_##qty##_v = is_quantity_v<T>                      \
+        &&is_same_dimension<T, qty<typename T::value_type, typename T::scal>>;
+
+QUANTITY_TRAIT(length)
+QUANTITY_TRAIT(time)
+QUANTITY_TRAIT(mass)
+QUANTITY_TRAIT(electric_current)
+QUANTITY_TRAIT(temperature)
+QUANTITY_TRAIT(amount_of_substance)
+QUANTITY_TRAIT(luminous_intensity)
+QUANTITY_TRAIT(planar_angle)
+QUANTITY_TRAIT(solid_angle)
+QUANTITY_TRAIT(data_quantity)
+
+QUANTITY_TRAIT(speed)
+QUANTITY_TRAIT(acceleration)
+QUANTITY_TRAIT(angular_velocity)
+QUANTITY_TRAIT(momentum)
+QUANTITY_TRAIT(area)
+QUANTITY_TRAIT(volume)
+QUANTITY_TRAIT(force)
+QUANTITY_TRAIT(power)
+QUANTITY_TRAIT(energy)
+QUANTITY_TRAIT(work)
+QUANTITY_TRAIT(pressure)
+QUANTITY_TRAIT(frequency)
+
+#undef QUANTITY_TRAIT
+
+// ----------------------------------------------------------------------------
+// Units
+//
+// An unit is the specialization of a quantity
+// template for a given scale and offset.
+// ----------------------------------------------------------------------------
 
 #define SCICPP_CORE_UNITS_SET_LITERAL(quantity, literal, scale_ratio)          \
     constexpr auto operator""##literal(long double x) {                        \
@@ -116,9 +307,6 @@ using DataQuantity = get_base_dimension<9, dim_syst>;
 // Length
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using length = quantity<T, primary_flags::Length, Scale>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(length, meter)
 
 namespace literals {
@@ -146,9 +334,6 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _yd, 9144, 10000)
 // Time
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using time = quantity<T, primary_flags::Time, Scale>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(time, second)
 
 template <typename T = double>
@@ -173,9 +358,6 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _h, 3600, 1)
 // ----------------------------------------------------------------------------
 // Mass
 // ----------------------------------------------------------------------------
-
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using mass = quantity<T, primary_flags::Mass, Scale>;
 
 template <typename T = double>
 using gram = mass<T, scale<std::milli>>;
@@ -202,9 +384,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(mass, _Tton, std::exa)
 // Electric current
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using electric_current = quantity<T, primary_flags::ElectricCurrent, Scale>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(electric_current, ampere)
 
 namespace literals {
@@ -225,11 +404,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _TA, std::tera)
 // ----------------------------------------------------------------------------
 // Temperature
 // ----------------------------------------------------------------------------
-
-template <typename T,
-          typename Scale = scale<std::ratio<1>>,
-          typename Offset = std::ratio<0>>
-using temperature = quantity<T, primary_flags::Temperature, Scale, Offset>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(temperature, kelvin)
 
@@ -257,10 +431,6 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO2(temperature, _degF, 5, 9, 45967, 180)
 // Amount of substance
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using amount_of_substance =
-    quantity<T, primary_flags::AmountOfSubstance, Scale>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(amount_of_substance, mole)
 
 namespace literals {
@@ -277,9 +447,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _mol, std::ratio<1>)
 // ----------------------------------------------------------------------------
 // Luminous intensity
 // ----------------------------------------------------------------------------
-
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using luminous_intensity = quantity<T, primary_flags::LuminousIntensity, Scale>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(luminous_intensity, candela)
 
@@ -298,11 +465,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _GCd, std::giga)
 } // namespace literals
 
 // ----------------------------------------------------------------------------
-// Angle
+// Planar angle
 // ----------------------------------------------------------------------------
-
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using planar_angle = quantity<T, primary_flags::PlanarAngle, Scale>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(planar_angle, radian)
 
@@ -328,23 +492,9 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(planar_angle,
 
 } // namespace literals
 
-// is_planar_angle trait
-
-template <class T>
-struct is_planar_angle : std::false_type {};
-
-template <typename T, typename Scale>
-struct is_planar_angle<planar_angle<T, Scale>> : std::true_type {};
-
-template <class T>
-inline constexpr bool is_planar_angle_v = is_planar_angle<T>::value;
-
 // ----------------------------------------------------------------------------
 // Data quantity
 // ----------------------------------------------------------------------------
-
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using data_quantity = quantity<T, primary_flags::DataQuantity, Scale>;
 
 namespace literals {
 
@@ -366,14 +516,9 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity,
 
 } // namespace literals
 
-// Derived quantities
-
 // ----------------------------------------------------------------------------
 // Speed
 // ----------------------------------------------------------------------------
-
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using speed = quantity_divide<length<T, Scale>, time<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(speed, meter_per_second)
 
@@ -394,9 +539,6 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(speed, _km_per_h, 3600, 1000)
 // Acceleration
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using acceleration = quantity_divide<speed<T, Scale>, time<T>>;
-
 namespace literals {
 
 SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _fm_per_s2, std::femto)
@@ -413,9 +555,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _km_per_s2, std::kilo)
 // area
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using area = quantity_multiply<length<T, Scale>, length<T>>;
-
 namespace literals {
 
 SCICPP_CORE_UNITS_SET_LITERAL(area, _m2, std::ratio<1>)
@@ -428,9 +567,6 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _ha, 10000, 1)
 // Volume
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using volume = quantity_multiply<area<T, Scale>, length<T>>;
-
 namespace literals {
 
 SCICPP_CORE_UNITS_SET_LITERAL(volume, _m3, std::ratio<1>)
@@ -440,10 +576,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(volume, _m3, std::ratio<1>)
 // ----------------------------------------------------------------------------
 // Force
 // ----------------------------------------------------------------------------
-
-// Force = Mass x Acceleration
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using force = quantity_multiply<mass<T, Scale>, acceleration<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(force, newton)
 
@@ -466,10 +598,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(force, _TN, std::tera)
 // Power
 // ----------------------------------------------------------------------------
 
-// Power = Force x Speed
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using power = quantity_multiply<force<T, Scale>, speed<T>>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(power, watt)
 
 namespace literals {
@@ -490,10 +618,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(power, _TW, std::tera)
 // ----------------------------------------------------------------------------
 // Energy
 // ----------------------------------------------------------------------------
-
-// Energy = Power x Time
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using energy = quantity_multiply<power<T, Scale>, time<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(energy, joule)
 
@@ -518,9 +642,6 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _cal, 41855, 10000)
 // ----------------------------------------------------------------------------
 // Pressure
 // ----------------------------------------------------------------------------
-
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using pressure = quantity_divide<force<T, Scale>, area<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(pressure, pascal)
 
@@ -564,9 +685,6 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(pressure, _atm, 101325, 1)
 // Frequency
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using frequency = quantity_invert<time<T, Scale>>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(frequency, hertz)
 
 namespace literals {
@@ -587,12 +705,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(frequency, _THz, std::tera)
 // ----------------------------------------------------------------------------
 // Electrical resistance
 // ----------------------------------------------------------------------------
-
-// Resistance = Power / Current^2
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using electrical_resistance = quantity_divide<
-    power<T, Scale>,
-    quantity_multiply<electric_current<T>, electric_current<T>>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(electrical_resistance, ohm)
 
@@ -615,10 +727,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(electrical_resistance, _TOhm, std::tera)
 // Electrical conductivity
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using electrical_conductivity =
-    quantity_invert<electrical_resistance<T, Scale>>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(electrical_conductivity, siemens)
 
 namespace literals {
@@ -639,11 +747,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(electrical_conductivity, _TS, std::tera)
 // ----------------------------------------------------------------------------
 // Electric potential
 // ----------------------------------------------------------------------------
-
-// Voltage = Power / Current
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using electric_potential =
-    quantity_divide<power<T, Scale>, electric_current<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(electric_potential, volt)
 
@@ -666,10 +769,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(electric_potential, _TV, std::tera)
 // Capacitance
 // ----------------------------------------------------------------------------
 
-// Capacitance = Time / Resistance
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using capacitance = quantity_divide<time<T, Scale>, electrical_resistance<T>>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(capacitance, farad)
 
 namespace literals {
@@ -690,11 +789,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(capacitance, _TF, std::tera)
 // ----------------------------------------------------------------------------
 // Electric charge
 // ----------------------------------------------------------------------------
-
-// Charge = Capacitance x Voltage
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using electric_charge =
-    quantity_multiply<capacitance<T, Scale>, electric_potential<T>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(electric_charge, coulomb)
 
@@ -717,12 +811,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(electric_charge, _TC, std::tera)
 // Inductance
 // ----------------------------------------------------------------------------
 
-// Inductance = Voltage x Time / Current
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using inductance =
-    quantity_divide<quantity_multiply<electric_potential<T, Scale>, time<T>>,
-                    electric_current<T>>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(inductance, henry)
 
 namespace literals {
@@ -743,12 +831,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(inductance, _TH, std::tera)
 // ----------------------------------------------------------------------------
 // Magnetic flux density
 // ----------------------------------------------------------------------------
-
-// Magnetic field = Force / (Charge x Speed)
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using magnetic_flux_density =
-    quantity_divide<force<T, Scale>,
-                    quantity_multiply<electric_charge<T>, speed<T>>>;
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(magnetic_flux_density, tesla)
 
@@ -771,11 +853,6 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(magnetic_flux_density, _G, 1, 10000)
 // Magnetic flux
 // ----------------------------------------------------------------------------
 
-// Magnetic field = Force / (Charge x Speed)
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using magnetic_flux =
-    quantity_multiply<magnetic_flux_density<T, Scale>, area<T>>;
-
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(magnetic_flux, weber)
 
 namespace literals {
@@ -797,9 +874,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(magnetic_flux, _TWb, std::tera)
 // Data rate
 // ----------------------------------------------------------------------------
 
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using data_rate = quantity_divide<data_quantity<T, Scale>, time<T>>;
-
 namespace literals {
 
 SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _bps, std::ratio<1>)
@@ -809,21 +883,6 @@ SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _Gbps, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _Tbps, std::tera)
 
 } // namespace literals
-
-// ----------------------------------------------------------------------------
-// Chemical potential
-// ----------------------------------------------------------------------------
-
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using chemical_potential =
-    quantity_divide<energy<T, Scale>, amount_of_substance<T>>;
-
-// ----------------------------------------------------------------------------
-// Thermal resistance
-// ----------------------------------------------------------------------------
-
-template <typename T, typename Scale = scale<std::ratio<1>>>
-using thermal_resistance = quantity_divide<temperature<T, Scale>, power<T>>;
 
 #undef SCICPP_CORE_UNITS_SET_LITERAL
 #undef SCICPP_CORE_UNITS_SET_LITERAL_RATIO

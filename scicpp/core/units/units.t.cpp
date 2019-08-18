@@ -16,6 +16,9 @@ namespace scicpp::units {
 using namespace literals;
 
 TEST_CASE("Length") {
+    static_assert(is_length_v<meter<>>);
+    static_assert(is_length_v<kilometer<>>);
+
     static_assert(meter<int>(2000) == kilometer<int>(2));
     REQUIRE(almost_equal(meter<>(12), 12_m));
     REQUIRE(almost_equal(millimeter<>(1), 1_mm));
@@ -32,8 +35,8 @@ TEST_CASE("Angle") {
     static_assert(is_planar_angle_v<radian<>>);
     static_assert(is_planar_angle_v<degree<>>);
     static_assert(!is_planar_angle_v<meter<>>);
-    static_assert(radian<int>(0) == degree<int>(0));
 
+    static_assert(radian<int>(0) == degree<int>(0));
     REQUIRE(almost_equal(radian<>(pi<double>), degree<>(180.)));
     REQUIRE(almost_equal<750>(radian<long double>(pi<long double>),
                               degree<long double>(180.)));
@@ -42,12 +45,13 @@ TEST_CASE("Angle") {
     REQUIRE(almost_equal(3.1415926535897932_rad, 180_deg));
 }
 
-TEST_CASE("Surface") {
+TEST_CASE("Area") {
     REQUIRE(almost_equal(1._km2, 1000000._m2));
     REQUIRE(almost_equal(1._ha, 10000._m2));
 }
 
 TEST_CASE("Energy") {
+    static_assert(is_energy_v<joule<>>);
     static_assert(nanojoule<int64_t>(1) == picojoule<int64_t>(1000));
     REQUIRE(almost_equal(1._kWh, 3.6_MJ));
     REQUIRE(almost_equal(1._cal, 4.1855_J));

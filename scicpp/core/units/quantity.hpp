@@ -425,6 +425,11 @@ struct representation_type_impl<quantity<T, Dim, Scale, Offset>> {
 template <class T>
 using representation_t = typename detail::representation_type_impl<T>::type;
 
+// is_same_dimension
+template <class Qty1, class Qty2>
+inline constexpr bool is_same_dimension =
+    std::is_same_v<typename Qty1::dim, typename Qty2::dim>;
+
 // Quantities type operations
 
 template <typename Quantity1, typename Quantity2>
@@ -469,6 +474,24 @@ template <std::size_t I, typename DimSyst>
 using get_base_dimension = std::tuple_element_t<I, DimSyst>;
 
 // TODO Append new dimension to dimensional_system
+
+// ----------------------------------------------------------------------------
+// base_quantity
+// ----------------------------------------------------------------------------
+
+template <typename T,
+          typename BaseDim,
+          typename Scale,
+          typename Offset = std::ratio<0>>
+using base_quantity = quantity<T, BaseDim, Scale, Offset>;
+
+template <std::size_t I,
+          typename DimSyst,
+          typename T,
+          typename Scale,
+          typename Offset = std::ratio<0>>
+using get_base_quantity =
+    base_quantity<T, get_base_dimension<I, DimSyst>, Scale, Offset>;
 
 } // namespace scicpp::units
 
