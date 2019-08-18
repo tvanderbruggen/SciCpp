@@ -60,7 +60,7 @@ constexpr T root_newton_raphson(T x, T curr, T prev) {
 #pragma GCC diagnostic pop
 
     return root_newton_raphson<N>(
-        x, (T(N - 1) * curr + x / power(curr, N - 1)) / T{N}, curr);
+        x, (T{N - 1} * curr + x / power(curr, N - 1)) / T{N}, curr);
 }
 
 } // namespace detail
@@ -128,7 +128,7 @@ struct prime_factors {
         factors[i].second = 1;
     }
 
-    // There is at most log2(n) prime factors
+    // There are at most log2(n) prime factors
     std::array<std::pair<prime_t, pow_t>, std::size_t(ct_log2(n))> factors{};
 };
 
@@ -280,6 +280,54 @@ struct common_root_ratio {
 
 template <typename RR1, typename RR2>
 using common_root_ratio_t = typename common_root_ratio<RR1, RR2>::type;
+
+//---------------------------------------------------------------------------------
+// is_prime, next_prime
+// https://stackoverflow.com/questions/30052316/find-next-prime-number-algorithm
+//---------------------------------------------------------------------------------
+
+constexpr inline bool is_prime(intmax_t number) {
+    if (number == 2 || number == 3) {
+        return true;
+    }
+
+    if (number % 2 == 0 || number % 3 == 0) {
+        return false;
+    }
+
+    intmax_t divisor = 6;
+
+    while (divisor * divisor - 2 * divisor + 1 <= number) {
+        if ((number % (divisor - 1) == 0) || (number % (divisor + 1) == 0)) {
+            return false;
+        }
+
+        divisor += 6;
+    }
+
+    return true;
+}
+
+constexpr inline intmax_t next_prime(intmax_t a) {
+    while (!is_prime(++a))
+        ;
+    return a;
+}
+
+template <std::size_t N, intmax_t First = 1>
+struct prime_list {
+    constexpr prime_list() {
+        ids[0] = First;
+
+        for (std::size_t i = 1; i < N; ++i) {
+            ids[i] = next_prime(ids[i - 1]);
+        }
+    }
+
+    constexpr auto values() const { return ids; }
+
+    std::array<intmax_t, N> ids{};
+};
 
 } // namespace scicpp::arithmetic
 

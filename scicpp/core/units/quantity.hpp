@@ -12,7 +12,9 @@
 #include <cstdio>
 #include <numeric>
 #include <ratio>
+#include <tuple>
 #include <type_traits>
+#include <utility>
 
 namespace scicpp::units {
 
@@ -435,6 +437,38 @@ using quantity_divide =
 
 template <typename Quantity>
 using quantity_invert = decltype(std::declval<Quantity>().inv());
+
+// ----------------------------------------------------------------------------
+// base_dimension
+// ----------------------------------------------------------------------------
+
+// FIXME static_assert(is_prime_number(PrimeNumber))
+template <intmax_t PrimeNumber>
+using base_dimension = dimension<std::ratio<PrimeNumber>>;
+
+namespace detail {
+
+template <std::size_t N>
+struct dimensional_system_impl {
+    template <std::size_t... I>
+    static constexpr auto make_base_dimension_tuple(std::index_sequence<I...>) {
+        constexpr auto primes = arithmetic::prime_list<N>().values();
+        return std::make_tuple(base_dimension<std::get<I>(primes)>()...);
+    }
+
+    using type =
+        decltype(make_base_dimension_tuple(std::make_index_sequence<N>{}));
+};
+
+} // namespace detail
+
+template <std::size_t N>
+using dimensional_system = typename detail::dimensional_system_impl<N>::type;
+
+template <std::size_t I, typename DimSyst>
+using get_base_dimension = std::tuple_element_t<I, DimSyst>;
+
+// TODO Append new dimension to dimensional_system
 
 } // namespace scicpp::units
 

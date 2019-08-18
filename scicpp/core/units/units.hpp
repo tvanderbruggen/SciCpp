@@ -18,28 +18,25 @@
 namespace scicpp::units {
 
 namespace primary_flags {
-// Each base quantity is identified by a prime number.
 
-// FIXME static_assert(is_prime_number(PrimeNumber))
-template <intmax_t PrimeNumber>
-using base_dimension = dimension<std::ratio<PrimeNumber>>;
+using dim_syst = dimensional_system<10>;
 
-// using Dimensionless = dimension<std::ratio<1>>;
+using Dimensionless = get_base_dimension<0, dim_syst>;
 
 // SI
-using Length = base_dimension<2>;
-using Time = base_dimension<3>;
-using Mass = base_dimension<5>;
-using ElectricCurrent = base_dimension<7>;
-using Temperature = base_dimension<11>;
-using AmountOfSubstance = base_dimension<13>;
-using LuminousIntensity = base_dimension<17>;
+using Length = get_base_dimension<1, dim_syst>;
+using Time = get_base_dimension<2, dim_syst>;
+using Mass = get_base_dimension<3, dim_syst>;
+using ElectricCurrent = get_base_dimension<4, dim_syst>;
+using Temperature = get_base_dimension<5, dim_syst>;
+using AmountOfSubstance = get_base_dimension<6, dim_syst>;
+using LuminousIntensity = get_base_dimension<7, dim_syst>;
 
 // Planar angle
-using PlanarAngle = base_dimension<19>;
+using PlanarAngle = get_base_dimension<8, dim_syst>;
 
 // Data
-using DataQuantity = base_dimension<23>;
+using DataQuantity = get_base_dimension<9, dim_syst>;
 
 } // namespace primary_flags
 

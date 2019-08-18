@@ -84,4 +84,25 @@ TEST_CASE("root_ratio") {
     }
 }
 
+TEST_CASE("is_prime, next_prime") {
+    static_assert(is_prime(2));
+    static_assert(!is_prime(9));
+    static_assert(is_prime(8191));
+    static_assert(is_prime(6700417));
+    static_assert(is_prime(2147483647));
+
+    static_assert(next_prime(1) == 2);
+    static_assert(next_prime(13) == 17);
+    static_assert(next_prime(19) == 23);
+    static_assert(next_prime(1193) == 1201);
+    static_assert(next_prime(6101) == 6113);
+
+    constexpr auto primes = prime_list<5>().values();
+    static_assert(primes[0] == 1);
+    static_assert(primes[1] == 2);
+    static_assert(primes[2] == 3);
+    static_assert(primes[3] == 5);
+    static_assert(primes[4] == 7);
+}
+
 } // namespace scicpp::arithmetic
