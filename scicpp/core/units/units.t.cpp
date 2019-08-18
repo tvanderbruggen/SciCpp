@@ -15,9 +15,13 @@ namespace scicpp::units {
 
 using namespace literals;
 
+TEST_CASE("Dimensionless") {
+    static_assert(is_dimensionless<quantity_divide<length<int>, length<int>>>);
+}
+
 TEST_CASE("Length") {
-    static_assert(is_length_v<meter<>>);
-    static_assert(is_length_v<kilometer<>>);
+    static_assert(is_length<meter<>>);
+    static_assert(is_length<kilometer<>>);
 
     static_assert(meter<int>(2000) == kilometer<int>(2));
     REQUIRE(almost_equal(meter<>(12), 12_m));
@@ -32,9 +36,9 @@ TEST_CASE("Length") {
 }
 
 TEST_CASE("Angle") {
-    static_assert(is_planar_angle_v<radian<>>);
-    static_assert(is_planar_angle_v<degree<>>);
-    static_assert(!is_planar_angle_v<meter<>>);
+    static_assert(is_planar_angle<radian<>>);
+    static_assert(is_planar_angle<degree<>>);
+    static_assert(!is_planar_angle<meter<>>);
 
     static_assert(radian<int>(0) == degree<int>(0));
     REQUIRE(almost_equal(radian<>(pi<double>), degree<>(180.)));
@@ -51,13 +55,14 @@ TEST_CASE("Area") {
 }
 
 TEST_CASE("Energy") {
-    static_assert(is_energy_v<joule<>>);
+    static_assert(is_energy<joule<>>);
     static_assert(nanojoule<int64_t>(1) == picojoule<int64_t>(1000));
     REQUIRE(almost_equal(1._kWh, 3.6_MJ));
     REQUIRE(almost_equal(1._cal, 4.1855_J));
 }
 
 TEST_CASE("Speed") {
+    static_assert(is_speed<kilometer_per_second<>>);
     static_assert(kilometer_per_second<int>(3) == meter_per_second<int>(3000));
     REQUIRE(almost_equal(2._km / 1._s, 2000._m_per_s));
     REQUIRE(almost_equal(2._km / 1._ms, 2000000._m_per_s));
@@ -70,6 +75,8 @@ TEST_CASE("Acceleration") {
 }
 
 TEST_CASE("Time") {
+    static_assert(!is_time<double>);
+    static_assert(is_time<minute<int>>);
     static_assert(minute<int>(60) == hour<int>(1));
     REQUIRE(almost_equal(1._h, 3600._s));
     REQUIRE(almost_equal(1._h, 60._min));

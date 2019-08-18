@@ -52,7 +52,7 @@ constexpr auto to_radian(T x) {
         return x;
     } else {
         static_assert(
-            units::is_planar_angle_v<T>,
+            units::is_planar_angle<T>,
             "Trigonometric functions sin, cos, tan require an argument "
             "of type units::planar_angle (ex. radian or degree)");
         using rad = units::radian<typename T::value_type>;

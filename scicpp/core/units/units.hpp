@@ -195,9 +195,20 @@ using illuminance = quantity_divide<luminous_flux<T, Scale>, area<T>>;
 
 #define QUANTITY_TRAIT(qty)                                                    \
     template <class T>                                                         \
-    inline constexpr bool is_##qty##_v = is_quantity_v<T>                      \
-        &&is_same_dimension<T, qty<typename T::value_type, typename T::scal>>;
+    constexpr bool is_##qty##_impl() {                                         \
+        if constexpr (is_quantity_v<T>) {                                      \
+            return is_same_dimension<                                          \
+                T,                                                             \
+                qty<typename T::value_type, typename T::scal>>;                \
+        } else {                                                               \
+            return false;                                                      \
+        }                                                                      \
+    }                                                                          \
+                                                                               \
+    template <class T>                                                         \
+    inline constexpr bool is_##qty = is_##qty##_impl<T>();
 
+QUANTITY_TRAIT(dimensionless)
 QUANTITY_TRAIT(length)
 QUANTITY_TRAIT(time)
 QUANTITY_TRAIT(mass)
