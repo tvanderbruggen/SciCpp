@@ -12,6 +12,7 @@ make COMPILER=$compiler EXAMPLE=white-noise example
 make COMPILER=$compiler EXAMPLE=white-noise example_py
 make COMPILER=$compiler EXAMPLE=load-text-data example
 make COMPILER=$compiler EXAMPLE=wave-height example
+make COMPILER=$compiler EXAMPLE=photodetector-noise example
 
 # doc examples
 

@@ -333,6 +333,11 @@ struct quantity {
 
     constexpr auto value() const { return m_value; }
 
+    constexpr auto eval() const {
+        constexpr auto factor = arithmetic::eval<T>(Scale());
+        return factor * m_value;
+    }
+
   private:
     T m_value;
 };
