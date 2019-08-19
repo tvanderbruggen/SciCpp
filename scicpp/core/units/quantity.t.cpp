@@ -7,8 +7,8 @@
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
-#include "scicpp/core/units/units.hpp"
 #include "scicpp/core/units/maths.hpp"
+#include "scicpp/core/units/units.hpp"
 
 #include <cstdio>
 #include <type_traits>
@@ -178,6 +178,7 @@ TEST_CASE("Units root") {
     static_assert(std::is_same_v<scale_root<scale<std::mega>, 2>::ratio,
                                  std::ratio<1000>>);
     REQUIRE(almost_equal(sqrt(2_ms).eval(), std::sqrt(2E-3)));
+    REQUIRE(sqrt(2_ms) < sqrt(2_s));
 }
 
 TEST_CASE("Divide by constant") {

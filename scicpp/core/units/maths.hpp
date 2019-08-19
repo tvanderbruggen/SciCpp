@@ -167,14 +167,14 @@ auto asin(T x) {
 template <typename T>
 auto acos(T x) {
     static_assert(detail::is_dimensionless_like<T>,
-                  "asin requires a dimensionless argument");
+                  "acos requires a dimensionless argument");
     return radian<representation_t<T>>(std::acos(value(x)));
 }
 
 template <typename T>
 auto atan(T x) {
     static_assert(detail::is_dimensionless_like<T>,
-                  "asin requires a dimensionless argument");
+                  "atan requires a dimensionless argument");
     return radian<representation_t<T>>(std::atan(value(x)));
 }
 

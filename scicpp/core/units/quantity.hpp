@@ -336,8 +336,8 @@ struct quantity {
     // Return the value of a quantity in the base unit
     constexpr auto eval() const {
         constexpr auto factor = arithmetic::eval<T>(Scale());
-        constexpr auto offset = T(Offset::num) / T(Offset::den);
-        return factor * m_value + offset;
+        constexpr auto off = T(Offset::num) / T(Offset::den);
+        return factor * m_value + off;
     }
 
   private:
