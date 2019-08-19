@@ -5,6 +5,7 @@
 #define SCICPP_CORE_UNITS_MATHS
 
 #include "scicpp/core/units/quantity.hpp"
+#include "scicpp/core/units/units.hpp"
 
 #include <cmath>
 #include <limits>
@@ -116,6 +117,71 @@ auto root(T x) {
 }
 
 // TODO pow, hypot, ceil, floor
+
+// Trigonometric functions
+
+namespace detail {
+
+template <typename T>
+constexpr inline bool is_dimensionless_like =
+    is_dimensionless<T> || std::is_arithmetic_v<T> || meta::is_complex_v<T>;
+
+template <typename T>
+constexpr auto to_radian(T x) {
+    if constexpr (meta::is_complex_v<T>) {
+        return x;
+    } else {
+        static_assert(
+            is_planar_angle<T>,
+            "Trigonometric functions sin, cos, tan require an argument "
+            "of type units::planar_angle (ex. radian or degree)");
+        using rad = radian<typename T::value_type>;
+        return quantity_cast<rad>(x).value();
+    }
+}
+
+} // namespace detail
+
+template <typename T>
+auto sin(T x) {
+    return std::sin(detail::to_radian(x));
+}
+
+template <typename T>
+auto cos(T x) {
+    return std::cos(detail::to_radian(x));
+}
+
+template <typename T>
+auto tan(T x) {
+    return std::tan(detail::to_radian(x));
+}
+
+template <typename T>
+auto asin(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "asin requires a dimensionless argument");
+    return radian<representation_t<T>>(std::asin(value(x)));
+}
+
+template <typename T>
+auto acos(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "asin requires a dimensionless argument");
+    return radian<representation_t<T>>(std::acos(value(x)));
+}
+
+template <typename T>
+auto atan(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "asin requires a dimensionless argument");
+    return radian<representation_t<T>>(std::atan(value(x)));
+}
+
+template <typename T>
+auto atan2(T x, T y) {
+    return radian<representation_t<T>>(std::atan2(value(x), value(y)));
+}
 
 // Nearest integer floating point operations
 

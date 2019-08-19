@@ -45,14 +45,21 @@ TEST_CASE("Trigonometric functions") {
     REQUIRE(almost_equal(tan(std::array{1_rad, 2_rad, 3_rad}),
                          {std::tan(1.), std::tan(2.), std::tan(3.)}));
     REQUIRE(almost_equal(arcsin(std::vector{0.1, 0.2, 0.3}),
-                         {std::asin(0.1), std::asin(0.2), std::asin(0.3)}));
+                         {std::asin(0.1) * 1_rad,
+                          std::asin(0.2) * 1_rad,
+                          std::asin(0.3) * 1_rad}));
     REQUIRE(almost_equal(arccos(std::array{0.1, 0.2, 0.3}),
-                         {std::acos(0.1), std::acos(0.2), std::acos(0.3)}));
-    REQUIRE(almost_equal(arctan(std::vector{1., 2., 3.}),
-                         {std::atan(1.), std::atan(2.), std::atan(3.)}));
+                         {std::acos(0.1) * 1_rad,
+                          std::acos(0.2) * 1_rad,
+                          std::acos(0.3) * 1_rad}));
     REQUIRE(almost_equal(
-        arctan2(std::array{1., 2., 3.}, std::array{3., 2., 1.}),
-        {std::atan2(1., 3.), std::atan2(2., 2.), std::atan2(3., 1.)}));
+        arctan(std::vector{1., 2., 3.}),
+        {std::atan(1.) * 1_rad, std::atan(2.) * 1_rad, std::atan(3.) * 1_rad}));
+    REQUIRE(
+        almost_equal(arctan2(std::array{1., 2., 3.}, std::array{3., 2., 1.}),
+                     {std::atan2(1., 3.) * 1_rad,
+                      std::atan2(2., 2.) * 1_rad,
+                      std::atan2(3., 1.) * 1_rad}));
     REQUIRE(almost_equal(
         hypot(std::array{1., 2., 3.}, std::array{3., 2., 1.}),
         {std::hypot(1., 3.), std::hypot(2., 2.), std::hypot(3., 1.)}));

@@ -50,6 +50,48 @@ TEST_CASE("root") {
     REQUIRE(almost_equal(root<4>(16_Hz) + root<4>(16_Hz), 4. * root<4>(1_Hz)));
 }
 
+TEST_CASE("sin") {
+    REQUIRE(almost_equal(sin(0_deg), 0.));
+    REQUIRE(almost_equal(sin(90_deg), 1.));
+    REQUIRE(almost_equal(sin(1_mrad), std::sin(0.001)));
+}
+
+TEST_CASE("cos") {
+    REQUIRE(almost_equal(cos(0_deg), 1.));
+    REQUIRE(almost_equal(cos(90_deg), 0.));
+    REQUIRE(almost_equal(cos(1_mrad), std::cos(0.001)));
+}
+
+TEST_CASE("tan") {
+    REQUIRE(almost_equal(tan(0_deg), 0.));
+    REQUIRE(almost_equal(tan(45_deg), 1.));
+    REQUIRE(almost_equal(tan(1_mrad), std::tan(0.001)));
+}
+
+TEST_CASE("asin") {
+    REQUIRE(almost_equal(asin(0.), 0_deg));
+    REQUIRE(almost_equal(asin(1.), 90_deg));
+    REQUIRE(almost_equal(asin(1_m / 1_m), 90_deg));
+}
+
+TEST_CASE("acos") {
+    REQUIRE(almost_equal(acos(0.), 90_deg));
+    REQUIRE(almost_equal(acos(1.), 0_deg));
+    REQUIRE(almost_equal(acos(1_m / 1_m), 0_deg));
+}
+
+TEST_CASE("atan") {
+    REQUIRE(almost_equal(atan(0.), 0_deg));
+    REQUIRE(almost_equal(atan(1.), 45_deg));
+    REQUIRE(almost_equal(atan(1_m / 1_m), 45_deg));
+}
+
+TEST_CASE("atan2") {
+    REQUIRE(almost_equal(atan2(0., 1.), 0_deg));
+    REQUIRE(almost_equal(atan2(1., 1.), 45_deg));
+    REQUIRE(almost_equal(atan2(1_m, 1_m), 45_deg));
+}
+
 TEST_CASE("numeric_limits") {
     REQUIRE(isnan(std::numeric_limits<meter<>>::quiet_NaN()));
     REQUIRE(isinf(std::numeric_limits<meter<>>::infinity()));
