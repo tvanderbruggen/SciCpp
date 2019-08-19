@@ -37,7 +37,7 @@ bool isnormal(T x) {
     return std::isnormal(value(x));
 }
 
-// TODO signbit, isgreater, isgreaterequal, isless, islessequal,  islessgreater
+// TODO fma, signbit, isgreater, isgreaterequal, isless, islessequal,  islessgreater
 // isunordered
 
 // Basic operations
