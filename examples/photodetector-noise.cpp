@@ -15,6 +15,7 @@ int main() {
     // ------- Photon shot-noise
     constexpr auto S = 0.9_A / 1_W; // Photodiode sensitivity
     constexpr auto Popt = 100_uW;   // Incident optical power
+    constexpr auto Cpd = 1_pF;      // Photodiode capacitance
 
     // The photocurrent noise density introduced
     // by the photon shot-noise is:
@@ -28,12 +29,28 @@ int main() {
     const auto In_th = sci::units::sqrt(4. * sci::phys_cst::k * T / Rf);
 
     // ------- Amplifier noise (OPA847)
-    constexpr auto In_amp = 3.5_pA_per_rtHz;
-    constexpr auto Vn_amp = 0.85_nV_per_rtHz;
 
-    const auto f = sci::linspace<100>(0_MHz, 200_MHz);
+    // Here we use nA/rtHz instead of pA/rtHz because when we square the 
+    // current noise latter on, the integer ratio would overflow 
+    // (1 / 1000'000'000'000) x (1 / 1000'000'000'000) = (1 / 1000'000'000'000'000'000'000'000).
+
+    constexpr auto In_amp = 3.5E-3_nA_per_rtHz;  // Current noise density
+    constexpr auto Vn_amp = 8.55E-3_uV_per_rtHz; // Voltage noise density
+    constexpr auto Camp = 1.2_pF + 2.5_pF;       // Amplifier input capacitance
+
+    const auto f = sci::linspace<100>(0_GHz, 0.2_GHz);
+    const auto In_amp_v = 2. * sci::pi<double> * (Cpd + Camp) * f * Vn_amp;
 
     // Total detector noise (does not include shot-noise)
+    const auto In_det =
+        sci::sqrt(In_amp * In_amp + In_th * In_th + In_amp_v * In_amp_v / 3.);
+
+    printf("Detector noise is %.3e A/rtHz\n", In_det[0].eval());
+
+    // Detector noise equivalent power (NEP)
+    const auto NEP = In_det / S;
+
+    printf("Detector NEP is %.3e W/rtHz \n", NEP[0].eval());
 
     // Some dimensional analysis checks
     static_assert(
