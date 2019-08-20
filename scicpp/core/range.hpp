@@ -75,6 +75,7 @@ auto logspace_filler(Array &&a, T start, T stop, BaseTp base) {
     const auto step = (stop - start) / BaseTp(a.size() - 1);
     return map(
         [=](auto x) {
+            // FIXME Use units::pow, units::fma
             return T(std::pow(base,
                               std::fma(units::value(x),
                                        units::value(step),
@@ -110,17 +111,13 @@ auto arange(T start, T stop, T step = T{1}) {
         num = 0;
     } else {
         num = static_cast<std::size_t>(
-            std::fabs(units::value(stop - start) / units::value(step)));
+            units::value(units::fabs((stop - start) / step)));
     }
 
     std::vector<T> v(num);
     std::iota(v.begin(), v.end(), T{0});
-    return map(
-        [=](auto x) {
-            return T(std::fma(
-                units::value(x), units::value(step), units::value(start)));
-        },
-        std::move(v));
+    return map([=](auto x) { return units::fma(x, units::value(step), start); },
+               std::move(v));
 }
 
 } // namespace scicpp

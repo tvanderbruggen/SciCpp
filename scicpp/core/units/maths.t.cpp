@@ -26,6 +26,14 @@ TEST_CASE("fmax, fmin, fdim") {
     REQUIRE(almost_equal(fdim(1_nmol, 4_nmol), 0_nmol));
 }
 
+TEST_CASE("fma") {
+    REQUIRE(almost_equal(fma(1_m, 2_m, 3_m2), 5_m2));
+    // REQUIRE(almost_equal(fma(1_m, 2_m2, 3_m2), 5_m2)); // Does not compile
+    REQUIRE(almost_equal(fma(1_m, 2., 3_m), 5_m));
+    REQUIRE(almost_equal(fma(1., 2_m, 3_m), 5_m));
+    REQUIRE(almost_equal(fma(1., 2., 3.), 5.));
+}
+
 TEST_CASE("sqrt") {
     static_assert(
         std::is_same_v<decltype(sqrt(1_MHz))::scal::ratio, std::ratio<1000>>);

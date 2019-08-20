@@ -58,6 +58,18 @@ using magnetic_flux =
 
 QUANTITY_TRAIT(magnetic_flux)
 
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using current_noise_density =
+    quantity_divide<electric_current<T, Scale>, quantity_root<2, frequency<T>>>;
+
+QUANTITY_TRAIT(current_noise_density)
+
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using voltage_noise_density = quantity_divide<electric_potential<T, Scale>,
+                                              quantity_root<2, frequency<T>>>;
+
+QUANTITY_TRAIT(voltage_noise_density)
+
 // ----------------------------------------------------------------------------
 // Electric potential
 // ----------------------------------------------------------------------------
@@ -223,5 +235,49 @@ SCICPP_CORE_UNITS_SET_LITERAL(magnetic_flux, _kWb, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(magnetic_flux, _MWb, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(magnetic_flux, _GWb, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(magnetic_flux, _TWb, std::tera)
+
+} // namespace literals
+
+// ----------------------------------------------------------------------------
+// Current noise density
+// ----------------------------------------------------------------------------
+
+SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(current_noise_density,
+                                        ampere_per_root_hertz)
+
+namespace literals {
+
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _fA_per_rtHz, std::femto)
+SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _pA_per_rtHz, std::pico)
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _nA_per_rtHz, std::nano)
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _uA_per_rtHz, std::micro)
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _mA_per_rtHz, std::milli)
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _A_per_rtHz, std::ratio<1>)
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _kA_per_rtHz, std::kilo)
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _MA_per_rtHz, std::mega)
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _GA_per_rtHz, std::giga)
+// SCICPP_CORE_UNITS_SET_LITERAL(current_noise_density, _TA_per_rtHz, std::tera)
+
+} // namespace literals
+
+// ----------------------------------------------------------------------------
+// Voltage noise density
+// ----------------------------------------------------------------------------
+
+SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(voltage_noise_density,
+                                        volt_per_root_hertz)
+
+namespace literals {
+
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _fV_per_rtHz, std::femto)
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _pV_per_rtHz, std::pico)
+SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _nV_per_rtHz, std::nano)
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _uV_per_rtHz, std::micro)
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _mV_per_rtHz, std::milli)
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _V_per_rtHz, std::ratio<1>)
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _kV_per_rtHz, std::kilo)
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _MV_per_rtHz, std::mega)
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _GV_per_rtHz, std::giga)
+// SCICPP_CORE_UNITS_SET_LITERAL(voltage_noise_density, _TV_per_rtHz, std::tera)
 
 } // namespace literals

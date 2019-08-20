@@ -83,6 +83,11 @@ struct physical_constants {
 
     // Bohr radius
     static constexpr auto a0 = hbar / (alpha * m_e * c);
+
+    // Boltzmann constant
+    using boltzmann_cst_qty =
+        units::quantity_divide<units::energy<T>, units::temperature<T>>;
+    static constexpr auto k = boltzmann_cst_qty(1.380649E-23);
 };
 
 using phys_cst_f = physical_constants<float>;

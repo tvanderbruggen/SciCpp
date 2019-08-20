@@ -67,6 +67,18 @@ auto fdim(T x, T y) {
     return T(std::fdim(value(x), value(y)));
 }
 
+template <typename T1, typename T2, typename T3>
+auto fma(T1 x, T2 y, T3 z) {
+    if constexpr (is_quantity_v<T1> || is_quantity_v<T2>) {
+        using prod_t = decltype(x * y);
+        static_assert(is_same_dimension<prod_t, T3>);
+
+        return prod_t(std::fma(value(x), value(y), value(z)));
+    } else {
+        return std::fma(x, y, z);
+    }
+}
+
 // Power functions
 
 template <typename T>
@@ -90,29 +102,6 @@ auto cbrt(T x) {
         return quantity<rept_t, DimRoot, ScalRoot>(std::cbrt(value(x)));
     } else {
         return std::cbrt(x);
-    }
-}
-
-template <intmax_t Root, typename T>
-auto root(T x) {
-    static_assert(Root > 0);
-
-    if constexpr (Root == 1) {
-        return x;
-    } else if constexpr (Root == 2) {
-        return sqrt(x);
-    } else if constexpr (Root == 3) {
-        return cbrt(x);
-    } else {
-        if constexpr (is_quantity_v<T>) {
-            using rept_t = typename T::value_type;
-            using DimRoot = dimension_root<typename T::dim, Root>;
-            using ScalRoot = scale_root<typename T::scal, Root>;
-            return quantity<rept_t, DimRoot, ScalRoot>(
-                std::pow(value(x), rept_t{1} / rept_t(Root)));
-        } else {
-            return std::pow(x, T{1} / T(Root));
-        }
     }
 }
 

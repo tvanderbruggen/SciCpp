@@ -398,6 +398,21 @@ auto value(T x) {
     }
 }
 
+template <intmax_t Root, typename T>
+auto root(T x) {
+    static_assert(Root > 0);
+
+    if constexpr (is_quantity_v<T>) {
+        using rept_t = typename T::value_type;
+        using DimRoot = dimension_root<typename T::dim, Root>;
+        using ScalRoot = scale_root<typename T::scal, Root>;
+        return quantity<rept_t, DimRoot, ScalRoot>(
+            std::pow(value(x), rept_t{1} / rept_t(Root)));
+    } else {
+        return std::pow(x, T{1} / T(Root));
+    }
+}
+
 // To debug
 template <typename T, typename Dim, typename Scale, typename Offset>
 void print(const quantity<T, Dim, Scale, Offset> &q) {
@@ -450,11 +465,13 @@ using quantity_divide =
 template <typename Quantity>
 using quantity_invert = decltype(std::declval<Quantity>().inv());
 
+template <intmax_t Root, typename Quantity>
+using quantity_root = decltype(root<Root>(std::declval<Quantity>()));
+
 // ----------------------------------------------------------------------------
 // base_dimension
 // ----------------------------------------------------------------------------
 
-// FIXME static_assert(is_prime_number(PrimeNumber))
 template <intmax_t PrimeNumber>
 using base_dimension = dimension<std::ratio<PrimeNumber>>;
 
