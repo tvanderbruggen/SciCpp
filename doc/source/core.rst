@@ -71,6 +71,15 @@ Ranges
 :ref:`arange <core_arange>`
     Return evenly spaced values within a given interval.
 
+Create arrays from existing data
+----------------
+
+:ref:`fromstring <core_fromstring>`
+    Load a vector from a string.
+
+:ref:`TxtLoader <core_TxtLoader>`
+    Load character separated data from a text file.
+
 Sums, products, differences
 ----------------
 

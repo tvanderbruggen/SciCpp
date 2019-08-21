@@ -19,6 +19,7 @@ make COMPILER=$compiler EXAMPLE=photodetector-noise example
 make EXAMPLE=doc/core_stats_mean example
 make EXAMPLE=doc/core_stats_var example
 make EXAMPLE=doc/core_map example
+make EXAMPLE=doc/core_fromstring example
 make EXAMPLE=doc/polynomial_Polynomial example
 make EXAMPLE=doc/polynomial_polydiv example
 make EXAMPLE=doc/linalg_lstsq example

@@ -30,8 +30,8 @@ int main() {
 
     // ------- Amplifier noise (OPA847)
 
-    // Here we use nA/rtHz instead of pA/rtHz because when we square the 
-    // current noise latter on, the integer ratio would overflow 
+    // Here we use nA/rtHz instead of pA/rtHz because when we square the
+    // current noise latter on, the integer ratio would overflow
     // (1 / 1000'000'000'000) x (1 / 1000'000'000'000) = (1 / 1000'000'000'000'000'000'000'000).
 
     constexpr auto In_amp = 3.5E-3_nA_per_rtHz;  // Current noise density
