@@ -21,6 +21,7 @@ Any quantity can be written as:
     D = \prod_{i=1}^{N} q_{i}^{\alpha_{i}}, \; \alpha_{i} \in \mathbb{R}.
 
 That is a new quantity is derived by multiplying and/or dividing other quantities.
+
 Note that a fractionnal power is possible, for example the square-root of a quantity is possible.
 
 Dimension representation
@@ -48,7 +49,11 @@ where :math:`P/Q \in \mathbb{Q}`. Therefore, a dimension can be modelled as the 
 The base quantities content of :math:`\mathrm{Dim} \langle P, Q, R \rangle` can be recovered by performing a prime factor decompostion of :math:`P` and :math:`Q`. 
 
 A dimension representation :math:`\mathrm{Dim} \langle P, Q, R \rangle` is **irreducible** iff :math:`\gcd(P, Q) = 1` and :math:`Q` and :math:`P` are not perfect :math:`R^{\mathrm{th}}` powers
-(`Wikipedia <https://en.wikipedia.org/wiki/Perfect_power>`_).   Two quantities are identical if they have the same irreducible dimension representation.
+(`Wikipedia <https://en.wikipedia.org/wiki/Perfect_power>`_).
+
+Two quantities are identical if they have the same irreducible dimension representation.
+
+NB: This provides a compact and unique signature (given the correspondance :math:`q_{i} \mapsto p_{i}` is well define), that could be use in communication protocols to transfer data units.
 
 Dimension multiplication
 -----------------------

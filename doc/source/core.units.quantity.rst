@@ -33,6 +33,11 @@ Member functions
 Return the underlying value of the quantity.
 Should mostly be used for printing.
 
+.. function:: constexpr T eval() const
+
+Return the value of a quantity in the base unit (ex. :code:`1_km.eval()` returns 1000.0).
+Should mostly be used for printing.
+
 Non-member functions
 -------------------------
 

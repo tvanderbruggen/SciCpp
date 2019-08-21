@@ -15,7 +15,7 @@ Load a vector from a string.
 .. function:: template <typename DataType = double>
               std::vector<DataType> fromstring(const std::string &str, char sep, const ConvertersDict &converters = {})
 
-The template argument `DataType` is the type of the loaded data (by default `double`).
+The template argument :code:`DataType` is the type of the loaded data (by default :code:`double`).
 
 :Parameters:
 :str: The string containing the data.
