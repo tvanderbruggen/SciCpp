@@ -10,7 +10,7 @@ Return evenly spaced numbers over a specified interval.
 ----------------
 
 .. function:: template <std::size_t N, typename T> \
-              constexpr std::array<T, N> linspace(T start, T stop)
+              std::array<T, N> linspace(T start, T stop)
 
 ----------------
 
