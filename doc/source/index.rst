@@ -51,7 +51,7 @@ Example
 This example load and exploits some real world data.
 Data are `wave parameters (height, period, ...) measured by a buoy <https://www.qld.gov.au/environment/coasts-waterways/beach/monitoring>`_.
 
-It presents how SciCpp can be used to load data fron a CSV file, to clean up the data, and to extract information.
+It presents how SciCpp can be used to load data from a CSV file, to clean up the data, and to extract information.
 ::
     #include <cstdio>
     #include <scicpp/core.hpp>
@@ -100,7 +100,7 @@ It presents how SciCpp can be used to load data fron a CSV file, to clean up the
         printf("Highest wave is %.2f m\n", sci::stats::amax(hmax).value());
         printf("Longest period is %.2f s\n", sci::stats::amax(tz).value());
         printf("Average sea surface temperature is %.2f deg. C\n",
-            sci::stats::mean(sst).value());
+               sci::stats::mean(sst).value());
 
         // Wave power (per meter of wavefront)
         // https://en.wikipedia.org/wiki/Wave_power

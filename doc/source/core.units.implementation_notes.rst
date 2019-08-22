@@ -53,7 +53,7 @@ A dimension representation :math:`\mathrm{Dim} \langle P, Q, R \rangle` is **irr
 
 Two quantities are identical if they have the same irreducible dimension representation.
 
-NB: This provides a compact and unique signature (given the correspondance :math:`q_{i} \mapsto p_{i}` is well define), that could be use in communication protocols to transfer data units.
+NB: This provides a compact and unique signature (given the correspondance :math:`q_{i} \mapsto p_{i}` is well defined), that could be use in communication protocols to transfer data units.
 
 Dimension multiplication
 -----------------------
