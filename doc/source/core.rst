@@ -78,7 +78,7 @@ Create arrays from existing data
     Load a vector from a string.
 
 :ref:`TxtLoader <core_TxtLoader>`
-    Load character separated data from a text file.
+    Load data from a character separated values text file.
 
 Sums, products, differences
 ----------------

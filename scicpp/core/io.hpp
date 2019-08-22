@@ -410,7 +410,11 @@ class TxtLoader {
     }
 
     auto usecols(const std::vector<signed_size_t> &usecols) {
+        scicpp_require(
+            ((Ntypes > 1 && usecols.size() == Ntypes) || (Ntypes == 1)) &&
+            "Number of used columns must match the number of tuple elements");
         m_usecols = usecols;
+        std::sort(m_usecols.begin(), m_usecols.end());
         return *this;
     }
 

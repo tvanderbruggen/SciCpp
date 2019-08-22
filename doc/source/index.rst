@@ -62,7 +62,7 @@ It presents how SciCpp can be used to load data fron a CSV file, to clean up the
 
     int main() {
         // -----------------------------------------------------------------------------
-        // Load data
+        // Load and clean-up data
         // -----------------------------------------------------------------------------
 
         // The data fields are defined here:
@@ -75,30 +75,22 @@ It presents how SciCpp can be used to load data fron a CSV file, to clean up the
         using Tp = sci::units::second<>;   // Period of most energetic waves
         using SST = sci::units::celsius<>; // Sea surface temperature
 
+        // In the dataset invalid values are represented by -99.9,
+        // but only positive values are valid.
+        // So we use filters to keep only valid data.
+
         auto [hsig, hmax, tz, tp, sst] =
             sci::TxtLoader<Hsig, Hmax, Tz, Tp, SST>()
                 .delimiter(',')
                 .skiprows(1)
                 .usecols(1, 2, 3, 4, 6)
-                .load<sci::io::unpack>(
-                    "examples/townsville_2019-01-01t00_00-2019-06-30t23_30.csv");
-
-        // -----------------------------------------------------------------------------
-        // Clean up data
-        // -----------------------------------------------------------------------------
-
-        // In the dataset invalid values are represented by -99.9,
-        // but only positive values are valid.
-        // We create a mask to filter out these values:
-        const auto valid_mask = (hsig >= 0_m) && (hmax >= 0_m) && (tz >= 0_s) &&
-                                (tp >= 0_s) && (sst >= 0_degC);
-
-        // We then mask the data to keep only the valid values:
-        sci::mask_array(hsig, valid_mask);
-        sci::mask_array(hmax, valid_mask);
-        sci::mask_array(tz, valid_mask);
-        sci::mask_array(tp, valid_mask);
-        sci::mask_array(sst, valid_mask);
+                .filters(
+                    {{1, [](auto x) { return sci::io::cast<Hsig>(x) >= 0_m; }},
+                    {2, [](auto x) { return sci::io::cast<Hmax>(x) >= 0_m; }},
+                    {3, [](auto x) { return sci::io::cast<Tz>(x) >= 0_s; }},
+                    {4, [](auto x) { return sci::io::cast<Tp>(x) >= 0_s; }},
+                    {6, [](auto x) { return sci::io::cast<SST>(x) >= 0_degC; }}})
+                .load("examples/townsville_2019-01-01t00_00-2019-06-30t23_30.csv");
 
         // -----------------------------------------------------------------------------
         // Explore data
@@ -110,17 +102,13 @@ It presents how SciCpp can be used to load data fron a CSV file, to clean up the
         printf("Average sea surface temperature is %.2f deg. C\n",
             sci::stats::mean(sst).value());
 
-        // Analyze the energetic potential of the waves.
+        // Wave power (per meter of wavefront)
         // https://en.wikipedia.org/wiki/Wave_power
         constexpr auto rho = 1000_kg / 1_m3; // Water density
         constexpr auto g = 9.81_m_per_s2;    // Acceleration by gravity
-
-        // Wave power (per meter of wavefront)
         const auto P = (rho * g * g / (64 * sci::pi<double>)) * hsig * hsig * tz;
         printf("Average wave power %.2f W/m\n", sci::stats::mean(P).value());
-
-        // Wave energy density
         const auto E = (rho * g / 16.) * hsig * hsig;
         printf("Average wave energy density %.2f J/m^2\n",
-            sci::stats::mean(E).value());
+               sci::stats::mean(E).value());
     }

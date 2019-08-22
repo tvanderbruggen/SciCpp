@@ -9,10 +9,10 @@ Load a vector from a string.
 
 --------------------------------------
 
-.. function:: template <typename DataType = double>
+.. function:: template <typename DataType = double> \
               std::vector<DataType> fromstring(const char *str, char sep, const ConvertersDict &converters = {})
 
-.. function:: template <typename DataType = double>
+.. function:: template <typename DataType = double> \
               std::vector<DataType> fromstring(const std::string &str, char sep, const ConvertersDict &converters = {})
 
 The template argument :code:`DataType` is the type of the loaded data (by default :code:`double`).
