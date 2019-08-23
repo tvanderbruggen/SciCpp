@@ -176,9 +176,11 @@ Units
 :ref:`units::quantity <core_units_quantity>`
     An arithmetic-like type representing a quantity.
 
-:ref:`Defined quantities <core_units_defined_quantities>`
+:ref:`Quantities <core_units_defined_quantities>`
+    Defined quantities.
 
-:ref:`Defined units <core_units_defined_units>`
+:ref:`Units <core_units_defined_units>`
+    Defined units.
 
 Masking
 ----------------

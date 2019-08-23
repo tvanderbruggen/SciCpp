@@ -7,11 +7,8 @@ Defined in header <scicpp/core.hpp>
 
 ----------------
 
-Quantities
-================
-
 Base quantities
-----------------------
+================
 
 .. class:: template <typename T, typename Scale> dimensionless
 
@@ -36,7 +33,7 @@ Base quantities
 .. class:: template <typename T, typename Scale> data_quantity
 
 Derived quantities
-----------------------
+================
 
 .. class:: template <typename T, typename Scale> area
 
@@ -51,7 +48,7 @@ Derived quantities
 .. class:: template <typename T, typename Scale> data_rate
 
 Mechanical
-~~~~~~~~~~~~~
+----------------
 
 .. class:: template <typename T, typename Scale> speed
 
@@ -68,7 +65,7 @@ Mechanical
 .. class:: template <typename T, typename Scale> pressure
 
 Electromagnetism
-~~~~~~~~~~~~~
+----------------
 
 .. class:: template <typename T, typename Scale> electric_potential
 
@@ -91,7 +88,7 @@ Electromagnetism
 .. class:: template <typename T, typename Scale> voltage_noise_density
 
 Thermal
-~~~~~~~~~~~~~
+----------------
 
 .. class:: template <typename T, typename Scale> heat
 
@@ -110,7 +107,7 @@ Thermal
 .. class:: template <typename T, typename Scale> thermal_insulance
 
 Chemical
-~~~~~~~~~~~~~
+----------------
 
 .. class:: template <typename T, typename Scale> chemical_potential
 
@@ -121,7 +118,7 @@ Chemical
 .. class:: template <typename T, typename Scale> catalytic_activity
 
 Photometry
-~~~~~~~~~~~~~
+----------------
 
 .. class:: template <typename T, typename Scale> luminous_flux
 

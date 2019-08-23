@@ -242,6 +242,7 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(length, meter)
 
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(length, _am, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(length, _fm, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(length, _pm, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(length, _nm, std::nano)
