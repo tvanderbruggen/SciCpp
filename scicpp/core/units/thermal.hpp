@@ -12,18 +12,19 @@ using heat_transfer_rate = power<T, Scale>;
 QUANTITY_TRAIT(heat_transfer_rate)
 
 template <typename T, typename Scale = scale<std::ratio<1>>>
-using heat_flux = quantity_divide<power<T, Scale>, area<T>>;
+using heat_flux = quantity_divide<heat_transfer_rate<T, Scale>, area<T>>;
 
 QUANTITY_TRAIT(heat_flux)
 
 template <typename T, typename Scale = scale<std::ratio<1>>>
-using heat_capacity = quantity_divide<energy<T, Scale>, temperature<T>>;
+using heat_capacity = quantity_divide<heat<T, Scale>, temperature<T>>;
 
 QUANTITY_TRAIT(heat_capacity)
 
 // Thermal resistance = Temperature / Power
 template <typename T, typename Scale = scale<std::ratio<1>>>
-using thermal_resistance = quantity_divide<temperature<T, Scale>, power<T>>;
+using thermal_resistance =
+    quantity_divide<temperature<T, Scale>, heat_transfer_rate<T>>;
 
 QUANTITY_TRAIT(thermal_resistance)
 

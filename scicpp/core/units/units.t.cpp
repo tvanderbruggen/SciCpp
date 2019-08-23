@@ -114,4 +114,8 @@ TEST_CASE("Data quantity") {
     REQUIRE(almost_equal(1_kiB, 1024_B));
 }
 
+TEST_CASE("Catalytic activity") {
+    REQUIRE(almost_equal<2>(enzyme_unit<>(1.0), 16.67_nkat));
+}
+
 } // namespace scicpp::units
