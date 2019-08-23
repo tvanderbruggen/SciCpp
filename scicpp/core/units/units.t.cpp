@@ -27,12 +27,19 @@ TEST_CASE("Length") {
     REQUIRE(almost_equal(meter<>(12), 12_m));
     REQUIRE(almost_equal(millimeter<>(1), 1_mm));
     REQUIRE(almost_equal(kilometer<>(1), 1_km));
-    REQUIRE(almost_equal(1._km, 1000._m));
-    REQUIRE(almost_equal<2>(1._in, 2.54_cm));
-    REQUIRE(almost_equal<2>(1._ft, 12._in));
+    REQUIRE(almost_equal(1_km, 1000._m));
+    REQUIRE(almost_equal<2>(1_in, 2.54_cm));
     REQUIRE(almost_equal<2>(1_ft, 12_in));
-    REQUIRE(almost_equal<2>(1._yd, 3._ft));
-    REQUIRE(almost_equal<2>(1._angstrom, 0.1_nm));
+    REQUIRE(almost_equal<2>(1_ft, 12_in));
+    REQUIRE(almost_equal<2>(1_yd, 3_ft));
+    REQUIRE(almost_equal<2>(1_angstrom, 0.1_nm));
+    REQUIRE(almost_equal<2>(1_mi, 1.609344_km));
+    REQUIRE(almost_equal<2>(1_mi, 1760_yd));
+    REQUIRE(almost_equal<2>(1_mi, 5280_ft));
+    REQUIRE(almost_equal<2>(1_nmi, 1852_m));
+    REQUIRE(almost_equal<2>(1_au, 149597870700_m));
+    REQUIRE(almost_equal<2>(1_ly, 9460730472580.8_km));
+    REQUIRE(almost_equal<2>(1_pc, 30856775814671.9_km));
 }
 
 TEST_CASE("Angle") {

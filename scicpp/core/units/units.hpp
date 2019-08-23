@@ -240,6 +240,39 @@ QUANTITY_TRAIT(frequency)
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(length, meter)
 
+template <typename T = double>
+using angstrom = length<T, scale<std::ratio<1, 10000000000>>>;
+
+// Imperial
+
+template <typename T = double>
+using inch = length<T, scale<std::ratio<254, 10000>>>;
+
+template <typename T = double>
+using feet = length<T, scale<std::ratio<3048, 10000>>>;
+
+template <typename T = double>
+using yard = length<T, scale<std::ratio<9144, 10000>>>;
+
+template <typename T = double>
+using mile = length<T, scale<std::ratio<25146000, 15625>>>;
+
+// Marine
+
+template <typename T = double>
+using nautical_mile = length<T, scale<std::ratio<1852>>>;
+
+// Astronomy
+
+template <typename T = double>
+using astronomical_unit = length<T, scale<std::ratio<149597870700>>>;
+
+template <typename T = double>
+using light_year = length<T, scale<std::ratio<9460730472580800>>>;
+
+template <typename T = double>
+using parsec = length<T, scale<std::ratio<30856775814671900>>>;
+
 namespace literals {
 
 SCICPP_CORE_UNITS_SET_LITERAL(length, _am, std::atto)
@@ -256,9 +289,15 @@ SCICPP_CORE_UNITS_SET_LITERAL(length, _Gm, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(length, _Tm, std::tera)
 
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _angstrom, 1, 10000000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _mi, 25146000, 15625)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _in, 254, 10000)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _ft, 3048, 10000)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _yd, 9144, 10000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _nmi, 1852, 1)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _au, 149597870700, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _ly, 9460730472580800, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _pc, 30856775814671900, 1)
 
 } // namespace literals
 
