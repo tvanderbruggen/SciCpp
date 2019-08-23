@@ -330,6 +330,13 @@ SCICPP_CORE_UNITS_SET_LITERAL(time, _ns, std::nano)
 SCICPP_CORE_UNITS_SET_LITERAL(time, _us, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(time, _ms, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(time, _s, std::ratio<1>)
+SCICPP_CORE_UNITS_SET_LITERAL(time, _ks, std::kilo)
+SCICPP_CORE_UNITS_SET_LITERAL(time, _Ms, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(time, _Gs, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(time, _Ts, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(time, _Ps, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(time, _Es, std::exa)
+
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _min, 60, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _h, 3600, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _day, 86400, 1)
@@ -460,12 +467,20 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(amount_of_substance, mole)
 
 namespace literals {
 
+
+SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _amol, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _fmol, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _pmol, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _nmol, std::nano)
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _umol, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _mmol, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _mol, std::ratio<1>)
+SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _kmol, std::kilo)
+SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _Mmol, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _Gmol, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _Tmol, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _Pmol, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _Emol, std::exa)
 
 } // namespace literals
 

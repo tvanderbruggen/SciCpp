@@ -61,7 +61,7 @@ SI units
 
 :Classes: :code:`attosecond<T>, femtosecond<T>, picosecond<T>, nanosecond<T>, microsecond<T>, millisecond<T>, centisecond<T>, decisecond<T>, second<T>, decasecond<T>, hectosecond<T>, kilosecond<T>, megasecond<T>, gigasecond<T>, terasecond<T>, petasecond<T>, exasecond<T>`.
 
-:Literials: :code:`_as, _fs, _ps, _ns, _us, _ms, _s`.
+:Literials: :code:`_as, _fs, _ps, _ns, _us, _ms, _s, _ks, _Ms, _Gs, _Ts, _Ps, _Es`.
 
 Non-SI units
 ^^^^^^^^^^
@@ -119,3 +119,15 @@ Non-SI units
 :Classes: :code:`celsius<T>, fahrhenheit<T>`.
 
 :Literials: :code:`_degC, _degF`.
+
+-------------------------------------------------------------------------------
+
+Amount of substance
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attomole<T>, femtomole<T>, picomole<T>, nanomole<T>, micromole<T>, millimole<T>, centimole<T>, decimole<T>, mole<T>, decamole<T>, hectomole<T>, kilomole<T>, megamole<T>, gigamole<T>, teramole<T>, petamole<T>, exaamole<T>`.
+
+:Literials: :code:`_amol, _fmol, _pmol, _nmol, _umol, _mmol, _mol, _kmol, _Mmol, _Gmol, _Tmol, _Pmol, _Emol`.
