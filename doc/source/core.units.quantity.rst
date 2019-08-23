@@ -21,7 +21,7 @@ Scale and Offset are compile-time rational constant representing the affine tran
 Operators
 -------------------------
 
-- Asignment operator: :code:`=`
+- Assignment operator: :code:`=`
 - Arithmetic operators: :code:`++`, :code:`--`, :code:`+=`, :code:`-=`, :code:`*=`, :code:`/=`, :code:`+`, :code:`-`, :code:`*`, :code:`/`
 - Comparison operators: :code:`==`, :code:`!=`, :code:`>=`, :code:`<=`, :code:`>`, :code:`<`
 

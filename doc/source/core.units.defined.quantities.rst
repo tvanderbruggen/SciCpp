@@ -114,6 +114,12 @@ Chemical
 
 .. class:: template <typename T, typename Scale> chemical_potential
 
+.. class:: template <typename T, typename Scale> molarity
+
+.. class:: template <typename T, typename Scale> molality
+
+.. class:: template <typename T, typename Scale> catalytic_activity
+
 Photometry
 ~~~~~~~~~~~~~
 
