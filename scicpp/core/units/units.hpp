@@ -433,12 +433,20 @@ using fahrhenheit =
 
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(temperature, _aK, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(temperature, _fK, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(temperature, _pK, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(temperature, _nK, std::nano)
 SCICPP_CORE_UNITS_SET_LITERAL(temperature, _uK, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(temperature, _mK, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(temperature, _K, std::ratio<1>)
+SCICPP_CORE_UNITS_SET_LITERAL(temperature, _kK, std::kilo)
+SCICPP_CORE_UNITS_SET_LITERAL(temperature, _MK, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(temperature, _GK, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(temperature, _TK, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(temperature, _PK, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(temperature, _EK, std::exa)
+
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO2(temperature, _degC, 1, 1, 27315, 100)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO2(temperature, _degF, 5, 9, 45967, 180)
 

@@ -100,3 +100,22 @@ SI units
 :Classes: :code:`attoampere<T>, femtoampere<T>, picoampere<T>, nanoampere<T>, microampere<T>, milliampere<T>, centiampere<T>, deciampere<T>, ampere<T>, decaampere<T>, hectoampere<T>, kiloampere<T>, megaampere<T>, gigaampere<T>, teraampere<T>, petaampere<T>, exaaampere<T>`.
 
 :Literials: :code:`_aA, _fA, _pA, _nA, _uA, _mA, _A, _kA, _MA, _GA, _TA, _PA, _EA`.
+
+-------------------------------------------------------------------------------
+
+Temperature
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attokelvin<T>, femtokelvin<T>, picokelvin<T>, nanokelvin<T>, microkelvin<T>, millikelvin<T>, centikelvin<T>, decikelvin<T>, kelvin<T>, decakelvin<T>, hectokelvin<T>, kilokelvin<T>, megakelvin<T>, gigakelvin<T>, terakelvin<T>, petakelvin<T>, exaakelvin<T>`.
+
+:Literials: :code:`_aK, _fK, _pK, _nK, _uK, _mK, _K, _kK, _MK, _GK, _TK, _PK, _EK`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`celsius<T>, fahrhenheit<T>`.
+
+:Literials: :code:`_degC, _degF`.
