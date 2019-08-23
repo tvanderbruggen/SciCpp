@@ -48,3 +48,20 @@ Miscellaneous
 :Classes: :code:`angstrom<T>`.
 
 :Literials: :code:`_angstrom`.
+
+Time
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attosecond<T>, femtosecond<T>, picosecond<T>, nanosecond<T>, microsecond<T>, millisecond<T>, centisecond<T>, decisecond<T>, second<T>, decasecond<T>, hectosecond<T>, kilosecond<T>, megasecond<T>, gigasecond<T>, terasecond<T>, petasecond<T>`.
+
+:Literials: :code:`_as, _fs, _ps, _ns, _us, _ms, _s`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`minute<T>, hour<T>, day<T>, week<T>`.
+
+:Literials: :code:`_min, _h, _day, _week`.

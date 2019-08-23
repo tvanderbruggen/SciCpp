@@ -313,8 +313,15 @@ using minute = time<T, scale<std::ratio<60>>>;
 template <typename T = double>
 using hour = time<T, scale<std::ratio<3600>>>;
 
+template <typename T = double>
+using day = time<T, scale<std::ratio<86400>>>;
+
+template <typename T = double>
+using week = time<T, scale<std::ratio<604800>>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(time, _as, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(time, _fs, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(time, _ps, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(time, _ns, std::nano)
@@ -323,6 +330,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(time, _ms, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(time, _s, std::ratio<1>)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _min, 60, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _h, 3600, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _day, 86400, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _week, 604800, 1)
 
 } // namespace literals
 

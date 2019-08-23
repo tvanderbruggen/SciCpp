@@ -88,6 +88,8 @@ TEST_CASE("Time") {
     REQUIRE(almost_equal(1._h, 3600._s));
     REQUIRE(almost_equal(1._h, 60._min));
     REQUIRE(almost_equal(1_h, 60_min));
+    REQUIRE(almost_equal(1_day, 24_h));
+    REQUIRE(almost_equal(1_week, 7_day));
 }
 
 TEST_CASE("Resistance") {
