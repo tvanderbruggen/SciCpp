@@ -340,23 +340,55 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(time, _week, 604800, 1)
 // ----------------------------------------------------------------------------
 
 template <typename T = double>
+using femtogram = mass<T, scale<std::atto>>;
+
+template <typename T = double>
+using picogram = mass<T, scale<std::femto>>;
+
+template <typename T = double>
+using nanogram = mass<T, scale<std::pico>>;
+
+template <typename T = double>
+using microgram = mass<T, scale<std::nano>>;
+
+template <typename T = double>
+using milligram = mass<T, scale<std::micro>>;
+
+template <typename T = double>
 using gram = mass<T, scale<std::milli>>;
 
 template <typename T = double>
 using kilogram = mass<T>;
 
+template <typename T = double>
+using tonne = mass<T, scale<std::kilo>>;
+
+template <typename T = double>
+using kilotonne = mass<T, scale<std::mega>>;
+
+template <typename T = double>
+using megatonne = mass<T, scale<std::giga>>;
+
+template <typename T = double>
+using gigatonne = mass<T, scale<std::tera>>;
+
+template <typename T = double>
+using teratonne = mass<T, scale<std::exa>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(mass, _fg, std::atto)
+SCICPP_CORE_UNITS_SET_LITERAL(mass, _pg, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(mass, _ng, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(mass, _ug, std::nano)
 SCICPP_CORE_UNITS_SET_LITERAL(mass, _mg, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(mass, _g, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(mass, _kg, std::ratio<1>)
-SCICPP_CORE_UNITS_SET_LITERAL(mass, _ton, std::kilo)
-SCICPP_CORE_UNITS_SET_LITERAL(mass, _kton, std::mega)
-SCICPP_CORE_UNITS_SET_LITERAL(mass, _Mton, std::giga)
-SCICPP_CORE_UNITS_SET_LITERAL(mass, _Gton, std::tera)
-SCICPP_CORE_UNITS_SET_LITERAL(mass, _Tton, std::exa)
+SCICPP_CORE_UNITS_SET_LITERAL(mass, _t, std::kilo)
+SCICPP_CORE_UNITS_SET_LITERAL(mass, _kt, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(mass, _Mt, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(mass, _Gt, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(mass, _Tt, std::exa)
 
 } // namespace literals
 

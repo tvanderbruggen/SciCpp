@@ -65,3 +65,20 @@ Non-SI units
 :Classes: :code:`minute<T>, hour<T>, day<T>, week<T>`.
 
 :Literials: :code:`_min, _h, _day, _week`.
+
+Mass
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`femtogram<T>, picogram<T>, nanogram<T>, microgram<T>, milligram<T>, gram<T>, kilogram<T>`.
+
+:Literials: :code:`_fg, _pg, _ng, _ug, _mg, _g, _kg`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`tonne<T>, kilotonne<T>, megatonne<T>, gigatonne<T>, teratonne<T>`.
+
+:Literials: :code:`_t, _kt, _Mt, _Gt, Tt`.
