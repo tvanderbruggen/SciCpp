@@ -287,6 +287,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(length, _km, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(length, _Mm, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(length, _Gm, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(length, _Tm, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(length, _Pm, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(length, _Em, std::exa)
 
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _angstrom, 1, 10000000000)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(length, _mi, 25146000, 15625)
@@ -400,6 +402,7 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(electric_current, ampere)
 
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _aA, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _fA, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _pA, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _nA, std::nano)
@@ -410,6 +413,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _kA, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _MA, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _GA, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _TA, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _PA, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(electric_current, _EA, std::exa)
 
 } // namespace literals
 

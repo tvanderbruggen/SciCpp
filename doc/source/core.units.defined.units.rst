@@ -7,10 +7,12 @@ Defined in header <scicpp/core.hpp>
 
 ----------------
 
-Here :code:`T` is the represenation type (:code:`double` by default). 
+Here :code:`T` is the representation type (:code:`double` by default). 
 
 Base units
 ----------------------
+
+-------------------------------------------------------------------------------
 
 Length
 ~~~~~~~~~~~~~~~
@@ -18,9 +20,9 @@ Length
 SI units
 ^^^^^^^^^^
 
-:Classes: :code:`attometer<T>, femtometer<T>, picometer<T>, nanometer<T>, micrometer<T>, millimeter<T>, centimeter<T>, decimeter<T>, meter<T>, decameter<T>, hectometer<T>, kilometer<T>, megameter<T>, gigameter<T>, terameter<T>, petameter<T>`.
+:Classes: :code:`attometer<T>, femtometer<T>, picometer<T>, nanometer<T>, micrometer<T>, millimeter<T>, centimeter<T>, decimeter<T>, meter<T>, decameter<T>, hectometer<T>, kilometer<T>, megameter<T>, gigameter<T>, terameter<T>, petameter<T>, exameter<T>`.
 
-:Literials: :code:`_am, _fm, _pm, _nm, _um, _mm, _cm, _m, _km, _Mm, _Gm, _Tm`.
+:Literials: :code:`_am, _fm, _pm, _nm, _um, _mm, _cm, _m, _km, _Mm, _Gm, _Tm, _Pm, _Em`.
 
 Non-SI units
 ^^^^^^^^^^
@@ -49,13 +51,15 @@ Miscellaneous
 
 :Literials: :code:`_angstrom`.
 
+-------------------------------------------------------------------------------
+
 Time
 ~~~~~~~~~~~~~~~
 
 SI units
 ^^^^^^^^^^
 
-:Classes: :code:`attosecond<T>, femtosecond<T>, picosecond<T>, nanosecond<T>, microsecond<T>, millisecond<T>, centisecond<T>, decisecond<T>, second<T>, decasecond<T>, hectosecond<T>, kilosecond<T>, megasecond<T>, gigasecond<T>, terasecond<T>, petasecond<T>`.
+:Classes: :code:`attosecond<T>, femtosecond<T>, picosecond<T>, nanosecond<T>, microsecond<T>, millisecond<T>, centisecond<T>, decisecond<T>, second<T>, decasecond<T>, hectosecond<T>, kilosecond<T>, megasecond<T>, gigasecond<T>, terasecond<T>, petasecond<T>, exasecond<T>`.
 
 :Literials: :code:`_as, _fs, _ps, _ns, _us, _ms, _s`.
 
@@ -65,6 +69,8 @@ Non-SI units
 :Classes: :code:`minute<T>, hour<T>, day<T>, week<T>`.
 
 :Literials: :code:`_min, _h, _day, _week`.
+
+-------------------------------------------------------------------------------
 
 Mass
 ~~~~~~~~~~~~~~~
@@ -82,3 +88,15 @@ Non-SI units
 :Classes: :code:`tonne<T>, kilotonne<T>, megatonne<T>, gigatonne<T>, teratonne<T>`.
 
 :Literials: :code:`_t, _kt, _Mt, _Gt, Tt`.
+
+-------------------------------------------------------------------------------
+
+Electric current
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attoampere<T>, femtoampere<T>, picoampere<T>, nanoampere<T>, microampere<T>, milliampere<T>, centiampere<T>, deciampere<T>, ampere<T>, decaampere<T>, hectoampere<T>, kiloampere<T>, megaampere<T>, gigaampere<T>, teraampere<T>, petaampere<T>, exaaampere<T>`.
+
+:Literials: :code:`_aA, _fA, _pA, _nA, _uA, _mA, _A, _kA, _MA, _GA, _TA, _PA, _EA`.
