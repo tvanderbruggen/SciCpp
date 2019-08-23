@@ -42,7 +42,7 @@ TEST_CASE("Length") {
     REQUIRE(almost_equal<2>(1_pc, 30856775814671.9_km));
 }
 
-TEST_CASE("Angle") {
+TEST_CASE("Planar angle") {
     static_assert(is_planar_angle<radian<>>);
     static_assert(is_planar_angle<degree<>>);
     static_assert(!is_planar_angle<meter<>>);
@@ -54,6 +54,8 @@ TEST_CASE("Angle") {
     REQUIRE(almost_equal(radian<>(pi<double> / 2), degree<>(90.)));
     REQUIRE(almost_equal(radian<>(pi<double> / 4), degree<>(45.)));
     REQUIRE(almost_equal(3.1415926535897932_rad, 180_deg));
+    REQUIRE(almost_equal(0.5_turn, 180_deg));
+    REQUIRE(almost_equal(1_turn, radian<>(2 * pi<double>)));
 }
 
 TEST_CASE("Area") {

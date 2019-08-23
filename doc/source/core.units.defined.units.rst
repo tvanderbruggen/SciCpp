@@ -143,3 +143,25 @@ SI units
 :Classes: :code:`attocandela<T>, femtocandela<T>, picocandela<T>, nanocandela<T>, microcandela<T>, millicandela<T>, centicandela<T>, decicandela<T>, candela<T>, decacandela<T>, hectocandela<T>, kilocandela<T>, megacandela<T>, gigacandela<T>, teracandela<T>, petacandela<T>, exaacandela<T>`.
 
 :Literials: :code:`_aCd, _fCd, _pCd, _nCd, _uCd, _mCd, _Cd, _kCd, _MCd, _GCd, _TCd, _PCd, _ECd`.
+
+-------------------------------------------------------------------------------
+
+Planar angle
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attoradian<T>, femtoradian<T>, picoradian<T>, nanoradian<T>, microradian<T>, milliradian<T>, centiradian<T>, deciradian<T>, radian<T>, decaradian<T>, hectoradian<T>, kiloradian<T>, megaradian<T>, gigaradian<T>, teraradian<T>, petaradian<T>, exaaradian<T>`.
+
+:Literials: :code:`_arad, _frad, _prad, _nrad, _urad, _mrad, _rad, _krad, _Mrad, _Grad, _Trad, _Prad, _Erad`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`degree<T>, turn<T>`.
+
+:Literials: :code:`_deg, _turn`.
+
+Derived units
+----------------------

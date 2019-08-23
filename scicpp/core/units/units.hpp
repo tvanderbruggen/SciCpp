@@ -492,7 +492,6 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(luminous_intensity, candela)
 
 namespace literals {
 
-
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _aCd, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _fCd, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _pCd, std::pico)
@@ -517,23 +516,39 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(planar_angle, radian)
 
 using pi_ratio = std::ratio<21053343141, 6701487259>;
 using deg_to_rad_ratio = std::ratio_divide<pi_ratio, std::ratio<180>>;
+using turn_to_rad_ratio = std::ratio_multiply<std::ratio<2>, pi_ratio>;
 
 template <typename T = double>
 using degree = planar_angle<T, scale<deg_to_rad_ratio>>;
 
+template <typename T = double>
+using turn = planar_angle<T, scale<turn_to_rad_ratio>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _arad, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _frad, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _prad, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _nrad, std::nano)
 SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _urad, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _mrad, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _rad, std::ratio<1>)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _krad, std::kilo)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _Mrad, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _Grad, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _Trad, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _Prad, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(planar_angle, _Erad, std::exa)
 
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(planar_angle,
                                     _deg,
                                     deg_to_rad_ratio::num,
                                     deg_to_rad_ratio::den)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(planar_angle,
+                                    _turn,
+                                    turn_to_rad_ratio::num,
+                                    turn_to_rad_ratio::den)
 
 } // namespace literals
 
