@@ -78,7 +78,7 @@ Example
 
         // Compute the product of sinus between two vectors
         const auto p = scicpp::map([](auto x, auto y) { return std::sin(x) * std::sin(y); },
-                                std::vector{1., 2., 3.},
-                                std::vector{4., 5., 6.});
+                                   std::vector{1., 2., 3.},
+                                   std::vector{4., 5., 6.});
         scicpp::print(p);
     }

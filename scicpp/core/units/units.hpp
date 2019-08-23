@@ -492,6 +492,8 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(luminous_intensity, candela)
 
 namespace literals {
 
+
+SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _aCd, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _fCd, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _pCd, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _nCd, std::nano)
@@ -501,6 +503,9 @@ SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _Cd, std::ratio<1>)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _kCd, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _MCd, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _GCd, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _TCd, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _PCd, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _ECd, std::exa)
 
 } // namespace literals
 

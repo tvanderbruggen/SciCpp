@@ -131,3 +131,15 @@ SI units
 :Classes: :code:`attomole<T>, femtomole<T>, picomole<T>, nanomole<T>, micromole<T>, millimole<T>, centimole<T>, decimole<T>, mole<T>, decamole<T>, hectomole<T>, kilomole<T>, megamole<T>, gigamole<T>, teramole<T>, petamole<T>, exaamole<T>`.
 
 :Literials: :code:`_amol, _fmol, _pmol, _nmol, _umol, _mmol, _mol, _kmol, _Mmol, _Gmol, _Tmol, _Pmol, _Emol`.
+
+-------------------------------------------------------------------------------
+
+Luminous intensity
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attocandela<T>, femtocandela<T>, picocandela<T>, nanocandela<T>, microcandela<T>, millicandela<T>, centicandela<T>, decicandela<T>, candela<T>, decacandela<T>, hectocandela<T>, kilocandela<T>, megacandela<T>, gigacandela<T>, teracandela<T>, petacandela<T>, exaacandela<T>`.
+
+:Literials: :code:`_aCd, _fCd, _pCd, _nCd, _uCd, _mCd, _Cd, _kCd, _MCd, _GCd, _TCd, _PCd, _ECd`.
