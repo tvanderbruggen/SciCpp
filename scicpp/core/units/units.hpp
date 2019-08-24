@@ -553,6 +553,30 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(planar_angle,
 } // namespace literals
 
 // ----------------------------------------------------------------------------
+// Solid angle
+// ----------------------------------------------------------------------------
+
+SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(solid_angle, steradian)
+
+namespace literals {
+
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _asr, std::atto)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _fsr, std::femto)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _psr, std::pico)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _nsr, std::nano)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _usr, std::micro)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _msr, std::milli)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _sr, std::ratio<1>)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _ksr, std::kilo)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _Msr, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _Gsr, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _Tsr, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _Psr, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _Esr, std::exa)
+
+} // namespace literals
+
+// ----------------------------------------------------------------------------
 // Data quantity
 // ----------------------------------------------------------------------------
 

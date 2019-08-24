@@ -163,5 +163,18 @@ Non-SI units
 
 :Literials: :code:`_deg, _turn`.
 
+-------------------------------------------------------------------------------
+
+Solid angle
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attosteradian<T>, femtosteradian<T>, picosteradian<T>, nanosteradian<T>, microsteradian<T>, millisteradian<T>, centisteradian<T>, decisteradian<T>, steradian<T>, decasteradian<T>, hectosteradian<T>, kilosteradian<T>, megasteradian<T>, gigasteradian<T>, terasteradian<T>, petasteradian<T>, exastearadian<T>`.
+
+:Literials: :code:`_asr, _fsr, _psr, _nsr, _usr, _msr, _sr, _ksr, _Msr, _Gsr, _Tsr, _Psr, _Esr`.
+
+
 Derived units
 ----------------------
