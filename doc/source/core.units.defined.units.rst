@@ -190,3 +190,22 @@ SI units
 
 Derived units
 ----------------------
+
+-------------------------------------------------------------------------------
+
+Speed
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attometer_per_second<T>, femtometer_per_second<T>, picometer_per_second<T>, nanometer_per_second<T>, micrometer_per_second<T>, millimeter_per_second<T>, centimeter_per_second<T>, decimeter_per_second<T>, meter_per_second<T>, decameter_per_second<T>, hectometer_per_second<T>, kilometer_per_second<T>, megameter_per_second<T>, gigameter_per_second<T>, terameter_per_second<T>, petameter_per_second<T>, exaameter_per_second<T>`.
+
+:Literials: :code:`_am_per_s, _fm_per_s, _pm_per_s, _nm_per_s, _um_per_s, _mm_per_s, _m_per_s, _km_per_s, _Mm_per_s, _Gm_per_s, _Tm_per_s, _Pm_per_s, _Em_per_s`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`kilometer_per_hour<T>, knot<T>, mile_per_hour<T>`.
+
+:Literials: :code:`_km_per_h, _kn, _mph`.

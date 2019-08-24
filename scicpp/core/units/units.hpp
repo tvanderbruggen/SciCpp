@@ -631,8 +631,18 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity,
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(speed, meter_per_second)
 
+template <typename T = double>
+using kilometer_per_hour = speed<T, scale<std::ratio<3600, 1000>>>;
+
+template <typename T = double>
+using knot = speed<T, scale<std::ratio<66672, 10000>>>;
+
+template <typename T = double>
+using mile_per_hour = speed<T, scale<std::ratio<44704, 100000>>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(speed, _am_per_s, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(speed, _fm_per_s, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(speed, _pm_per_s, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(speed, _nm_per_s, std::nano)
@@ -640,7 +650,15 @@ SCICPP_CORE_UNITS_SET_LITERAL(speed, _um_per_s, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(speed, _mm_per_s, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(speed, _m_per_s, std::ratio<1>)
 SCICPP_CORE_UNITS_SET_LITERAL(speed, _km_per_s, std::kilo)
+SCICPP_CORE_UNITS_SET_LITERAL(speed, _Mm_per_s, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(speed, _Gm_per_s, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(speed, _Tm_per_s, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(speed, _Pm_per_s, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(speed, _Em_per_s, std::exa)
+
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(speed, _km_per_h, 3600, 1000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(speed, _kn, 66672, 10000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(speed, _mph, 44704, 100000)
 
 } // namespace literals
 

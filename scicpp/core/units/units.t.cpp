@@ -59,24 +59,26 @@ TEST_CASE("Planar angle") {
 }
 
 TEST_CASE("Area") {
-    REQUIRE(almost_equal(1._km2, 1000000._m2));
-    REQUIRE(almost_equal(1._ha, 10000._m2));
+    REQUIRE(almost_equal(1_km2, 1000000_m2));
+    REQUIRE(almost_equal(1_ha, 10000_m2));
 }
 
 TEST_CASE("Energy") {
     static_assert(is_energy<joule<>>);
     static_assert(nanojoule<int64_t>(1) == picojoule<int64_t>(1000));
-    REQUIRE(almost_equal(1._kWh, 3.6_MJ));
-    REQUIRE(almost_equal(1._cal, 4.1855_J));
+    REQUIRE(almost_equal(1_kWh, 3.6_MJ));
+    REQUIRE(almost_equal(1_cal, 4.1855_J));
 }
 
 TEST_CASE("Speed") {
     static_assert(is_speed<kilometer_per_second<>>);
     static_assert(kilometer_per_second<int>(3) == meter_per_second<int>(3000));
-    REQUIRE(almost_equal(2._km / 1._s, 2000._m_per_s));
-    REQUIRE(almost_equal(2._km / 1._ms, 2000000._m_per_s));
+    REQUIRE(almost_equal(2_km / 1_s, 2000_m_per_s));
+    REQUIRE(almost_equal(2_km / 1_ms, 2000000_m_per_s));
     REQUIRE(almost_equal(2_mm / 1_ms, 2_m_per_s));
-    REQUIRE(almost_equal(1._km_per_h, 3.6_m_per_s));
+    REQUIRE(almost_equal(1_km_per_h, 3.6_m_per_s));
+    REQUIRE(almost_equal(1_kn, 1.852_km_per_h));
+    REQUIRE(almost_equal(1_mph, 0.44704_m_per_s));
 }
 
 TEST_CASE("Acceleration") {
@@ -87,8 +89,8 @@ TEST_CASE("Time") {
     static_assert(!is_time<double>);
     static_assert(is_time<minute<int>>);
     static_assert(minute<int>(60) == hour<int>(1));
-    REQUIRE(almost_equal(1._h, 3600._s));
-    REQUIRE(almost_equal(1._h, 60._min));
+    REQUIRE(almost_equal(1_h, 3600_s));
+    REQUIRE(almost_equal(1_h, 60_min));
     REQUIRE(almost_equal(1_h, 60_min));
     REQUIRE(almost_equal(1_day, 24_h));
     REQUIRE(almost_equal(1_week, 7_day));
@@ -102,16 +104,16 @@ TEST_CASE("Resistance") {
 
 TEST_CASE("Magnetic field") {
     static_assert(millitesla<int>(10) == gauss<int>(100));
-    REQUIRE(almost_equal(1._mT, 10._G));
+    REQUIRE(almost_equal(1_mT, 10_G));
 }
 
 TEST_CASE("Pressure") {
     static_assert(hectopascal<int>(1) == pascal<int>(100));
-    REQUIRE(almost_equal(1._bar, 100._kPa));
-    REQUIRE(almost_equal(1._mmHg, 133.3223684210526315789_Pa));
-    REQUIRE(almost_equal(1._mmHg, 1._torr));
-    REQUIRE(almost_equal(1._psi, 0.0689476_bar));
-    REQUIRE(almost_equal(1._atm, 101.325_kPa));
+    REQUIRE(almost_equal(1_bar, 100_kPa));
+    REQUIRE(almost_equal(1_mmHg, 133.3223684210526315789_Pa));
+    REQUIRE(almost_equal(1_mmHg, 1._torr));
+    REQUIRE(almost_equal(1_psi, 0.0689476_bar));
+    REQUIRE(almost_equal(1_atm, 101.325_kPa));
 }
 
 TEST_CASE("Data quantity") {
