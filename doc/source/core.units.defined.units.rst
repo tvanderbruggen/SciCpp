@@ -175,6 +175,18 @@ SI units
 
 :Literials: :code:`_asr, _fsr, _psr, _nsr, _usr, _msr, _sr, _ksr, _Msr, _Gsr, _Tsr, _Psr, _Esr`.
 
+-------------------------------------------------------------------------------
+
+Data/Information quantity
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`shannon<T>, bit<T>, nibble<T>, byte<T>, kibibyte<T>, mebibyte<T>, gibibyte<T>, tebibyte<T>, pebibyte<T>`.
+
+:Literials: :code:`_Sh, _b, _B, _kiB, _MiB, _GiB, _TiB, _PiB`.
+
 
 Derived units
 ----------------------

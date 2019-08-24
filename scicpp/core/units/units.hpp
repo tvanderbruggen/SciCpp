@@ -467,7 +467,6 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(amount_of_substance, mole)
 
 namespace literals {
 
-
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _amol, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _fmol, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(amount_of_substance, _pmol, std::pico)
@@ -580,22 +579,48 @@ SCICPP_CORE_UNITS_SET_LITERAL(solid_angle, _Esr, std::exa)
 // Data quantity
 // ----------------------------------------------------------------------------
 
+template <typename T = double>
+using bit = data_quantity<T, scale<std::ratio<1>>>;
+
+template <typename T = double>
+using shannon = bit<T>;
+
+template <typename T = double>
+using nibble = data_quantity<T, scale<std::ratio<4>>>;
+
+template <typename T = double>
+using byte = data_quantity<T, scale<std::ratio<8>>>;
+
+template <typename T = double>
+using kibibyte = data_quantity<T, scale<std::ratio<8LL * 1024LL>>>;
+
+template <typename T = double>
+using mebibyte = data_quantity<T, scale<std::ratio<8LL * 1048576LL>>>;
+
+template <typename T = double>
+using gibibyte = data_quantity<T, scale<std::ratio<8LL * 1073741824LL>>>;
+
+template <typename T = double>
+using tebibyte = data_quantity<T, scale<std::ratio<8LL * 1099511627776LL>>>;
+
+template <typename T = double>
+using pebibyte = data_quantity<T, scale<std::ratio<8LL * 1125899906842624LL>>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(data_quantity, _Sh, std::ratio<1>)
 SCICPP_CORE_UNITS_SET_LITERAL(data_quantity, _b, std::ratio<1>)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity, _B, 8, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity, _kiB, 8LL * 1024LL, 1)
-SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity,
-                                    _MiB,
-                                    8LL * 1024LL * 1024LL,
-                                    1)
-SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity,
-                                    _GiB,
-                                    8LL * 1024LL * 1024LL * 1024LL,
-                                    1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity, _MiB, 8LL * 1048576LL, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity, _GiB, 8LL * 1073741824LL, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity,
                                     _TiB,
-                                    8LL * 1024LL * 1024LL * 1024LL * 1024LL,
+                                    8LL * 1099511627776LL,
+                                    1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(data_quantity,
+                                    _PiB,
+                                    8LL * 1125899906842624LL,
                                     1)
 
 } // namespace literals
