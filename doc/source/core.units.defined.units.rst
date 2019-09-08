@@ -304,3 +304,34 @@ Non-SI units
 :Classes: :code:`pound_force<T>, poundal<T>, kilogram_force<T>, dyne<T>`.
 
 :Literals: :code:`_lbf, _pdl, _kgf, _dyn`.
+
+-------------------------------------------------------------------------------
+
+Power
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attowatt<T>, femtowatt<T>, picowatt<T>, nanowatt<T>, microwatt<T>, milliwatt<T>, centiwatt<T>, deciwatt<T>, watt<T>, decawatt<T>, hectowatt<T>, kilowatt<T>, megawatt<T>, gigawatt<T>, terawatt<T>, petawatt<T>, exawatt<T>`.
+
+:Literals: :code:`_aW, _fW, _pW, _nW, _uW, _mW, _W, _kW, _MW, _GW, _TW, _PW, _EW`.
+
+-------------------------------------------------------------------------------
+
+Energy, Work, Heat
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attojoule<T>, femtojoule<T>, picojoule<T>, nanojoule<T>, microjoule<T>, millijoule<T>, centijoule<T>, decijoule<T>, joule<T>, decajoule<T>, hectojoule<T>, kilojoule<T>, megajoule<T>, gigajoule<T>, terajoule<T>, petajoule<T>, exajoule<T>`.
+
+:Literals: :code:`_aJ, _fJ, _pJ, _nJ, _uJ, _mJ, _J, _kJ, _MJ, _GJ, _TJ, _PJ, _EJ`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`watt_hour<T>, kilowatt_hour<T>, megawatt_hour<T>, gigawatt_hour<T>, terawatt_hour<T>, petawatt_hour<T>, calorie<T>, kilocalorie<T>`.
+
+:Literals: :code:`_Wh, _kWh, _MWh, _GWh, _TWh, PWh, _cal, _kcal`.

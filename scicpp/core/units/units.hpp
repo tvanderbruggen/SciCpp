@@ -873,6 +873,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(force, _kN, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _MN, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _GN, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _TN, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(force, _PN, std::peta)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _EN, std::exa)
 
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(force, _lbf, 44482216152605, 10000000000000)
@@ -890,6 +891,7 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(power, watt)
 
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(power, _aW, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(power, _fW, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(power, _pW, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(power, _nW, std::nano)
@@ -900,6 +902,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(power, _kW, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(power, _MW, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(power, _GW, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(power, _TW, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(power, _PW, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(power, _EW, std::exa)
 
 } // namespace literals
 
@@ -909,8 +913,33 @@ SCICPP_CORE_UNITS_SET_LITERAL(power, _TW, std::tera)
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(energy, joule)
 
+template <typename T = double>
+using watt_hour = energy<T, scale<std::ratio<3600>>>;
+
+template <typename T = double>
+using kilowatt_hour = energy<T, scale<std::ratio<3600000>>>;
+
+template <typename T = double>
+using megawatt_hour = energy<T, scale<std::ratio<3600000000>>>;
+
+template <typename T = double>
+using gigawatt_hour = energy<T, scale<std::ratio<3600000000000>>>;
+
+template <typename T = double>
+using terawatt_hour = energy<T, scale<std::ratio<3600000000000000>>>;
+
+template <typename T = double>
+using petawatt_hour = energy<T, scale<std::ratio<3600000000000000000>>>;
+
+template <typename T = double>
+using calorie = energy<T, scale<std::ratio<4184, 1000>>>;
+
+template <typename T = double>
+using kilocalorie = energy<T, scale<std::ratio<4184>>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(energy, _aJ, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(energy, _fJ, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(energy, _pJ, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(energy, _nJ, std::nano)
@@ -921,9 +950,18 @@ SCICPP_CORE_UNITS_SET_LITERAL(energy, _kJ, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(energy, _MJ, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(energy, _GJ, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(energy, _TJ, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(energy, _PJ, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(energy, _EJ, std::exa)
 
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _Wh, 3600, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _kWh, 3600000, 1)
-SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _cal, 41855, 10000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _MWh, 3600000000, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _GWh, 3600000000000, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _TWh, 3600000000000000, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _PWh, 3600000000000000000, 1)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _cal, 4184, 1000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _kcal, 4184, 1)
 
 } // namespace literals
 

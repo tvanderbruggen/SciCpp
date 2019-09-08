@@ -105,8 +105,14 @@ TEST_CASE("Newton") {
 TEST_CASE("Energy") {
     static_assert(is_energy<joule<>>);
     static_assert(nanojoule<int64_t>(1) == picojoule<int64_t>(1000));
+    REQUIRE(almost_equal(1_Wh, 3.6_kJ));
     REQUIRE(almost_equal(1_kWh, 3.6_MJ));
-    REQUIRE(almost_equal(1_cal, 4.1855_J));
+    REQUIRE(almost_equal(1_MWh, 3.6_GJ));
+    REQUIRE(almost_equal(1_GWh, 3.6_TJ));
+    REQUIRE(almost_equal(1_TWh, 3.6_PJ));
+    REQUIRE(almost_equal(1_PWh, 3.6_EJ));
+    REQUIRE(almost_equal(1_cal, 4.184_J));
+    REQUIRE(almost_equal(1_kcal, 4184_J));
 }
 
 TEST_CASE("Speed") {
