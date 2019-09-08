@@ -1047,6 +1047,27 @@ SCICPP_CORE_UNITS_SET_LITERAL(frequency, _EHz, std::exa)
 // Data rate
 // ----------------------------------------------------------------------------
 
+template <typename T = double>
+using bit_per_second = data_rate<T>;
+
+template <typename T = double>
+using kilobit_per_second = data_rate<T, scale<std::kilo>>;
+
+template <typename T = double>
+using megabit_per_second = data_rate<T, scale<std::mega>>;
+
+template <typename T = double>
+using gigabit_per_second = data_rate<T, scale<std::giga>>;
+
+template <typename T = double>
+using terabit_per_second = data_rate<T, scale<std::tera>>;
+
+template <typename T = double>
+using petabit_per_second = data_rate<T, scale<std::peta>>;
+
+template <typename T = double>
+using exabit_per_second = data_rate<T, scale<std::exa>>;
+
 namespace literals {
 
 SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _bps, std::ratio<1>)
@@ -1054,6 +1075,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _kbps, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _Mbps, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _Gbps, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _Tbps, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _Pbps, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(data_rate, _Ebps, std::exa)
 
 } // namespace literals
 

@@ -366,3 +366,12 @@ SI units
 :Classes: :code:`attohertz<T>, femtohertz<T>, picohertz<T>, nanohertz<T>, microhertz<T>, millihertz<T>, centihertz<T>, decihertz<T>, hertz<T>, decahertz<T>, hectohertz<T>, kilohertz<T>, megahertz<T>, gigahertz<T>, terahertz<T>, petahertz<T>, exahertz<T>`.
 
 :Literals: :code:`_aHz, _fHz, _pHz, _nHz, _uHz, _mHz, _Hz, _kHz, _MHz, _GHz, _THz, _PHz, _EHz`.
+
+-------------------------------------------------------------------------------
+
+Data rate
+~~~~~~~~~~~~~~~
+
+:Classes: :code:`bit_per_second<T>, kilobit_per_second<T>, megabit_per_second<T>, gigabit_per_second<T>, terabit_per_second<T>, petabit_per_second<T>, exabit_per_second<T>`.
+
+:Literals: :code:`_bps, _kbps, _Mbps, _Gbps, _Tbps, _Pbps, _Ebps`.
