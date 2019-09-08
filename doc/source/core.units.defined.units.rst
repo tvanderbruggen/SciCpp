@@ -354,3 +354,15 @@ Non-SI units
 :Classes: :code:`millibar<T>, bar<T>, kilobar<T>, mmHg<T>, torr<T>, psi<T>, atm<T>`.
 
 :Literals: :code:`_mbar, _bar, _kbar, _mmHg, _torr, _psi, _atm`.
+
+-------------------------------------------------------------------------------
+
+Frequency
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attohertz<T>, femtohertz<T>, picohertz<T>, nanohertz<T>, microhertz<T>, millihertz<T>, centihertz<T>, decihertz<T>, hertz<T>, decahertz<T>, hectohertz<T>, kilohertz<T>, megahertz<T>, gigahertz<T>, terahertz<T>, petahertz<T>, exahertz<T>`.
+
+:Literals: :code:`_aHz, _fHz, _pHz, _nHz, _uHz, _mHz, _Hz, _kHz, _MHz, _GHz, _THz, _PHz, _EHz`.

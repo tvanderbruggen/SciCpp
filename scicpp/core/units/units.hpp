@@ -1027,6 +1027,7 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(frequency, hertz)
 
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(frequency, _aHz, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(frequency, _fHz, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(frequency, _pHz, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(frequency, _nHz, std::nano)
@@ -1037,6 +1038,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(frequency, _kHz, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(frequency, _MHz, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(frequency, _GHz, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(frequency, _THz, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(frequency, _PHz, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(frequency, _EHz, std::exa)
 
 } // namespace literals
 
