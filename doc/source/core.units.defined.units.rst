@@ -335,3 +335,22 @@ Non-SI units
 :Classes: :code:`watt_hour<T>, kilowatt_hour<T>, megawatt_hour<T>, gigawatt_hour<T>, terawatt_hour<T>, petawatt_hour<T>, calorie<T>, kilocalorie<T>`.
 
 :Literals: :code:`_Wh, _kWh, _MWh, _GWh, _TWh, PWh, _cal, _kcal`.
+
+-------------------------------------------------------------------------------
+
+Pressure
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attopascal<T>, femtopascal<T>, picopascal<T>, nanopascal<T>, micropascal<T>, millipascal<T>, centipascal<T>, decipascal<T>, pascal<T>, decapascal<T>, hectopascal<T>, kilopascal<T>, megapascal<T>, gigapascal<T>, terapascal<T>, petapascal<T>, exapascal<T>`.
+
+:Literals: :code:`_aPa, _fPa, _pPa, _nPa, _uPa, _mPa, _Pa, _hPa, _kPa, _MPa, _GPa, _TPa, _PPa, _EPa`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`millibar<T>, bar<T>, kilobar<T>, mmHg<T>, torr<T>, psi<T>, atm<T>`.
+
+:Literals: :code:`_mbar, _bar, _kbar, _mmHg, _torr, _psi, _atm`.

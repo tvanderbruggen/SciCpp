@@ -155,8 +155,11 @@ TEST_CASE("Magnetic field") {
 }
 
 TEST_CASE("Pressure") {
+    static_assert(is_pressure<pascal<>>);
     static_assert(hectopascal<int>(1) == pascal<int>(100));
+    REQUIRE(almost_equal(1_mbar, 1_hPa));
     REQUIRE(almost_equal(1_bar, 100_kPa));
+    REQUIRE(almost_equal(1_kbar, 100_MPa));
     REQUIRE(almost_equal(1_mmHg, 133.3223684210526315789_Pa));
     REQUIRE(almost_equal(1_mmHg, 1._torr));
     REQUIRE(almost_equal(1_psi, 0.0689476_bar));

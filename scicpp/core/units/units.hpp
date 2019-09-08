@@ -972,7 +972,13 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(energy, _kcal, 4184, 1)
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(pressure, pascal)
 
 template <typename T = double>
+using millibar = pressure<T, scale<std::ratio<100>>>;
+
+template <typename T = double>
 using bar = pressure<T, scale<std::ratio<100000>>>;
+
+template <typename T = double>
+using kilobar = pressure<T, scale<std::ratio<100000000>>>;
 
 template <typename T = double>
 using mmHg = pressure<T, scale<std::ratio<101325, 760>>>;
@@ -988,18 +994,24 @@ using atm = pressure<T, scale<std::ratio<101325>>>;
 
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(pressure, _aPa, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _fPa, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _pPa, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _nPa, std::nano)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _uPa, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _mPa, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _Pa, std::ratio<1>)
+SCICPP_CORE_UNITS_SET_LITERAL(pressure, _hPa, std::hecto)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _kPa, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _MPa, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _GPa, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(pressure, _TPa, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(pressure, _PPa, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(pressure, _EPa, std::exa)
 
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(pressure, _mbar, 100, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(pressure, _bar, 100000, 1)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(pressure, _kbar, 100000000, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(pressure, _mmHg, 101325, 760)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(pressure, _torr, 101325, 760)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(pressure, _psi, 689476, 100)
