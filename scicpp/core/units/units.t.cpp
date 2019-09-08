@@ -94,6 +94,14 @@ TEST_CASE("Volume") {
     REQUIRE(almost_equal(1_mi3, 4.168181825440579584_km3));
 }
 
+TEST_CASE("Newton") {
+    static_assert(is_force<newton<>>);
+    REQUIRE(almost_equal(1_lbf, 4.4482216152605_N));
+    REQUIRE(almost_equal(1_pdl, 0.138254954376_N));
+    REQUIRE(almost_equal(1_kgf, 9.80665_N));
+    REQUIRE(almost_equal(1_N, 1E5_dyn));
+}
+
 TEST_CASE("Energy") {
     static_assert(is_energy<joule<>>);
     static_assert(nanojoule<int64_t>(1) == picojoule<int64_t>(1000));

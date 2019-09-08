@@ -812,7 +812,8 @@ template <typename T = double>
 using cubic_yard = volume<T, scale<std::ratio<764554857984, 1000000000000>>>;
 
 template <typename T = double>
-using cubic_mile = volume<T, scale<std::ratio<4168181825440579584, 1000000000>>>;
+using cubic_mile =
+    volume<T, scale<std::ratio<4168181825440579584, 1000000000>>>;
 
 namespace literals {
 
@@ -829,7 +830,10 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _hL, 1, 10)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _in3, 16387064, 1000000000000)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _ft3, 28316846592, 1000000000000)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _yd3, 764554857984, 1000000000000)
-SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _mi3, 4168181825440579584, 1000000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume,
+                                    _mi3,
+                                    4168181825440579584,
+                                    1000000000)
 
 } // namespace literals
 
@@ -839,8 +843,26 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _mi3, 4168181825440579584, 100000000
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(force, newton)
 
+// Imperial
+
+template <typename T = double>
+using pound_force =
+    volume<T, scale<std::ratio<44482216152605, 10000000000000>>>;
+
+template <typename T = double>
+using poundal = volume<T, scale<std::ratio<138254954376, 1000000000000>>>;
+
+// Misc
+
+template <typename T = double>
+using kilogram_force = volume<T, scale<std::ratio<980665, 100000>>>;
+
+template <typename T = double>
+using dyne = volume<T, scale<std::ratio<1, 100000>>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(force, _aN, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _fN, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _pN, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _nN, std::nano)
@@ -851,6 +873,12 @@ SCICPP_CORE_UNITS_SET_LITERAL(force, _kN, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _MN, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _GN, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(force, _TN, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(force, _EN, std::exa)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(force, _lbf, 44482216152605, 10000000000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(force, _pdl, 138254954376, 1000000000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(force, _kgf, 980665, 100000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(force, _dyn, 1, 100000)
 
 } // namespace literals
 
