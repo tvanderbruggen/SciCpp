@@ -741,7 +741,7 @@ using square_yard = area<T, scale<std::ratio<83612736, 100000000>>>;
 template <typename T = double>
 using square_mile = area<T, scale<std::ratio<2589988110336, 1000000>>>;
 
-// Misc
+// Non-SI metric
 
 template <typename T = double>
 using are = area<T, scale<std::ratio<100>>>;
@@ -772,9 +772,64 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _ha, 10000, 1)
 // Volume
 // ----------------------------------------------------------------------------
 
+// SI
+
+template <typename T = double>
+using cubic_millimeter = volume<T, scale<std::nano>>;
+
+template <typename T = double>
+using cubic_centimeter = volume<T, scale<std::micro>>;
+
+template <typename T = double>
+using cubic_meter = volume<T>;
+
+template <typename T = double>
+using cubic_kilometer = volume<T, scale<std::giga>>;
+
+// Metric
+
+template <typename T = double>
+using microliter = volume<T, scale<std::nano>>;
+
+template <typename T = double>
+using milliliter = volume<T, scale<std::micro>>;
+
+template <typename T = double>
+using liter = volume<T, scale<std::milli>>;
+
+template <typename T = double>
+using hectoliter = volume<T, scale<std::ratio<1, 10>>>;
+
+// Imperial
+
+template <typename T = double>
+using cubic_inch = volume<T, scale<std::ratio<16387064, 1000000000000>>>;
+
+template <typename T = double>
+using cubic_foot = volume<T, scale<std::ratio<28316846592, 1000000000000>>>;
+
+template <typename T = double>
+using cubic_yard = volume<T, scale<std::ratio<764554857984, 1000000000000>>>;
+
+template <typename T = double>
+using cubic_mile = volume<T, scale<std::ratio<4168181825440579584, 1000000000>>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(volume, _mm3, std::nano)
+SCICPP_CORE_UNITS_SET_LITERAL(volume, _cm3, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(volume, _m3, std::ratio<1>)
+SCICPP_CORE_UNITS_SET_LITERAL(volume, _km3, std::giga)
+
+SCICPP_CORE_UNITS_SET_LITERAL(volume, _uL, std::nano)
+SCICPP_CORE_UNITS_SET_LITERAL(volume, _mL, std::micro)
+SCICPP_CORE_UNITS_SET_LITERAL(volume, _L, std::milli)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _hL, 1, 10)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _in3, 16387064, 1000000000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _ft3, 28316846592, 1000000000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _yd3, 764554857984, 1000000000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(volume, _mi3, 4168181825440579584, 1000000000)
 
 } // namespace literals
 

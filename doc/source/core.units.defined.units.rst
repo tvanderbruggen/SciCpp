@@ -9,6 +9,9 @@ Defined in header <scicpp/core.hpp>
 
 Here :code:`T` is the representation type (:code:`double` by default). 
 
+The statement :code:`using namespace scicpp::units::literals` must be included in the scope where
+unit literals are used.
+
 Base units
 ----------------------
 
@@ -255,3 +258,30 @@ metric
 :Classes: :code:`are<T>, hectare<T>`.
 
 :Literals: :code:`_a, _ha`.
+
+-------------------------------------------------------------------------------
+
+Volume
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`cubic_millimeter<T>, cubic_centimeter<T>, cubic_meter<T>, cubic_kilometer<T>`.
+
+:Literals: :code:`_mm3, _cm3, _m3, _km3`.
+
+Non-SI units
+^^^^^^^^^^
+
+Imperial
+
+:Classes: :code:`cubic_inch<T>, cubic_foot<T>, cubic_yard<T>, cubic_mile<T>`.
+
+:Literals: :code:`_in3, _ft3, _yd3, _mi3`.
+
+metric
+
+:Classes: :code:`microliter<T>, milliliter<T>, liter<T>, hectoliter<T>`.
+
+:Literals: :code:`_uL, _mL, _L, _hL`.

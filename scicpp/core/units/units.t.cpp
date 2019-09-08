@@ -76,6 +76,24 @@ TEST_CASE("Area") {
     REQUIRE(almost_equal(1_ha, 10000_m2));
 }
 
+TEST_CASE("Volume") {
+    static_assert(is_volume<cubic_meter<>>);
+    static_assert(cubic_meter<int>(1) == cubic_centimeter<int>(1000000));
+    static_assert(cubic_meter<int>(1) == cubic_millimeter<int>(1000000000));
+    REQUIRE(almost_equal(1_m3, 1000000_cm3));
+    REQUIRE(almost_equal<2>(1_cm3, 1000_mm3));
+    REQUIRE(almost_equal(1_km3, 1000000000_m3));
+    REQUIRE(almost_equal(1_L, 1000_cm3));
+    REQUIRE(almost_equal(1_mL, 1_cm3));
+    REQUIRE(almost_equal(1_uL, 1_mm3));
+    REQUIRE(almost_equal(1_hL, 100_L));
+    REQUIRE(almost_equal(1_in3, 0.000016387064_m3));
+    REQUIRE(almost_equal(1_in3, 16.387064_mL));
+    REQUIRE(almost_equal(1_ft3, 0.028316846592_m3));
+    REQUIRE(almost_equal(1_yd3, 0.764554857984_m3));
+    REQUIRE(almost_equal(1_mi3, 4.168181825440579584_km3));
+}
+
 TEST_CASE("Energy") {
     static_assert(is_energy<joule<>>);
     static_assert(nanojoule<int64_t>(1) == picojoule<int64_t>(1000));

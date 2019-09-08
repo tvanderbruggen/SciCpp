@@ -8,7 +8,7 @@ length, mass, time, electric current, thermodynamic temperature, amount of subst
 But this system is not necessary complete, we may want to use more base quantities such as angles,
 amount of data, currency, telephony offered load (Erlang) ...
 
-Here we present how the Units modules implements a generic dimensional analysis for a system of units.
+Here we present how the Units module implements a generic dimensional analysis for a system of units.
 
 Dimensional system
 -----------------------
