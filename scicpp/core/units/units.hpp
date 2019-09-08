@@ -249,7 +249,7 @@ template <typename T = double>
 using inch = length<T, scale<std::ratio<254, 10000>>>;
 
 template <typename T = double>
-using feet = length<T, scale<std::ratio<3048, 10000>>>;
+using foot = length<T, scale<std::ratio<3048, 10000>>>;
 
 template <typename T = double>
 using yard = length<T, scale<std::ratio<9144, 10000>>>;
@@ -666,8 +666,23 @@ SCICPP_CORE_UNITS_SET_LITERAL_RATIO(speed, _mph, 44704, 100000)
 // Acceleration
 // ----------------------------------------------------------------------------
 
+SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(acceleration, meter_per_second_squared)
+
+template <typename T = double>
+using galileo = acceleration<T, scale<std::ratio<1, 100>>>;
+
+template <typename T = double>
+using milligalileo = acceleration<T, scale<std::ratio<1, 100000>>>;
+
+template <typename T = double>
+using microgalileo = acceleration<T, scale<std::ratio<1, 100000000>>>;
+
+template <typename T = double>
+using nanogalileo = acceleration<T, scale<std::ratio<1, 100000000000>>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _am_per_s2, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _fm_per_s2, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _pm_per_s2, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _nm_per_s2, std::nano)
@@ -675,6 +690,16 @@ SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _um_per_s2, std::micro)
 SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _mm_per_s2, std::milli)
 SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _m_per_s2, std::ratio<1>)
 SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _km_per_s2, std::kilo)
+SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _Mm_per_s2, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _Gm_per_s2, std::giga)
+SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _Tm_per_s2, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _Pm_per_s2, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _Em_per_s2, std::exa)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(acceleration, _Gal, 1, 100)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(acceleration, _mGal, 1, 100000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(acceleration, _uGal, 1, 100000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(acceleration, _nGal, 1, 100000000000)
 
 } // namespace literals
 
@@ -682,10 +707,63 @@ SCICPP_CORE_UNITS_SET_LITERAL(acceleration, _km_per_s2, std::kilo)
 // area
 // ----------------------------------------------------------------------------
 
+// SI
+
+template <typename T = double>
+using square_micrometer = area<T, scale<std::pico>>;
+
+template <typename T = double>
+using square_millimeter = area<T, scale<std::micro>>;
+
+template <typename T = double>
+using square_centimeter = area<T, scale<std::ratio<1, 10000>>>;
+
+template <typename T = double>
+using square_meter = area<T>;
+
+template <typename T = double>
+using square_kilometer = area<T, scale<std::mega>>;
+
+template <typename T = double>
+using square_megameter = area<T, scale<std::tera>>;
+
+// Imperial
+
+template <typename T = double>
+using square_inch = area<T, scale<std::ratio<64516, 100000000>>>;
+
+template <typename T = double>
+using square_foot = area<T, scale<std::ratio<9290304, 100000000>>>;
+
+template <typename T = double>
+using square_yard = area<T, scale<std::ratio<83612736, 100000000>>>;
+
+template <typename T = double>
+using square_mile = area<T, scale<std::ratio<2589988110336, 1000000>>>;
+
+// Misc
+
+template <typename T = double>
+using are = area<T, scale<std::ratio<100>>>;
+
+template <typename T = double>
+using hectare = area<T, scale<std::ratio<10000>>>;
+
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(area, _um2, std::pico)
+SCICPP_CORE_UNITS_SET_LITERAL(area, _mm2, std::micro)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _cm2, 1, 10000)
 SCICPP_CORE_UNITS_SET_LITERAL(area, _m2, std::ratio<1>)
 SCICPP_CORE_UNITS_SET_LITERAL(area, _km2, std::mega)
+SCICPP_CORE_UNITS_SET_LITERAL(area, _Mm2, std::tera)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _in2, 64516, 100000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _ft2, 9290304, 100000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _yd2, 83612736, 100000000)
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _mi2, 2589988110336, 1000000)
+
+SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _a, 100, 1)
 SCICPP_CORE_UNITS_SET_LITERAL_RATIO(area, _ha, 10000, 1)
 
 } // namespace literals

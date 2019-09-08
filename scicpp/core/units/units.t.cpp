@@ -59,7 +59,20 @@ TEST_CASE("Planar angle") {
 }
 
 TEST_CASE("Area") {
+    static_assert(is_area<square_meter<>>);
+    static_assert(square_meter<int>(1) == square_millimeter<int>(1000000));
+    static_assert(square_meter<int>(1) == square_centimeter<int>(10000));
+    static_assert(square_kilometer<int>(1) == square_meter<int>(1000000));
+    REQUIRE(almost_equal(1_m2, 1000000000000_um2));
+    REQUIRE(almost_equal(1_m2, 1000000_mm2));
+    REQUIRE(almost_equal(1_m2, 10000_cm2));
     REQUIRE(almost_equal(1_km2, 1000000_m2));
+    REQUIRE(almost_equal(1_Mm2, 1000000000000_m2));
+    REQUIRE(almost_equal(1_in2, 6.4516_cm2));
+    REQUIRE(almost_equal(1_ft2, 0.09290304_m2));
+    REQUIRE(almost_equal(1_yd2, 0.83612736_m2));
+    REQUIRE(almost_equal<2>(1_mi2, 2.589988110336_km2));
+    REQUIRE(almost_equal(1_ha, 100_a));
     REQUIRE(almost_equal(1_ha, 10000_m2));
 }
 
@@ -83,6 +96,8 @@ TEST_CASE("Speed") {
 
 TEST_CASE("Acceleration") {
     REQUIRE(almost_equal(2_km / 10_s / 10_s, 20_m_per_s2));
+    REQUIRE(almost_equal(1_Gal, 0.01_m_per_s2));
+    REQUIRE(almost_equal(1_uGal, 1E-6_Gal));
 }
 
 TEST_CASE("Time") {

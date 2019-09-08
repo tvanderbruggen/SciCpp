@@ -156,7 +156,6 @@ auto tokenize(tokens_t &tokens,
               const char *str,
               char sep,
               const std::vector<signed_size_t> &usecols) {
-
     std::size_t tok_idx = 0;
 
     iterate_line(str, sep, usecols, [&](const auto &token, auto idx) {
