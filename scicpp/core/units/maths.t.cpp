@@ -3,6 +3,8 @@
 
 #include "maths.hpp"
 
+#include <cfenv>
+
 namespace scicpp::units {
 
 using namespace literals;
@@ -63,12 +65,14 @@ TEST_CASE("hypot") {
     REQUIRE(almost_equal(hypot(2_m, 2_m, 2_m), 2_m * std::sqrt(3)));
 }
 
-TEST_CASE("floor") {
+TEST_CASE("floor, ceil, trunc, round, nearbyint, rint") {
     REQUIRE(almost_equal(floor(2.7_m), 2_m));
-}
-
-TEST_CASE("ceil") {
     REQUIRE(almost_equal(ceil(2.7_m), 3_m));
+    REQUIRE(almost_equal(trunc(2.7_m), 2_m));
+    REQUIRE(almost_equal(round(2.7_m), 3_m));
+    std::fesetround(FE_TONEAREST);
+    REQUIRE(almost_equal(nearbyint(2.1_m), 2_m));
+    REQUIRE(almost_equal(rint(2.1_m), 2_m));
 }
 
 TEST_CASE("sin") {

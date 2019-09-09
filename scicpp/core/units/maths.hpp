@@ -117,17 +117,6 @@ auto hypot(T x, T y, T z) {
     return T(std::hypot(value(x), value(y), value(z)));
 }
 
-template <typename T>
-auto floor(T x) {
-    return T(std::floor(value(x)));
-}
-
-template <typename T>
-auto ceil(T x) {
-    return T(std::ceil(value(x)));
-}
-
-
 // Trigonometric functions
 
 namespace detail {
@@ -195,7 +184,35 @@ auto atan2(T x, T y) {
 
 // Nearest integer floating point operations
 
-// TODO  trunc, round, nearbyint, rint
+template <typename T>
+auto floor(T x) {
+    return T(std::floor(value(x)));
+}
+
+template <typename T>
+auto ceil(T x) {
+    return T(std::ceil(value(x)));
+}
+
+template <typename T>
+auto trunc(T x) {
+    return T(std::trunc(value(x)));
+}
+
+template <typename T>
+auto round(T x) {
+    return T(std::round(value(x)));
+}
+
+template <typename T>
+auto nearbyint(T x) {
+    return T(std::nearbyint(value(x)));
+}
+
+template <typename T>
+auto rint(T x) {
+    return T(std::rint(value(x)));
+}
 
 // Floating point manipulation functions
 
