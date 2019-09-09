@@ -58,7 +58,7 @@ const auto arccos = vectorize([](auto x) { return units::acos(x); });
 const auto arctan = vectorize([](auto x) { return units::atan(x); });
 const auto arctan2 =
     vectorize([](auto x, auto y) { return units::atan2(x, y); });
-const auto hypot = vectorize([](auto x, auto y) { return std::hypot(x, y); });
+const auto hypot = vectorize([](auto x, auto y) { return units::hypot(x, y); });
 
 // Hyperbolic functions
 
@@ -80,11 +80,11 @@ const auto log1p = vectorize([](auto x) { return std::log1p(x); });
 
 // Rounding
 
-const auto around = vectorize([](auto x) { return std::round(x); });
-const auto floor = vectorize([](auto x) { return std::floor(x); });
-const auto ceil = vectorize([](auto x) { return std::ceil(x); });
-const auto trunc = vectorize([](auto x) { return std::trunc(x); });
-const auto rint = vectorize([](auto x) { return std::rint(x); });
+const auto around = vectorize([](auto x) { return units::round(x); });
+const auto floor = vectorize([](auto x) { return units::floor(x); });
+const auto ceil = vectorize([](auto x) { return units::ceil(x); });
+const auto trunc = vectorize([](auto x) { return units::trunc(x); });
+const auto rint = vectorize([](auto x) { return units::rint(x); });
 
 // Complex numbers
 

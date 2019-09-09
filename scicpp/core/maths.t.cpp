@@ -63,6 +63,11 @@ TEST_CASE("Trigonometric functions") {
     REQUIRE(almost_equal(
         hypot(std::array{1., 2., 3.}, std::array{3., 2., 1.}),
         {std::hypot(1., 3.), std::hypot(2., 2.), std::hypot(3., 1.)}));
+    REQUIRE(almost_equal(
+        hypot(std::array{1_m, 2_m, 3_m}, std::array{3_m, 2_m, 1_m}),
+        {units::hypot(1_m, 3_m),
+         units::hypot(2_m, 2_m),
+         units::hypot(3_m, 1_m)}));
 }
 
 TEST_CASE("Hyperbolic functions") {
@@ -101,15 +106,24 @@ TEST_CASE("Exponents and logarithms") {
 }
 
 TEST_CASE("Rounding") {
+    using namespace units::literals;
+
     REQUIRE(almost_equal(around(std::vector{1.2, 2.5, 3.67}), {1., 3., 4.}));
+    REQUIRE(almost_equal(around(std::vector{1.2_m, 2.5_m, 3.67_m}),
+                         {1_m, 3_m, 4_m}));
     REQUIRE(almost_equal(floor(std::array{1., 2., 3.}),
                          {std::floor(1.), std::floor(2.), std::floor(3.)}));
+    REQUIRE(almost_equal(floor(std::array{1_m, 2_m, 3_m}), {1_m, 2_m, 3_m}));
     REQUIRE(almost_equal(ceil(std::array{1., 2., 3.}),
                          {std::ceil(1.), std::ceil(2.), std::ceil(3.)}));
+    REQUIRE(
+        almost_equal(ceil(std::array{1.1_m, 2.1_m, 3.1_m}), {2_m, 3_m, 4_m}));
     REQUIRE(almost_equal(trunc(std::array{1., 2., 3.}),
                          {std::trunc(1.), std::trunc(2.), std::trunc(3.)}));
+    REQUIRE(almost_equal(trunc(std::array{1_m, 2_m, 3_m}), {1_m, 2_m, 3_m}));
     REQUIRE(almost_equal(rint(std::array{1., 2., 3.}),
                          {std::rint(1.), std::rint(2.), std::rint(3.)}));
+    REQUIRE(almost_equal(rint(std::array{1_m, 2_m, 3_m}), {1_m, 2_m, 3_m}));
 }
 
 TEST_CASE("Complex numbers") {
