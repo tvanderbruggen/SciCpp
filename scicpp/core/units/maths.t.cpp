@@ -75,6 +75,15 @@ TEST_CASE("floor, ceil, trunc, round, nearbyint, rint") {
     REQUIRE(almost_equal(rint(2.1_m), 2_m));
 }
 
+TEST_CASE("nextafter") {
+    REQUIRE(almost_equal(nextafter(1_m, 2_m), std::nextafter(1, 2) * 1_m));
+}
+
+TEST_CASE("copysign") {
+    REQUIRE(almost_equal(copysign(1_m, 2_m), 1_m));
+    REQUIRE(almost_equal(copysign(1_m, -2_m), -1_m));
+}
+
 TEST_CASE("sin") {
     REQUIRE(almost_equal(sin(0_deg), 0.));
     REQUIRE(almost_equal(sin(90_deg), 1.));

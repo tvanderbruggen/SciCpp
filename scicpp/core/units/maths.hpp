@@ -216,7 +216,15 @@ auto rint(T x) {
 
 // Floating point manipulation functions
 
-// TODO nextafter, copysign
+template <typename T>
+auto nextafter(T from, T to) {
+    return T(std::nextafter(value(from), value(to)));
+}
+
+template <typename T>
+auto copysign(T x, T y) {
+    return T(std::copysign(value(x), value(y)));
+}
 
 } // namespace scicpp::units
 
