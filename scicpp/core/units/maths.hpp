@@ -37,7 +37,7 @@ bool isnormal(T x) {
     return std::isnormal(value(x));
 }
 
-// TODO fma, signbit, isgreater, isgreaterequal, isless, islessequal,  islessgreater
+// TODO signbit, isgreater, isgreaterequal, isless, islessequal,  islessgreater
 // isunordered
 
 // Basic operations
@@ -105,7 +105,28 @@ auto cbrt(T x) {
     }
 }
 
-// TODO pow, hypot, ceil, floor
+// TODO pow
+
+template <typename T>
+auto hypot(T x, T y) {
+    return T(std::hypot(value(x), value(y)));
+}
+
+template <typename T>
+auto hypot(T x, T y, T z) {
+    return T(std::hypot(value(x), value(y), value(z)));
+}
+
+template <typename T>
+auto floor(T x) {
+    return T(std::floor(value(x)));
+}
+
+template <typename T>
+auto ceil(T x) {
+    return T(std::ceil(value(x)));
+}
+
 
 // Trigonometric functions
 

@@ -58,6 +58,19 @@ TEST_CASE("root") {
     REQUIRE(almost_equal(root<4>(16_Hz) + root<4>(16_Hz), 4. * root<4>(1_Hz)));
 }
 
+TEST_CASE("hypot") {
+    REQUIRE(almost_equal(hypot(2_m, 2_m), 2_m * std::sqrt(2)));
+    REQUIRE(almost_equal(hypot(2_m, 2_m, 2_m), 2_m * std::sqrt(3)));
+}
+
+TEST_CASE("floor") {
+    REQUIRE(almost_equal(floor(2.7_m), 2_m));
+}
+
+TEST_CASE("ceil") {
+    REQUIRE(almost_equal(ceil(2.7_m), 3_m));
+}
+
 TEST_CASE("sin") {
     REQUIRE(almost_equal(sin(0_deg), 0.));
     REQUIRE(almost_equal(sin(90_deg), 1.));
