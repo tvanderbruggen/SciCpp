@@ -66,7 +66,7 @@ auto fftfreq_impl(Array &&res, T d) {
 
     const auto N = signed_size_t(res.size());
     std::iota(res.begin(), res.end(), -T(N / 2));
-    return ifftshift(res / (d * T(N)));
+    return ifftshift(std::forward<Array>(res) / (d * T(N)));
 }
 
 } // namespace detail

@@ -67,7 +67,7 @@ Determines the common type of two units.
 
 .. class:: template <class T> representation_t
 
-Return the representation type is :code:`T` is a quantity, else simply return :code:`T`.
+Return the representation type if :code:`T` is a quantity, else simply return :code:`T`.
 
 For example, :code:`representation_t<meter<int>>` is :code:`int` and :code:`representation_t<double>` is :code:`double`.
 

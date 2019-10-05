@@ -375,3 +375,131 @@ Data rate
 :Classes: :code:`bit_per_second<T>, kilobit_per_second<T>, megabit_per_second<T>, gigabit_per_second<T>, terabit_per_second<T>, petabit_per_second<T>, exabit_per_second<T>`.
 
 :Literals: :code:`_bps, _kbps, _Mbps, _Gbps, _Tbps, _Pbps, _Ebps`.
+
+-------------------------------------------------------------------------------
+
+Electric potential
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attovolt<T>, femtovolt<T>, picovolt<T>, nanovolt<T>, microvolt<T>, millivolt<T>, centivolt<T>, decivolt<T>, volt<T>, decavolt<T>, hectovolt<T>, kilovolt<T>, megavolt<T>, gigavolt<T>, teravolt<T>, petavolt<T>, exavolt<T>`.
+
+:Literals: :code:`_aV, _fV, _pV, _nV, _uV, _mV, _V, _kV, _MV, _GV, _TV, _PV, _EV`.
+
+-------------------------------------------------------------------------------
+
+Electric charge
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attocoulomb<T>, femtocoulomb<T>, picocoulomb<T>, nanocoulomb<T>, microcoulomb<T>, millicoulomb<T>, centicoulomb<T>, decicoulomb<T>, coulomb<T>, decacoulomb<T>, hectocoulomb<T>, kilocoulomb<T>, megacoulomb<T>, gigacoulomb<T>, teracoulomb<T>, petacoulomb<T>, exacoulomb<T>`.
+
+:Literals: :code:`_aC, _fC, _pC, _nC, _uC, _mC, _C, _kC, _MC, _GC, _TC, _PC, _EC`.
+
+-------------------------------------------------------------------------------
+
+Electrical resistance
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attoohm<T>, femtoohm<T>, picoohm<T>, nanoohm<T>, microohm<T>, milliohm<T>, centiohm<T>, deciohm<T>, ohm<T>, decaohm<T>, hectoohm<T>, kiloohm<T>, megaohm<T>, gigaohm<T>, teraohm<T>, petaohm<T>, exaohm<T>`.
+
+:Literals: :code:`_aOhm, _fOhm, _pOhm, _nOhm, _uOhm, _mOhm, _Ohm, _kOhm, _MOhm, _GOhm, _TOhm, _POhm, _EOhm`.
+
+-------------------------------------------------------------------------------
+
+Electrical conductivity
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attosiemens<T>, femtosiemens<T>, picosiemens<T>, nanosiemens<T>, microsiemens<T>, millisiemens<T>, centisiemens<T>, decisiemens<T>, siemens<T>, decasiemens<T>, hectosiemens<T>, kilosiemens<T>, megasiemens<T>, gigasiemens<T>, terasiemens<T>, petasiemens<T>, exasiemens<T>`.
+
+:Literals: :code:`_aS, _fS, _pS, _nS, _uS, _mS, _S, _kS, _MS, _GS, _TS, _PS, _ES`.
+
+-------------------------------------------------------------------------------
+
+Capacitance
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attofarad<T>, femtofarad<T>, picofarad<T>, nanofarad<T>, microfarad<T>, millifarad<T>, centifarad<T>, decifarad<T>, farad<T>, decafarad<T>, hectofarad<T>, kilofarad<T>, megafarad<T>, gigafarad<T>, terafarad<T>, petafarad<T>, exafarad<T>`.
+
+:Literals: :code:`_aF, _fF, _pF, _nF, _uF, _mF, _F, _kF, _MF, _GF, _TF, _PF, _EF`.
+
+-------------------------------------------------------------------------------
+
+Inductance
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attohenry<T>, femtohenry<T>, picohenry<T>, nanohenry<T>, microhenry<T>, millihenry<T>, centihenry<T>, decihenry<T>, henry<T>, decahenry<T>, hectohenry<T>, kilohenry<T>, megahenry<T>, gigahenry<T>, terahenry<T>, petahenry<T>, exahenry<T>`.
+
+:Literals: :code:`_aH, _fH, _pH, _nH, _uH, _mH, _H, _kH, _MH, _GH, _TH, _PH, _EH`.
+
+-------------------------------------------------------------------------------
+
+Magnetic flux density
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attotesla<T>, femtotesla<T>, picotesla<T>, nanotesla<T>, microtesla<T>, millitesla<T>, centitesla<T>, decitesla<T>, tesla<T>, decatesla<T>, hectotesla<T>, kilotesla<T>, megatesla<T>, gigatesla<T>, teratesla<T>, petatesla<T>, exatesla<T>`.
+
+:Literals: :code:`_aT, _fT, _pT, _nT, _uT, _mT, _T, _kT, _MT, _GT, _TT, _PT, _ET`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`gauss<T>`.
+
+:Literals: :code:`_G`.
+
+-------------------------------------------------------------------------------
+
+Magnetic flux
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attoweber<T>, femtoweber<T>, picoweber<T>, nanoweber<T>, microweber<T>, milliweber<T>, centiweber<T>, deciweber<T>, weber<T>, decaweber<T>, hectoweber<T>, kiloweber<T>, megaweber<T>, gigaweber<T>, teraweber<T>, petaweber<T>, exaweber<T>`.
+
+:Literals: :code:`_aWb, _fWb, _pWb, _nWb, _uWb, _mWb, _Wb, _kWb, _MWb, _GWb, _TWb, _PWb, _EWb`.
+
+-------------------------------------------------------------------------------
+
+Current noise density
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attoampere_per_root_hertz<T>, femtoampere_per_root_hertz<T>, picoampere_per_root_hertz<T>, nanoampere_per_root_hertz<T>, microampere_per_root_hertz<T>, milliampere_per_root_hertz<T>, centiampere_per_root_hertz<T>, deciampere_per_root_hertz<T>, ampere_per_root_hertz<T>, decaampere_per_root_hertz<T>, hectoampere_per_root_hertz<T>, kiloampere_per_root_hertz<T>, megaampere_per_root_hertz<T>, gigaampere_per_root_hertz<T>, teraampere_per_root_hertz<T>, petaampere_per_root_hertz<T>, exaampere_per_root_hertz<T>`.
+
+:Literals: :code:`_aA_per_rtHz, _fA_per_rtHz, _pA_per_rtHz, _nA_per_rtHz, _uA_per_rtHz, _mA_per_rtHz, _A_per_rtHz, _kA_per_rtHz, _MA_per_rtHz, _GA_per_rtHz, _TA_per_rtHz, _PA_per_rtHz, _EA_per_rtHz`.
+
+
+-------------------------------------------------------------------------------
+
+Voltage noise density
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attovolt_per_root_hertz<T>, femtovolt_per_root_hertz<T>, picovolt_per_root_hertz<T>, nanovolt_per_root_hertz<T>, microvolt_per_root_hertz<T>, millivolt_per_root_hertz<T>, centivolt_per_root_hertz<T>, decivolt_per_root_hertz<T>, volt_per_root_hertz<T>, decavolt_per_root_hertz<T>, hectovolt_per_root_hertz<T>, kilovolt_per_root_hertz<T>, megavolt_per_root_hertz<T>, gigavolt_per_root_hertz<T>, teravolt_per_root_hertz<T>, petavolt_per_root_hertz<T>, exavolt_per_root_hertz<T>`.
+
+:Literals: :code:`_aV_per_rtHz, _fV_per_rtHz, _pV_per_rtHz, _nV_per_rtHz, _uV_per_rtHz, _mV_per_rtHz, _V_per_rtHz, _kV_per_rtHz, _MV_per_rtHz, _GV_per_rtHz, _TV_per_rtHz, _PV_per_rtHz, _EV_per_rtHz`.
