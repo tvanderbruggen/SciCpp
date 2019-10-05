@@ -174,7 +174,7 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(capacitance, farad)
 
 namespace literals {
 
-SCICPP_CORE_UNITS_SET_LITERAL(capacitance, _fF, std::atto)
+SCICPP_CORE_UNITS_SET_LITERAL(capacitance, _aF, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(capacitance, _fF, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(capacitance, _pF, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(capacitance, _nF, std::nano)
