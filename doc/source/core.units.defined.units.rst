@@ -503,3 +503,44 @@ SI units
 :Classes: :code:`attovolt_per_root_hertz<T>, femtovolt_per_root_hertz<T>, picovolt_per_root_hertz<T>, nanovolt_per_root_hertz<T>, microvolt_per_root_hertz<T>, millivolt_per_root_hertz<T>, centivolt_per_root_hertz<T>, decivolt_per_root_hertz<T>, volt_per_root_hertz<T>, decavolt_per_root_hertz<T>, hectovolt_per_root_hertz<T>, kilovolt_per_root_hertz<T>, megavolt_per_root_hertz<T>, gigavolt_per_root_hertz<T>, teravolt_per_root_hertz<T>, petavolt_per_root_hertz<T>, exavolt_per_root_hertz<T>`.
 
 :Literals: :code:`_aV_per_rtHz, _fV_per_rtHz, _pV_per_rtHz, _nV_per_rtHz, _uV_per_rtHz, _mV_per_rtHz, _V_per_rtHz, _kV_per_rtHz, _MV_per_rtHz, _GV_per_rtHz, _TV_per_rtHz, _PV_per_rtHz, _EV_per_rtHz`.
+
+-------------------------------------------------------------------------------
+
+Catalytic activity
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attokatal<T>, femtokatal<T>, picokatal<T>, nanokatal<T>, microkatal<T>, millikatal<T>, centikatal<T>, decikatal<T>, katal<T>, decakatal<T>, hectokatal<T>, kilokatal<T>, megakatal<T>, gigakatal<T>, terakatal<T>, petakatal<T>, exakatal<T>`.
+
+:Literals: :code:`_akat, _fkat, _pkat, _nkat, _ukat, _mkat, _kat, _kkat, _Mkat, _Gkat, _Tkat, _Pkat, _Ekat`.
+
+Non-SI units
+^^^^^^^^^^
+
+:Classes: :code:`enzyme_unit<T>`.
+
+-------------------------------------------------------------------------------
+
+Luminous flux
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attolumen<T>, femtolumen<T>, picolumen<T>, nanolumen<T>, microlumen<T>, millilumen<T>, centilumen<T>, decilumen<T>, lumen<T>, decalumen<T>, hectolumen<T>, kilolumen<T>, megalumen<T>, gigalumen<T>, teralumen<T>, petalumen<T>, exalumen<T>`.
+
+:Literals: :code:`_alm, _flm, _plm, _nlm, _ulm, _mlm, _lm, _klm, _Mlm, _Glm, _Tlm, _Plm, _Elm`.
+
+-------------------------------------------------------------------------------
+
+Illuminance
+~~~~~~~~~~~~~~~
+
+SI units
+^^^^^^^^^^
+
+:Classes: :code:`attolux<T>, femtolux<T>, picolux<T>, nanolux<T>, microlux<T>, millilux<T>, centilux<T>, decilux<T>, lux<T>, decalux<T>, hectolux<T>, kilolux<T>, megalux<T>, gigalux<T>, teralux<T>, petalux<T>, exalux<T>`.
+
+:Literals: :code:`_alx, _flx, _plx, _nlx, _ulx, _mlx, _lx, _klx, _Mlx, _Glx, _Tlx, _Plx, _Elx`.

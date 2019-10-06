@@ -55,6 +55,7 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(luminous_flux, lumen)
 
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _alm, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _flm, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _nlm, std::nano)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _ulm, std::micro)
@@ -64,6 +65,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _klm, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _Mlm, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _Glm, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _Tlm, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _Plm, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(luminous_flux, _Elm, std::exa)
 
 } // namespace literals
 
@@ -75,6 +78,7 @@ SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(illuminance, lux)
 
 namespace literals {
 
+SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _alx, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _flx, std::pico)
 SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _nlx, std::nano)
 SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _ulx, std::micro)
@@ -84,5 +88,7 @@ SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _klx, std::kilo)
 SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _Mlx, std::mega)
 SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _Glx, std::giga)
 SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _Tlx, std::tera)
+SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _Plx, std::peta)
+SCICPP_CORE_UNITS_SET_LITERAL(illuminance, _Elx, std::exa)
 
 } // namespace literals
