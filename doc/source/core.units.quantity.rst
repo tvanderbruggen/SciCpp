@@ -32,7 +32,7 @@ Member functions
 
 .. function:: constexpr T value() const
 
-Return the underlying value of the quantity (ex. :code:`1_km.eval()` returns 1.0).
+Return the underlying value of the quantity (ex. :code:`1_km.value()` returns 1.0).
 Should mostly be used for printing.
 
 .. function:: constexpr T eval() const
