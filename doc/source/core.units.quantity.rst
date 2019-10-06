@@ -52,9 +52,9 @@ Used to convert between units when implicit conversion is not allowed, that is i
 Type traits
 -------------------------
 
-.. class:: template <class T> is_quantity_v
+.. var:: template <class T> constexpr bool is_quantity_v<T>
 
-Return :code:`true` if :code:`T` is a quantity.
+:code:`true` if :code:`T` is a quantity.
 For example, :code:`is_quantity_v<meter<>> == true`, but :code:`is_quantity_v<double> == false`.
 
 -------------------------
