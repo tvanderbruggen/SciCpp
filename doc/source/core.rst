@@ -59,6 +59,16 @@ Provides arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:
 The statement :code:`using namespace scicpp::operators` must be included in the scope where
 operators are used.
 
+Comparison and Logical
+-------------
+
+Operators for element-wise comparison between an array and a scalar :code:`==`, :code:`!=`, :code:`>`, :code:`>=`, :code:`<`, :code:`<=`.
+
+For element-wise comparison between arrays, operators are not available because the C++ standard defines them for lexicographical comparison.
+The comparison functions (same as Numpy) can be used instead: :code:`equal`, :code:`not_equal`, :code:`less`, :code:`less_equal`, :code:`greater` and :code:`greater_equal`.
+
+Operators :code:`&&` and :code:`||` are defined for element-wise logical operations.
+
 Ranges
 -------------
 

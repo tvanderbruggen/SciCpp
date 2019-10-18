@@ -233,6 +233,35 @@ TEST_CASE("Logical/comparison operators") {
     REQUIRE(array_equal(b1a || b2a, {1, 1, 1}));
 }
 
+TEST_CASE("Logical/Comparison") {
+    const std::array b1a{1, 0, 1};
+    const std::vector b1v{1, 0, 1};
+    const std::array b2a{1, 1, 0};
+    const std::vector b2v{1, 1, 0};
+
+    const std::array a1{1, 2, 3};
+    const std::array a2{-1, 4, 3};
+    const std::vector v1{1, 2, 3};
+    const std::vector v2{-1, 4, 3};
+
+    REQUIRE(array_equal(equal(b1a, b2a), {1, 0, 0}));
+    REQUIRE(array_equal(not_equal(b1a, b2a), {0, 1, 1}));
+    REQUIRE(array_equal(equal(b1v, b2v), {1, 0, 0}));
+    REQUIRE(array_equal(not_equal(b1v, b2v), {0, 1, 1}));
+
+    REQUIRE(array_equal(less(a1, a2), {0, 1, 0}));
+    REQUIRE(array_equal(less(v1, v2), {0, 1, 0}));
+
+    REQUIRE(array_equal(less_equal(a1, a2), {0, 1, 1}));
+    REQUIRE(array_equal(less_equal(v1, v2), {0, 1, 1}));
+
+    REQUIRE(array_equal(greater_equal(a1, a2), {1, 0, 1}));
+    REQUIRE(array_equal(greater_equal(v1, v2), {1, 0, 1}));
+
+    REQUIRE(array_equal(greater(a1, a2), {1, 0, 0}));
+    REQUIRE(array_equal(greater(v1, v2), {1, 0, 0}));
+}
+
 TEST_CASE("Arithmetic operators") {
     using namespace operators;
 

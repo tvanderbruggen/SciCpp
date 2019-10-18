@@ -225,6 +225,17 @@ static_assert(is_eigen_container_v<Eigen::Matrix2d>);
 static_assert(!is_eigen_container_v<std::vector<double>>);
 static_assert(!is_eigen_container_v<std::array<double, 4>>);
 
+//---------------------------------------------------------------------------------
+// is_predicate
+//---------------------------------------------------------------------------------
+
+template <class Predicate, class... Args>
+inline constexpr bool is_predicate =
+    std::is_integral_v<std::invoke_result_t<Predicate, Args...>>;
+
+static_assert(is_predicate<std::greater<>, double, double>);
+static_assert(!is_predicate<std::plus<>, double, double>);
+
 } // namespace scicpp::meta
 
 #endif // SCICPP_CORE_META

@@ -39,7 +39,6 @@ using enzyme_unit =
 
 namespace literals {
 
-
 SCICPP_CORE_UNITS_SET_LITERAL(catalytic_activity, _akat, std::atto)
 SCICPP_CORE_UNITS_SET_LITERAL(catalytic_activity, _fkat, std::femto)
 SCICPP_CORE_UNITS_SET_LITERAL(catalytic_activity, _pkat, std::pico)

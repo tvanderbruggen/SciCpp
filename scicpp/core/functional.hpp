@@ -181,7 +181,7 @@ constexpr auto not_nan = [](auto v) { return !units::isnan(v); };
 
 template <typename T, class UnaryPredicate>
 [[nodiscard]] auto filter(std::vector<T> &&a, UnaryPredicate p) {
-    static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
+    static_assert(meta::is_predicate<UnaryPredicate, T>);
 
     const auto i =
         std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
@@ -205,8 +205,7 @@ template <class InputIt, class UnaryPredicate, class BinaryOp, typename T>
     using ReturnType = std::invoke_result_t<BinaryOp, T, IteratorType>;
 
     static_assert(std::is_same_v<ReturnType, T>);
-    static_assert(
-        std::is_integral_v<std::invoke_result_t<UnaryPredicate, IteratorType>>);
+    static_assert(meta::is_predicate<UnaryPredicate, IteratorType>);
 
     signed_size_t cnt = 0;
 
@@ -362,8 +361,7 @@ template <class Array, class BinaryOp, class UnaryPredicate>
 auto cumacc(Array &&a, BinaryOp op, UnaryPredicate p) {
     using InputType = typename std::remove_reference_t<Array>::value_type;
     using ReturnType = std::invoke_result_t<BinaryOp, InputType, InputType>;
-    static_assert(
-        std::is_integral_v<std::invoke_result_t<UnaryPredicate, InputType>>);
+    static_assert(meta::is_predicate<UnaryPredicate, InputType>);
     static_assert(std::is_same_v<InputType, ReturnType>);
 
     auto a_filt = filter(std::forward<Array>(a), p);

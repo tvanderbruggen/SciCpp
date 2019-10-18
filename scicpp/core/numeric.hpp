@@ -591,7 +591,7 @@ auto operator/(ArrayLhs &&a, ArrayRhs &&b) {
 template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
-          detail::enable_if_operator_iterable<ArrayRhs> = 00>
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
 auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
     return map([](auto u, auto v) { return detail::modulus(u, v); },
                std::forward<ArrayLhs>(a),
@@ -599,6 +599,69 @@ auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
 }
 
 } // namespace operators
+
+//---------------------------------------------------------------------------------
+// Comparison
+//
+// In the C++ standard comparison operators are used for lexicographical order.
+// So we implement the Numpy comparison function, but not the related operators.
+//---------------------------------------------------------------------------------
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto equal(ArrayLhs &&a, ArrayRhs &&b) {
+    return map([](auto u, auto v) { return u == v; },
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto not_equal(ArrayLhs &&a, ArrayRhs &&b) {
+    using namespace operators;
+    return !equal(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto less(ArrayLhs &&a, ArrayRhs &&b) {
+    return map([](auto u, auto v) { return u < v; },
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto less_equal(ArrayLhs &&a, ArrayRhs &&b) {
+    using namespace operators;
+    return !less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto greater_equal(ArrayLhs &&a, ArrayRhs &&b) {
+    using namespace operators;
+    return !less(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto greater(ArrayLhs &&a, ArrayRhs &&b) {
+    using namespace operators;
+    return less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
+}
 
 //---------------------------------------------------------------------------------
 // Masking
