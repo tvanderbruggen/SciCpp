@@ -7,6 +7,7 @@
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/units/quantity.hpp"
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
@@ -124,19 +125,23 @@ auto nancumprod(const std::vector<T> &v) {
 //---------------------------------------------------------------------------------
 
 template <class InputIt,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T trapz(InputIt first, InputIt last, T dx) {
+          typename T1 = typename std::iterator_traits<InputIt>::value_type,
+          typename T2>
+constexpr auto trapz(InputIt first, InputIt last, T2 dx) {
+    using ret_t = decltype(std::declval<T1>() * std::declval<T2>());
+    using raw_t = units::representation_t<ret_t>;
+    using dx_t = std::conditional_t<units::is_quantity_v<T2>, T2, raw_t>;
+
     if (std::distance(first, last) == 0) {
-        return T{0};
+        return ret_t(raw_t{0});
     }
 
-    // https://en.wikipedia.org/wiki/Trapezoidal_rule
-    return T{0.5} * dx *
-           (*first + T{2} * sum(first + 1, last - 1) + *(last - 1));
+    return raw_t{0.5} * dx_t(dx) *
+           (*first + raw_t{2} * sum(first + 1, last - 1) + *(last - 1));
 }
 
-template <class Array, typename T = typename Array::value_type>
-constexpr T trapz(const Array &f, T dx) {
+template <class Array, typename T>
+constexpr auto trapz(const Array &f, T dx) {
     return trapz(f.cbegin(), f.cend(), dx);
 }
 
@@ -216,7 +221,8 @@ constexpr auto inner(InputItLhs first1,
                      InputItRhs first2,
                      InputItRhs last2,
                      ProductOp op) {
-    using T = typename std::common_type_t<
+    using T = std::invoke_result_t<
+        ProductOp,
         typename std::iterator_traits<InputItLhs>::value_type,
         typename std::iterator_traits<InputItRhs>::value_type>;
 
@@ -237,20 +243,22 @@ constexpr auto inner(InputItLhs first1,
         std::plus<>());
 }
 
-template <class InputIt>
-constexpr auto
-inner(InputIt first1, InputIt last1, InputIt first2, InputIt last2) {
+template <class InputItLhs, class InputItRhs>
+constexpr auto inner(InputItLhs first1,
+                     InputItLhs last1,
+                     InputItRhs first2,
+                     InputItRhs last2) {
     return inner(first1, last1, first2, last2, std::multiplies<>());
 }
 
-template <class Array>
-constexpr auto inner(const Array &a1, const Array &a2) {
+template <class Array1, class Array2>
+constexpr auto inner(const Array1 &a1, const Array2 &a2) {
     return inner(a1.cbegin(), a1.cend(), a2.cbegin(), a2.cend());
 }
 
 // inner and dot are the same for 1D arrays
-template <class Array>
-constexpr auto dot(const Array &a1, const Array &a2) {
+template <class Array1, class Array2>
+constexpr auto dot(const Array1 &a1, const Array2 &a2) {
     return inner(a1, a2);
 }
 
@@ -294,7 +302,9 @@ using enable_if_operator_iterable =
 
 template <class T>
 using enable_if_scalar =
-    std::enable_if_t<std::is_arithmetic_v<T> || meta::is_complex_v<T>, int>;
+    std::enable_if_t<std::is_arithmetic_v<T> || meta::is_complex_v<T> ||
+                         units::is_quantity_v<T>,
+                     int>;
 
 } // namespace detail
 
@@ -303,6 +313,110 @@ using enable_if_scalar =
 template <class Array, detail::enable_if_operator_iterable<Array> = 0>
 auto operator-(Array &&a) {
     return map(std::negate<>(), std::forward<Array>(a));
+}
+
+// logical not
+
+template <class Array, detail::enable_if_operator_iterable<Array> = 0>
+auto operator!(Array &&a) {
+    return map(std::logical_not<>(), std::forward<Array>(a));
+}
+
+// scalar compare
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator==(Array &&a, T scalar) {
+    return map([=](auto v) { return v == scalar; }, std::forward<Array>(a));
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator==(T scalar, Array &&a) {
+    return a == scalar;
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator!=(Array &&a, T scalar) {
+    return !(a == scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator!=(T scalar, Array &&a) {
+    return !(a == scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator<(Array &&a, T scalar) {
+    return map([=](auto v) { return v < scalar; }, std::forward<Array>(a));
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator>=(Array &&a, T scalar) {
+    return !(a < scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator<(T scalar, Array &&a) {
+    return map([=](auto v) { return scalar < v; }, std::forward<Array>(a));
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator>=(T scalar, Array &&a) {
+    return !(scalar < a);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator<=(Array &&a, T scalar) {
+    return !(scalar < a);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator<=(T scalar, Array &&a) {
+    return !(a < scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator>(Array &&a, T scalar) {
+    return !(a <= scalar);
+}
+
+template <class Array,
+          typename T = typename Array::value_type,
+          detail::enable_if_operator_iterable<Array> = 0,
+          detail::enable_if_scalar<T> = 0>
+auto operator>(T scalar, Array &&a) {
+    return !(scalar <= a);
 }
 
 // scalar multiply
@@ -382,10 +496,12 @@ namespace detail {
 
 template <typename T>
 auto modulus(T x, T y) {
-    if constexpr (std::is_floating_point_v<T>) {
-        return std::fmod(x, y);
+    using raw_t = units::representation_t<T>;
+
+    if constexpr (std::is_floating_point_v<raw_t>) {
+        return T(std::fmod(units::value(x), units::value(y)));
     } else {
-        return x % y;
+        return T(units::value(x) % units::value(y));
     }
 }
 
@@ -415,6 +531,26 @@ template <class ArrayLhs,
           detail::enable_if_operator_iterable<ArrayRhs> = 0>
 auto operator*(ArrayLhs &&a, ArrayRhs &&b) {
     return map(std::multiplies<>(),
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
+auto operator&&(ArrayLhs &&a, ArrayRhs &&b) {
+    return map(std::logical_and<>(),
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          detail::enable_if_operator_iterable<ArrayLhs> = 0,
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
+auto operator||(ArrayLhs &&a, ArrayRhs &&b) {
+    return map(std::logical_or<>(),
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
 }
@@ -455,7 +591,7 @@ auto operator/(ArrayLhs &&a, ArrayRhs &&b) {
 template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
-          detail::enable_if_operator_iterable<ArrayRhs> = 00>
+          detail::enable_if_operator_iterable<ArrayRhs> = 0>
 auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
     return map([](auto u, auto v) { return detail::modulus(u, v); },
                std::forward<ArrayLhs>(a),
@@ -465,59 +601,113 @@ auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
 } // namespace operators
 
 //---------------------------------------------------------------------------------
-// almost_equal
+// Comparison
+//
+// In the C++ standard comparison operators are used for lexicographical order.
+// So we implement the Numpy comparison function, but not the related operators.
 //---------------------------------------------------------------------------------
 
-namespace detail {
-
-template <typename T>
-bool is_zero(T a) {
-    return std::fpclassify(a) == FP_ZERO;
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto equal(ArrayLhs &&a, ArrayRhs &&b) {
+    return map([](auto u, auto v) { return u == v; },
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
 }
 
-template <int rel_tol, typename T>
-bool fp_equal_predicate(T a, T b) {
-    static_assert(rel_tol >= 0);
-
-    constexpr T tol = rel_tol * std::numeric_limits<T>::epsilon() / 2;
-
-    if (std::isnan(a) && std::isnan(b)) {
-        return true;
-    }
-
-    if (std::isinf(a) && std::isinf(b)) {
-        return std::signbit(a) == std::signbit(b);
-    }
-
-    if (is_zero(a) || is_zero(b)) {
-        return std::fabs(a - b) <= tol;
-    }
-
-    return std::fabs(a - b) <= tol * std::max(std::fabs(a), std::fabs(b));
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto not_equal(ArrayLhs &&a, ArrayRhs &&b) {
+    using namespace operators;
+    return !equal(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
 
-} // namespace detail
-
-template <int rel_tol = 1,
-          typename T,
-          std::enable_if_t<!meta::is_iterable_v<T>, int> = 0>
-bool almost_equal(T a, T b) {
-    if constexpr (meta::is_complex_v<T>) {
-        return (detail::fp_equal_predicate<rel_tol>(a.real(), b.real())) &&
-               (detail::fp_equal_predicate<rel_tol>(a.imag(), b.imag()));
-    } else {
-        return detail::fp_equal_predicate<rel_tol>(a, b);
-    }
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto less(ArrayLhs &&a, ArrayRhs &&b) {
+    return map([](auto u, auto v) { return u < v; },
+               std::forward<ArrayLhs>(a),
+               std::forward<ArrayRhs>(b));
 }
 
-template <int rel_tol = 1,
-          class Array,
-          std::enable_if_t<meta::is_iterable_v<Array>, int> = 0>
-bool scicpp_pure almost_equal(const Array &f1, const Array &f2) {
-    return std::equal(
-        f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend(), [](auto a, auto b) {
-            return almost_equal<rel_tol>(a, b);
-        });
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto less_equal(ArrayLhs &&a, ArrayRhs &&b) {
+    using namespace operators;
+    return !less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto greater_equal(ArrayLhs &&a, ArrayRhs &&b) {
+    using namespace operators;
+    return !less(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
+}
+
+template <class ArrayLhs,
+          class ArrayRhs,
+          meta::enable_if_iterable<ArrayLhs> = 0,
+          meta::enable_if_iterable<ArrayRhs> = 0>
+auto greater(ArrayLhs &&a, ArrayRhs &&b) {
+    using namespace operators;
+    return less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
+}
+
+//---------------------------------------------------------------------------------
+// Masking
+//---------------------------------------------------------------------------------
+
+template <class Array, class Mask>
+auto mask(const Array &a, const Mask &m) {
+    scicpp_require(a.size() == m.size());
+    static_assert(std::is_integral_v<typename Mask::value_type>);
+
+    auto res = std::vector<typename Array::value_type>(0);
+    res.reserve(a.size());
+
+    for (std::size_t i = 0; i < a.size(); ++i) {
+        if (m[i]) {
+            res.push_back(a[i]);
+        }
+    }
+
+    return res;
+}
+
+template <typename T, class Mask>
+auto mask(std::vector<T> &&a, const Mask &m) {
+    scicpp_require(a.size() == m.size());
+    static_assert(std::is_integral_v<typename Mask::value_type>);
+
+    std::size_t idx = 0;
+
+    for (std::size_t i = 0; i < a.size(); ++i) {
+        if (m[i]) {
+            a[idx] = a[i];
+            ++idx;
+        }
+    }
+
+    a.resize(idx);
+    return std::move(a);
+}
+
+// Mask a std::vector inplace
+// Not possible for std::array since return size is not known at compile time.
+
+template <typename T, class Mask>
+void mask_array(std::vector<T> &a, const Mask &m) {
+    a = mask(std::move(a), m);
 }
 
 } // namespace scicpp

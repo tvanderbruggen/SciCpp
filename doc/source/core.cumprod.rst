@@ -21,4 +21,4 @@ Cumulative product of array elements.
 
 See also
     ----------
-    `Scipy documentation <https://docs.scipy.org/doc/numpy-1.15.0/reference/generated/numpy.cumsum.html>`_
+    `Scipy documentation <https://docs.scipy.org/doc/numpy-1.15.0/reference/generated/numpy.cumprod.html>`_

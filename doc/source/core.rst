@@ -3,6 +3,8 @@ core
 
 Core functions defined in header <scicpp/core.hpp>
 
+:ref:`Quick overview comparing function calls for fixed and variable size arrays <core_fixed_vs_variable_size_array>`.
+
 Mathematical functions
 -------------
 
@@ -57,6 +59,16 @@ Provides arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:
 The statement :code:`using namespace scicpp::operators` must be included in the scope where
 operators are used.
 
+Comparison and Logical
+-------------
+
+Operators for element-wise comparison between an array and a scalar :code:`==`, :code:`!=`, :code:`>`, :code:`>=`, :code:`<`, :code:`<=`.
+
+For element-wise comparison between arrays, operators are not available because the C++ standard defines them for lexicographical comparison.
+The comparison functions (same as Numpy) can be used instead: :code:`equal`, :code:`not_equal`, :code:`less`, :code:`less_equal`, :code:`greater` and :code:`greater_equal`.
+
+Operators :code:`&&` and :code:`||` are defined for element-wise logical operations.
+
 Ranges
 -------------
 
@@ -68,6 +80,15 @@ Ranges
 
 :ref:`arange <core_arange>`
     Return evenly spaced values within a given interval.
+
+Create arrays from existing data
+----------------
+
+:ref:`fromstring <core_fromstring>`
+    Load a vector from a string.
+
+:ref:`TxtLoader <core_TxtLoader>`
+    Load data from a character separated values text file.
 
 Sums, products, differences
 ----------------
@@ -108,12 +129,14 @@ Sums, products, differences
 :ref:`vdot <core_vdot>`
     Return the dot product of two vectors.
 
-
 Comparisons
 ----------------
 
 :ref:`almost_equal <core_almost_equal>`
     Compare floating points or arrays of floating points.
+
+:ref:`array_equal <core_array_equal>`
+    True if two arrays have the same size and elements (strict equality).
 
 Random
 -------------
@@ -156,6 +179,27 @@ Statistics
 
 :ref:`stats::nanstd <core_stats_nanstd>`
     Compute the standard deviation, ignoring NaNs.
+
+Units
+-------------
+
+:ref:`units::quantity <core_units_quantity>`
+    An arithmetic-like type representing a quantity.
+
+:ref:`Quantities <core_units_defined_quantities>`
+    Defined quantities.
+
+:ref:`Units <core_units_defined_units>`
+    Defined units.
+
+Masking
+----------------
+
+:ref:`mask <core_mask>`
+    Return a vector with masked values.
+
+:ref:`mask_array <core_mask_array>`
+    Mask a vector in-place.
 
 Functional programming
 ---------------

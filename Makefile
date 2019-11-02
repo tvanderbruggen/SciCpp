@@ -9,8 +9,8 @@ SCICPP_SRC=scicpp
 
 TMP=tmp
 
-# COMPILER ?= clang
-COMPILER ?= gcc
+COMPILER ?= clang
+# COMPILER ?= gcc
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native
@@ -22,7 +22,7 @@ INCLUDES = -I. -I$(SCICPP_SRC)
 WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
 WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion
 WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
-WARNINGS += -Wfloat-equal -Weffc++
+WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
 
 ifeq ($(COMPILER),gcc)
   CC = $(CROSS_COMPILE)gcc-8
@@ -38,7 +38,7 @@ endif
 
 CFLAGS += -Werror $(WARNINGS) $(ARCH_FLAGS) $(OPTIM_FLAGS) $(DEBUG_FLAGS) $(INCLUDES) -MMD -MP
 CXXFLAGS = $(CFLAGS) -std=c++17 -pthread
-LD_FLAGS = -lm
+LD_FLAGS = -lm -lstdc++fs
 
 ifeq ($(COMPILER),clang)
   # CXXFLAGS += -stdlib=libc++ # No C++17 deduction guides for now

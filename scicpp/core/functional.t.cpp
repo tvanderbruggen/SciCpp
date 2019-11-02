@@ -3,6 +3,7 @@
 
 #include "functional.hpp"
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
 
@@ -35,14 +36,32 @@ TEST_CASE("map") {
             map(std::plus<>(), std::array{1., 2., 3.}, std::array{4., 5., 6.}),
             {5., 7., 9.}));
         REQUIRE(almost_equal(map(std::plus<>(),
+                                 std::array{1.i, 2.i, 3.i},
+                                 std::array{4., 5., 6.}),
+                             {4. + 1.i, 5. + 2.i, 6. + 3.i}));
+        REQUIRE(almost_equal(map(std::plus<>(),
+                                 std::array{4., 5., 6.},
+                                 std::array{1.i, 2.i, 3.i}),
+                             {4. + 1.i, 5. + 2.i, 6. + 3.i}));
+        REQUIRE(almost_equal(map(std::plus<>(),
                                  std::vector{1., 2., 3.},
                                  std::vector{4., 5., 6.}),
                              {5., 7., 9.}));
+        REQUIRE(almost_equal(
+            map(std::plus<>(), std::vector{1., 2., 3.}, std::array{4., 5., 6.}),
+            {5., 7., 9.}));
+        REQUIRE(almost_equal(map(std::plus<>(), v, std::array{4., 5., 6.}),
+                             {5., 7., 9.}));
+        REQUIRE(almost_equal(
+            map(std::plus<>(), std::array{1., 2., 3.}, std::vector{4., 5., 6.}),
+            {5., 7., 9.}));
         REQUIRE(almost_equal(map(std::plus<>(), std::vector{1., 2., 3.}, a),
                              {5., 7., 9.}));
         REQUIRE(almost_equal(map(std::plus<>(), v, std::vector{4., 5., 6.}),
                              {5., 7., 9.}));
         REQUIRE(almost_equal(map(std::plus<>(), v, a), {5., 7., 9.}));
+        REQUIRE(almost_equal(map(std::plus<>(), v, vc),
+                             {2. + 3.i, 4. - 2.i, 6. + 1.i}));
 
         REQUIRE(almost_equal<2>(
             map([](auto z1, auto z2) { return std::norm(z1) + std::norm(z2); },

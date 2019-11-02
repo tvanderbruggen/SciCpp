@@ -34,4 +34,4 @@ Integrate over the elements in a std::vector.
 
 See also
     ----------
-    `Scipy documentation <https://docs.scipy.org/doc/numpy/reference/generated/numpy.prod.html>`_
+    `Scipy documentation <https://docs.scipy.org/doc/numpy/reference/generated/numpy.trapz.html>`_

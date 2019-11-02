@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+
+// This example loads and explore wave height data provided by:
+// https://www.qld.gov.au/environment/coasts-waterways/beach/monitoring
+
+#include <cstdio>
+#include <scicpp/core.hpp>
+
+namespace sci = scicpp;
+using namespace sci::operators;
+using namespace sci::units::literals;
+
+int main() {
+    // -----------------------------------------------------------------------------
+    // Load and clean-up data
+    // -----------------------------------------------------------------------------
+
+    // The data fields are defined here:
+    // https://www.qld.gov.au/environment/coasts-waterways/beach/monitoring/waves-glossary#wave-height
+    //
+    // From these definitions, we define the data types for each column
+    using Hsig = sci::units::meter<>;  // Significant wave height
+    using Hmax = sci::units::meter<>;  // Highest single wave height
+    using Tz = sci::units::second<>;   // Average of the wave periods
+    using Tp = sci::units::second<>;   // Period of most energetic waves
+    using SST = sci::units::celsius<>; // Sea surface temperature
+
+    // In the dataset invalid values are represented by -99.9,
+    // but only positive values are valid.
+    // So we use filters to keep only valid data.
+
+    auto [hsig, hmax, tz, tp, sst] =
+        sci::TxtLoader<Hsig, Hmax, Tz, Tp, SST>()
+            .delimiter(',')
+            .skiprows(1)
+            .usecols(1, 2, 3, 4, 6)
+            .filters(
+                {{1, [](auto x) { return sci::io::cast<Hsig>(x) >= 0_m; }},
+                 {2, [](auto x) { return sci::io::cast<Hmax>(x) >= 0_m; }},
+                 {3, [](auto x) { return sci::io::cast<Tz>(x) >= 0_s; }},
+                 {4, [](auto x) { return sci::io::cast<Tp>(x) >= 0_s; }},
+                 {6, [](auto x) { return sci::io::cast<SST>(x) >= 0_degC; }}})
+            .load("examples/townsville_2019-01-01t00_00-2019-06-30t23_30.csv");
+
+    // -----------------------------------------------------------------------------
+    // Explore data
+    // -----------------------------------------------------------------------------
+
+    // Some simple stats:
+    printf("Highest wave is %.2f m\n", sci::stats::amax(hmax).value());
+    printf("Longest period is %.2f s\n", sci::stats::amax(tz).value());
+    printf("Average sea surface temperature is %.2f deg. C\n",
+           sci::stats::mean(sst).value());
+
+    // Wave power (per meter of wavefront)
+    // https://en.wikipedia.org/wiki/Wave_power
+    constexpr auto rho = 1000_kg / 1_m3; // Water density
+    constexpr auto g = 9.81_m_per_s2;    // Acceleration by gravity
+    const auto P = (rho * g * g / (64 * sci::pi<double>)) * hsig * hsig * tz;
+    printf("Average wave power %.2f W/m\n", sci::stats::mean(P).value());
+    const auto E = (rho * g / 16.) * hsig * hsig;
+    printf("Average wave energy density %.2f J/m^2\n",
+           sci::stats::mean(E).value());
+}

@@ -3,6 +3,7 @@
 
 #include "random.hpp"
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/stats.hpp"
 
 namespace scicpp::random {

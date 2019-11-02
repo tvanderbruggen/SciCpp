@@ -6,6 +6,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/units/maths.hpp"
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
@@ -34,7 +35,7 @@ namespace scicpp {
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, Array &&a) {
     using InputType = typename std::remove_reference_t<Array>::value_type;
-    using ReturnType = typename std::invoke_result_t<UnaryOp, InputType>;
+    using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {
         std::transform(a.cbegin(), a.cend(), a.begin(), op);
@@ -57,7 +58,7 @@ template <class Array, class UnaryOp>
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, const Array &a) {
     using InputType = typename Array::value_type;
-    using ReturnType = typename std::invoke_result_t<UnaryOp, InputType>;
+    using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     auto res = utils::set_array<ReturnType>(a);
     std::transform(a.cbegin(), a.cend(), res.begin(), op);
@@ -66,18 +67,23 @@ template <class Array, class UnaryOp>
 
 // Binary operations
 
-// TODO Binary operations should accept two arrays of different types
-// ex. an array of real numbers and one of complex numbers.
+// Array can be of different types (ex. std::array and std::vector),
+// data types can also be different (ex. complex and doubles).
+//
+// However, arrays must have the same size.
 
-template <class Array, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, Array &&a1, const Array &a2) {
-    using InputType = typename Array::value_type;
-    using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
+template <class Array1,
+          class Array2,
+          class BinaryOp,
+          std::enable_if_t<!std::is_lvalue_reference_v<Array1>, int> = 0>
+[[nodiscard]] auto map(BinaryOp op, Array1 &&a1, const Array2 &a2) {
+    using InputType1 = typename Array1::value_type;
+    using InputType2 = typename Array2::value_type;
+    using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     scicpp_require(a1.size() == a2.size());
 
-    if constexpr (std::is_same_v<InputType, ReturnType>) {
+    if constexpr (std::is_same_v<InputType1, ReturnType>) {
         std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
         return std::move(a1);
     } else {
@@ -87,15 +93,18 @@ template <class Array, class BinaryOp>
     }
 }
 
-template <class Array, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, const Array &a1, Array &&a2) {
-    using InputType = typename Array::value_type;
-    using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
+template <class Array1,
+          class Array2,
+          class BinaryOp,
+          std::enable_if_t<!std::is_lvalue_reference_v<Array2>, int> = 0>
+[[nodiscard]] auto map(BinaryOp op, const Array1 &a1, Array2 &&a2) {
+    using InputType1 = typename Array1::value_type;
+    using InputType2 = typename Array2::value_type;
+    using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     scicpp_require(a1.size() == a2.size());
 
-    if constexpr (std::is_same_v<InputType, ReturnType>) {
+    if constexpr (std::is_same_v<InputType2, ReturnType>) {
         std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);
         return std::move(a2);
     } else {
@@ -105,14 +114,27 @@ template <class Array, class BinaryOp>
     }
 }
 
-template <class Array, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, Array &&a1, Array &&a2) {
-    return map(op, std::move(a1), a2);
+template <class Array1,
+          class Array2,
+          class BinaryOp,
+          std::enable_if_t<!std::is_lvalue_reference_v<Array1> &&
+                               !std::is_lvalue_reference_v<Array2>,
+                           int> = 0>
+[[nodiscard]] auto map(BinaryOp op, Array1 &&a1, Array2 &&a2) {
+    using InputType1 = typename Array1::value_type;
+    using InputType2 = typename Array2::value_type;
+    using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
+
+    if constexpr (std::is_same_v<InputType2, ReturnType>) {
+        return map(op, a1, std::move(a2));
+    } else {
+        return map(op, std::move(a1), a2);
+    }
 }
 
-template <class Array, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, const Array &a1, const Array &a2) {
-    return map(op, Array(a1), a2);
+template <class Array1, class Array2, class BinaryOp>
+[[nodiscard]] auto map(BinaryOp op, const Array1 &a1, const Array2 &a2) {
+    return map(op, Array1(a1), a2);
 }
 
 //---------------------------------------------------------------------------------
@@ -148,9 +170,9 @@ auto vectorize(Func &&f) {
 
 namespace filters {
 
-const auto all = []([[maybe_unused]] auto v) { return true; };
-const auto none = []([[maybe_unused]] auto v) { return false; };
-const auto not_nan = [](auto v) { return !std::isnan(v); };
+constexpr auto all = []([[maybe_unused]] auto v) { return true; };
+constexpr auto none = []([[maybe_unused]] auto v) { return false; };
+constexpr auto not_nan = [](auto v) { return !units::isnan(v); };
 
 } // namespace filters
 
@@ -159,7 +181,7 @@ const auto not_nan = [](auto v) { return !std::isnan(v); };
 
 template <typename T, class UnaryPredicate>
 [[nodiscard]] auto filter(std::vector<T> &&a, UnaryPredicate p) {
-    static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
+    static_assert(meta::is_predicate<UnaryPredicate, T>);
 
     const auto i =
         std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
@@ -176,13 +198,14 @@ template <typename T, class UnaryPredicate>
 // filter_reduce
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          class UnaryPredicate,
-          class BinaryOp,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
+template <class InputIt, class UnaryPredicate, class BinaryOp, typename T>
 [[nodiscard]] constexpr scicpp_pure auto filter_reduce(
     InputIt first, InputIt last, BinaryOp op, T init, UnaryPredicate filter) {
-    static_assert(std::is_integral_v<std::invoke_result_t<UnaryPredicate, T>>);
+    using IteratorType = typename std::iterator_traits<InputIt>::value_type;
+    using ReturnType = std::invoke_result_t<BinaryOp, T, IteratorType>;
+
+    static_assert(std::is_same_v<ReturnType, T>);
+    static_assert(meta::is_predicate<UnaryPredicate, IteratorType>);
 
     signed_size_t cnt = 0;
 
@@ -196,12 +219,9 @@ template <class InputIt,
     return std::make_tuple(init, cnt);
 }
 
-template <class Array,
-          class UnaryPredicate,
-          class BinaryOp,
-          typename T = typename Array::value_type>
+template <class Array, class UnaryPredicate, class BinaryOp, typename T2>
 [[nodiscard]] constexpr scicpp_pure auto
-filter_reduce(const Array &a, BinaryOp op, T init, UnaryPredicate filter) {
+filter_reduce(const Array &a, BinaryOp op, T2 init, UnaryPredicate filter) {
     return filter_reduce(a.cbegin(), a.cend(), op, init, filter);
 }
 
@@ -310,8 +330,6 @@ filter_reduce_associative(InputIt first,
         // No precision problem for integers, as long as you don't overflow ...
         return filter_reduce(first, last, op, id_elt, filter);
     } else {
-        static_assert(std::is_floating_point_v<T> || meta::is_complex_v<T>);
-
         return pairwise_accumulate<64>(
             first,
             last,
@@ -342,10 +360,8 @@ template <class Array,
 template <class Array, class BinaryOp, class UnaryPredicate>
 auto cumacc(Array &&a, BinaryOp op, UnaryPredicate p) {
     using InputType = typename std::remove_reference_t<Array>::value_type;
-    using ReturnType =
-        typename std::invoke_result_t<BinaryOp, InputType, InputType>;
-    static_assert(
-        std::is_integral_v<std::invoke_result_t<UnaryPredicate, InputType>>);
+    using ReturnType = std::invoke_result_t<BinaryOp, InputType, InputType>;
+    static_assert(meta::is_predicate<UnaryPredicate, InputType>);
     static_assert(std::is_same_v<InputType, ReturnType>);
 
     auto a_filt = filter(std::forward<Array>(a), p);

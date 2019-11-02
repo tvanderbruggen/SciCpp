@@ -10,10 +10,11 @@
 
 namespace sci = scicpp;
 using namespace sci::operators;
+using namespace sci::units::literals;
 
 int main() {
-    const auto x = sci::linspace<100>(-0.1, 2.1) * M_PI;
-    const auto y = sci::sin(x) + 0.1 * sci::random::rand<double, 100>();
+    const auto x = sci::linspace<100>(-0.1, 2.1) * sci::pi<double>;
+    const auto y = sci::sin(x * 1_rad) + 0.1 * sci::random::rand<double, 100>();
 
     const auto P = sci::polynomial::polyfit<3>(x, y);
     const auto zeros = sci::polynomial::polyroots(P);

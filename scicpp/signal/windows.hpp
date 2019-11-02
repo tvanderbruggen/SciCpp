@@ -4,6 +4,7 @@
 #ifndef SCICPP_SIGNAL_WINDOWS
 #define SCICPP_SIGNAL_WINDOWS
 
+#include "scicpp/core/constants.hpp"
 #include "scicpp/core/macros.hpp"
 
 #include <algorithm>
@@ -15,6 +16,10 @@
 namespace scicpp::signal::windows {
 
 namespace detail {
+
+// Window functions are symmetric.
+// So we compute only one half and mirror it to the upper
+// region of the vector.
 
 template <class Array, typename Func>
 void symmetric_filler(Array &w, Func f) {
@@ -79,7 +84,7 @@ template <class Array>
 void cosine_filler(Array &w) {
     if (w.size() > 0) {
         using T = typename Array::value_type;
-        const T scaling = M_PI / T(w.size());
+        const T scaling = pi<T> / T(w.size());
         symmetric_filler(
             w, [&](std::size_t i) { return std::sin(scaling * (T(i) + 0.5)); });
     }
@@ -111,7 +116,7 @@ template <class Array,
           std::size_t n_weights,
           typename T = typename Array::value_type>
 void general_cosine(Array &w, const std::array<T, n_weights> &a) {
-    const auto scaling = T{2} * M_PI / T(w.size() - 1);
+    const auto scaling = T{2} * pi<T> / T(w.size() - 1);
 
     symmetric_filler(w, [&](std::size_t i) {
         auto tmp = T{0};
