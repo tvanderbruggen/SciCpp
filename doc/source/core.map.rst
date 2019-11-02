@@ -25,23 +25,23 @@ Binary operations
 
 --------------------------------------
 
-.. function:: template <class Array, class BinaryOp> \
-              Array && map(BinaryOp op, Array &&a1, const Array &a2)
+.. function:: template <class Array1, class Array2, class BinaryOp> \
+              Array && map(BinaryOp op, Array1 &&a1, const Array2 &a2)
 
 --------------------------------------
 
-.. function:: template <class Array, class BinaryOp> \
-              Array && map(BinaryOp op, const Array &a1, Array &&a2)
+.. function:: template <class Array1, class Array2, class BinaryOp> \
+              Array && map(BinaryOp op, const Array1 &a1, Array1 &&a2)
 
 --------------------------------------
 
-.. function:: template <class Array, class BinaryOp> \
-              Array && map(BinaryOp op, Array &&a1, Array &&a2)
+.. function:: template <class Array1, class Array2, class BinaryOp> \
+              Array && map(BinaryOp op, Array1 &&a1, Array1 &&a2)
 
 --------------------------------------
 
-.. function:: template <class Array, class BinaryOp> \
-              Array map(BinaryOp op, const Array &a1, const Array &a2)
+.. function:: template <class Array1, class Array2, class BinaryOp> \
+              Array map(BinaryOp op, const Array1 &a1, const Array1 &a2)
 
 --------------------------------------
 
@@ -78,7 +78,7 @@ Example
 
         // Compute the product of sinus between two vectors
         const auto p = scicpp::map([](auto x, auto y) { return std::sin(x) * std::sin(y); },
-                                std::vector{1., 2., 3.},
-                                std::vector{4., 5., 6.});
+                                   std::vector{1., 2., 3.},
+                                   std::vector{4., 5., 6.});
         scicpp::print(p);
     }

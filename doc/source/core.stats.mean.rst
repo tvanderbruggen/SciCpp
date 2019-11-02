@@ -9,14 +9,14 @@ Compute the arithmetic mean.
 
 ----------------
 
-.. function:: template <class Array, class Predicate>
+.. function:: template <class Array, class Predicate>\
               constexpr auto mean(const Array &f, Predicate filter)
 
 Compute the arithmetic mean of an array using only the values satisfying the filter predicate.
 
 ----------------
 
-.. function:: template <class Array>
+.. function:: template <class Array>\
               constexpr auto mean(const Array &f)
 
 Compute the arithmetic mean of an array.

@@ -3,6 +3,7 @@
 
 #include "polynomial.hpp"
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/random.hpp"
 #include "scicpp/core/range.hpp"

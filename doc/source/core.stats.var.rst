@@ -9,14 +9,14 @@ Compute the variance.
 
 ----------------
 
-.. function:: template <class Array, class Predicate>
+.. function:: template <class Array, class Predicate>\
               constexpr auto var(const Array &f, Predicate filter)
 
 Compute the variance of an array using only the values satisfying the filter predicate.
 
 ----------------
 
-.. function:: template <class Array>
+.. function:: template <class Array>\
               constexpr auto var(const Array &f)
 
 Compute the variance of an array.

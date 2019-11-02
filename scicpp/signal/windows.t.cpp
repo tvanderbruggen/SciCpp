@@ -3,6 +3,7 @@
 
 #include "windows.hpp"
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
 

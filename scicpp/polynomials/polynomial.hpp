@@ -4,6 +4,7 @@
 #ifndef SCICPP_POLYNOMIALS_POLYNOMIAL
 #define SCICPP_POLYNOMIALS_POLYNOMIAL
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
