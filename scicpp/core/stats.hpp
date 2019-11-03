@@ -79,6 +79,62 @@ constexpr auto average(const Array1 &f, const Array2 &weights) {
 }
 
 //---------------------------------------------------------------------------------
+// median
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+// https://stackoverflow.com/questions/1719070/what-is-the-right-approach-when-using-stl-container-for-median-calculation
+template <class InputIt>
+auto median_inplace(InputIt first, InputIt last) {
+    using T = typename std::iterator_traits<InputIt>::value_type;
+    const auto size = std::distance(first, last);
+
+    if (size == 0) {
+        return std::numeric_limits<T>::quiet_NaN();
+    }
+
+    const signed_size_t half = size / 2;
+    const auto target = first + half;
+    std::nth_element(first, target, last);
+
+    if (size % 2 != 0) { // vector size is odd
+        return *target;
+    } else {
+        const auto max_it = std::max_element(first, first + half);
+        return (*max_it + *target) / 2.0;
+    }
+}
+
+} // namespace detail
+
+template <class InputIt, class Predicate>
+auto median(InputIt first, InputIt last, Predicate p) {
+    auto v = filter(std::vector(first, last), p);
+    return detail::median_inplace(v.begin(), v.end());
+}
+
+template <class Array, class Predicate>
+auto median(const Array &f, Predicate filter) {
+    return median(f.cbegin(), f.cend(), filter);
+}
+
+template <class Array>
+auto median(Array &&f) {
+    if constexpr (std::is_lvalue_reference_v<Array>) {
+        auto tmp = f;
+        return detail::median_inplace(tmp.begin(), tmp.end());
+    } else {
+        return detail::median_inplace(f.begin(), f.end());
+    }
+}
+
+template <class Array>
+auto nanmedian(const Array &f) {
+    return median(f, filters::not_nan);
+}
+
+//---------------------------------------------------------------------------------
 // mean
 //---------------------------------------------------------------------------------
 

@@ -162,6 +162,12 @@ Statistics
 :ref:`stats::average <core_stats_average>`
     Compute the weighted average.
 
+:ref:`stats::median <core_stats_median>`
+    Compute the median.
+
+:ref:`stats::nanmedian <core_stats_nanmedian>`
+    Compute the median, ignoring NaNs.
+
 :ref:`stats::mean <core_stats_mean>`
     Compute the arithmetic mean.
 

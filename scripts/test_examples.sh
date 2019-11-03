@@ -16,6 +16,7 @@ make COMPILER=$compiler EXAMPLE=photodetector-noise example
 
 # doc examples
 
+make EXAMPLE=doc/core_stats_median example
 make EXAMPLE=doc/core_stats_mean example
 make EXAMPLE=doc/core_stats_var example
 make EXAMPLE=doc/core_map example

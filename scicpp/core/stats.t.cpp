@@ -22,10 +22,8 @@ TEST_CASE("amax") {
 TEST_CASE("amax physical quantities") {
     using namespace units::literals;
     REQUIRE(units::isnan(amax(std::array<units::length<double>, 0>{})));
-    REQUIRE(almost_equal(amax(std::array{1._m, 4._m, 5._m, 6._m, 2._m, 3._m}),
-                         6._m));
-    REQUIRE(almost_equal(amax(std::vector{1._m, 4._m, 5._m, 6._m, 2._m, 3._m}),
-                         6._m));
+    REQUIRE(almost_equal(amax(std::array{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 6_m));
+    REQUIRE(almost_equal(amax(std::vector{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 6_m));
 }
 
 TEST_CASE("amin") {
@@ -38,10 +36,8 @@ TEST_CASE("amin") {
 TEST_CASE("amin physical quantities") {
     using namespace units::literals;
     REQUIRE(units::isnan(amin(std::array<units::length<double>, 0>{})));
-    REQUIRE(almost_equal(amin(std::array{1._m, 4._m, 5._m, 6._m, 2._m, 3._m}),
-                         1._m));
-    REQUIRE(almost_equal(amin(std::vector{1._m, 4._m, 5._m, 6._m, 2._m, 3._m}),
-                         1._m));
+    REQUIRE(almost_equal(amin(std::array{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 1_m));
+    REQUIRE(almost_equal(amin(std::vector{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 1_m));
 }
 
 TEST_CASE("ptp") {
@@ -54,10 +50,8 @@ TEST_CASE("ptp") {
 TEST_CASE("ptp physical quantities") {
     using namespace units::literals;
     REQUIRE(units::isnan(ptp(std::array<units::length<double>, 0>{})));
-    REQUIRE(almost_equal(ptp(std::array{1._m, 4._m, 5._m, 6._m, 2._m, 3._m}),
-                         5._m));
-    REQUIRE(almost_equal(ptp(std::vector{1._m, 4._m, 5._m, 6._m, 2._m, 3._m}),
-                         5._m));
+    REQUIRE(almost_equal(ptp(std::array{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 5_m));
+    REQUIRE(almost_equal(ptp(std::vector{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 5_m));
 }
 
 TEST_CASE("average") {
@@ -85,16 +79,43 @@ TEST_CASE("average physical quantities") {
     REQUIRE(units::isnan(average(std::array<units::length<double>, 0>{},
                                  std::array<units::length<double>, 0>{})));
     REQUIRE(units::isnan(
-        average(std::vector{1._kg, 2._kg}, std::vector{3._kg, 4._kg, 5._kg})));
+        average(std::vector{1_kg, 2_kg}, std::vector{3_kg, 4_kg, 5_kg})));
     REQUIRE(almost_equal<2>(
-        average(std::array{1._s, 2._s, 3._s}, std::array{4., 5., 6.}),
+        average(std::array{1_s, 2_s, 3_s}, std::array{4., 5., 6.}),
         2.133333333333333333333_s));
     REQUIRE(almost_equal<2>(
-        average(std::array{1._s, 2._s, 3._s}, std::array{4._kg, 5._kg, 6._kg}),
+        average(std::array{1_s, 2_s, 3_s}, std::array{4_kg, 5_kg, 6_kg}),
         2.133333333333333333333_s));
     REQUIRE(almost_equal<2>(
-        average(std::array{1._s, 2._s, 3._s}, std::vector{4., 5., 6.}),
+        average(std::array{1_s, 2_s, 3_s}, std::vector{4., 5., 6.}),
         2.133333333333333333333_s));
+}
+
+TEST_CASE("median") {
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(std::isnan(median(std::array<double, 0>{})));
+    REQUIRE(almost_equal(median(std::array{1.}), 1.));
+    REQUIRE(almost_equal(median(std::array{1., 2., 3.}), 2.));
+    REQUIRE(almost_equal(median(std::vector{1., 2., 3.}), 2.));
+    REQUIRE(almost_equal(median(std::array{1., 4., 3., 2.}), 2.5));
+    REQUIRE(almost_equal(median(std::vector{1., 3., 2., 4.}), 2.5));
+    REQUIRE(almost_equal(nanmedian(std::vector{1., 2., nan, 3.}), 2.));
+    REQUIRE(almost_equal(nanmedian(std::array{1., nan, 2., 3., 4.}), 2.5));
+
+    const auto v = std::vector{3., 2., 1.};
+    REQUIRE(almost_equal(median(v), 2.));
+
+    const auto a = std::array{3., 4., 1., 2.};
+    REQUIRE(almost_equal(median(a), 2.5));
+}
+
+TEST_CASE("median physical units") {
+    using namespace units::literals;
+    REQUIRE(units::isnan(median(std::array<units::mass<double>, 0>{})));
+    REQUIRE(almost_equal(median(std::array{1_m, 2_m, 3_m}), 2_m));
+    REQUIRE(almost_equal(median(std::vector{1_m, 2_m, 3_m}), 2_m));
+    REQUIRE(almost_equal(median(std::array{1_m, 2_m, 3_m, 4_m}), 2.5_m));
+    REQUIRE(almost_equal(median(std::vector{1_m, 2_m, 3_m, 4_m}), 2.5_m));
 }
 
 TEST_CASE("mean") {
@@ -107,8 +128,8 @@ TEST_CASE("mean") {
 TEST_CASE("mean physical units") {
     using namespace units::literals;
     REQUIRE(units::isnan(mean(std::array<units::mass<double>, 0>{})));
-    REQUIRE(almost_equal(mean(std::array{1._m, 2._m, 3._m}), 2._m));
-    REQUIRE(almost_equal(mean(std::vector{1._m, 2._m, 3._m}), 2._m));
+    REQUIRE(almost_equal(mean(std::array{1_m, 2_m, 3_m}), 2_m));
+    REQUIRE(almost_equal(mean(std::vector{1_m, 2_m, 3_m}), 2_m));
 }
 
 TEST_CASE("nan") {
@@ -141,12 +162,11 @@ TEST_CASE("var physical units") {
     constexpr auto nan =
         units::length<double>(std::numeric_limits<double>::quiet_NaN());
     REQUIRE(units::isnan(var(std::array<units::mass<double>, 0>{})));
-    REQUIRE(almost_equal(var(std::array{1._m, 2._m, 3._m}), 2._m2 / 3.));
-    REQUIRE(almost_equal(var(std::vector{1._m, 2._m, 3._m}), 2._m2 / 3.));
-    REQUIRE(almost_equal(nanvar(std::array{1._m, nan, 2._m, 3._m, nan}),
-                         2._m2 / 3.));
+    REQUIRE(almost_equal(var(std::array{1_m, 2_m, 3_m}), 2_m2 / 3.));
+    REQUIRE(almost_equal(var(std::vector{1_m, 2_m, 3_m}), 2_m2 / 3.));
     REQUIRE(
-        almost_equal(nanvar(std::vector{1._m, 2._m, nan, 3._m}), 2._m2 / 3.));
+        almost_equal(nanvar(std::array{1_m, nan, 2_m, 3_m, nan}), 2_m2 / 3.));
+    REQUIRE(almost_equal(nanvar(std::vector{1_m, 2_m, nan, 3_m}), 2_m2 / 3.));
 }
 
 TEST_CASE("std") {
@@ -163,13 +183,12 @@ TEST_CASE("std physical units") {
     using namespace units::literals;
     constexpr auto nan =
         units::length<double>(std::numeric_limits<double>::quiet_NaN());
+    REQUIRE(almost_equal(std(std::array{1_m, 2_m, 3_m}), 0.816496580927726_m));
     REQUIRE(
-        almost_equal(std(std::array{1._m, 2._m, 3._m}), 0.816496580927726_m));
-    REQUIRE(
-        almost_equal(std(std::vector{4._m, 1._m, 12._m}), 4.642796092394707_m));
-    REQUIRE(almost_equal(nanstd(std::array{1._m, nan, 2._m, 3._m}),
+        almost_equal(std(std::vector{4_m, 1_m, 12_m}), 4.642796092394707_m));
+    REQUIRE(almost_equal(nanstd(std::array{1_m, nan, 2_m, 3_m}),
                          0.816496580927726_m));
-    REQUIRE(almost_equal(nanstd(std::vector{4._m, nan, 1._m, nan, 12._m}),
+    REQUIRE(almost_equal(nanstd(std::vector{4_m, nan, 1_m, nan, 12_m}),
                          4.642796092394707_m));
 }
 
