@@ -290,6 +290,36 @@ auto nanmoment(const Array &f) {
     return moment<n>(f, filters::not_nan);
 }
 
+//---------------------------------------------------------------------------------
+// kurtosis
+//---------------------------------------------------------------------------------
+
+enum KurtosisDef { Fisher = 0, Pearson = 1 };
+
+template <KurtosisDef def = KurtosisDef::Fisher, class Array, class Predicate>
+auto kurtosis(const Array &f, Predicate filter) {
+    const auto m2 = moment<2>(f, filter);
+    const auto m4 = moment<4>(f, filter);
+    const auto k = m4 / (m2 * m2);
+
+    if constexpr (def == KurtosisDef::Fisher) {
+        using T = decltype(k);
+        return k - T(3);
+    } else {
+        return k;
+    }
+}
+
+template <KurtosisDef def = KurtosisDef::Fisher, class Array>
+auto kurtosis(const Array &f) {
+    return kurtosis<def>(f, filters::all);
+}
+
+template <KurtosisDef def = KurtosisDef::Fisher, class Array>
+auto nankurtosis(const Array &f) {
+    return kurtosis<def>(f, filters::not_nan);
+}
+
 } // namespace scicpp::stats
 
 #endif // SCICPP_CORE_STATS

@@ -192,14 +192,14 @@ TEST_CASE("std physical units") {
                          4.642796092394707_m));
 }
 
-TEST_CASE("detail::power") {
+TEST_CASE("detail::power_v") {
     REQUIRE(almost_equal(detail::power_v<0>(std::vector{1., 2., 3.}),
                          {1., 1., 1.}));
     REQUIRE(almost_equal(detail::power_v<3>(std::array{1., 2., 3.}),
                          {1., 8., 27.}));
 }
 
-TEST_CASE("detail::moment") {
+TEST_CASE("moment") {
     REQUIRE(almost_equal(moment<0>(std::vector{1., 2., 3., 4.}), 1.));
     REQUIRE(almost_equal(moment<1>(std::array{1., 2., 3., 4.}), 0.));
     REQUIRE(almost_equal(moment<2>(std::vector{1., 2., 3., 4.}), 1.25));
@@ -219,11 +219,28 @@ TEST_CASE("detail::moment") {
         almost_equal(nanmoment<5>(std::vector{1., 2., nan, 3., 4., nan}), 0.));
 }
 
-TEST_CASE("detail::moment physical units") {
+TEST_CASE("moment physical units") {
     using namespace units::literals;
     REQUIRE(almost_equal(moment<2>(std::vector{1_m, 2_m, 3_m, 4_m}), 1.25_m2));
     REQUIRE(almost_equal(moment<4>(std::vector{1_m, 2_m, 3_m, 4_m}),
                          2.5625_m * 1_m * 1_m * 1_m));
+}
+
+TEST_CASE("kurtosis") {
+    REQUIRE(std::isnan(kurtosis(std::vector<double>{})));
+    REQUIRE(almost_equal(kurtosis(std::vector{1., 2., 3., 4.}), -1.36));
+    REQUIRE(almost_equal(
+        kurtosis<KurtosisDef::Pearson>(std::vector{1., 2., 3., 4.}), 1.64));
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(nankurtosis(std::array{1., nan, 2., 3., nan, 4., nan}),
+                         -1.36));
+}
+
+TEST_CASE("kurtosis physical units") {
+    using namespace units::literals;
+    REQUIRE(units::isnan(kurtosis(std::vector<units::mass<double>>{})));
+    REQUIRE(almost_equal(kurtosis(std::array{1_m, 2_m, 3_m, 4_m}),
+                         units::dimensionless<double>(-1.36)));
 }
 
 } // namespace scicpp::stats
