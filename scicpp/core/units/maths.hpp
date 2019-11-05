@@ -105,7 +105,24 @@ auto cbrt(T x) {
     }
 }
 
-// TODO pow
+template <intmax_t n, typename T>
+constexpr auto pow([[maybe_unused]] T a) {
+    if constexpr (is_quantity_v<T>) {
+        using rept_t = typename T::value_type;
+        using DimPow = dimension_power<typename T::dim, n>;
+        using ScalPow = scale_power<typename T::scal, n>;
+        return quantity<rept_t, DimPow, ScalPow>(pow<n>(value(a)));
+    } else {
+        if constexpr (n == 0) {
+            return T{1};
+        } else {
+            const auto p = pow<n / 2>(a);
+            return p * p * (n % 2 == 0 ? T{1} : a);
+        }
+    }
+}
+
+// TODO pow for fractional powers
 
 template <typename T>
 auto hypot(T x, T y) {

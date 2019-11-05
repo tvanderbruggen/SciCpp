@@ -55,6 +55,14 @@ TEST_CASE("cbrt") {
     REQUIRE(almost_equal(cbrt(8_Hz) + cbrt(8_Hz), 4. * cbrt(1_Hz)));
 }
 
+TEST_CASE("pow") {
+    REQUIRE(almost_equal(pow<0>(2.), 1.));
+    REQUIRE(almost_equal(pow<3>(3.), 27.));
+
+    REQUIRE(almost_equal(pow<0>(2_m), dimensionless<double>(1.)));
+    REQUIRE(almost_equal(pow<3>(3_m), 27_m3));
+}
+
 TEST_CASE("root") {
     REQUIRE(almost_equal(sqrt(9_Hz), root<2>(9_Hz)));
     REQUIRE(almost_equal(root<4>(16_Hz) + root<4>(16_Hz), 4. * root<4>(1_Hz)));

@@ -213,8 +213,10 @@ TEST_CASE("detail::moment") {
     REQUIRE(almost_equal(moment<15>(v), 1.9999399978400832e+144));
 
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
-    REQUIRE(almost_equal(nanmoment<4>(std::array{1., nan, 2., 3., nan, 4., nan}), 2.5625));
-    REQUIRE(almost_equal(nanmoment<5>(std::vector{1., 2., nan, 3., 4., nan}), 0.));
+    REQUIRE(almost_equal(
+        nanmoment<4>(std::array{1., nan, 2., 3., nan, 4., nan}), 2.5625));
+    REQUIRE(
+        almost_equal(nanmoment<5>(std::vector{1., 2., nan, 3., 4., nan}), 0.));
 }
 
 TEST_CASE("detail::moment physical units") {

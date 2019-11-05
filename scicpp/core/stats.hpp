@@ -88,6 +88,7 @@ namespace detail {
 template <class InputIt>
 auto median_inplace(InputIt first, InputIt last) {
     using T = typename std::iterator_traits<InputIt>::value_type;
+    using raw_t = units::representation_t<T>;
     const auto size = std::distance(first, last);
 
     if (size == 0) {
@@ -102,7 +103,7 @@ auto median_inplace(InputIt first, InputIt last) {
         return *target;
     } else {
         const auto max_it = std::max_element(first, first + half);
-        return (*max_it + *target) / 2.0;
+        return (*max_it + *target) / raw_t{2}; // cf. std::midpoint (C++20)
     }
 }
 
@@ -256,32 +257,13 @@ auto nanstd(const Array &a) {
 
 namespace detail {
 
-// TODO Move this in units/maths.hpp
-
-template <intmax_t n, typename T>
-constexpr auto power(T a) {
-    if constexpr (units::is_quantity_v<T>) {
-        using rept_t = typename T::value_type;
-        using DimPow = units::dimension_power<typename T::dim, n>;
-        using ScalPow = units::scale_power<typename T::scal, n>;
-        return units::quantity<rept_t, DimPow, ScalPow>(power<n>(value(a)));
-    } else {
-        if constexpr (n == 0) {
-            return T{1};
-        } else {
-            const auto p = power<n / 2>(a);
-            return p * p * (n % 2 == 0 ? T{1} : a);
-        }
-    }
-}
-
 template <intmax_t n>
-const auto power_v = vectorize([](auto x) { return power<n>(x); });
+const auto power_v = vectorize([](auto x) { return units::pow<n>(x); });
 
 } // namespace detail
 
 template <intmax_t n, class Array, class Predicate>
-auto moment(const Array &f, Predicate filter) {
+auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
     using namespace operators;
     using T = typename Array::value_type;
 
