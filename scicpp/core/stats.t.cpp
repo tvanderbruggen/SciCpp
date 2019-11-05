@@ -192,4 +192,36 @@ TEST_CASE("std physical units") {
                          4.642796092394707_m));
 }
 
+TEST_CASE("detail::power") {
+    REQUIRE(almost_equal(detail::power_v<0>(std::vector{1., 2., 3.}),
+                         {1., 1., 1.}));
+    REQUIRE(almost_equal(detail::power_v<3>(std::array{1., 2., 3.}),
+                         {1., 8., 27.}));
+}
+
+TEST_CASE("detail::moment") {
+    REQUIRE(almost_equal(moment<0>(std::vector{1., 2., 3., 4.}), 1.));
+    REQUIRE(almost_equal(moment<1>(std::array{1., 2., 3., 4.}), 0.));
+    REQUIRE(almost_equal(moment<2>(std::vector{1., 2., 3., 4.}), 1.25));
+    REQUIRE(almost_equal(moment<4>(std::array{1., 2., 3., 4.}), 2.5625));
+    REQUIRE(almost_equal(moment<5>(std::vector{1., 2., 3., 4.}), 0.));
+
+    auto v = std::vector(500000, 1.);
+    v[0] = 1E10;
+    // Compare with result from scipy
+    REQUIRE(almost_equal(moment<4>(v), 1.9999839992480064e+34));
+    REQUIRE(almost_equal(moment<15>(v), 1.9999399978400832e+144));
+
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(nanmoment<4>(std::array{1., nan, 2., 3., nan, 4., nan}), 2.5625));
+    REQUIRE(almost_equal(nanmoment<5>(std::vector{1., 2., nan, 3., 4., nan}), 0.));
+}
+
+TEST_CASE("detail::moment physical units") {
+    using namespace units::literals;
+    REQUIRE(almost_equal(moment<2>(std::vector{1_m, 2_m, 3_m, 4_m}), 1.25_m2));
+    REQUIRE(almost_equal(moment<4>(std::vector{1_m, 2_m, 3_m, 4_m}),
+                         2.5625_m * 1_m * 1_m * 1_m));
+}
+
 } // namespace scicpp::stats

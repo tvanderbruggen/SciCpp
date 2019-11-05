@@ -138,10 +138,10 @@ auto nanmedian(const Array &f) {
 // mean
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          class Predicate,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
-constexpr T mean(InputIt first, InputIt last, Predicate filter) {
+template <class InputIt, class Predicate>
+constexpr auto mean(InputIt first, InputIt last, Predicate filter) {
+    using T = typename std::iterator_traits<InputIt>::value_type;
+
     if (std::distance(first, last) == 0) {
         return std::numeric_limits<T>::quiet_NaN();
     }
@@ -169,14 +169,11 @@ auto nanmean(const Array &f) {
 // var
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          class Predicate,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
+template <class InputIt, class Predicate>
 constexpr auto var(InputIt first, InputIt last, Predicate filter) {
+    using T = typename std::iterator_traits<InputIt>::value_type;
     using raw_t = units::representation_t<T>;
-    using prod_t = std::conditional_t<units::is_quantity_v<T>,
-                                      units::quantity_multiply<T, T>,
-                                      T>;
+    using prod_t = decltype(std::declval<T>() * std::declval<T>());
 
     if (std::distance(first, last) == 0) {
         return std::numeric_limits<prod_t>::quiet_NaN();
@@ -251,6 +248,64 @@ auto std(const Array &a) {
 template <class Array>
 auto nanstd(const Array &a) {
     return units::sqrt(nanvar(a));
+}
+
+//---------------------------------------------------------------------------------
+// moment
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+// TODO Move this in units/maths.hpp
+
+template <intmax_t n, typename T>
+constexpr auto power(T a) {
+    if constexpr (units::is_quantity_v<T>) {
+        using rept_t = typename T::value_type;
+        using DimPow = units::dimension_power<typename T::dim, n>;
+        using ScalPow = units::scale_power<typename T::scal, n>;
+        return units::quantity<rept_t, DimPow, ScalPow>(power<n>(value(a)));
+    } else {
+        if constexpr (n == 0) {
+            return T{1};
+        } else {
+            const auto p = power<n / 2>(a);
+            return p * p * (n % 2 == 0 ? T{1} : a);
+        }
+    }
+}
+
+template <intmax_t n>
+const auto power_v = vectorize([](auto x) { return power<n>(x); });
+
+} // namespace detail
+
+template <intmax_t n, class Array, class Predicate>
+auto moment(const Array &f, Predicate filter) {
+    using namespace operators;
+    using T = typename Array::value_type;
+
+    if constexpr (n == 0) {
+        return T{1};
+    } else if constexpr (n == 1) {
+        return T{0};
+    } else if constexpr (n == 2) {
+        return var(f, filter);
+    } else {
+        // This allocates an extra array,
+        // but preserves pairwise recursion precision
+        return mean(detail::power_v<n>(f - mean(f, filter)), filter);
+    }
+}
+
+template <intmax_t n, class Array>
+auto moment(const Array &f) {
+    return moment<n>(f, filters::all);
+}
+
+template <intmax_t n, class Array>
+auto nanmoment(const Array &f) {
+    return moment<n>(f, filters::not_nan);
 }
 
 } // namespace scicpp::stats

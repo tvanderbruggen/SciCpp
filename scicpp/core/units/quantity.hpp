@@ -44,6 +44,9 @@ using dimension_multiply = arithmetic::root_ratio_multiply<Dim1, Dim2>;
 template <typename Dim1, typename Dim2>
 using dimension_divide = arithmetic::root_ratio_divide<Dim1, Dim2>;
 
+template <typename Dim, intmax_t N>
+using dimension_power = arithmetic::root_ratio_power<Dim, N>;
+
 // ----------------------------------------------------------------------------
 // Scale
 // ----------------------------------------------------------------------------
@@ -59,6 +62,9 @@ using scale_multiply = arithmetic::root_ratio_multiply<Scale1, Scale2>;
 
 template <typename Scale1, typename Scale2>
 using scale_divide = arithmetic::root_ratio_divide<Scale1, Scale2>;
+
+template <typename Scale, intmax_t N>
+using scale_power = arithmetic::root_ratio_power<Scale, N>;
 
 // ----------------------------------------------------------------------------
 // Quantity

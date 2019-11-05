@@ -249,6 +249,17 @@ constexpr auto root_ratio_divide_impl() {
     return root_ratio_multiply_impl<RR1, RR2Inv>();
 }
 
+template <typename RR, intmax_t N>
+constexpr auto root_ratio_power_impl() {
+    if constexpr (N == 0) {
+        return root_ratio<std::ratio<1>>{};
+    } else {
+        return root_ratio_multiply_impl<
+            RR,
+            decltype(root_ratio_power_impl<RR, N - 1>())>();
+    }
+}
+
 } // namespace detail
 
 template <typename RR, intmax_t Root = 1>
@@ -260,6 +271,9 @@ using root_ratio_multiply =
 
 template <typename RR1, typename RR2>
 using root_ratio_divide = decltype(detail::root_ratio_divide_impl<RR1, RR2>());
+
+template <typename RR, intmax_t N>
+using root_ratio_power = decltype(detail::root_ratio_power_impl<RR, N>());
 
 template <typename RR1, typename RR2>
 struct common_root_ratio {

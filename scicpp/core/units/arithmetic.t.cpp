@@ -82,6 +82,20 @@ TEST_CASE("root_ratio") {
         static_assert(std::is_same_v<root_ratio_multiply<R1, R2>,
                                      root_ratio<std::ratio<9, 8>, 6>>);
     }
+
+    SECTION("Power") {
+        using R1 = root_ratio<std::ratio<1, 2>>;
+        using R1sq = root_ratio_power<R1, 2>;
+        static_assert(R1sq::num == 1 && R1sq::den == 4);
+
+        using R2 = root_ratio<std::ratio<2>>;
+        using R2cb = root_ratio_power<R2, 3>;
+        static_assert(R2cb::num == 8 && R2cb::den == 1);
+
+        using R3 = root_ratio<std::ratio<2>, 3>;
+        using R3cb = root_ratio_power<R3, 3>;
+        static_assert(R3cb::num == 2 && R3cb::den == 1);
+    }
 }
 
 TEST_CASE("is_prime, next_prime") {

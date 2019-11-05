@@ -4,8 +4,7 @@
 #include <cstdio>
 #include <scicpp/core.hpp>
 
-int main()
-{
+int main() {
     const std::array a{-1., 1., 2., 3.};
 
     // Compute the mean of the array
