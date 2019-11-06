@@ -231,6 +231,12 @@ TEST_CASE("kurtosis") {
     REQUIRE(almost_equal(kurtosis(std::vector{1., 2., 3., 4.}), -1.36));
     REQUIRE(almost_equal(
         kurtosis<KurtosisDef::Pearson>(std::vector{1., 2., 3., 4.}), 1.64));
+
+    auto v = std::vector(500000, 1.);
+    v[0] = 1E10;
+    // Compare with result from scipy
+    REQUIRE(almost_equal<60>(kurtosis(v), 499995.0000019997));
+
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
     REQUIRE(almost_equal(nankurtosis(std::array{1., nan, 2., 3., nan, 4., nan}),
                          -1.36));
@@ -241,6 +247,27 @@ TEST_CASE("kurtosis physical units") {
     REQUIRE(units::isnan(kurtosis(std::vector<units::mass<double>>{})));
     REQUIRE(almost_equal(kurtosis(std::array{1_m, 2_m, 3_m, 4_m}),
                          units::dimensionless<double>(-1.36)));
+}
+
+TEST_CASE("skew") {
+    REQUIRE(std::isnan(skew(std::vector<double>{})));
+    REQUIRE(almost_equal(skew(std::vector{1., 2., 3., 4.}), 0.));
+    REQUIRE(almost_equal(skew(std::array{2., 8., 0., 4., 1., 9., 9., 0.}),
+                         0.2650554122698573));
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(
+        nanskew(std::array{2., nan, 8., 0., nan, 4., 1., nan, 9., 9., 0.}),
+        0.2650554122698573));
+}
+
+TEST_CASE("skew physical units") {
+    using namespace units::literals;
+    REQUIRE(units::isnan(skew(std::vector<units::mass<double>>{})));
+    REQUIRE(almost_equal(skew(std::array{1_m, 2_m, 3_m, 4_m}),
+                         units::dimensionless<double>(0.)));
+    REQUIRE(almost_equal(
+        skew(std::array{2_kg, 8_kg, 0_kg, 4_kg, 1_kg, 9_kg, 9_kg, 0_kg}),
+        units::dimensionless<double>(0.2650554122698573)));
 }
 
 } // namespace scicpp::stats

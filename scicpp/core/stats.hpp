@@ -320,6 +320,27 @@ auto nankurtosis(const Array &f) {
     return kurtosis<def>(f, filters::not_nan);
 }
 
+//---------------------------------------------------------------------------------
+// skew
+//---------------------------------------------------------------------------------
+
+template <class Array, class Predicate>
+auto skew(const Array &f, Predicate filter) {
+    const auto m2 = moment<2>(f, filter);
+    const auto m3 = moment<3>(f, filter);
+    return m3 / units::sqrt(m2 * m2 * m2);
+}
+
+template <class Array>
+auto skew(const Array &f) {
+    return skew(f, filters::all);
+}
+
+template <class Array>
+auto nanskew(const Array &f) {
+    return skew(f, filters::not_nan);
+}
+
 } // namespace scicpp::stats
 
 #endif // SCICPP_CORE_STATS
