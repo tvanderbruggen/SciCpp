@@ -5,6 +5,7 @@
 
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/units/units.hpp"
 
@@ -123,6 +124,12 @@ TEST_CASE("mean") {
     REQUIRE(std::isnan(mean(std::array<double, 0>{})));
     REQUIRE(almost_equal(mean(std::array{1., 2., 3.}), 2.));
     REQUIRE(almost_equal(mean(std::vector{1., 2., 3.}), 2.));
+
+    const auto x = arange(0., 20.);
+    REQUIRE(almost_equal(tmean(x, {3., 17.}), 10.));
+    REQUIRE(almost_equal(tmean(x, {3., 17.}, {false, true}), 10.5));
+    REQUIRE(almost_equal(tmean(x, {3., 17.}, {true, false}), 9.5));
+    REQUIRE(std::isnan(tmean(std::array<double, 0>{}, {3., 17.})));
 }
 
 TEST_CASE("mean physical units") {
