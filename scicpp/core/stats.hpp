@@ -171,9 +171,8 @@ constexpr auto tmean(const Array &f,
                      const std::array<T, 2> &limits,
                      const std::array<bool, 2> &inclusive = {true, true}) {
     return mean(f, [limits, inclusive](auto x) {
-        const auto match_low = inclusive[0] ? x >= limits[0] : x > limits[0];
-        const auto match_high = inclusive[1] ? x <= limits[1] : x < limits[1];
-        return match_low && match_high;
+        return (inclusive[0] ? x >= limits[0] : x > limits[0]) &&
+               (inclusive[1] ? x <= limits[1] : x < limits[1]);
     });
 }
 

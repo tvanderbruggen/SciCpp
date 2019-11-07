@@ -124,12 +124,6 @@ TEST_CASE("mean") {
     REQUIRE(std::isnan(mean(std::array<double, 0>{})));
     REQUIRE(almost_equal(mean(std::array{1., 2., 3.}), 2.));
     REQUIRE(almost_equal(mean(std::vector{1., 2., 3.}), 2.));
-
-    const auto x = arange(0., 20.);
-    REQUIRE(almost_equal(tmean(x, {3., 17.}), 10.));
-    REQUIRE(almost_equal(tmean(x, {3., 17.}, {false, true}), 10.5));
-    REQUIRE(almost_equal(tmean(x, {3., 17.}, {true, false}), 9.5));
-    REQUIRE(std::isnan(tmean(std::array<double, 0>{}, {3., 17.})));
 }
 
 TEST_CASE("mean physical units") {
@@ -139,11 +133,36 @@ TEST_CASE("mean physical units") {
     REQUIRE(almost_equal(mean(std::vector{1_m, 2_m, 3_m}), 2_m));
 }
 
-TEST_CASE("nan") {
+TEST_CASE("nanmean") {
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
     REQUIRE(std::isnan(nanmean(std::array<double, 0>{})));
     REQUIRE(almost_equal(nanmean(std::array{1., nan, 2., 3., nan}), 2.));
     REQUIRE(almost_equal(nanmean(std::vector{1., 2., nan, 3.}), 2.));
+}
+
+TEST_CASE("tmean") {
+    static_assert(float_equal(tmean(std::array{1., 2., 3., 4.}, {2., 4.}), 3.));
+    static_assert(float_equal(tmean(std::array{1., 2., 3., 4.}, {2., 2.}), 2.));
+    const auto x = arange(0., 20.);
+    REQUIRE(almost_equal(tmean(x, {3., 17.}), 10.));
+    REQUIRE(almost_equal(tmean(x, {3., 17.}, {false, true}), 10.5));
+    REQUIRE(almost_equal(tmean(x, {3., 17.}, {true, false}), 9.5));
+    REQUIRE(std::isnan(tmean(std::array<double, 0>{}, {3., 17.})));
+    REQUIRE(std::isnan(
+        tmean(std::array{1., 2., 3., 4.}, {2., 2.}, {false, false})));
+}
+
+TEST_CASE("tmean physical units") {
+    using namespace units::literals;
+    using meter = units::meter<int>;
+    static_assert(tmean(std::array{meter(2), meter(3)}, {meter(2), meter(2)}) ==
+                  meter(2));
+    const auto x = arange(0_Hz, 20_Hz);
+    REQUIRE(almost_equal(tmean(x, {3_Hz, 17_Hz}), 10_Hz));
+    REQUIRE(almost_equal(tmean(x, {3_Hz, 17_Hz}, {false, true}), 10.5_Hz));
+    REQUIRE(almost_equal(tmean(x, {3_Hz, 17_Hz}, {true, false}), 9.5_Hz));
+    REQUIRE(units::isnan(
+        tmean(std::array<units::hertz<double>, 0>{}, {3_Hz, 17_Hz})));
 }
 
 TEST_CASE("var") {

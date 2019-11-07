@@ -28,18 +28,19 @@ constexpr auto fabs(T &&x) {
     if constexpr (meta::is_iterable_v<T>) {
         return map([](auto v) { return fabs(v); }, std::forward<T>(x));
     } else {
+        using U = std::decay_t<T>;
         // Handles negative zero
         // https://codereview.stackexchange.com/questions/60140/generic-absolute-value-function
         // Could use std::fpclassify(x) == FP_ZERO
         // to quiet warning, but this is not constexpr.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
-        if (x == 0.) {
-            return +0.;
+        if (x == U(0.)) {
+            return U(+0.);
         }
 #pragma GCC diagnostic pop
 
-        return (x < 0.) ? -x : x;
+        return (x < U(0.)) ? -x : x;
     }
 }
 
