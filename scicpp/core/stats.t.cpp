@@ -181,6 +181,10 @@ TEST_CASE("var") {
     // printf("%.20f\n", var(linspace(0., 1253., 1000000)));
     REQUIRE(almost_equal<16>(var(linspace(0., 1253., 1000000)),
                              130834.34500176184));
+    // ddof
+    REQUIRE(almost_equal(var<1>(std::array{1., 2., 3.}), 1.));
+    REQUIRE(std::isinf(var<3>(std::array{1., 2., 3.})));
+    REQUIRE(std::isinf(var<4>(std::array{1., 2., 3.})));
 }
 
 TEST_CASE("var physical units") {
@@ -193,6 +197,10 @@ TEST_CASE("var physical units") {
     REQUIRE(
         almost_equal(nanvar(std::array{1_m, nan, 2_m, 3_m, nan}), 2_m2 / 3.));
     REQUIRE(almost_equal(nanvar(std::vector{1_m, 2_m, nan, 3_m}), 2_m2 / 3.));
+    // ddof
+    REQUIRE(almost_equal(var<1>(std::array{1_m, 2_m, 3_m}), 1_m2));
+    REQUIRE(units::isinf(var<3>(std::array{1_m, 2_m, 3_m})));
+    REQUIRE(units::isinf(var<4>(std::array{1_m, 2_m, 3_m})));
 }
 
 TEST_CASE("std") {

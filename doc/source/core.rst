@@ -168,17 +168,11 @@ Statistics
 :ref:`stats::nanmedian <core_stats_nanmedian>`
     Compute the median, ignoring NaNs.
 
-:ref:`stats::mean <core_stats_mean>`
+:ref:`stats::mean, stats::nanmean, stats::tmean <core_stats_mean>`
     Compute the arithmetic mean.
 
-:ref:`stats::nanmean <core_stats_nanmean>`
-    Compute the arithmetic mean, ignoring NaNs.
-
-:ref:`stats::var <core_stats_var>`
+:ref:`stats::var, stats::nanvar <core_stats_var>`
     Compute the variance.
-
-:ref:`stats::nanvar <core_stats_nanvar>`
-    Compute the variance, ignoring NaNs.
 
 :ref:`stats::std <core_stats_std>`
     Compute the standard deviation.

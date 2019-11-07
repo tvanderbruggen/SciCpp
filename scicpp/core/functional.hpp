@@ -174,6 +174,21 @@ constexpr auto all = []([[maybe_unused]] auto v) { return true; };
 constexpr auto none = []([[maybe_unused]] auto v) { return false; };
 constexpr auto not_nan = [](auto v) { return !units::isnan(v); };
 
+template <typename T>
+struct Limits {
+    constexpr Limits(const std::array<T, 2> &limits_,
+                     const std::array<bool, 2> &inclusive_)
+        : limits(limits_), inclusive(inclusive_) {}
+
+    constexpr bool operator()(T x) {
+        return (inclusive[0] ? x >= limits[0] : x > limits[0]) &&
+               (inclusive[1] ? x <= limits[1] : x < limits[1]);
+    }
+
+    std::array<T, 2> limits;
+    std::array<bool, 2> inclusive;
+};
+
 } // namespace filters
 
 // filter does resize the array in a way that depends on runtime arguments

@@ -5,21 +5,28 @@ scicpp::stats::var
 
 Defined in header <scicpp/core.hpp>
 
-Compute the variance.
+Compute the variance. ddof is the `delta degrees of freedom <https://en.wikipedia.org/wiki/Degrees_of_freedom_(statistics)>`_
 
 ----------------
 
-.. function:: template <class Array, class Predicate>\
+.. function:: template <int ddof = 0, class Array, class Predicate>\
               constexpr auto var(const Array &f, Predicate filter)
 
 Compute the variance of an array using only the values satisfying the filter predicate.
 
 ----------------
 
-.. function:: template <class Array>\
+.. function:: template <int ddof = 0, class Array>\
               constexpr auto var(const Array &f)
 
 Compute the variance of an array.
+
+----------------
+
+.. function:: template <int ddof = 0, class Array>\
+              auto nanvar(const Array &f)
+
+Compute the variance of an array, ignoring NaNs.
 
 Example
 -------------------------

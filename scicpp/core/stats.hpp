@@ -170,23 +170,21 @@ template <class Array, typename T = typename Array::value_type>
 constexpr auto tmean(const Array &f,
                      const std::array<T, 2> &limits,
                      const std::array<bool, 2> &inclusive = {true, true}) {
-    return mean(f, [limits, inclusive](auto x) {
-        return (inclusive[0] ? x >= limits[0] : x > limits[0]) &&
-               (inclusive[1] ? x <= limits[1] : x < limits[1]);
-    });
+    return mean(f, filters::Limits<T>(limits, inclusive));
 }
 
 //---------------------------------------------------------------------------------
 // var
 //---------------------------------------------------------------------------------
 
-template <class InputIt, class Predicate>
+template <int ddof = 0, class InputIt, class Predicate>
 constexpr auto var(InputIt first, InputIt last, Predicate filter) {
     using T = typename std::iterator_traits<InputIt>::value_type;
     using raw_t = units::representation_t<T>;
     using prod_t = decltype(std::declval<T>() * std::declval<T>());
+    const auto size = std::distance(first, last);
 
-    if (std::distance(first, last) == 0) {
+    if (size == 0) {
         return std::numeric_limits<prod_t>::quiet_NaN();
     }
 
@@ -229,22 +227,30 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
             return std::make_tuple(m_c, var_c, n_c);
         });
 
-    return v_;
+    if constexpr (ddof == 0) {
+        return v_;
+    } else {
+        if (size - ddof <= 0) {
+            return std::numeric_limits<decltype(v_)>::infinity();
+        } else {
+            return v_ * raw_t(size) / raw_t(size - ddof);
+        }
+    }
 }
 
-template <class Array, class Predicate>
+template <int ddof = 0, class Array, class Predicate>
 constexpr auto var(const Array &f, Predicate filter) {
-    return var(f.cbegin(), f.cend(), filter);
+    return var<ddof>(f.cbegin(), f.cend(), filter);
 }
 
-template <class Array>
+template <int ddof = 0, class Array>
 constexpr auto var(const Array &f) {
-    return var(f, filters::all);
+    return var<ddof>(f, filters::all);
 }
 
-template <class Array>
+template <int ddof = 0, class Array>
 auto nanvar(const Array &f) {
-    return var(f, filters::not_nan);
+    return var<ddof>(f, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
