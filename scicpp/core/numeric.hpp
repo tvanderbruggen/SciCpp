@@ -216,11 +216,11 @@ auto diff(const std::vector<T> &a, int n = 1) {
 //---------------------------------------------------------------------------------
 
 template <class InputItLhs, class InputItRhs, class ProductOp>
-constexpr auto inner(InputItLhs first1,
-                     InputItLhs last1,
-                     InputItRhs first2,
-                     InputItRhs last2,
-                     ProductOp op) {
+constexpr scicpp_pure auto inner(InputItLhs first1,
+                                 InputItLhs last1,
+                                 InputItRhs first2,
+                                 InputItRhs last2,
+                                 ProductOp op) {
     using T = std::invoke_result_t<
         ProductOp,
         typename std::iterator_traits<InputItLhs>::value_type,

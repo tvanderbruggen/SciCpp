@@ -27,6 +27,9 @@ namespace scicpp {
 #define scicpp_pure __attribute__((pure))
 #define scicpp_const __attribute__((const))
 
+#define likely(x) __builtin_expect((x), 1)
+#define unlikely(x) __builtin_expect((x), 0)
+
 // Define a signed integer for sizes
 using signed_size_t = std::make_signed_t<std::size_t>;
 

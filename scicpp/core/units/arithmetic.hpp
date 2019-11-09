@@ -2,7 +2,7 @@
 // Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 // Compile time arithmetic functions.
-// MOstly implements root_ratio used for dimensional analysis.
+// Mostly implements root_ratio used for dimensional analysis.
 
 #ifndef SCICPP_CORE_UNITS_ARITHMETIC
 #define SCICPP_CORE_UNITS_ARITHMETIC

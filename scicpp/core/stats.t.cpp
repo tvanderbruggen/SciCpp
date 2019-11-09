@@ -171,8 +171,6 @@ TEST_CASE("var") {
     REQUIRE(std::isnan(var(std::array<double, 0>{})));
     REQUIRE(almost_equal(var(std::array{1., 2., 3.}), 2. / 3.));
     REQUIRE(almost_equal(var(std::vector{1., 2., 3.}), 2. / 3.));
-    REQUIRE(almost_equal(nanvar(std::array{1., nan, 2., 3., nan}), 2. / 3.));
-    REQUIRE(almost_equal(nanvar(std::vector{1., 2., nan, 3.}), 2. / 3.));
     auto v = std::vector(500000, 1.);
     v[0] = 1E10;
     // printf("%.20f\n", var(v));
@@ -185,6 +183,15 @@ TEST_CASE("var") {
     REQUIRE(almost_equal(var<1>(std::array{1., 2., 3.}), 1.));
     REQUIRE(std::isinf(var<3>(std::array{1., 2., 3.})));
     REQUIRE(std::isinf(var<4>(std::array{1., 2., 3.})));
+    REQUIRE(almost_equal(var<1>(arange(3., 18.)), 20.));
+    // nanvar
+    REQUIRE(almost_equal(nanvar(std::array{1., nan, 2., 3., nan}), 2. / 3.));
+    REQUIRE(almost_equal(nanvar(std::vector{1., 2., nan, 3.}), 2. / 3.));
+    // tvar
+    const auto x = arange(0., 20.);
+    REQUIRE(almost_equal(tvar(x, {3., 17.}), 20.));
+    REQUIRE(almost_equal(tvar(x, {3., 17.}, {true, false}), 17.5));
+    REQUIRE(almost_equal(tvar(x, {3., 17.}, {false, true}), 17.5));
 }
 
 TEST_CASE("var physical units") {

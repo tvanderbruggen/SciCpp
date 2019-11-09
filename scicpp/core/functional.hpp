@@ -180,7 +180,7 @@ struct Limits {
                      const std::array<bool, 2> &inclusive_)
         : limits(limits_), inclusive(inclusive_) {}
 
-    constexpr bool operator()(T x) {
+    constexpr bool operator()(T x) const {
         return (inclusive[0] ? x >= limits[0] : x > limits[0]) &&
                (inclusive[1] ? x <= limits[1] : x < limits[1]);
     }
@@ -274,10 +274,10 @@ template <signed_size_t PW_BLOCKSIZE,
           class InputIt,
           class AccumulateOp,
           class CombineOp>
-[[nodiscard]] constexpr auto pairwise_accumulate(InputIt first,
-                                                 InputIt last,
-                                                 AccumulateOp accop,
-                                                 CombineOp combop) {
+[[nodiscard]] constexpr scicpp_pure auto pairwise_accumulate(InputIt first,
+                                                             InputIt last,
+                                                             AccumulateOp accop,
+                                                             CombineOp combop) {
     const auto size = std::distance(first, last);
 
     if (size <= PW_BLOCKSIZE) {
@@ -295,12 +295,12 @@ template <signed_size_t PW_BLOCKSIZE,
           class InputItRhs,
           class AccumulateOp,
           class CombineOp>
-[[nodiscard]] constexpr auto pairwise_accumulate(InputItLhs first1,
-                                                 InputItLhs last1,
-                                                 InputItRhs first2,
-                                                 InputItRhs last2,
-                                                 AccumulateOp accop,
-                                                 CombineOp combop) {
+[[nodiscard]] constexpr scicpp_pure auto pairwise_accumulate(InputItLhs first1,
+                                                             InputItLhs last1,
+                                                             InputItRhs first2,
+                                                             InputItRhs last2,
+                                                             AccumulateOp accop,
+                                                             CombineOp combop) {
     const auto size = std::distance(first1, last1);
     scicpp_require(size == std::distance(first2, last2));
 

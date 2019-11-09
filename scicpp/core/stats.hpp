@@ -182,9 +182,8 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
     using T = typename std::iterator_traits<InputIt>::value_type;
     using raw_t = units::representation_t<T>;
     using prod_t = decltype(std::declval<T>() * std::declval<T>());
-    const auto size = std::distance(first, last);
 
-    if (size == 0) {
+    if (std::distance(first, last) == 0) {
         return std::numeric_limits<prod_t>::quiet_NaN();
     }
 
@@ -195,21 +194,16 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
         [&](auto f, auto l) {
             const auto m0 = mean(f, l, filter);
 
-            // Cannot use structure binding directly here with GCC => bug ??
-            // const auto [res, cnt] =
-            const auto t = filter_reduce(f,
-                                         l,
-                                         [m0](auto r, auto v) {
-                                             const auto diff = v - m0;
-                                             return r + diff * diff;
-                                             // Benchmark: this is slower on both GCC and Clang
-                                             // (and also not constexpr)
-                                             // return std::fma(diff, diff, r);
-                                         },
-                                         prod_t(0),
-                                         filter);
+            const auto square_acc = [m0](auto r, auto v) {
+                const auto diff = v - m0;
+                return r + diff * diff;
+                // Benchmark: this is slower on both GCC and Clang
+                // (and also not constexpr)
+                // return std::fma(diff, diff, r);
+            };
 
-            const auto [res, cnt] = t;
+            const auto [res, cnt] =
+                filter_reduce(f, l, square_acc, prod_t(0), filter);
             return std::make_tuple(m0, res / raw_t(cnt), cnt);
         },
         [&](const auto res1, const auto res2) {
@@ -230,10 +224,10 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
     if constexpr (ddof == 0) {
         return v_;
     } else {
-        if (size - ddof <= 0) {
+        if (unlikely(c_ - ddof <= 0)) {
             return std::numeric_limits<decltype(v_)>::infinity();
         } else {
-            return v_ * raw_t(size) / raw_t(size - ddof);
+            return v_ * raw_t(c_) / raw_t(c_ - ddof);
         }
     }
 }
@@ -251,6 +245,13 @@ constexpr auto var(const Array &f) {
 template <int ddof = 0, class Array>
 auto nanvar(const Array &f) {
     return var<ddof>(f, filters::not_nan);
+}
+
+template <int ddof = 1, class Array, typename T = typename Array::value_type>
+constexpr auto tvar(const Array &f,
+                    const std::array<T, 2> &limits,
+                    const std::array<bool, 2> &inclusive = {true, true}) {
+    return var<ddof>(f, filters::Limits<T>(limits, inclusive));
 }
 
 //---------------------------------------------------------------------------------

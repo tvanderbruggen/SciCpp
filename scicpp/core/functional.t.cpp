@@ -117,6 +117,11 @@ TEST_CASE("filter") {
         {4., 5.}));
 
     REQUIRE(v == std::vector{1., 2., 3., 4., 5.});
+
+    REQUIRE(
+        almost_equal(filter(arange(0., 20.),
+                            filters::Limits<double>({3., 17.}, {true, true})),
+                     arange(3., 18.)));
 }
 
 TEST_CASE("filter_reduce") {
