@@ -270,8 +270,8 @@ auto nanstd(const Array &a) {
 
 template <int ddof = 1, class Array, typename T = typename Array::value_type>
 auto tstd(const Array &a,
-            const std::array<T, 2> &limits,
-            const std::array<bool, 2> &inclusive = {true, true}) {
+          const std::array<T, 2> &limits,
+          const std::array<bool, 2> &inclusive = {true, true}) {
     return units::sqrt(tvar<ddof>(a, limits, inclusive));
 }
 

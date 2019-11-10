@@ -73,7 +73,7 @@ template <typename DataType>
 std::optional<DataType> convert(const token_t &tok,
                                 const ConvertersDict &converters,
                                 const FiltersDict &filters) {
-    const auto [col_id, token] = tok;
+    const auto &[col_id, token] = tok;
     DataType res{};
 
     if (!converters.empty()) {
@@ -175,8 +175,8 @@ template <class tokens_t, class Tuple, std::size_t... I>
 auto tokens_to_tuple(const tokens_t &tokens,
                      const ConvertersDict &converters,
                      const FiltersDict &filters,
-                     Tuple,
-                     std::index_sequence<I...>) {
+                     Tuple /*unused*/,
+                     std::index_sequence<I...> /*unused*/) {
     return std::make_tuple(convert<std::tuple_element_t<I, Tuple>>(
         std::get<I>(tokens), converters, filters)...);
 }
@@ -334,7 +334,7 @@ auto loadtxt(const std::filesystem::path &fname,
 namespace detail {
 
 template <class Tuple, std::size_t... I>
-auto get_tuple_values(Tuple tup, std::index_sequence<I...>) {
+auto get_tuple_values(Tuple tup, std::index_sequence<I...> /*unused*/) {
     return std::make_tuple(std::get<I>(tup).value()...);
 }
 

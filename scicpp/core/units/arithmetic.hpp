@@ -24,7 +24,7 @@ namespace scicpp::arithmetic {
 //---------------------------------------------------------------------------------
 
 constexpr inline intmax_t ct_log2(intmax_t num) {
-    return (num < 2) ? 1 : 1 + ct_log2(num >> 1);
+    return (num < 2) ? 1 : 1 + ct_log2(intmax_t(uintmax_t(num) >> 1));
 }
 
 //---------------------------------------------------------------------------------
@@ -323,8 +323,8 @@ constexpr inline bool is_prime(intmax_t number) {
 }
 
 constexpr inline intmax_t next_prime(intmax_t a) {
-    while (!is_prime(++a))
-        ;
+    while (!is_prime(++a)) {
+    }
     return a;
 }
 

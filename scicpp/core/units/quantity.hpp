@@ -486,7 +486,8 @@ namespace detail {
 template <std::size_t N>
 struct dimensional_system_impl {
     template <std::size_t... I>
-    static constexpr auto make_base_dimension_tuple(std::index_sequence<I...>) {
+    static constexpr auto
+    make_base_dimension_tuple(std::index_sequence<I...> /*unused*/) {
         constexpr auto primes = arithmetic::prime_list<N>().values();
         return std::make_tuple(base_dimension<std::get<I>(primes)>()...);
     }

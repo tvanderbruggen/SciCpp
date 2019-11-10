@@ -247,8 +247,10 @@ TEST_CASE("std physical units") {
     // tstd
     const auto x = arange(0_m, 20_m);
     REQUIRE(almost_equal(tstd(x, {3_m, 17_m}), 4.47213595499958_m));
-    REQUIRE(almost_equal(tstd(x, {3_m, 17_m}, {true, false}), 4.183300132670378_m));
-    REQUIRE(almost_equal(tstd(x, {3_m, 17_m}, {false, true}), 4.183300132670378_m));
+    REQUIRE(
+        almost_equal(tstd(x, {3_m, 17_m}, {true, false}), 4.183300132670378_m));
+    REQUIRE(
+        almost_equal(tstd(x, {3_m, 17_m}, {false, true}), 4.183300132670378_m));
 }
 
 TEST_CASE("detail::power_v") {

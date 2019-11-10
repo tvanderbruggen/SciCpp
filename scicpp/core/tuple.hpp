@@ -80,7 +80,9 @@ auto get_field(const std::vector<T> &a) {
 namespace detail {
 
 template <class Array, class Tuple, std::size_t... I>
-auto unpack_impl(const Array &a, Tuple, std::index_sequence<I...>) {
+auto unpack_impl(const Array &a,
+                 Tuple /*unused*/,
+                 std::index_sequence<I...> /*unused*/) {
     return std::make_tuple(get_field<I>(a)...);
 }
 
