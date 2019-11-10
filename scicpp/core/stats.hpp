@@ -170,7 +170,7 @@ template <class Array, typename T = typename Array::value_type>
 constexpr auto tmean(const Array &f,
                      const std::array<T, 2> &limits,
                      const std::array<bool, 2> &inclusive = {true, true}) {
-    return mean(f, filters::Limits<T>(limits, inclusive));
+    return mean(f, filters::Trim<T>(limits, inclusive));
 }
 
 //---------------------------------------------------------------------------------
@@ -251,21 +251,28 @@ template <int ddof = 1, class Array, typename T = typename Array::value_type>
 constexpr auto tvar(const Array &f,
                     const std::array<T, 2> &limits,
                     const std::array<bool, 2> &inclusive = {true, true}) {
-    return var<ddof>(f, filters::Limits<T>(limits, inclusive));
+    return var<ddof>(f, filters::Trim<T>(limits, inclusive));
 }
 
 //---------------------------------------------------------------------------------
 // std
 //---------------------------------------------------------------------------------
 
-template <class Array>
+template <int ddof = 0, class Array>
 auto std(const Array &a) {
-    return units::sqrt(var(a));
+    return units::sqrt(var<ddof>(a));
 }
 
-template <class Array>
+template <int ddof = 0, class Array>
 auto nanstd(const Array &a) {
-    return units::sqrt(nanvar(a));
+    return units::sqrt(nanvar<ddof>(a));
+}
+
+template <int ddof = 1, class Array, typename T = typename Array::value_type>
+auto tstd(const Array &a,
+            const std::array<T, 2> &limits,
+            const std::array<bool, 2> &inclusive = {true, true}) {
+    return units::sqrt(tvar<ddof>(a, limits, inclusive));
 }
 
 //---------------------------------------------------------------------------------

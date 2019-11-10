@@ -1,6 +1,6 @@
 .. _core_stats_var:
 
-scicpp::stats::var
+scicpp::stats::var, nanvar, tvar
 ====================================
 
 Defined in header <scicpp/core.hpp>
@@ -27,6 +27,15 @@ Compute the variance of an array.
               auto nanvar(const Array &f)
 
 Compute the variance of an array, ignoring NaNs.
+
+----------------
+
+.. function:: template <int ddof = 1, class Array>\
+              constexpr auto tvar(const Array &f, const std::array<T, 2> &limits, const std::array<bool, 2> &inclusive)
+
+Compute the variance of an array, ignoring values outside the given `limits`.
+Use the optional parameter `inclusive` to specify whether the limits are included (by default they are included).
+Note that by default here `ddof = 1`.
 
 Example
 -------------------------

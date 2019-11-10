@@ -175,9 +175,9 @@ constexpr auto none = []([[maybe_unused]] auto v) { return false; };
 constexpr auto not_nan = [](auto v) { return !units::isnan(v); };
 
 template <typename T>
-struct Limits {
-    constexpr Limits(const std::array<T, 2> &limits_,
-                     const std::array<bool, 2> &inclusive_)
+struct Trim {
+    constexpr Trim(const std::array<T, 2> &limits_,
+                   const std::array<bool, 2> &inclusive_)
         : limits(limits_), inclusive(inclusive_) {}
 
     constexpr bool operator()(T x) const {

@@ -11,6 +11,12 @@ namespace sci = scicpp;
 using namespace sci::operators;
 using namespace sci::units::literals;
 
+// In the dataset invalid values are represented by -99.9,
+// but only positive values are valid.
+// We define a filter to keep only valid data.
+template <typename T>
+const auto is_valid_value = [](auto x) { return sci::io::cast<T>(x) >= T(0); };
+
 int main() {
     // -----------------------------------------------------------------------------
     // Load and clean-up data
@@ -26,21 +32,16 @@ int main() {
     using Tp = sci::units::second<>;   // Period of most energetic waves
     using SST = sci::units::celsius<>; // Sea surface temperature
 
-    // In the dataset invalid values are represented by -99.9,
-    // but only positive values are valid.
-    // So we use filters to keep only valid data.
-
     auto [hsig, hmax, tz, tp, sst] =
         sci::TxtLoader<Hsig, Hmax, Tz, Tp, SST>()
             .delimiter(',')
             .skiprows(1)
             .usecols(1, 2, 3, 4, 6)
-            .filters(
-                {{1, [](auto x) { return sci::io::cast<Hsig>(x) >= 0_m; }},
-                 {2, [](auto x) { return sci::io::cast<Hmax>(x) >= 0_m; }},
-                 {3, [](auto x) { return sci::io::cast<Tz>(x) >= 0_s; }},
-                 {4, [](auto x) { return sci::io::cast<Tp>(x) >= 0_s; }},
-                 {6, [](auto x) { return sci::io::cast<SST>(x) >= 0_degC; }}})
+            .filters({{1, is_valid_value<Hsig>},
+                      {2, is_valid_value<Hmax>},
+                      {3, is_valid_value<Tz>},
+                      {4, is_valid_value<Tp>},
+                      {6, is_valid_value<SST>}})
             .load("examples/townsville_2019-01-01t00_00-2019-06-30t23_30.csv");
 
     // -----------------------------------------------------------------------------

@@ -67,7 +67,7 @@ author = u'T. Vanderbruggen'
 # built documents.
 #
 # The short X.Y version.
-version = u'0'
+version = u'0.4'
 # The full version, including alpha/beta/rc tags.
 release = u'0'
 
@@ -105,7 +105,10 @@ html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 html_theme_options = {
     'bootswatch_theme': "flatly",
     'navbar_fixed_top': "true",
-    'navbar_site_name': "Modules"
+    'navbar_site_name': "Modules",
+    'navbar_sidebarrel': False,
+    'navbar_pagenav': False,
+    'source_link_position': ""
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

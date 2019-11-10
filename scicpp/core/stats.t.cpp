@@ -201,6 +201,7 @@ TEST_CASE("var physical units") {
     REQUIRE(units::isnan(var(std::array<units::mass<double>, 0>{})));
     REQUIRE(almost_equal(var(std::array{1_m, 2_m, 3_m}), 2_m2 / 3.));
     REQUIRE(almost_equal(var(std::vector{1_m, 2_m, 3_m}), 2_m2 / 3.));
+    // nanvar
     REQUIRE(
         almost_equal(nanvar(std::array{1_m, nan, 2_m, 3_m, nan}), 2_m2 / 3.));
     REQUIRE(almost_equal(nanvar(std::vector{1_m, 2_m, nan, 3_m}), 2_m2 / 3.));
@@ -208,16 +209,27 @@ TEST_CASE("var physical units") {
     REQUIRE(almost_equal(var<1>(std::array{1_m, 2_m, 3_m}), 1_m2));
     REQUIRE(units::isinf(var<3>(std::array{1_m, 2_m, 3_m})));
     REQUIRE(units::isinf(var<4>(std::array{1_m, 2_m, 3_m})));
+    // tvar
+    const auto x = arange(0_m, 20_m);
+    REQUIRE(almost_equal(tvar(x, {3_m, 17_m}), 20_m2));
+    REQUIRE(almost_equal(tvar(x, {3_m, 17_m}, {true, false}), 17.5_m2));
+    REQUIRE(almost_equal(tvar(x, {3_m, 17_m}, {false, true}), 17.5_m2));
 }
 
 TEST_CASE("std") {
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
     REQUIRE(almost_equal(std(std::array{1., 2., 3.}), 0.816496580927726));
     REQUIRE(almost_equal(std(std::vector{4., 1., 12.}), 4.642796092394707));
+    // nanstd
     REQUIRE(
         almost_equal(nanstd(std::array{1., nan, 2., 3.}), 0.816496580927726));
     REQUIRE(almost_equal(nanstd(std::vector{4., nan, 1., nan, 12.}),
                          4.642796092394707));
+    // tstd
+    const auto x = arange(0., 20.);
+    REQUIRE(almost_equal(tstd(x, {3., 17.}), 4.47213595499958));
+    REQUIRE(almost_equal(tstd(x, {3., 17.}, {true, false}), 4.183300132670378));
+    REQUIRE(almost_equal(tstd(x, {3., 17.}, {false, true}), 4.183300132670378));
 }
 
 TEST_CASE("std physical units") {
@@ -227,10 +239,16 @@ TEST_CASE("std physical units") {
     REQUIRE(almost_equal(std(std::array{1_m, 2_m, 3_m}), 0.816496580927726_m));
     REQUIRE(
         almost_equal(std(std::vector{4_m, 1_m, 12_m}), 4.642796092394707_m));
+    // nanstd
     REQUIRE(almost_equal(nanstd(std::array{1_m, nan, 2_m, 3_m}),
                          0.816496580927726_m));
     REQUIRE(almost_equal(nanstd(std::vector{4_m, nan, 1_m, nan, 12_m}),
                          4.642796092394707_m));
+    // tstd
+    const auto x = arange(0_m, 20_m);
+    REQUIRE(almost_equal(tstd(x, {3_m, 17_m}), 4.47213595499958_m));
+    REQUIRE(almost_equal(tstd(x, {3_m, 17_m}, {true, false}), 4.183300132670378_m));
+    REQUIRE(almost_equal(tstd(x, {3_m, 17_m}, {false, true}), 4.183300132670378_m));
 }
 
 TEST_CASE("detail::power_v") {

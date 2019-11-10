@@ -21,6 +21,13 @@ Compute the median of an array using only the values satisfying the filter predi
 
 Compute the median of an array.
 
+----------------
+
+.. function:: template <class Array>\
+              auto nanmedian(Array &&f)
+
+Compute the median of an array, , ignoring NaNs.
+
 Example
 -------------------------
 

@@ -59,16 +59,6 @@ Provides arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:
 The statement :code:`using namespace scicpp::operators` must be included in the scope where
 operators are used.
 
-Comparison and Logical
--------------
-
-Operators for element-wise comparison between an array and a scalar :code:`==`, :code:`!=`, :code:`>`, :code:`>=`, :code:`<`, :code:`<=`.
-
-For element-wise comparison between arrays, operators are not available because the C++ standard defines them for lexicographical comparison.
-The comparison functions (same as Numpy) can be used instead: :code:`equal`, :code:`not_equal`, :code:`less`, :code:`less_equal`, :code:`greater` and :code:`greater_equal`.
-
-Operators :code:`&&` and :code:`||` are defined for element-wise logical operations.
-
 Ranges
 -------------
 
@@ -129,14 +119,18 @@ Sums, products, differences
 :ref:`vdot <core_vdot>`
     Return the dot product of two vectors.
 
-Comparisons
+Comparisons and Logical
 ----------------
+
+Operators for element-wise comparison between an array and a scalar :code:`==`, :code:`!=`, :code:`>`, :code:`>=`, :code:`<`, :code:`<=`.
+
+For element-wise comparison between arrays, operators are not available because the C++ standard defines them for lexicographical comparison.
+The comparison functions (same as Numpy) can be used instead: :code:`equal`, :code:`not_equal`, :code:`less`, :code:`less_equal`, :code:`greater` and :code:`greater_equal`.
+
+Operators :code:`&&` and :code:`||` are defined for element-wise logical operations.
 
 :ref:`almost_equal <core_almost_equal>`
     Compare floating points or arrays of floating points.
-
-:ref:`array_equal <core_array_equal>`
-    True if two arrays have the same size and elements (strict equality).
 
 Random
 -------------
@@ -162,23 +156,17 @@ Statistics
 :ref:`stats::average <core_stats_average>`
     Compute the weighted average.
 
-:ref:`stats::median <core_stats_median>`
+:ref:`stats::median, nanmedian <core_stats_median>`
     Compute the median.
 
-:ref:`stats::nanmedian <core_stats_nanmedian>`
-    Compute the median, ignoring NaNs.
-
-:ref:`stats::mean, stats::nanmean, stats::tmean <core_stats_mean>`
+:ref:`stats::mean, nanmean, tmean <core_stats_mean>`
     Compute the arithmetic mean.
 
-:ref:`stats::var, stats::nanvar <core_stats_var>`
+:ref:`stats::var, nanvar, tvar <core_stats_var>`
     Compute the variance.
 
-:ref:`stats::std <core_stats_std>`
+:ref:`stats::std, nanstd, tstd <core_stats_std>`
     Compute the standard deviation.
-
-:ref:`stats::nanstd <core_stats_nanstd>`
-    Compute the standard deviation, ignoring NaNs.
 
 Units
 -------------
