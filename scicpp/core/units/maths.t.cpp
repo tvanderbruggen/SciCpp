@@ -4,6 +4,7 @@
 #include "maths.hpp"
 
 #include "scicpp/core/equal.hpp"
+
 #include <cfenv>
 
 namespace scicpp::units {

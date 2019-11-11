@@ -179,7 +179,7 @@ constexpr auto tmean(const Array &f,
 
 template <class Array>
 auto gmean(Array &&f) {
-    using T = typename Array::value_type;
+    using T = typename std::decay_t<Array>::value_type;
 
     if (f.empty()) {
         return std::numeric_limits<T>::quiet_NaN();
@@ -214,7 +214,8 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
     using prod_t = decltype(std::declval<T>() * std::declval<T>());
 
     if (std::distance(first, last) == 0) {
-        return std::numeric_limits<prod_t>::quiet_NaN();
+        return std::make_tuple(std::numeric_limits<prod_t>::quiet_NaN(),
+                               signed_size_t(0));
     }
 
     // Pairwise recursive implementation of variance summation
@@ -252,19 +253,20 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
         });
 
     if constexpr (ddof == 0) {
-        return v_;
+        return std::make_tuple(v_, c_);
     } else {
         if (unlikely(c_ - ddof <= 0)) {
-            return std::numeric_limits<decltype(v_)>::infinity();
+            return std::make_tuple(
+                std::numeric_limits<decltype(v_)>::infinity(), c_);
         } else {
-            return v_ * raw_t(c_) / raw_t(c_ - ddof);
+            return std::make_tuple(v_ * raw_t(c_) / raw_t(c_ - ddof), c_);
         }
     }
 }
 
 template <int ddof = 0, class Array, class Predicate>
 constexpr auto var(const Array &f, Predicate filter) {
-    return var<ddof>(f.cbegin(), f.cend(), filter);
+    return std::get<0>(var<ddof>(f.cbegin(), f.cend(), filter));
 }
 
 template <int ddof = 0, class Array>
@@ -288,6 +290,11 @@ constexpr auto tvar(const Array &f,
 // std
 //---------------------------------------------------------------------------------
 
+template <int ddof = 0, class Array, class Predicate>
+auto std(const Array &a, Predicate filter) {
+    return units::sqrt(var<ddof>(a, filter));
+}
+
 template <int ddof = 0, class Array>
 auto std(const Array &a) {
     return units::sqrt(var<ddof>(a));
@@ -303,6 +310,37 @@ auto tstd(const Array &a,
           const std::array<T, 2> &limits,
           const std::array<bool, 2> &inclusive = {true, true}) {
     return units::sqrt(tvar<ddof>(a, limits, inclusive));
+}
+
+//---------------------------------------------------------------------------------
+// sem
+//---------------------------------------------------------------------------------
+
+template <int ddof = 1, class Array, class Predicate>
+auto sem(const Array &a, Predicate filter) {
+    using T = typename Array::value_type;
+    using raw_t = units::representation_t<T>;
+    const auto [v, n] = var<ddof>(a.cbegin(), a.cend(), filter);
+    return units::sqrt(v / raw_t(n));
+}
+
+template <int ddof = 1, class Array>
+auto sem(const Array &a) {
+    using T = typename Array::value_type;
+    using raw_t = units::representation_t<T>;
+    return units::sqrt(var<ddof>(a) / raw_t(a.size()));
+}
+
+template <int ddof = 1, class Array>
+auto nansem(const Array &a) {
+    return sem<ddof>(a, filters::not_nan);
+}
+
+template <int ddof = 1, class Array, typename T = typename Array::value_type>
+constexpr auto tsem(const Array &f,
+                    const std::array<T, 2> &limits,
+                    const std::array<bool, 2> &inclusive = {true, true}) {
+    return sem<ddof>(f, filters::Trim<T>(limits, inclusive));
 }
 
 //---------------------------------------------------------------------------------

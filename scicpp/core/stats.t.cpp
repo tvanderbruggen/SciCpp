@@ -171,13 +171,24 @@ TEST_CASE("gmean") {
     REQUIRE(almost_equal(gmean(std::vector{1., 2., 3.}), 1.8171205928321397));
     REQUIRE(std::isnan(gmean(std::array{-1., -2., -3.})));
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
-    REQUIRE(almost_equal(nangmean(std::array{1., nan, 2., nan, 3.}), 1.8171205928321397));
+    REQUIRE(almost_equal(nangmean(std::array{1., nan, 2., nan, 3.}),
+                         1.8171205928321397));
+
+    // Comparison with scipy results
+    auto v = std::vector(500000, 1.);
+    v[0] = 1E10;
+    REQUIRE(almost_equal(gmean(v), 1.0000460527622559));
+
+    const auto w = std::vector(500000, 1E10);
+    REQUIRE(almost_equal(gmean(w), 9999999999.999826));
 }
 
 TEST_CASE("gmean physical units") {
     using namespace units::literals;
-    REQUIRE(almost_equal(gmean(std::array{1_m, 2_m, 3_m}), 1.8171205928321397_m));
-    REQUIRE(almost_equal(gmean(std::vector{1_m, 2_m, 3_m}), 1.8171205928321397_m));
+    REQUIRE(
+        almost_equal(gmean(std::array{1_m, 2_m, 3_m}), 1.8171205928321397_m));
+    REQUIRE(
+        almost_equal(gmean(std::vector{1_m, 2_m, 3_m}), 1.8171205928321397_m));
     REQUIRE(units::isnan(gmean(std::array{-1_m, -2_m, -3_m})));
     REQUIRE(units::isnan(gmean(std::array<units::mass<double>, 0>{})));
 }
@@ -237,6 +248,9 @@ TEST_CASE("std") {
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
     REQUIRE(almost_equal(std(std::array{1., 2., 3.}), 0.816496580927726));
     REQUIRE(almost_equal(std(std::vector{4., 1., 12.}), 4.642796092394707));
+    REQUIRE(almost_equal(
+        std(std::array{-1., 1., 2., 3.}, [](auto x) { return x > 0.; }),
+        0.816496580927726));
     // nanstd
     REQUIRE(
         almost_equal(nanstd(std::array{1., nan, 2., 3.}), 0.816496580927726));
@@ -252,7 +266,7 @@ TEST_CASE("std") {
 TEST_CASE("std physical units") {
     using namespace units::literals;
     constexpr auto nan =
-        units::length<double>(std::numeric_limits<double>::quiet_NaN());
+        std::numeric_limits<units::length<double>>::quiet_NaN();
     REQUIRE(almost_equal(std(std::array{1_m, 2_m, 3_m}), 0.816496580927726_m));
     REQUIRE(
         almost_equal(std(std::vector{4_m, 1_m, 12_m}), 4.642796092394707_m));
@@ -268,6 +282,46 @@ TEST_CASE("std physical units") {
         almost_equal(tstd(x, {3_m, 17_m}, {true, false}), 4.183300132670378_m));
     REQUIRE(
         almost_equal(tstd(x, {3_m, 17_m}, {false, true}), 4.183300132670378_m));
+}
+
+TEST_CASE("sem") {
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(std::isnan(sem(std::array<double, 0>{})));
+    REQUIRE(almost_equal<2>(sem(std::array{1., 2., 3.}), 0.5773502691896258));
+    REQUIRE(almost_equal<2>(sem(std::vector{1., 2., 3.}), 0.5773502691896258));
+    // nansem
+    REQUIRE(almost_equal<2>(nansem(std::array{1., nan, 2., nan, 3.}),
+                            0.5773502691896258));
+    REQUIRE(almost_equal<2>(nansem(std::vector{1., nan, 2., nan, 3.}),
+                            0.5773502691896258));
+    // tsem
+    const auto x = arange(0., 20.);
+    REQUIRE(almost_equal(tsem(x, {3., 17.}), 1.1547005383792515));
+    REQUIRE(almost_equal(tsem(x, {3., 17.}, {true, false}), 1.118033988749895));
+    REQUIRE(almost_equal(tsem(x, {3., 17.}, {false, true}), 1.118033988749895));
+}
+
+TEST_CASE("sem physical units") {
+    using namespace units::literals;
+    constexpr auto nan =
+        std::numeric_limits<units::length<double>>::quiet_NaN();
+    REQUIRE(units::isnan(sem(std::array<units::length<double>, 0>{})));
+    REQUIRE(
+        almost_equal<2>(sem(std::array{1_m, 2_m, 3_m}), 0.5773502691896258_m));
+    REQUIRE(
+        almost_equal<2>(sem(std::vector{1_m, 2_m, 3_m}), 0.5773502691896258_m));
+    // nansem
+    REQUIRE(almost_equal<2>(nansem(std::array{1_m, nan, 2_m, nan, 3_m}),
+                            0.5773502691896258_m));
+    REQUIRE(almost_equal<2>(nansem(std::vector{1_m, nan, 2_m, nan, 3_m}),
+                            0.5773502691896258_m));
+    // tsem
+    const auto x = arange(0_m, 20_m);
+    REQUIRE(almost_equal(tsem(x, {3_m, 17_m}), 1.1547005383792515_m));
+    REQUIRE(
+        almost_equal(tsem(x, {3_m, 17_m}, {true, false}), 1.118033988749895_m));
+    REQUIRE(
+        almost_equal(tsem(x, {3_m, 17_m}, {false, true}), 1.118033988749895_m));
 }
 
 TEST_CASE("detail::power_v") {
