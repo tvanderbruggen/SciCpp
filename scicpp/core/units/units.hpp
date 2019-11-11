@@ -128,7 +128,7 @@ using data_rate = quantity_divide<data_quantity<T, Scale>, time<T>>;
     }                                                                          \
                                                                                \
     template <class T>                                                         \
-    inline constexpr bool is_##qty = is_##qty##_impl<T>();
+    constexpr bool is_##qty = is_##qty##_impl<T>();
 
 QUANTITY_TRAIT(dimensionless)
 QUANTITY_TRAIT(length)

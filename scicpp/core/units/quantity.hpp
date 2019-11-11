@@ -92,7 +92,7 @@ struct is_quantity<quantity<T, Dim, Scale, Offset>> : std::true_type {};
 } // namespace detail
 
 template <class T>
-inline constexpr bool is_quantity_v = detail::is_quantity<T>::value;
+constexpr bool is_quantity_v = detail::is_quantity<T>::value;
 
 template <class T>
 using enable_if_is_quantity = std::enable_if_t<is_quantity_v<T>, int>;
@@ -455,7 +455,7 @@ using representation_t = typename detail::representation_type_impl<T>::type;
 
 // is_same_dimension
 template <class Qty1, class Qty2>
-inline constexpr bool is_same_dimension =
+constexpr bool is_same_dimension =
     std::is_same_v<typename Qty1::dim, typename Qty2::dim>;
 
 // Quantities type operations

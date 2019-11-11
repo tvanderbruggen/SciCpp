@@ -139,7 +139,7 @@ auto hypot(T x, T y, T z) {
 namespace detail {
 
 template <typename T>
-constexpr inline bool is_dimensionless_like =
+constexpr bool is_dimensionless_like =
     is_dimensionless<T> || std::is_arithmetic_v<T> || meta::is_complex_v<T>;
 
 template <typename T>
@@ -241,6 +241,15 @@ auto nextafter(T from, T to) {
 template <typename T>
 auto copysign(T x, T y) {
     return T(std::copysign(value(x), value(y)));
+}
+
+// Exponents and logarithms
+
+template <typename T>
+auto log(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "log requires a dimensionless argument");
+    return std::log(value(x));
 }
 
 } // namespace scicpp::units

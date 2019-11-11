@@ -82,7 +82,7 @@ template <class Array,
           typename T = typename std::remove_reference_t<Array>::value_type>
 auto sweep_poly(Array &&t,
                 const Poly &poly,
-                units::planar_angle<T>(phi) = units::planar_angle<T>(0)) {
+                units::planar_angle<T> phi = units::planar_angle<T>(0)) {
     using namespace scicpp::operators;
     using namespace polynomial;
 

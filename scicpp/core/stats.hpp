@@ -174,6 +174,36 @@ constexpr auto tmean(const Array &f,
 }
 
 //---------------------------------------------------------------------------------
+// gmean
+//---------------------------------------------------------------------------------
+
+template <class Array>
+auto gmean(Array &&f) {
+    using T = typename Array::value_type;
+
+    if (f.empty()) {
+        return std::numeric_limits<T>::quiet_NaN();
+    }
+
+    if constexpr (units::is_quantity_v<T>) {
+        using namespace operators;
+        return T(std::exp(mean(log(std::forward<Array>(f) / T(1)))));
+    } else {
+        return std::exp(mean(log(std::forward<Array>(f))));
+    }
+}
+
+template <class Array, class Predicate>
+auto gmean(Array &&f, Predicate p) {
+    return gmean(filter(std::forward<Array>(f), p));
+}
+
+template <class Array>
+auto nangmean(Array &&f) {
+    return gmean(std::forward<Array>(f), filters::not_nan);
+}
+
+//---------------------------------------------------------------------------------
 // var
 //---------------------------------------------------------------------------------
 

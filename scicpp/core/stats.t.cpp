@@ -165,6 +165,23 @@ TEST_CASE("tmean physical units") {
         tmean(std::array<units::hertz<double>, 0>{}, {3_Hz, 17_Hz})));
 }
 
+TEST_CASE("gmean") {
+    REQUIRE(std::isnan(gmean(std::array<double, 0>{})));
+    REQUIRE(almost_equal(gmean(std::array{1., 2., 3.}), 1.8171205928321397));
+    REQUIRE(almost_equal(gmean(std::vector{1., 2., 3.}), 1.8171205928321397));
+    REQUIRE(std::isnan(gmean(std::array{-1., -2., -3.})));
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(nangmean(std::array{1., nan, 2., nan, 3.}), 1.8171205928321397));
+}
+
+TEST_CASE("gmean physical units") {
+    using namespace units::literals;
+    REQUIRE(almost_equal(gmean(std::array{1_m, 2_m, 3_m}), 1.8171205928321397_m));
+    REQUIRE(almost_equal(gmean(std::vector{1_m, 2_m, 3_m}), 1.8171205928321397_m));
+    REQUIRE(units::isnan(gmean(std::array{-1_m, -2_m, -3_m})));
+    REQUIRE(units::isnan(gmean(std::array<units::mass<double>, 0>{})));
+}
+
 TEST_CASE("var") {
     static_assert(float_equal(var(std::array{1., 2., 3.}), 2. / 3.));
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();

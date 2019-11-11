@@ -377,7 +377,7 @@ auto loadtxt(const std::filesystem::path &fname,
 
 namespace io {
 
-inline constexpr bool pack = true;
+constexpr bool pack = true;
 
 template <typename T>
 auto cast(std::any x) {

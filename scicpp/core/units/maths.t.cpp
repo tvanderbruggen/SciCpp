@@ -3,6 +3,7 @@
 
 #include "maths.hpp"
 
+#include "scicpp/core/equal.hpp"
 #include <cfenv>
 
 namespace scicpp::units {
@@ -149,6 +150,11 @@ TEST_CASE("numeric_limits") {
     REQUIRE(almost_equal(std::numeric_limits<meter<>>::round_error().value(),
                          std::numeric_limits<double>::round_error()));
     REQUIRE(!isnormal(std::numeric_limits<meter<>>::denorm_min()));
+}
+
+TEST_CASE("log") {
+    REQUIRE(almost_equal(log(1.), 0.));
+    REQUIRE(almost_equal(log(1_m / 1_m), 0.));
 }
 
 } // namespace scicpp::units

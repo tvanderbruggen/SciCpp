@@ -204,9 +204,9 @@ template <typename T, class UnaryPredicate>
     return std::move(a);
 }
 
-template <typename T, class UnaryPredicate>
-[[nodiscard]] auto filter(const std::vector<T> &a, UnaryPredicate p) {
-    return filter(std::vector(a), p);
+template <class Array, class UnaryPredicate>
+[[nodiscard]] auto filter(const Array &a, UnaryPredicate p) {
+    return filter(std::vector(a.cbegin(), a.cend()), p);
 }
 
 //---------------------------------------------------------------------------------
