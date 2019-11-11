@@ -246,10 +246,45 @@ auto copysign(T x, T y) {
 // Exponents and logarithms
 
 template <typename T>
+auto exp(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "exp requires a dimensionless argument");
+    return std::exp(value(x));
+}
+
+template <typename T>
+auto expm1(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "expm1 requires a dimensionless argument");
+    return std::expm1(value(x));
+}
+
+template <typename T>
+auto exp2(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "exp2 requires a dimensionless argument");
+    return std::exp2(value(x));
+}
+
+template <typename T>
 auto log(T x) {
     static_assert(detail::is_dimensionless_like<T>,
                   "log requires a dimensionless argument");
     return std::log(value(x));
+}
+
+template <typename T>
+auto log2(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "log2 requires a dimensionless argument");
+    return std::log2(value(x));
+}
+
+template <typename T>
+auto log1p(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "log1p requires a dimensionless argument");
+    return std::log1p(value(x));
 }
 
 } // namespace scicpp::units

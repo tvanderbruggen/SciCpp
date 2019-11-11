@@ -152,9 +152,24 @@ TEST_CASE("numeric_limits") {
     REQUIRE(!isnormal(std::numeric_limits<meter<>>::denorm_min()));
 }
 
-TEST_CASE("log") {
+TEST_CASE("exp, log") {
+    REQUIRE(almost_equal(exp(0.), 1.));
+    REQUIRE(almost_equal(exp(0_m / 1_m), 1.));
+
+    REQUIRE(almost_equal(expm1(0.), 0.));
+    REQUIRE(almost_equal(expm1(0_m / 1_m), 0.));
+
+    REQUIRE(almost_equal(exp2(0.), 1.));
+    REQUIRE(almost_equal(exp2(0_m / 1_m), 1.));
+
     REQUIRE(almost_equal(log(1.), 0.));
     REQUIRE(almost_equal(log(1_m / 1_m), 0.));
+
+    REQUIRE(almost_equal(log2(1.), 0.));
+    REQUIRE(almost_equal(log2(1_m / 1_m), 0.));
+
+    REQUIRE(almost_equal(log1p(0.), 0.));
+    REQUIRE(almost_equal(log1p(0_m / 1_m), 0.));
 }
 
 } // namespace scicpp::units

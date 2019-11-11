@@ -72,12 +72,12 @@ const auto arctanh = vectorize([](auto x) { return std::atanh(x); });
 
 // Exponents and logarithms
 
-const auto exp = vectorize([](auto x) { return std::exp(x); });
-const auto expm1 = vectorize([](auto x) { return std::expm1(x); });
-const auto exp2 = vectorize([](auto x) { return std::exp2(x); });
+const auto exp = vectorize([](auto x) { return units::exp(x); });
+const auto expm1 = vectorize([](auto x) { return units::expm1(x); });
+const auto exp2 = vectorize([](auto x) { return units::exp2(x); });
 const auto log = vectorize([](auto x) { return units::log(x); });
-const auto log2 = vectorize([](auto x) { return std::log2(x); });
-const auto log1p = vectorize([](auto x) { return std::log1p(x); });
+const auto log2 = vectorize([](auto x) { return units::log2(x); });
+const auto log1p = vectorize([](auto x) { return units::log1p(x); });
 
 // Rounding
 
