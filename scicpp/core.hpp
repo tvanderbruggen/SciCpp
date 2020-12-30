@@ -8,6 +8,7 @@
 #include "core/equal.hpp"
 #include "core/functional.hpp"
 #include "core/io.hpp"
+#include "core/interpolate.hpp"
 #include "core/macros.hpp"
 #include "core/maths.hpp"
 #include "core/meta.hpp"
