@@ -11,7 +11,7 @@
 
 namespace scicpp::interpolate {
 
-TEST_CASE("interp1d") {
+TEST_CASE("interp1d - SLINEAR") {
     SECTION("std::vector") {
         using namespace operators;
         const auto x = arange(0.0, 5.0);
@@ -21,7 +21,6 @@ TEST_CASE("interp1d") {
     }
 
     SECTION("std::array") {
-        using namespace units::literals;
         const std::array x = {1.0, 2.0, 3.0, 4.0, 5.0};
         const auto f = interp1d(x, log(x));
         REQUIRE(almost_equal(f(std::array{1.5, 2.5}),
@@ -34,6 +33,45 @@ TEST_CASE("interp1d") {
         const auto f = interp1d(x, sin(x));
         REQUIRE(
             almost_equal(f(std::array{0.0, 2.0}), {0.0, 0.9092974268256817}));
+    }
+}
+
+// /!\ Doesn't work
+// TEST_CASE("interp1d - ZERO") {
+//     SECTION("std::vector") {
+//         using namespace operators;
+//         const auto x = arange(0.0, 5.0);
+//         const auto f = interp1d<InterpKind::ZERO>(x, exp(-x));
+//         const auto xnew = arange(3.0, 4.0, 0.25);
+//         const auto xres = 0.049787068367863944;
+//         REQUIRE(almost_equal(f(xnew), {xres, xres, xres, xres}));
+//     }
+// }
+
+TEST_CASE("interp1d - QUADRATIC") {
+    SECTION("std::vector") {
+        using namespace operators;
+        const auto x = arange(0.0, 5.0, 0.5);
+        const auto f = interp1d<InterpKind::QUADRATIC>(x, exp(-x));
+        const auto xnew = arange(3.0, 4.0, 0.25);
+        REQUIRE(almost_equal<3>(f(xnew),
+                                {0.04978706836786395,
+                                 0.03875345918927947,
+                                 0.030197383422318504,
+                                 0.023519998644726408}));
+    }
+}
+
+TEST_CASE("interp1d - CUBIC") {
+    SECTION("std::vector") {
+        const auto x = arange(0.0, 5.0, 0.5);
+        const auto f = interp1d<InterpKind::CUBIC>(x, sqrt(x));
+        const auto xnew = arange(3.0, 4.0, 0.25);
+        REQUIRE(almost_equal<4>(f(xnew),
+                                {1.7320508075688772,
+                                 1.8027594680495171,
+                                 1.8708286933869707,
+                                 1.9365023866974787}));
     }
 }
 
