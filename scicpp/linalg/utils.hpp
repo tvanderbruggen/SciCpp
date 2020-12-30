@@ -4,6 +4,8 @@
 #ifndef SCICPP_LINALG_UTILS
 #define SCICPP_LINALG_UTILS
 
+#include "scicpp/core/units/quantity.hpp"
+
 #include <Eigen/Dense>
 #include <array>
 #include <vector>
@@ -16,34 +18,43 @@ namespace scicpp::linalg {
 
 template <typename T>
 auto to_eigen_matrix(const std::vector<T> &v, int size = -1) {
+    using raw_t = units::representation_t<T>;
+
     if (size == -1) {
         size = int(v.size());
     }
 
-    return Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, 1>,
-                      Eigen::Unaligned>(v.data(), size);
+    return Eigen::Map<const Eigen::Matrix<raw_t, Eigen::Dynamic, 1>,
+                      Eigen::Unaligned>(
+        reinterpret_cast<const raw_t *>(v.data()), size);
 }
 
 template <typename T>
 auto to_eigen_array(const std::vector<T> &v, int size = -1) {
+    using raw_t = units::representation_t<T>;
+
     if (size == -1) {
         size = int(v.size());
     }
 
-    return Eigen::Map<const Eigen::Array<T, Eigen::Dynamic, 1>,
-                      Eigen::Unaligned>(v.data(), size);
+    return Eigen::Map<const Eigen::Array<raw_t, Eigen::Dynamic, 1>,
+                      Eigen::Unaligned>(
+        reinterpret_cast<const raw_t *>(v.data()), size);
 }
 
 template <int size = -1, typename T, std::size_t N>
 auto to_eigen_matrix(const std::array<T, N> &a) {
     constexpr int M = size == -1 ? int(N) : size;
-    return Eigen::Matrix<T, M, 1>(a.data());
+    using raw_t = units::representation_t<T>;
+    return Eigen::Matrix<raw_t, M, 1>(
+        reinterpret_cast<const raw_t *>(a.data()));
 }
 
 template <int size = -1, typename T, std::size_t N>
 auto to_eigen_array(const std::array<T, N> &a) {
     constexpr int M = size == -1 ? int(N) : size;
-    return Eigen::Array<T, M, 1>(a.data());
+    using raw_t = units::representation_t<T>;
+    return Eigen::Array<raw_t, M, 1>(reinterpret_cast<const raw_t *>(a.data()));
 }
 
 // Convert an Eigen matrix to a std container:

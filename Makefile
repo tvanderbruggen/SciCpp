@@ -50,11 +50,11 @@ all: test
 .PHONY: setup_clang
 setup_clang:
 	apt-get install -y clang libc++-dev clang-format
-	
+
 $(TMP)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CCXX) -c $(CXXFLAGS) -o $@ $<
-	
+
 # -------------------------------------------------------------------------------------
 # Tests
 # -------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ setup_test: $(CATCH_HPP)
 
 $(CATCH_HPP):
 	curl -L https://github.com/catchorg/Catch2/releases/download/v2.0.1/catch.hpp -o $(CATCH_HPP)
-	
+
 $(TEST_TARGET): $(TEST_OBJ) $(TEST_MAIN_OBJ)
 	$(CCXX) -o $@ $(TEST_OBJ) $(TEST_MAIN_OBJ) $(CXXFLAGS) $(LD_FLAGS) $(LIBS)
 
@@ -158,7 +158,7 @@ example: $(EXAMPLE_TARGET)
 .PHONY: example_py
 example_py:
 	python $(EXAMPLE_PY)
-	
+
 .PHONY: clean_examples
 clean_examples:
 	rm -rf $(TMP)/examples

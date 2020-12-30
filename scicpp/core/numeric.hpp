@@ -659,7 +659,6 @@ template <class ArrayLhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
           meta::enable_if_iterable<ArrayRhs> = 0>
 auto greater(ArrayLhs &&a, ArrayRhs &&b) {
-    using namespace operators;
     return less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
 }
 

@@ -5,12 +5,25 @@
 
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/units/quantity.hpp"
 
 namespace scicpp::linalg {
 
 TEST_CASE("std::vector to Eigen::Matrix") {
     SECTION("Full size") {
         const std::vector v{1., 2., 3.};
+        const auto m = to_eigen_matrix(v);
+        REQUIRE(m.size() == v.size());
+        Eigen::Matrix<double, Eigen::Dynamic, 1> m_(3);
+        m_(0) = 1.;
+        m_(1) = 2.;
+        m_(2) = 3.;
+        REQUIRE(m.isApprox(m_));
+    }
+
+    SECTION("Full size units") {
+        using namespace units::literals;
+        const std::vector v{1_m, 2_m, 3_m};
         const auto m = to_eigen_matrix(v);
         REQUIRE(m.size() == v.size());
         Eigen::Matrix<double, Eigen::Dynamic, 1> m_(3);
@@ -59,6 +72,18 @@ TEST_CASE("std::vector to Eigen::Array") {
 TEST_CASE("std::array to Eigen::Matrix") {
     SECTION("Full size") {
         const std::array v{1., 2., 3.};
+        const auto m = to_eigen_matrix(v);
+        REQUIRE(m.size() == v.size());
+        Eigen::Matrix<double, Eigen::Dynamic, 1> m_(3);
+        m_(0) = 1.;
+        m_(1) = 2.;
+        m_(2) = 3.;
+        REQUIRE(m.isApprox(m_));
+    }
+
+    SECTION("Full size units") {
+        using namespace units::literals;
+        const std::array v{1_m, 2_m, 3_m};
         const auto m = to_eigen_matrix(v);
         REQUIRE(m.size() == v.size());
         Eigen::Matrix<double, Eigen::Dynamic, 1> m_(3);

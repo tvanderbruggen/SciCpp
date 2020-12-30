@@ -45,7 +45,7 @@ struct physical_constants {
     static constexpr auto h = planck_cst_qty(T(6.62607015E-34));
     static constexpr auto hbar = h / (T{2} * pi<T>);
 
-    // Elementaire charge
+    // Elementary charge
     static constexpr auto e = units::electric_charge<T>(T(1.602176634E-19));
 
     // Electron mass
