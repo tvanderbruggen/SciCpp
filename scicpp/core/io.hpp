@@ -485,6 +485,73 @@ class TxtLoader {
     signed_size_t m_max_rows = -1;
 }; // class TxtLoader
 
+//---------------------------------------------------------------------------------
+// savetxt
+//---------------------------------------------------------------------------------
+
+template <typename Array, std::enable_if_t<meta::is_iterable_v<Array>, int> = 0>
+void savetxt(const std::filesystem::path &fname,
+             const Array &X,
+             [[maybe_unused]] char delimiter,
+             char newline) {
+    std::ofstream file(fname);
+
+    for (const auto &x : X) {
+        file << x << newline;
+    }
+}
+
+template <
+    typename Tuple,
+    std::enable_if_t<meta::is_std_tuple_v<Tuple> || meta::is_std_pair_v<Tuple>,
+                     int> = 0>
+void savetxt(const std::filesystem::path &fname,
+             const Tuple &X,
+             char delimiter,
+             char newline) {
+    std::apply(
+        [&](auto... xs) {
+            (scicpp_require(xs.size() == std::get<0>(X).size() &&
+                            "All arrays must have the save size"),
+             ...);
+        },
+        X);
+
+    std::ofstream file(fname);
+
+    for (std::size_t i = 0; i < std::get<0>(X).size(); i++) {
+        std::apply(
+            [&](auto... xs) {
+                constexpr auto ncols = std::tuple_size_v<Tuple>;
+                std::size_t n{0};
+                ((file << xs[i] << (++n != ncols ? delimiter : newline)), ...);
+            },
+            X);
+    }
+}
+
+// class TxtSaver {
+//   public:
+//     TxtSaver() = default;
+
+//     auto delimiter(char delimiter) {
+//         m_delimiter = delimiter;
+//         return *this;
+//     }
+
+//     auto newline(char newline) {
+//         m_newline = newline;
+//         return *this;
+//     }
+
+//     void save(const std::filesystem::path &fname) const {}
+
+//   private:
+//     char m_delimiter = ' ';
+//     char m_newline = '\n';
+
+// }; // class TxtSaver
+
 } // namespace scicpp
 
 #endif // SCICPP_CORE_IO

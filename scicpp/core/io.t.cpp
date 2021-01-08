@@ -7,8 +7,10 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/units/units.hpp"
+#include "scicpp/linalg/utils.hpp"
 
 #include <iostream>
+#include <tuple>
 
 namespace scicpp {
 
@@ -183,6 +185,65 @@ TEST_CASE("scicpp::loadtxt to tuple with usecols list and converters") {
     REQUIRE(std::get<0>(data[0]) == 0);
     REQUIRE(std::get<1>(data[9]) == 10);
     REQUIRE(almost_equal(std::get<2>(data[9]), 0.8));
+}
+
+TEST_CASE("scicpp::savetxt single std::array") {
+    const auto arr = std::array{
+        0., 3.14, 12.56, 28.26, 50.24, 78.5, 113.04, 153.86, 200.96, 254.34};
+    const auto fname = "tmp/tests/test.csv";
+    savetxt(fname, arr, ',', '\n');
+    const auto data = linalg::to_std_container(TxtLoader<double>().load(fname));
+    REQUIRE(almost_equal(data, std::vector(arr.cbegin(), arr.cend())));
+}
+
+TEST_CASE("scicpp::savetxt single std::vector") {
+    const auto vec = std::vector{
+        0., 3.14, 12.56, 28.26, 50.24, 78.5, 113.04, 153.86, 200.96, 254.34};
+    const auto fname = "tmp/tests/test.csv";
+    savetxt(fname, vec, ',', '\n');
+    const auto data = linalg::to_std_container(TxtLoader<double>().load(fname));
+    REQUIRE(almost_equal(data, vec));
+}
+
+TEST_CASE("scicpp::savetxt tuple std::vector") {
+    std::tuple<std::vector<int>, std::vector<bool>, std::vector<double>> t;
+
+    for (size_t i = 0; i < 10; ++i) {
+        std::get<0>(t).push_back(int(i));
+        std::get<1>(t).push_back(i % 2);
+        std::get<2>(t).push_back(3.14 * double(i * i));
+    }
+
+    const auto fname = "tmp/tests/test.csv";
+    savetxt(fname, t, ',', '\n');
+    const auto [v0, v1, v2] =
+        TxtLoader<int, bool, double>().delimiter(',').load(fname);
+    REQUIRE(almost_equal(std::get<0>(t), v0));
+    REQUIRE(almost_equal(std::get<1>(t), v1));
+    REQUIRE(almost_equal(std::get<2>(t), v2));
+}
+
+TEST_CASE("scicpp::savetxt tuple std::array") {
+    std::
+        tuple<std::array<int, 10>, std::array<bool, 10>, std::array<double, 10>>
+            t;
+
+    for (size_t i = 0; i < 10; ++i) {
+        std::get<0>(t)[i] = int(i);
+        std::get<1>(t)[i] = i % 2;
+        std::get<2>(t)[i] = 3.14 * double(i * i);
+    }
+
+    const auto fname = "tmp/tests/test.csv";
+    savetxt(fname, t, ' ', '\n');
+    const auto [v0, v1, v2] =
+        TxtLoader<int, bool, double>().delimiter(' ').load(fname);
+    REQUIRE(almost_equal(
+        std::vector(std::get<0>(t).cbegin(), std::get<0>(t).cend()), v0));
+    REQUIRE(almost_equal(
+        std::vector(std::get<1>(t).cbegin(), std::get<1>(t).cend()), v1));
+    REQUIRE(almost_equal(
+        std::vector(std::get<2>(t).cbegin(), std::get<2>(t).cend()), v2));
 }
 
 } // namespace scicpp

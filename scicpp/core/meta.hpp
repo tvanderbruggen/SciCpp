@@ -96,6 +96,25 @@ static_assert(!is_std_vector_v<Eigen::Matrix2d>);
 static_assert(is_std_vector_v<std::vector<double>>);
 
 //---------------------------------------------------------------------------------
+// std::array traits
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class T>
+struct is_std_array : std::false_type {};
+template <typename Scalar, std::size_t N>
+struct is_std_array<std::array<Scalar, N>> : std::true_type {};
+
+} // namespace detail
+
+template <class T>
+constexpr bool is_std_array_v = detail::is_std_array<T>::value;
+
+static_assert(!is_std_array_v<Eigen::Matrix2d>);
+static_assert(is_std_array_v<std::array<double, 10>>);
+
+//---------------------------------------------------------------------------------
 // std::tuple traits
 //---------------------------------------------------------------------------------
 

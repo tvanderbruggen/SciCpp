@@ -66,8 +66,7 @@ template <InterpKind kind = SLINEAR>
 struct interp1d {
     template <typename Array1, typename Array2>
     interp1d(const Array1 &x, const Array2 &y)
-        : s(linalg::to_eigen_array(x), linalg::to_eigen_array(y)) {
-    }
+        : s(linalg::to_eigen_array(x), linalg::to_eigen_array(y)) {}
 
     template <typename T>
     auto operator()(T &&x) const {
