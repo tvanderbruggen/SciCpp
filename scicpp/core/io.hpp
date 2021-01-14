@@ -57,8 +57,18 @@ auto to_number([[maybe_unused]] const char *str) {
         return static_cast<T>(std::atof(str));
     } else if constexpr (std::is_integral_v<T>) {
         return static_cast<T>(std::atoi(str));
+    } else if constexpr (meta::is_complex_v<T>) {
+        using scal_t = typename T::value_type;
+        scal_t x, y;
+
+        if (std::sscanf(str, "%lf+%lfj", &x, &y) > 0) {
+            return std::complex(x, y);
+        } else { // Invalid input
+            const auto nan = std::numeric_limits<scal_t>::quiet_NaN();
+            return std::complex(nan, nan);
+        }
     } else {
-        return T{};
+        return T{str};
     }
 }
 
@@ -501,6 +511,20 @@ void savetxt(const std::filesystem::path &fname,
     }
 }
 
+namespace detail {
+
+template <typename T>
+auto format(const T &x) {
+    if constexpr (meta::is_complex_v<T>) {
+        return std::to_string(x.real()) + std::string("+") +
+               std::to_string(x.imag()) + std::string("j");
+    } else {
+        return x;
+    }
+}
+
+} // namespace detail
+
 template <
     typename Tuple,
     std::enable_if_t<meta::is_std_tuple_v<Tuple> || meta::is_std_pair_v<Tuple>,
@@ -524,33 +548,41 @@ void savetxt(const std::filesystem::path &fname,
             [&](auto... xs) {
                 constexpr auto ncols = std::tuple_size_v<Tuple>;
                 std::size_t n{0};
-                ((file << xs[i] << (++n != ncols ? delimiter : newline)), ...);
+                ((file << detail::format(xs[i])
+                       << (++n != ncols ? delimiter : newline)),
+                 ...);
             },
             X);
     }
 }
 
-// class TxtSaver {
-//   public:
-//     TxtSaver() = default;
+class TxtSaver {
+  public:
+    TxtSaver() = default;
 
-//     auto delimiter(char delimiter) {
-//         m_delimiter = delimiter;
-//         return *this;
-//     }
+    auto delimiter(char delimiter) {
+        m_delimiter = delimiter;
+        return *this;
+    }
 
-//     auto newline(char newline) {
-//         m_newline = newline;
-//         return *this;
-//     }
+    auto newline(char newline) {
+        m_newline = newline;
+        return *this;
+    }
 
-//     void save(const std::filesystem::path &fname) const {}
+    template <typename Tuple,
+              std::enable_if_t<meta::is_std_tuple_v<Tuple> ||
+                                   meta::is_std_pair_v<Tuple>,
+                               int> = 0>
+    void save(const std::filesystem::path &fname, const Tuple &X) const {
+        savetxt(fname, X, m_delimiter, m_newline);
+    }
 
-//   private:
-//     char m_delimiter = ' ';
-//     char m_newline = '\n';
+  private:
+    char m_delimiter = ' ';
+    char m_newline = '\n';
 
-// }; // class TxtSaver
+}; // class TxtSaver
 
 } // namespace scicpp
 

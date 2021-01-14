@@ -223,6 +223,11 @@ TEST_CASE("scicpp::savetxt tuple std::vector") {
     REQUIRE(almost_equal(std::get<2>(t), v2));
 }
 
+template <typename Array>
+auto to_vector(const Array &arr) {
+    return std::vector(arr.cbegin(), arr.cend());
+}
+
 TEST_CASE("scicpp::savetxt tuple std::array") {
     std::
         tuple<std::array<int, 10>, std::array<bool, 10>, std::array<double, 10>>
@@ -238,12 +243,43 @@ TEST_CASE("scicpp::savetxt tuple std::array") {
     savetxt(fname, t, ' ', '\n');
     const auto [v0, v1, v2] =
         TxtLoader<int, bool, double>().delimiter(' ').load(fname);
-    REQUIRE(almost_equal(
-        std::vector(std::get<0>(t).cbegin(), std::get<0>(t).cend()), v0));
-    REQUIRE(almost_equal(
-        std::vector(std::get<1>(t).cbegin(), std::get<1>(t).cend()), v1));
-    REQUIRE(almost_equal(
-        std::vector(std::get<2>(t).cbegin(), std::get<2>(t).cend()), v2));
+    REQUIRE(to_vector(std::get<0>(t)) == v0);
+    REQUIRE(to_vector(std::get<1>(t)) == v1);
+    REQUIRE(almost_equal(to_vector(std::get<2>(t)), v2));
+}
+
+TEST_CASE("scicpp::TxtSaver tuple std::array") {
+    using namespace operators;
+
+    std::tuple<std::array<int, 10>,
+               std::array<bool, 10>,
+               std::array<double, 10>,
+               std::array<const char *, 10>,
+               std::array<std::complex<double>, 10>>
+        t;
+
+    for (size_t i = 0; i < 10; ++i) {
+        std::get<0>(t)[i] = int(i);
+        std::get<1>(t)[i] = i % 2;
+        std::get<2>(t)[i] = 3.14 * double(i * i);
+        std::get<3>(t)[i] = (i % 2) ? "Yes" : "No";
+        std::get<4>(t)[i] = std::complex(
+            3.14 * double(i * i), 2.718 * double(i) * ((i % 2) ? 1.0 : -1.0));
+    }
+
+    const auto fname = "tmp/tests/test.csv";
+    TxtSaver().delimiter(' ').newline('\n').save(fname, t);
+    const auto [v0, v1, v2, v3, v4] =
+        TxtLoader<int, bool, double, std::string, std::complex<double>>()
+            .delimiter(' ')
+            .load(fname);
+    REQUIRE(to_vector(std::get<0>(t)) == v0);
+    REQUIRE(to_vector(std::get<1>(t)) == v1);
+    REQUIRE(almost_equal(to_vector(std::get<2>(t)), v2));
+    REQUIRE(std::vector<std::string>(std::get<3>(t).cbegin(),
+                                     std::get<3>(t).cend()) == v3);
+    // print(v4);
+    REQUIRE(to_vector(std::get<4>(t)) == v4);
 }
 
 } // namespace scicpp

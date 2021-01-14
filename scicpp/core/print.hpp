@@ -37,6 +37,10 @@ constexpr auto type_to_format() {
         return "%i";
     } else if constexpr (std::is_same_v<T, bool>) {
         return "%u";
+    } else if constexpr (std::is_same_v<T, const char *>) {
+        return "%s";
+    } else if constexpr (std::is_same_v<T, char>) {
+        return "%c";
     }
 }
 
@@ -73,6 +77,8 @@ void fprint_element(FILE *stream, T value) {
     } else if constexpr (units::is_quantity_v<T>) {
         using raw_t = typename T::value_type;
         std::fprintf(stream, type_to_format<raw_t>(), value.value());
+    } else if constexpr (std::is_same_v<T, std::string>) {
+        std::fprintf(stream, "%s", value.data());
     } else {
         std::fprintf(stream, type_to_format<T>(), value);
     }
