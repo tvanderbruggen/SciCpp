@@ -162,11 +162,32 @@ Statistics
 :ref:`stats::mean, nanmean, tmean <core_stats_mean>`
     Compute the arithmetic mean.
 
+:ref:`stats::gmean, nangmean <core_stats_gmean>`
+    Compute the geometric mean.
+
 :ref:`stats::var, nanvar, tvar <core_stats_var>`
     Compute the variance.
 
 :ref:`stats::std, nanstd, tstd <core_stats_std>`
     Compute the standard deviation.
+
+:ref:`stats::sem, nansem, tsem <core_stats_sem>`
+    Compute the standard error of measurement.
+
+:ref:`stats::moment, nanmoment <core_stats_moment>`
+    Calculate the nth moment about the mean for a sample.
+
+:ref:`stats::kurtosis, nankurtosis <core_stats_kurtosis>`
+    Compute the kurtosis (Fisher or Pearson) of a dataset.
+
+:ref:`stats::skew, nanskew <core_stats_skew>`
+    Compute the sample skewness of a data set.
+
+Interpolate
+-------------
+
+:ref:`interpolate::rand <core_interpolate_interp1d>`
+    Interpolate a 1D array.
 
 Units
 -------------

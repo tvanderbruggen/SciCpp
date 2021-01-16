@@ -581,7 +581,6 @@ class TxtSaver {
   private:
     char m_delimiter = ' ';
     char m_newline = '\n';
-
 }; // class TxtSaver
 
 } // namespace scicpp
