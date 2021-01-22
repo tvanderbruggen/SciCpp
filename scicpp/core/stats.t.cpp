@@ -402,4 +402,19 @@ TEST_CASE("skew physical units") {
         units::dimensionless<double>(0.2650554122698573)));
 }
 
+TEST_CASE("covariance") {
+    static_assert(
+        float_equal(covariance(std::array{1., 2., 3.}, std::array{1., 2., 3.}),
+                    var(std::array{1., 2., 3.})));
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(std::isnan(
+        covariance(std::array<double, 0>{}, std::array<double, 0>{})));
+
+    auto v = std::vector(500000, 1.);
+    v[0] = 1E10;
+    printf("%.20f\n", covariance(v, v));
+    // Compare with result from numpy
+    REQUIRE(almost_equal<32>(covariance(v, v), 199999599960000.12));
+}
+
 } // namespace scicpp::stats
