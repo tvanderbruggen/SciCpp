@@ -35,7 +35,7 @@ constexpr auto fabs(T &&x) {
         // to quiet warning, but this is not constexpr.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
-        if (x == U(0.)) {
+        if (units::value(x) == units::representation_t<U>(0.)) {
             return U(+0.);
         }
 #pragma GCC diagnostic pop

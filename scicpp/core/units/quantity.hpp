@@ -396,7 +396,7 @@ constexpr auto operator/(const quantity<T1, Dim, Scale, Offset> &rhs,
 }
 
 template <typename T>
-auto value(T x) {
+constexpr auto value(T x) {
     if constexpr (is_quantity_v<T>) {
         return x.value();
     } else {

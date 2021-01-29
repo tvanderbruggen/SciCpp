@@ -410,11 +410,30 @@ TEST_CASE("covariance") {
     REQUIRE(std::isnan(
         covariance(std::array<double, 0>{}, std::array<double, 0>{})));
 
-    auto v = std::vector(500000, 1.);
-    v[0] = 1E10;
-    printf("%.20f\n", covariance(v, v));
+    auto v1 = std::vector(500000, 1.);
+    v1[0] = 1E10;
+    // printf("%.20f\n", covariance(v1, v1));
     // Compare with result from numpy
-    REQUIRE(almost_equal<32>(covariance(v, v), 199999599960000.12));
+    REQUIRE(almost_equal<32>(covariance(v1, v1), 199999599960000.12));
+    auto v2 = std::vector(500000, 1.);
+    v2.back() = 1E10;
+    // printf("%.20f\n", covariance<1>(v1, v2));
+    // Compare with result from numpy (np.cov(v1, v1)[0][1]) for which ddof = 1
+    REQUIRE(almost_equal<55>(covariance<1>(v1, v2), -400000799.9215977));
+}
+
+TEST_CASE("covariance units") {
+    using namespace units::literals;
+    static_assert(
+        float_equal(covariance(std::array{1_V / 1_Hz, 2_V / 1_Hz, 3_V / 1_Hz},
+                               std::array{1_V, 2_V, 3_V}),
+                    var(std::array{1_V_per_rtHz, 2_V_per_rtHz, 3_V_per_rtHz})));
+
+    auto v1 = std::vector(500000, 1_W);
+    v1[0] = 1E10_W;
+    auto v2 = std::vector(500000, 1_s);
+    v2.back() = 1E10_s;
+    REQUIRE(almost_equal<55>(covariance<1>(v1, v2), -400000799.9215977_J));
 }
 
 } // namespace scicpp::stats

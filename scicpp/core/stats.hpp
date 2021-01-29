@@ -451,6 +451,9 @@ constexpr auto covariance(InputIt1 first1,
                                      units::representation_t<T2>>;
     using prod_t = decltype(std::declval<T1>() * std::declval<T2>());
 
+    static_assert(meta::is_predicate<Predicate, T1>);
+    static_assert(meta::is_predicate<Predicate, T2>);
+
     scicpp_require(std::distance(first1, last1) ==
                    std::distance(first2, last2));
 
@@ -499,8 +502,8 @@ constexpr auto covariance(InputIt1 first1,
         });
 
     if (unlikely(c_ - ddof <= 0)) {
-        return std::make_tuple(
-            std::numeric_limits<decltype(cov_)>::infinity(), c_);
+        return std::make_tuple(std::numeric_limits<decltype(cov_)>::infinity(),
+                               c_);
     } else {
         return std::make_tuple(cov_ / raw_t(c_ - ddof), c_);
     }
