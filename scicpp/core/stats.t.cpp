@@ -420,10 +420,57 @@ TEST_CASE("covariance") {
     // printf("%.20f\n", covariance<1>(v1, v2));
     // Compare with result from numpy (np.cov(v1, v1)[0][1]) for which ddof = 1
     REQUIRE(almost_equal<55>(covariance<1>(v1, v2), -400000799.9215977));
+
+    REQUIRE(
+        almost_equal(nancovariance(std::array{1., nan, 2., 3., nan, 4., nan},
+                                   std::array{1., nan, 2., 3., nan, 4., nan}),
+                     var(std::array{1., 2., 3., 4.})));
 }
 
-TEST_CASE("covariance units") {
+TEST_CASE("covariance complex") {
+    using namespace operators;
+
+    const auto a1 = std::array{1. + 2.i, 8. + 4.i};
+    const auto a2 = std::array{6. + 3.i, 12.i};
+
+    // printf("%.20f + %.20fi\n", covariance<1>(a1, a1).real(), covariance<1>(a1, a1).imag());
+    // printf("%.20f + %.20fi\n", covariance<1>(a2, a2).real(), covariance<1>(a2, a2).imag());
+    // printf("%.20f + %.20fi\n", covariance<1>(a1, a2).real(), covariance<1>(a1, a2).imag());
+
+    REQUIRE(almost_equal(covariance<1>(a1, a1), 26.5 + 0.i));
+    REQUIRE(almost_equal(covariance<1>(a2, a2), 58.5 + 0.i));
+    REQUIRE(almost_equal(covariance<1>(a1, a2), -12. - 37.5i));
+
+    const auto a3 = std::array{6., 12.};
+    REQUIRE(almost_equal(covariance<1>(a3, a3), 18.));
+    REQUIRE(almost_equal(covariance<1>(a1, a3), 21. + 6.i));
+    REQUIRE(almost_equal(covariance<1>(a3, a1), 21. - 6.i));
+
+    // Test with array length > 64
+    // Compare with numpy results:
+    // >> np.cov(np.linspace(1, 40, 233) + 1j * np.linspace(50, 865, 233),
+    //           np.linspace(5,489,233) + 1j * np.linspace(18,8486,233))
+    // array([[  56198.29353076693   +0.j            ,
+    //          584169.9776307966 +5420.055142687268j],
+    //        [ 584169.9776307966 -5420.055142687268j,
+    //         6072852.364744352     +0.j            ]])
+
+
+    const auto a = linspace(1., 40., 233) + 1.i * linspace(50., 865., 233);
+    const auto b = linspace(5., 489., 233) + 1.i * linspace(18., 8486., 233);
+
+    REQUIRE(almost_equal<25>(covariance<1>(a, b),
+                             584169.9776307966 + 5420.055142687268i));
+    REQUIRE(almost_equal<30>(covariance<1>(b, a),
+                             584169.9776307966 - 5420.055142687268i));
+    REQUIRE(almost_equal<25>(covariance<1>(a, a), 56198.29353076693 + 0.i));
+    REQUIRE(almost_equal<25>(covariance<1>(b, b), 6072852.364744352 + 0.i));
+}
+
+TEST_CASE("covariance physical units") {
     using namespace units::literals;
+    REQUIRE(units::isnan(covariance(std::vector<units::mass<double>>{},
+                                    std::vector<units::length<double>>{})));
     static_assert(
         float_equal(covariance(std::array{1_V / 1_Hz, 2_V / 1_Hz, 3_V / 1_Hz},
                                std::array{1_V, 2_V, 3_V}),

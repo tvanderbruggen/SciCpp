@@ -447,8 +447,9 @@ constexpr auto covariance(InputIt1 first1,
                           Predicate filter) {
     using T1 = typename std::iterator_traits<InputIt1>::value_type;
     using T2 = typename std::iterator_traits<InputIt2>::value_type;
-    using raw_t = std::common_type_t<units::representation_t<T1>,
-                                     units::representation_t<T2>>;
+    using raw_t1 = units::representation_t<T1>;
+    using raw_t2 = units::representation_t<T2>;
+    using raw_t = std::common_type_t<raw_t1, raw_t2>;
     using prod_t = decltype(std::declval<T1>() * std::declval<T2>());
 
     static_assert(meta::is_predicate<Predicate, T1>);
@@ -477,7 +478,11 @@ constexpr auto covariance(InputIt1 first1,
 
             for (; f1 != l1; ++f1, ++f2) {
                 if (filter(*f1) && filter(*f2)) {
-                    res += (*f1 - m1) * (*f2 - m2);
+                    if constexpr (meta::is_complex_v<T2>) {
+                        res += (*f1 - m1) * std::conj(*f2 - m2);
+                    } else {
+                        res += (*f1 - m1) * (*f2 - m2);
+                    }
                     cnt++;
                 }
             }
@@ -491,14 +496,21 @@ constexpr auto covariance(InputIt1 first1,
             const auto [m21, m22, covar2, n2] = res2;
 
             const auto n_c = n1 + n2;
-            const auto r = raw_t{1} / raw_t(n_c);
-            const auto m1_c = r * (raw_t(n1) * m11 + raw_t(n2) * m21);
-            const auto m2_c = r * (raw_t(n1) * m12 + raw_t(n2) * m22);
-            const auto covar_c = covar1 + covar2 +
-                                 (raw_t(n1) * raw_t(n2) / raw_t(n_c)) *
-                                     (m12 - m22) * (m11 - m21);
-
-            return std::make_tuple(m1_c, m2_c, covar_c, n_c);
+            const auto m1_c = (raw_t1{1} / raw_t1(n_c)) *
+                              (raw_t1(n1) * m11 + raw_t1(n2) * m21);
+            const auto m2_c = (raw_t2{1} / raw_t2(n_c)) *
+                              (raw_t2(n1) * m12 + raw_t2(n2) * m22);
+            if constexpr (meta::is_complex_v<T2>) {
+                const auto covar_c = covar1 + covar2 +
+                                     (raw_t(n1) * raw_t(n2) / raw_t(n_c)) *
+                                         std::conj(m12 - m22) * (m11 - m21);
+                return std::make_tuple(m1_c, m2_c, covar_c, n_c);
+            } else {
+                const auto covar_c = covar1 + covar2 +
+                                     (raw_t(n1) * raw_t(n2) / raw_t(n_c)) *
+                                         (m12 - m22) * (m11 - m21);
+                return std::make_tuple(m1_c, m2_c, covar_c, n_c);
+            }
         });
 
     if (unlikely(c_ - ddof <= 0)) {
@@ -519,6 +531,11 @@ covariance(const Array1 &f1, const Array2 &f2, Predicate filter) {
 template <int ddof = 0, class Array1, class Array2>
 constexpr auto covariance(const Array1 &f1, const Array2 &f2) {
     return covariance<ddof>(f1, f2, filters::all);
+}
+
+template <int ddof = 0, class Array1, class Array2>
+auto nancovariance(const Array1 &f1, const Array2 &f2) {
+    return covariance<ddof>(f1, f2, filters::not_nan);
 }
 
 } // namespace scicpp::stats
