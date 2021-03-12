@@ -19,7 +19,12 @@ namespace scicpp::units {
 
 template <typename T>
 bool isnan(T x) {
-    return std::isnan(value(x));
+    if constexpr (meta::is_complex_v<T>) {
+        return std::isnan(value(std::real(x))) ||
+               std::isnan(value(std::imag(x)));
+    } else {
+        return std::isnan(value(x));
+    }
 }
 
 template <typename T>

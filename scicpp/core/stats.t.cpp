@@ -10,6 +10,7 @@
 #include "scicpp/core/units/units.hpp"
 
 #include <cmath>
+#include <iostream>
 
 namespace scicpp::stats {
 
@@ -448,13 +449,12 @@ TEST_CASE("covariance complex") {
 
     // Test with array length > 64
     // Compare with numpy results:
-    // >> np.cov(np.linspace(1, 40, 233) + 1j * np.linspace(50, 865, 233),
-    //           np.linspace(5,489,233) + 1j * np.linspace(18,8486,233))
+    // >>> np.cov(np.linspace(1, 40, 233) + 1j * np.linspace(50, 865, 233),
+    //            np.linspace(5,489,233) + 1j * np.linspace(18,8486,233))
     // array([[  56198.29353076693   +0.j            ,
     //          584169.9776307966 +5420.055142687268j],
     //        [ 584169.9776307966 -5420.055142687268j,
     //         6072852.364744352     +0.j            ]])
-
 
     const auto a = linspace(1., 40., 233) + 1.i * linspace(50., 865., 233);
     const auto b = linspace(5., 489., 233) + 1.i * linspace(18., 8486., 233);
@@ -481,6 +481,42 @@ TEST_CASE("covariance physical units") {
     auto v2 = std::vector(500000, 1_s);
     v2.back() = 1E10_s;
     REQUIRE(almost_equal<55>(covariance<1>(v1, v2), -400000799.9215977_J));
+}
+
+TEST_CASE("cov") {
+    // >>> np.cov(np.linspace(1, 40, 233), np.linspace(50, 865, 233))
+    // array([[  128.39371841557679,  2683.0995002229497 ],
+    //        [ 2683.0995002229497 , 56069.89981235136   ]])
+
+    const auto a = linspace(1., 40., 233);
+    const auto b = linspace(50., 865., 233);
+    // std::cout << cov(a, b) << "\n";
+
+    Eigen::Matrix<double, 2, 2> m;
+    m << 128.39371841557679, 2683.0995002229497, //
+        2683.0995002229497, 56069.89981235136;   //
+    REQUIRE(m.isApprox(cov(a, b)));
+}
+
+TEST_CASE("cov complex") {
+    using namespace operators;
+    // >>> np.cov(np.linspace(1, 40, 2334879) + 1j * np.linspace(50, 865, 2334879),
+    //            np.linspace(5,489,2334879) + 1j * np.linspace(18,8486,2334879))
+    // array([[  55478.904616093    +0.j             ,
+    //          576692.0743033098+5350.6735415460425j],
+    //        [ 576692.0743033098-5350.6735415460425j,
+    //         5995114.369563842    +0.j             ]])
+
+    const auto a =
+        linspace(1., 40., 2334879) + 1.i * linspace(50., 865., 2334879);
+    const auto b =
+        linspace(5., 489., 2334879) + 1.i * linspace(18., 8486., 2334879);
+    // std::cout << cov(a, b) << "\n";
+
+    Eigen::Matrix<std::complex<double>, 2, 2> m;
+    m << 55478.904616093 + 0.i, 576692.0743033098 + 5350.6735415460425i,  //
+        576692.0743033098 - 5350.6735415460425i, 5995114.369563842 + 0.i; //
+    REQUIRE(m.isApprox(cov(a, b)));
 }
 
 } // namespace scicpp::stats
