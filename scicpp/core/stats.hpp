@@ -318,7 +318,15 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
 
 template <int ddof = 0, class Array, class Predicate>
 constexpr auto var(const Array &f, Predicate filter) {
-    return std::get<0>(var<ddof>(f.cbegin(), f.cend(), filter));
+    const auto v = std::get<0>(var<ddof>(f.cbegin(), f.cend(), filter));
+    using T = std::decay_t<decltype(v)>;
+
+    if constexpr (meta::is_complex_v<T>) {
+        // The variance is always a nonnegative real number
+        return std::real(v);
+    } else {
+        return v;
+    }
 }
 
 template <int ddof = 0, class Array>
