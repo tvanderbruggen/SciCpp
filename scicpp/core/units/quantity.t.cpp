@@ -10,6 +10,7 @@
 #include "scicpp/core/units/maths.hpp"
 #include "scicpp/core/units/units.hpp"
 
+#include <complex>
 #include <cstdio>
 #include <type_traits>
 
@@ -193,6 +194,15 @@ TEST_CASE("Multiply by constant") {
     REQUIRE(almost_equal(10._V * 100._mA * 3.14, 3140._mW));
     REQUIRE(almost_equal<2>(3.14_degF * 10, 31.4_degF));
     REQUIRE(almost_equal<2>(10 * 3.14_degF, 31.4_degF));
+}
+
+TEST_CASE("Quantity complex") {
+    const auto z1 = std::complex(1_m, 2_m);
+    static_assert(meta::is_complex_v<std::decay_t<decltype(z1)>>);
+    REQUIRE(almost_equal(std::real(z1), 1_m));
+    REQUIRE(almost_equal(std::imag(z1), 2_m));
+    REQUIRE(almost_equal(std::real(value(z1)), 1.0));
+    REQUIRE(almost_equal(value(z1), std::complex(1.0, 2.0)));
 }
 
 } // namespace scicpp::units

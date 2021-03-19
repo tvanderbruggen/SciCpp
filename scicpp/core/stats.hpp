@@ -313,20 +313,20 @@ auto nancovariance(const Array1 &f1, const Array2 &f2) {
 
 template <int ddof = 0, class InputIt, class Predicate>
 constexpr auto var(InputIt first, InputIt last, Predicate filter) {
-    return covariance<ddof>(first, last, first, last, filter);
-}
-
-template <int ddof = 0, class Array, class Predicate>
-constexpr auto var(const Array &f, Predicate filter) {
-    const auto v = std::get<0>(var<ddof>(f.cbegin(), f.cend(), filter));
+    const auto [v, n] = covariance<ddof>(first, last, first, last, filter);
     using T = std::decay_t<decltype(v)>;
 
     if constexpr (meta::is_complex_v<T>) {
         // The variance is always a nonnegative real number
-        return std::real(v);
+        return std::make_tuple(std::real(v), n);
     } else {
-        return v;
+        return std::make_tuple(v, n);
     }
+}
+
+template <int ddof = 0, class Array, class Predicate>
+constexpr auto var(const Array &f, Predicate filter) {
+    return std::get<0>(var<ddof>(f.cbegin(), f.cend(), filter));
 }
 
 template <int ddof = 0, class Array>
@@ -378,17 +378,18 @@ auto tstd(const Array &a,
 
 template <int ddof = 1, class Array, class Predicate>
 auto sem(const Array &a, Predicate filter) {
-    using T = typename Array::value_type;
-    using raw_t = units::representation_t<T>;
     const auto [v, n] = var<ddof>(a.cbegin(), a.cend(), filter);
+    using T = std::decay_t<decltype(v)>;
+    using raw_t = units::representation_t<T>;
     return units::sqrt(v / raw_t(n));
 }
 
 template <int ddof = 1, class Array>
 auto sem(const Array &a) {
-    using T = typename Array::value_type;
+    const auto v = var<ddof>(a);
+    using T = std::decay_t<decltype(v)>;
     using raw_t = units::representation_t<T>;
-    return units::sqrt(var<ddof>(a) / raw_t(a.size()));
+    return units::sqrt(v / raw_t(a.size()));
 }
 
 template <int ddof = 1, class Array>

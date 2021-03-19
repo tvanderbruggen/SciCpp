@@ -8,6 +8,7 @@
 #include "scicpp/core/units/units.hpp"
 
 #include <cmath>
+#include <complex>
 #include <limits>
 
 // Extend std maths functions that are compatible with units
@@ -42,7 +43,12 @@ bool isnormal(T x) {
     return std::isnormal(value(x));
 }
 
-// TODO signbit, isgreater, isgreaterequal, isless, islessequal,  islessgreater
+template <typename T>
+bool signbit(T x) {
+    return std::signbit(value(x));
+}
+
+// TODO isgreater, isgreaterequal, isless, islessequal,  islessgreater
 // isunordered
 
 // Basic operations
@@ -54,7 +60,12 @@ auto fabs(T x) {
 
 template <typename T>
 auto abs(T x) {
-    return T(std::abs(value(x)));
+    if constexpr (meta::is_complex_v<std::decay_t<T>>) {
+        using scal_t = typename T::value_type;
+        return scal_t(std::abs(value(x)));
+    } else {
+        return T(std::abs(value(x)));
+    }
 }
 
 template <typename T>
@@ -290,6 +301,45 @@ auto log1p(T x) {
     static_assert(detail::is_dimensionless_like<T>,
                   "log1p requires a dimensionless argument");
     return std::log1p(value(x));
+}
+
+// Complex functions
+
+template <typename T>
+auto norm(T z) {
+    if constexpr (meta::is_complex_v<std::decay_t<T>>) {
+        using scal_t = typename T::value_type;
+
+        if constexpr (is_quantity_v<scal_t>) {
+            using ret_t = quantity_multiply<scal_t, scal_t>;
+            return ret_t(std::norm(value(z)));
+        } else {
+            return std::norm(z);
+        }
+    } else {
+        if constexpr (is_quantity_v<T>) {
+            using ret_t = quantity_multiply<T, T>;
+            return ret_t(std::norm(value(z)));
+        } else {
+            return std::norm(z);
+        }
+    }
+}
+
+template <typename T>
+auto arg(T z) {
+    if constexpr (meta::is_complex_v<std::decay_t<T>>) {
+        using scal_t = typename T::value_type;
+        return radian<representation_t<scal_t>>(std::arg(value(z)));
+    } else {
+        return radian<representation_t<T>>(std::arg(value(z)));
+    }
+}
+
+template <typename T1, typename T2>
+auto polar(T1 r, T2 theta) {
+    const auto z = std::polar(value(r), detail::to_radian(theta));
+    return std::complex(T1(z.real()), T1(z.imag()));
 }
 
 } // namespace scicpp::units

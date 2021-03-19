@@ -151,6 +151,8 @@ TEST_CASE("numeric_limits") {
     REQUIRE(almost_equal(std::numeric_limits<meter<>>::round_error().value(),
                          std::numeric_limits<double>::round_error()));
     REQUIRE(!isnormal(std::numeric_limits<meter<>>::denorm_min()));
+    REQUIRE(signbit(-1_m));
+    REQUIRE(!signbit(1_m));
 }
 
 TEST_CASE("exp, log") {
@@ -171,6 +173,29 @@ TEST_CASE("exp, log") {
 
     REQUIRE(almost_equal(log1p(0.), 0.));
     REQUIRE(almost_equal(log1p(0_m / 1_m), 0.));
+}
+
+TEST_CASE("Complex") {
+    const auto z1 = std::complex(1_m, 2_m);
+    const auto z2 = std::complex(1_m, 1_m);
+
+    REQUIRE(almost_equal<2>(units::norm(z1), 5_m2));
+    REQUIRE(almost_equal<2>(units::norm(std::complex(1.0, 2.0)), 5.0));
+    REQUIRE(almost_equal<2>(units::norm(2.0), 4.0));
+    REQUIRE(almost_equal<2>(units::norm(2_m), 4_m2));
+
+    REQUIRE(almost_equal(units::abs(z1), 1_m * std::sqrt(5.0)));
+
+    REQUIRE(almost_equal(units::arg(z2), 45_deg));
+    REQUIRE(almost_equal(units::arg(1_m), 0_deg));
+
+    REQUIRE(almost_equal(units::polar(1., 0_rad), 1. + 0.i));
+    REQUIRE(
+        almost_equal<2>(units::polar(1., 45_deg),
+                        std::complex(1. / std::sqrt(2.), 1. / std::sqrt(2.))));
+    REQUIRE(almost_equal<2>(
+        units::polar(1_m, 45_deg),
+        std::complex(1_m / std::sqrt(2.), 1_m / std::sqrt(2.))));
 }
 
 } // namespace scicpp::units

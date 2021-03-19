@@ -8,6 +8,7 @@
 #include "scicpp/core/units/arithmetic.hpp"
 
 #include <cmath>
+#include <complex>
 #include <cstdint>
 #include <cstdio>
 #include <numeric>
@@ -397,7 +398,9 @@ constexpr auto operator/(const quantity<T1, Dim, Scale, Offset> &rhs,
 
 template <typename T>
 constexpr auto value(T x) {
-    if constexpr (is_quantity_v<T>) {
+    if constexpr (meta::is_complex_v<std::decay_t<T>>) {
+        return std::complex(value(x.real()), value(x.imag()));
+    } else if constexpr (is_quantity_v<T>) {
         return x.value();
     } else {
         return x;

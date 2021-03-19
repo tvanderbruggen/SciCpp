@@ -56,8 +56,15 @@ template <int rel_tol = 1,
           units::disable_if_is_quantity<T> = 0>
 bool almost_equal(T a, T b) {
     if constexpr (meta::is_complex_v<T>) {
-        return (detail::fp_equal_predicate<rel_tol>(a.real(), b.real())) &&
-               (detail::fp_equal_predicate<rel_tol>(a.imag(), b.imag()));
+        using scal_t = typename T::value_type;
+
+        if constexpr (units::is_quantity_v<scal_t>) {
+            return almost_equal<rel_tol>(a.real().eval(), b.real().eval()) &&
+                   almost_equal<rel_tol>(a.imag().eval(), b.imag().eval());
+        } else {
+            return (detail::fp_equal_predicate<rel_tol>(a.real(), b.real())) &&
+                   (detail::fp_equal_predicate<rel_tol>(a.imag(), b.imag()));
+        }
     } else {
         return detail::fp_equal_predicate<rel_tol>(a, b);
     }

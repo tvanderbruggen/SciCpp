@@ -285,12 +285,6 @@ TEST_CASE("std physical units") {
         almost_equal(tstd(x, {3_m, 17_m}, {false, true}), 4.183300132670378_m));
 }
 
-TEST_CASE("std/var complex") {
-    const auto a = std::array{1. + 2.i, 3. - 4.i};
-    REQUIRE(almost_equal(var(a), 10.));
-    REQUIRE(almost_equal(std(a), std::sqrt(10.)));
-}
-
 TEST_CASE("sem") {
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
     REQUIRE(std::isnan(sem(std::array<double, 0>{})));
@@ -329,6 +323,18 @@ TEST_CASE("sem physical units") {
         almost_equal(tsem(x, {3_m, 17_m}, {true, false}), 1.118033988749895_m));
     REQUIRE(
         almost_equal(tsem(x, {3_m, 17_m}, {false, true}), 1.118033988749895_m));
+}
+
+TEST_CASE("std/var/sem complex") {
+    using namespace units::literals;
+
+    const auto a = std::array{1. + 2.i, 3. - 4.i};
+    REQUIRE(almost_equal(var(a), 10.));
+    REQUIRE(almost_equal(std(a), std::sqrt(10.)));
+    REQUIRE(almost_equal(sem(a), std::sqrt(10.)));
+
+    // const auto b = std::array{std::complex(1_m, 2_m), std::complex(3_m, -4_m)};
+    // REQUIRE(almost_equal(var(b), 10_m2));
 }
 
 TEST_CASE("detail::power_v") {
