@@ -527,6 +527,68 @@ template <std::size_t I,
 using get_base_quantity =
     base_quantity<T, get_base_dimension<I, DimSyst>, Scale, Offset>;
 
+// ----------------------------------------------------------------------------
+// Specializations for std::complex
+// ----------------------------------------------------------------------------
+
+template <typename T1,
+          typename Dim1,
+          typename Scale1,
+          typename Offset1,
+          meta::disable_if_iterable<T1> = 0>
+constexpr auto
+operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
+          const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
+    using ret_t =
+        std::complex<quantity_multiply<quantity<T1, Dim1, Scale1, Offset1>,
+                                       quantity<T1, Dim1, Scale1, Offset1>>>;
+    return ret_t(value(factor) * value(rhs));
+}
+
+template <typename T1,
+          typename Dim1,
+          typename Scale1,
+          typename Offset1,
+          typename T2,
+          typename Dim2,
+          typename Scale2,
+          typename Offset2,
+          meta::disable_if_iterable<T2> = 0>
+constexpr auto
+operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
+          const std::complex<quantity<T2, Dim2, Scale2, Offset2>> &factor) {
+    using ret_t =
+        std::complex<quantity_multiply<quantity<T1, Dim1, Scale1, Offset1>,
+                                       quantity<T2, Dim2, Scale2, Offset2>>>;
+    return ret_t(value(factor) * value(rhs));
+}
+
+template <typename Tp,
+          typename T1,
+          typename Dim1,
+          typename Scale1,
+          typename Offset1,
+          disable_if_is_quantity<Tp> = 0,
+          meta::disable_if_iterable<T1> = 0>
+constexpr auto
+operator*(const std::complex<Tp> &rhs,
+          const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
+    return std::complex<quantity<T1, Dim1, Scale1, Offset1>>(value(factor) * rhs);
+}
+
+template <typename Tp,
+          typename T1,
+          typename Dim1,
+          typename Scale1,
+          typename Offset1,
+          disable_if_is_quantity<Tp> = 0,
+          meta::disable_if_iterable<T1> = 0>
+constexpr auto
+operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
+          const std::complex<Tp> &factor) {
+    return std::complex<quantity<T1, Dim1, Scale1, Offset1>>(value(rhs) * factor);
+}
+
 } // namespace scicpp::units
 
 #endif // SCICPP_CORE_UNITS_QUANTITY

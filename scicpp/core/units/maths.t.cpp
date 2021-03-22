@@ -196,6 +196,14 @@ TEST_CASE("Complex") {
     REQUIRE(almost_equal<2>(
         units::polar(1_m, 45_deg),
         std::complex(1_m / std::sqrt(2.), 1_m / std::sqrt(2.))));
+
+    REQUIRE(almost_equal(std::conj(z1), std::complex(1_m, -2_m)));
+    REQUIRE(almost_equal(units::proj(z1), z1));
+    constexpr auto inf_m = std::numeric_limits<meter<>>::infinity();
+    REQUIRE(almost_equal(units::proj(std::complex(inf_m, -1_m)),
+                         std::complex(inf_m, -0_m)));
+    REQUIRE(almost_equal(units::proj(std::complex(0_m, -inf_m)),
+                         std::complex(inf_m, -0_m)));
 }
 
 } // namespace scicpp::units

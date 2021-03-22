@@ -342,6 +342,11 @@ auto polar(T1 r, T2 theta) {
     return std::complex(T1(z.real()), T1(z.imag()));
 }
 
+template <typename T>
+auto proj(T z) {
+    return T(std::proj(value(z)));
+}
+
 } // namespace scicpp::units
 
 // Numeric limits
