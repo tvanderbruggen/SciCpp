@@ -34,6 +34,12 @@ constexpr bool is_complex_v = detail::is_complex<T>::value;
 static_assert(!is_complex_v<double>);
 static_assert(is_complex_v<std::complex<double>>);
 
+template <typename T>
+using enable_if_complex = std::enable_if_t<is_complex_v<T>, int>;
+
+template <typename T>
+using disable_if_complex = std::enable_if_t<!is_complex_v<T>, int>;
+
 //---------------------------------------------------------------------------------
 // is_iterable
 //---------------------------------------------------------------------------------

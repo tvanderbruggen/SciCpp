@@ -217,6 +217,23 @@ TEST_CASE("Quantity complex") {
     REQUIRE(almost_equal(z1 * z3, std::complex(-1_m_per_s, 3_m_per_s)));
     REQUIRE(almost_equal(1i * z1, std::complex(-2_m, 1_m)));
     REQUIRE(almost_equal(z1 * 1i, std::complex(-2_m, 1_m)));
+    REQUIRE(almost_equal(z1 * 2.0, std::complex(2_m, 4_m)));
+    REQUIRE(almost_equal(2.0 * z1, std::complex(2_m, 4_m)));
+    REQUIRE(almost_equal(2_m * z1, std::complex(2_m2, 4_m2)));
+    REQUIRE(almost_equal(2_A * std::complex(1_V, 2_V), std::complex(2_W, 4_W)));
+    REQUIRE(almost_equal(z1 * 2.0, std::complex(2_m, 4_m)));
+    REQUIRE(almost_equal(z1 * 2_m, std::complex(2_m2, 4_m2)));
+    REQUIRE(almost_equal(std::complex(1_V, 2_V) * 2_A, std::complex(2_W, 4_W)));
+    REQUIRE(almost_equal(z1 / 2.0, std::complex(0.5_m, 1_m)));
+    REQUIRE(almost_equal(
+        z1 / 2_m,
+        std::complex(dimensionless<double>(0.5), dimensionless<double>(1.0))));
+    REQUIRE(almost_equal(z1 / 2_s, std::complex(0.5_m_per_s, 1_m_per_s)));
+    REQUIRE(almost_equal(1.0 / z3, std::complex(0.5_s, -0.5_s)));
+    REQUIRE(almost_equal(
+        1_Hz / z3,
+        std::complex(dimensionless<double>(0.5), -dimensionless<double>(0.5))));
+    REQUIRE(almost_equal(1_kg / z2, std::complex(0.5_kg / 1_m, -0.5_kg / 1_m)));
 }
 
 } // namespace scicpp::units
