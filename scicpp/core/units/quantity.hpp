@@ -454,6 +454,11 @@ struct representation_type_impl<quantity<T, Dim, Scale, Offset>> {
     using type = T;
 };
 
+template <typename T, typename Dim, typename Scale, typename Offset>
+struct representation_type_impl<std::complex<quantity<T, Dim, Scale, Offset>>> {
+    using type = T;
+};
+
 } // namespace detail
 
 template <class T>
@@ -721,6 +726,38 @@ operator/(const Qty &rhs,
     return std::complex<
         quantity_divide<Qty, quantity<T1, Dim1, Scale1, Offset1>>>(
         value(rhs) / value(factor));
+}
+
+template <typename T1,
+          typename Dim1,
+          typename Scale1,
+          typename Offset1,
+          meta::disable_if_iterable<T1> = 0>
+constexpr auto
+operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
+          const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
+    using ret_t =
+        std::complex<quantity_divide<quantity<T1, Dim1, Scale1, Offset1>,
+                                     quantity<T1, Dim1, Scale1, Offset1>>>;
+    return ret_t(value(rhs) / value(factor));
+}
+
+template <typename T1,
+          typename Dim1,
+          typename Scale1,
+          typename Offset1,
+          typename T2,
+          typename Dim2,
+          typename Scale2,
+          typename Offset2,
+          meta::disable_if_iterable<T2> = 0>
+constexpr auto
+operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
+          const std::complex<quantity<T2, Dim2, Scale2, Offset2>> &factor) {
+    using ret_t =
+        std::complex<quantity_divide<quantity<T1, Dim1, Scale1, Offset1>,
+                                     quantity<T2, Dim2, Scale2, Offset2>>>;
+    return ret_t(value(rhs) / value(factor));
 }
 
 } // namespace scicpp::units

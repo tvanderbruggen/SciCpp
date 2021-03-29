@@ -28,7 +28,8 @@ ifeq ($(COMPILER),gcc)
   CC = $(CROSS_COMPILE)gcc-8
   CCXX = $(CROSS_COMPILE)g++-8
 
-  WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond -Wsuggest-attribute=pure -Wsuggest-attribute=const
+  WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond -Wsuggest-attribute=pure -Wsuggest-attribute=const -Wno-conversion
+
 else
   CC = $(CROSS_COMPILE)clang
   CCXX = $(CROSS_COMPILE)clang

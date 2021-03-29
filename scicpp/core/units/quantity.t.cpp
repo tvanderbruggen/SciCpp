@@ -228,12 +228,17 @@ TEST_CASE("Quantity complex") {
     REQUIRE(almost_equal(
         z1 / 2_m,
         std::complex(dimensionless<double>(0.5), dimensionless<double>(1.0))));
+    REQUIRE(almost_equal(z1 / 1i, std::complex(2_m, -1_m)));
     REQUIRE(almost_equal(z1 / 2_s, std::complex(0.5_m_per_s, 1_m_per_s)));
     REQUIRE(almost_equal(1.0 / z3, std::complex(0.5_s, -0.5_s)));
     REQUIRE(almost_equal(
         1_Hz / z3,
         std::complex(dimensionless<double>(0.5), -dimensionless<double>(0.5))));
     REQUIRE(almost_equal(1_kg / z2, std::complex(0.5_kg / 1_m, -0.5_kg / 1_m)));
+    REQUIRE(almost_equal(
+        z1 / z2,
+        std::complex(dimensionless<double>(1.5), dimensionless<double>(0.5))));
+    REQUIRE(almost_equal(z1 / z3, std::complex(1.5_m * 1_s, 0.5_m * 1_s)));
 }
 
 } // namespace scicpp::units

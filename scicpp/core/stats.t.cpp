@@ -333,8 +333,8 @@ TEST_CASE("std/var/sem complex") {
     REQUIRE(almost_equal(std(a), std::sqrt(10.)));
     REQUIRE(almost_equal(sem(a), std::sqrt(10.)));
 
-    // const auto b = std::array{std::complex(1_m, 2_m), std::complex(3_m, -4_m)};
-    // REQUIRE(almost_equal(var(b), 10_m2));
+    const auto b = std::array{std::complex(1_m, 2_m), std::complex(3_m, -4_m)};
+    REQUIRE(almost_equal(var(b), 10_m2));
 }
 
 TEST_CASE("detail::power_v") {

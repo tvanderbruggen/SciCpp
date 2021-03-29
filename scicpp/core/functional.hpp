@@ -340,7 +340,7 @@ filter_reduce_associative(InputIt first,
                           InputIt last,
                           AssociativeBinaryOp op,
                           UnaryPredicate filter,
-                          T id_elt = T{0}) {
+                          T id_elt = utils::set_zero<T>()) {
     if constexpr (std::is_integral_v<T>) {
         // No precision problem for integers, as long as you don't overflow ...
         return filter_reduce(first, last, op, id_elt, filter);

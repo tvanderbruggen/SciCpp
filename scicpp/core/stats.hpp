@@ -242,7 +242,7 @@ constexpr auto covariance(InputIt1 first1,
             const auto m1 = mean(f1, l1, filter);
             const auto m2 = mean(f2, l2, filter);
 
-            auto res = prod_t(0);
+            auto res = utils::set_zero<prod_t>();
             signed_size_t cnt = 0;
 
             for (; f1 != l1; ++f1, ++f2) {

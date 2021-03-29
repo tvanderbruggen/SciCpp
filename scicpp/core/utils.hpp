@@ -40,6 +40,20 @@ auto move_subvector(std::vector<T> &&v, std::size_t len) {
         std::make_move_iterator(v.begin() + int(std::min(len, v.size()))));
 }
 
+//---------------------------------------------------------------------------------
+// initialize zero
+//---------------------------------------------------------------------------------
+
+template <typename T>
+constexpr auto set_zero() {
+    if constexpr (meta::is_complex_v<T>) {
+        using U = typename T::value_type;
+        return T(U(0), U(0));
+    } else {
+        return T(0);
+    }
+}
+
 } // namespace scicpp::utils
 
 #endif // SCICPP_CORE_UTILS
