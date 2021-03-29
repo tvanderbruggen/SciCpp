@@ -67,8 +67,10 @@ auto to_number([[maybe_unused]] const char *str) {
             const auto nan = std::numeric_limits<scal_t>::quiet_NaN();
             return std::complex(nan, nan);
         }
-    } else {
+    } else if constexpr (meta::is_string_v<T>) {
         return T{str};
+    } else {
+        return T{};
     }
 }
 

@@ -8,6 +8,7 @@
 #include <array>
 #include <complex>
 #include <ratio>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -260,6 +261,21 @@ constexpr bool is_predicate =
 
 static_assert(is_predicate<std::greater<>, double, double>);
 static_assert(!is_predicate<std::plus<>, double, double>);
+
+//---------------------------------------------------------------------------------
+// is_string traits
+//---------------------------------------------------------------------------------
+
+template <class T>
+constexpr bool is_string_v =
+    std::is_same_v<const char *, typename std::decay_t<T>> ||
+    std::is_same_v<char *, typename std::decay_t<T>> ||
+    std::is_same_v<std::string, typename std::decay_t<T>>;
+
+static_assert(is_string_v<const char *>);
+static_assert(is_string_v<char *>);
+static_assert(is_string_v<std::string>);
+static_assert(!is_string_v<float *>);
 
 } // namespace scicpp::meta
 
