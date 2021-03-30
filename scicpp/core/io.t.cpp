@@ -187,6 +187,23 @@ TEST_CASE("scicpp::loadtxt to tuple with usecols list and converters") {
     REQUIRE(almost_equal(std::get<2>(data[9]), 0.8));
 }
 
+TEST_CASE("scicpp::loadtxt to tuple with usecols list and converters pair") {
+    const auto data =
+        TxtLoader<bool, std::pair<int, double>>()
+            .delimiter(',')
+            .skiprows(1)
+            .usecols(1, 2)
+            .converters({{1, [](auto x) { return std::atof(x) > 25.0; }},
+                         {2, [](auto x) { return std::make_pair(10 + std::atoi(x), std::atof(x)); }}})
+            .max_rows(10)
+            .load<io::pack>("tests/data0.csv");
+    // print(data);
+    REQUIRE(data.size() == 10);
+    REQUIRE(std::get<0>(data[0]) == 0);
+    REQUIRE(std::get<0>(std::get<1>(data[9])) == 10);
+    REQUIRE(std::get<1>(std::get<1>(data[9])) == 0.25);
+}
+
 TEST_CASE("scicpp::savetxt single std::array") {
     const auto arr = std::array{
         0., 3.14, 12.56, 28.26, 50.24, 78.5, 113.04, 153.86, 200.96, 254.34};
