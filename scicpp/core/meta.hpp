@@ -32,9 +32,6 @@ struct is_complex<std::complex<T>> : std::true_type {};
 template <class T>
 constexpr bool is_complex_v = detail::is_complex<T>::value;
 
-static_assert(!is_complex_v<double>);
-static_assert(is_complex_v<std::complex<double>>);
-
 template <typename T>
 using enable_if_complex = std::enable_if_t<is_complex_v<T>, int>;
 
@@ -73,10 +70,6 @@ using is_iterable = decltype(detail::is_iterable_impl<T>(0));
 template <typename T>
 constexpr bool is_iterable_v = detail::is_iterable<T>::value;
 
-static_assert(is_iterable_v<std::array<double, 3>>);
-static_assert(is_iterable_v<std::vector<float>>);
-static_assert(!is_iterable_v<double>);
-
 template <typename T>
 using enable_if_iterable = std::enable_if_t<is_iterable_v<T>, int>;
 
@@ -99,9 +92,6 @@ struct is_std_vector<std::vector<Scalar>> : std::true_type {};
 template <class T>
 constexpr bool is_std_vector_v = detail::is_std_vector<T>::value;
 
-static_assert(!is_std_vector_v<Eigen::Matrix2d>);
-static_assert(is_std_vector_v<std::vector<double>>);
-
 //---------------------------------------------------------------------------------
 // std::array traits
 //---------------------------------------------------------------------------------
@@ -117,9 +107,6 @@ struct is_std_array<std::array<Scalar, N>> : std::true_type {};
 
 template <class T>
 constexpr bool is_std_array_v = detail::is_std_array<T>::value;
-
-static_assert(!is_std_array_v<Eigen::Matrix2d>);
-static_assert(is_std_array_v<std::array<double, 10>>);
 
 //---------------------------------------------------------------------------------
 // std::tuple traits
@@ -137,9 +124,6 @@ struct is_std_tuple<std::tuple<Args...>> : std::true_type {};
 template <class T>
 constexpr bool is_std_tuple_v = detail::is_std_tuple<T>::value;
 
-static_assert(!is_std_tuple_v<std::vector<double>>);
-static_assert(is_std_tuple_v<std::tuple<double, int, float>>);
-
 //---------------------------------------------------------------------------------
 // std::pair traits
 //---------------------------------------------------------------------------------
@@ -156,9 +140,6 @@ struct is_std_pair<std::pair<T1, T2>> : std::true_type {};
 template <class T>
 constexpr bool is_std_pair_v = detail::is_std_pair<T>::value;
 
-static_assert(!is_std_pair_v<std::vector<double>>);
-static_assert(is_std_pair_v<std::pair<double, int>>);
-
 //---------------------------------------------------------------------------------
 // subtuple
 // https://stackoverflow.com/questions/17854219/creating-a-sub-tuple-starting-from-a-stdtuplesome-types
@@ -167,21 +148,21 @@ static_assert(is_std_pair_v<std::pair<double, int>>);
 namespace detail {
 
 template <typename... T, std::size_t... I>
-auto subtuple_(const std::tuple<T...> &t,
-               std::index_sequence<I...> /*unused*/) {
+constexpr auto subtuple_(const std::tuple<T...> &t,
+                         std::index_sequence<I...> /*unused*/) {
     return std::make_tuple(std::get<I>(t)...);
 }
 
 } // namespace detail
 
 template <int Trim, typename... T>
-auto subtuple(const std::tuple<T...> &t) {
+constexpr auto subtuple(const std::tuple<T...> &t) {
     return detail::subtuple_(t,
                              std::make_index_sequence<sizeof...(T) - Trim>());
 }
 
 template <int Trim = 1, typename T1, typename T2>
-auto subtuple(const std::pair<T1, T2> &t) {
+constexpr auto subtuple(const std::pair<T1, T2> &t) {
     return std::make_tuple(t.first);
 }
 
@@ -201,9 +182,6 @@ struct is_ratio<std::ratio<num, den>> : std::true_type {};
 
 template <class T>
 constexpr bool is_ratio_v = detail::is_ratio<T>::value;
-
-static_assert(is_ratio_v<std::ratio<1, 42>>);
-static_assert(!is_ratio_v<std::array<float, 42>>);
 
 //---------------------------------------------------------------------------------
 // Eigen type traits
@@ -230,26 +208,12 @@ struct is_eigen_array<
 template <class T>
 constexpr bool is_eigen_matrix_v = detail::is_eigen_matrix<T>::value;
 
-static_assert(is_eigen_matrix_v<Eigen::Matrix2d>);
-static_assert(!is_eigen_matrix_v<std::vector<double>>);
-static_assert(!is_eigen_matrix_v<std::array<double, 4>>);
-
 template <class T>
 constexpr bool is_eigen_array_v = detail::is_eigen_array<T>::value;
-
-static_assert(is_eigen_array_v<Eigen::Array2Xf>);
-static_assert(!is_eigen_matrix_v<Eigen::Array2Xf>);
-static_assert(!is_eigen_array_v<std::vector<double>>);
-static_assert(!is_eigen_array_v<std::array<double, 4>>);
 
 template <class T>
 constexpr bool is_eigen_container_v =
     is_eigen_matrix_v<T> || is_eigen_array_v<T>;
-
-static_assert(is_eigen_container_v<Eigen::Array2Xf>);
-static_assert(is_eigen_container_v<Eigen::Matrix2d>);
-static_assert(!is_eigen_container_v<std::vector<double>>);
-static_assert(!is_eigen_container_v<std::array<double, 4>>);
 
 //---------------------------------------------------------------------------------
 // is_predicate
@@ -259,11 +223,8 @@ template <class Predicate, class... Args>
 constexpr bool is_predicate =
     std::is_integral_v<std::invoke_result_t<Predicate, Args...>>;
 
-static_assert(is_predicate<std::greater<>, double, double>);
-static_assert(!is_predicate<std::plus<>, double, double>);
-
 //---------------------------------------------------------------------------------
-// is_string traits
+// is_string
 //---------------------------------------------------------------------------------
 
 template <class T>
@@ -271,11 +232,6 @@ constexpr bool is_string_v =
     std::is_same_v<const char *, typename std::decay_t<T>> ||
     std::is_same_v<char *, typename std::decay_t<T>> ||
     std::is_same_v<std::string, typename std::decay_t<T>>;
-
-static_assert(is_string_v<const char *>);
-static_assert(is_string_v<char *>);
-static_assert(is_string_v<std::string>);
-static_assert(!is_string_v<float *>);
 
 } // namespace scicpp::meta
 

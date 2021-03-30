@@ -15,6 +15,7 @@ using namespace std::literals;
 #include "scicpp/core/utils.t.cpp"
 #include "scicpp/core/tuple.t.cpp"
 #include "scicpp/core/io.t.cpp"
+#include "scicpp/core/meta.t.cpp"
 #include "scicpp/core/functional.t.cpp"
 #include "scicpp/core/constants.t.cpp"
 #include "scicpp/core/equal.t.cpp"

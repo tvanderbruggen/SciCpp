@@ -98,4 +98,9 @@ TEST_CASE("operator==") {
     }
 }
 
+TEST_CASE("strings_equal") {
+    static_assert(strings_equal("str1", "str1"));
+    static_assert(!strings_equal("str1", "str2"));
+}
+
 } // namespace scicpp

@@ -13,6 +13,7 @@
 #include <complex>
 #include <limits>
 #include <numeric>
+#include <string_view>
 
 namespace scicpp {
 
@@ -93,6 +94,15 @@ bool scicpp_pure almost_equal(const Array &f1, const Array &f2) {
 template <class Array, meta::enable_if_iterable<Array> = 0>
 bool scicpp_pure array_equal(const Array &f1, const Array &f2) {
     return std::equal(f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend());
+}
+
+//---------------------------------------------------------------------------------
+// almost_equal
+// https://stackoverflow.com/questions/27490858/how-can-you-compare-two-character-strings-statically-at-compile-time
+//---------------------------------------------------------------------------------
+
+constexpr bool strings_equal(char const *a, char const *b) {
+    return std::string_view(a) == b;
 }
 
 } // namespace scicpp
