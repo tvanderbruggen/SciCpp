@@ -183,10 +183,16 @@ Statistics
 :ref:`stats::skew, nanskew <core_stats_skew>`
     Compute the sample skewness of a data set.
 
+:ref:`stats::covariance, nancovariance <core_stats_covariance>`
+    Compute the covariance between two data sets.
+
+:ref:`stats::cov, nancov <core_stats_cov>`
+    Compute the covariance matrix between two data sets.
+
 Interpolate
 -------------
 
-:ref:`interpolate::rand <core_interpolate_interp1d>`
+:ref:`interpolate::interp1d <core_interpolate_interp1d>`
     Interpolate a 1D array.
 
 Units

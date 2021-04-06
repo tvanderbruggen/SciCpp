@@ -118,10 +118,11 @@ using data_rate = quantity_divide<data_quantity<T, Scale>, time<T>>;
 #define QUANTITY_TRAIT(qty)                                                    \
     template <class T>                                                         \
     constexpr bool is_##qty##_impl() {                                         \
-        if constexpr (is_quantity_v<T>) {                                      \
+        using Tp = std::decay_t<T>;                                            \
+        if constexpr (is_quantity_v<Tp>) {                                     \
             return is_same_dimension<                                          \
-                T,                                                             \
-                qty<typename T::value_type, typename T::scal>>;                \
+                Tp,                                                            \
+                qty<typename Tp::value_type, typename Tp::scal>>;              \
         } else {                                                               \
             return false;                                                      \
         }                                                                      \

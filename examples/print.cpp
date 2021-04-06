@@ -2,6 +2,7 @@
 // Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include <array>
+#include <complex>
 #include <scicpp/core.hpp>
 #include <scicpp/signal.hpp>
 #include <tuple>
@@ -14,7 +15,7 @@ using namespace std::literals;
 
 int main() {
     // ---- Print a long vector
-    const auto v = sci::linspace(0., 10., 100000000);
+    const auto v = sci::linspace(0., 10., 10000000);
     sci::print(v);
 
     // ---- Print a short array of reals
@@ -46,4 +47,7 @@ int main() {
     }
 
     sci::print(vtup);
+
+    // ---- Print a complex
+    sci::print(1. + 2.i);
 }
