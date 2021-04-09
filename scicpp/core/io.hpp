@@ -63,10 +63,11 @@ auto to_number([[maybe_unused]] const char *str) {
 
         if (std::sscanf(str, "%lf+%lfj", &x, &y) > 0) {
             return std::complex(x, y);
-        } else { // Invalid input
-            const auto nan = std::numeric_limits<scal_t>::quiet_NaN();
-            return std::complex(nan, nan);
         }
+        
+        // Invalid input
+        const auto nan = std::numeric_limits<scal_t>::quiet_NaN();
+        return std::complex(nan, nan);
     } else if constexpr (meta::is_string_v<T>) {
         return T{str};
     } else {
@@ -454,7 +455,7 @@ class TxtLoader {
     }
 
     auto converters(ConvertersDict converters) {
-        m_converters = converters;
+        m_converters = std::move(converters);
         return *this;
     }
 
@@ -464,7 +465,7 @@ class TxtLoader {
     }
 
     auto filters(FiltersDict filters) {
-        m_filters = filters;
+        m_filters = std::move(filters);
         return *this;
     }
 

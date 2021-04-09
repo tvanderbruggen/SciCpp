@@ -13,8 +13,7 @@
 #include <unsupported/Eigen/Splines>
 #include <utility>
 
-namespace scicpp {
-namespace interpolate {
+namespace scicpp::interpolate {
 
 // Interpolation with degree zero doesn't work
 enum InterpKind : int { /* ZERO = 0, */ SLINEAR = 1, QUADRATIC = 2, CUBIC = 3 };
@@ -81,7 +80,6 @@ struct interp1d {
     detail::SplineFunction<kind> s;
 };
 
-} // namespace interpolate
-} // namespace scicpp
+} // namespace scicpp::interpolate
 
 #endif // SCICPP_CORE_INTERPOLATE

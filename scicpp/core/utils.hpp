@@ -4,6 +4,8 @@
 #ifndef SCICPP_CORE_UTILS
 #define SCICPP_CORE_UTILS
 
+#include "scicpp/core/meta.hpp"
+
 #include <array>
 #include <iterator>
 #include <vector>
