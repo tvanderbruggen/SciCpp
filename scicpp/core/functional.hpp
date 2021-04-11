@@ -174,6 +174,10 @@ constexpr auto all = []([[maybe_unused]] auto v) { return true; };
 constexpr auto none = []([[maybe_unused]] auto v) { return false; };
 constexpr auto not_nan = [](auto v) { return !units::isnan(v); };
 
+constexpr auto not_zero = [](auto v) {
+    return std::fpclassify(units::value(v)) != FP_ZERO;
+};
+
 template <typename T>
 struct Trim {
     constexpr Trim(const std::array<T, 2> &limits_,

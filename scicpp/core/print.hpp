@@ -5,120 +5,245 @@
 #define SCICPP_CORE_PRINT
 
 #include "scicpp/core/equal.hpp"
+#include "scicpp/core/functional.hpp"
+#include "scicpp/core/maths.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/stats.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
 #include <array>
+#include <complex>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <tuple>
-#include <type_traits>
 #include <vector>
 
 namespace scicpp {
 
 namespace detail {
 
-template <class Stream, typename T>
-void fprint_element(Stream &stream, T value);
+template <typename T>
+auto fprint_element(T value, int precision, bool fixed, int width);
 
 template <class Stream, typename T>
-void fprint_tuple_element(Stream &stream, T x) {
-    fprint_element(stream, x);
+void fprint_tuple_element(
+    Stream &stream, T x, int precision, bool fixed, int width) {
+    stream << fprint_element(x, precision, fixed, width);
     stream << ", ";
 }
 
-template <class Stream, typename T>
-void fprint_complex(Stream &stream, T z) {
-    using scalar_t = typename T::value_type;
-
-    if (std::fpclassify(z.imag()) == FP_ZERO &&
-        std::signbit(z.imag())) { // Negative zero
-        stream << z.real() << " - " << -z.imag() << "i";
-    } else if (z.imag() >= scalar_t(0)) {
-        stream << z.real() << " + " << z.imag() << "i";
-    } else {
-        stream << z.real() << " - " << -z.imag() << "i";
-    }
+template <typename T>
+bool is_negative(T value) {
+    return (std::fpclassify(value) == FP_ZERO &&
+            std::signbit(value)) // Negative zero
+           || value < T(0);
 }
 
 template <class Stream, typename T>
-void fprint_element(Stream &stream, T value) {
+void fprint_complex(Stream &stream, const std::complex<T> &z) {
+    if (is_negative(z.imag())) {
+        stream << z.real() << "-" << -z.imag() << "j";
+    } else {
+        stream << z.real() << "+" << z.imag() << "j";
+    }
+}
+
+template <typename T>
+auto fprint_element(T value, int precision, bool fixed, int width) {
+    std::stringstream ss;
+
+    if (fixed) {
+        ss << std::fixed;
+    } else {
+        ss << std::scientific;
+    }
+
+    ss << std::setprecision(precision);
+
+    if (width >= 0) {
+        ss << std::setw(width);
+    }
+
+    ss << std::setfill(' ');
+
     if constexpr (meta::is_complex_v<T>) {
         if constexpr (units::is_quantity_v<typename T::value_type>) {
-            fprint_complex(stream, units::value(value));
+            fprint_complex(ss, units::value(value));
         } else {
-            fprint_complex(stream, value);
+            fprint_complex(ss, value);
         }
     } else if constexpr (meta::is_std_tuple_v<T> || meta::is_std_pair_v<T>) {
-        stream << "(";
+        ss << "(";
         std::apply(
-            [&stream](auto... x) { (fprint_tuple_element(stream, x), ...); },
+            [&](auto... x) {
+                (fprint_tuple_element(ss, x, precision, fixed, width), ...);
+            },
             meta::subtuple<1>(value));
-        fprint_element(stream, std::get<std::tuple_size_v<T> - 1>(value));
-        stream << ")";
+        ss << fprint_element(
+            std::get<std::tuple_size_v<T> - 1>(value), precision, fixed, width);
+        ss << ")";
     } else if constexpr (units::is_quantity_v<T>) {
-        stream << value.value();
+        ss << value.value();
     } else {
-        stream << value;
+        ss << value;
     }
+
+    return ss.str();
+}
+
+template <class Array>
+int get_width([[maybe_unused]] const Array &A, int fixed) {
+    if constexpr (meta::is_std_tuple_v<typename Array::value_type>) {
+        return -1;
+    }
+
+    if (!fixed) {
+        return 15;
+    } else {
+        return 12;
+    }
+}
+
+template <class Array>
+bool use_scientific_notation(const Array &A) {
+    // https://numpy.org/doc/stable/reference/generated/numpy.set_printoptions.html
+    // Scientific notation is used when absolute value of the smallest number is < 1e-4
+    // or the ratio of the maximum absolute value to the minimum is > 1e3.
+
+    using T = typename Array::value_type;
+
+    if constexpr (meta::is_complex_v<T>) {
+        return use_scientific_notation(real(A)) ||
+               use_scientific_notation(imag(A));
+    } else if constexpr (meta::is_std_tuple_v<T> || meta::is_std_pair_v<T>) {
+        return true;
+    } else {
+        const auto fabs = vectorize([](auto x) { return units::fabs(x); });
+        const auto abs_non_zero = filter(fabs(A), filters::not_zero);
+
+        if (abs_non_zero.size() == 0) {
+            return false;
+        }
+
+        const auto min = units::value(stats::amin(abs_non_zero));
+        const auto max = units::value(stats::amax(abs_non_zero));
+        return (min < 1E-4) || ((max / min) > 1E3);
+    }
+}
+
+template <class Array>
+auto get_edgeitems(const Array &A, std::size_t num_edgeitems) {
+    std::vector<typename Array::value_type> edgeitems;
+    edgeitems.reserve(2 * num_edgeitems);
+
+    for (std::size_t i = 0; i < num_edgeitems; ++i) {
+        edgeitems.push_back(A[i]);
+    }
+
+    for (std::size_t i = A.size() - num_edgeitems; i < A.size(); ++i) {
+        edgeitems.push_back(A[i]);
+    }
+
+    return edgeitems;
 }
 
 } // namespace detail
 
-template <std::size_t n_max,     // Max size for untruncated display
-          std::size_t n_cols,    // Number of printed columns
-          std::size_t n_display, // Number of display points when truncated
-          class Stream,
-          class Array,
-          meta::enable_if_iterable<Array> = 0>
-void fprint(Stream &stream, const Array &A) {
-    static_assert(n_cols != 0);
+struct PrintOptions {
+    PrintOptions()
+        : separator(' '), precision(8), threshold(1000), linewidth(75),
+          edgeitems(3) {}
 
-    stream << "[ ";
+    char separator;
+    int precision;
+    // Total number of array elements which trigger summarization rather than full repr
+    std::size_t threshold;
+    // Number of characters per line for the purpose of inserting line breaks
+    int linewidth;
+    // Number of array items in summary at beginning and end of each dimension
+    std::size_t edgeitems;
+};
 
-    if (A.size() <= n_max) {
+template <class Stream, class Array, meta::enable_if_iterable<Array> = 0>
+void fprint(Stream &stream, const Array &A, const PrintOptions &prtopts) {
+    stream << "[";
+    int pos = 1;
+
+    if (A.size() <= prtopts.threshold) {
+        const auto fixed = !detail::use_scientific_notation(A);
+        const auto width = detail::get_width(A, fixed);
+
         for (std::size_t i = 0; i < A.size() - 1; ++i) {
-            detail::fprint_element(stream, A[i]);
-            stream << ", ";
+            const auto str = detail::fprint_element(
+                A[i], prtopts.precision, fixed, width);
+            stream << prtopts.separator;
+            pos += (1 + int(str.size()));
 
-            if constexpr (n_cols == 1) {
-                stream << "\n  ";
+            if (pos >= prtopts.linewidth) {
+                stream << "\n  " << str;
+                pos = 2 + int(str.size());
             } else {
-                if ((i > 0) && ((i + 1) % n_cols == 0)) {
-                    stream << "\n  ";
-                }
+                stream << str;
             }
         }
+
+        stream << prtopts.separator;
+        stream << detail::fprint_element(
+            A[A.size() - 1], prtopts.precision, fixed, width);
     } else {
-        for (std::size_t i = 0; i < n_display; ++i) {
-            detail::fprint_element(stream, A[i]);
-            stream << ", ";
+        const auto fixed = !detail::use_scientific_notation(
+            detail::get_edgeitems(A, prtopts.edgeitems));
+        const auto width = detail::get_width(A, fixed);
+
+        for (std::size_t i = 0; i < prtopts.edgeitems; ++i) {
+            const auto str = detail::fprint_element(
+                A[i], prtopts.precision, fixed, width);
+            stream << prtopts.separator;
+            pos += (1 + int(str.size()));
+
+            if (pos >= prtopts.linewidth) {
+                stream << "\n  " << str;
+                pos = 2 + int(str.size());
+            } else {
+                stream << str;
+            }
         }
 
-        stream << "..., ";
+        stream << prtopts.separator << "...";
+        pos += 3;
 
-        for (std::size_t i = A.size() - n_display; i < A.size() - 1; ++i) {
-            detail::fprint_element(stream, A[i]);
-            stream << ", ";
+        for (std::size_t i = A.size() - prtopts.edgeitems;
+             i < A.size() - 1;
+             ++i) {
+            const auto str = detail::fprint_element(
+                A[i], prtopts.precision, fixed, width);
+            stream << prtopts.separator;
+            pos += (1 + int(str.size()));
+
+            if (pos >= prtopts.linewidth) {
+                stream << "\n  " << str;
+                pos = 2 + int(str.size());
+            } else {
+                stream << str;
+            }
         }
+
+        stream << detail::fprint_element(
+            A[A.size() - 1], prtopts.precision, fixed, width);
     }
 
-    detail::fprint_element(stream, A[A.size() - 1]);
-    stream << " ]\n";
+    stream << "]\n";
 }
 
-// Specialization for default n_max, n_cols and n_display values
 template <class Stream, class T>
 void fprint(Stream &stream, const T &A) {
     if constexpr (meta::is_iterable_v<T>) {
-        if constexpr (meta::is_std_tuple_v<typename T::value_type>) {
-            fprint<1000, 1, 3>(stream, A);
-        } else {
-            fprint<1000, 5, 3>(stream, A);
-        }
+        fprint(stream, A, PrintOptions{});
     } else {
-        detail::fprint_element(stream, A);
+        stream << detail::fprint_element(
+            A, PrintOptions{}.precision, false, 12);
         stream << "\n";
     }
 }

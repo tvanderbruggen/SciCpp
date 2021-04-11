@@ -19,11 +19,15 @@ int main() {
     sci::print(v);
 
     // ---- Print a short array of reals
+    sci::print(sci::linspace(1.0, 456.156, 100));
+    sci::print(sci::linspace(1.0, 456156.0, 100));
+
     const auto window = sci::signal::windows::hann<double, 16>();
     sci::print(window);
 
     // ---- Print a short array of complex
     const auto phi = sci::linspace<window.size()>(0., 2. * M_PI);
+    sci::print(sci::exp(1.i * phi));
     const auto window_cplx = window * sci::exp(1.i * phi);
     sci::print(window_cplx);
 
