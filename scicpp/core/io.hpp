@@ -64,7 +64,7 @@ auto to_number([[maybe_unused]] const char *str) {
         if (std::sscanf(str, "%lf+%lfj", &x, &y) > 0) {
             return std::complex(x, y);
         }
-        
+
         // Invalid input
         const auto nan = std::numeric_limits<scal_t>::quiet_NaN();
         return std::complex(nan, nan);
@@ -109,9 +109,9 @@ std::optional<DataType> convert(const token_t &tok,
 
     if (filter != filters.end()) {
         return filter->second(res) ? std::make_optional(res) : std::nullopt;
-    } else {
-        return res;
     }
+
+    return res;
 }
 
 template <class TokenOp>

@@ -104,7 +104,7 @@ auto logspace(T start, T stop, std::size_t num, BaseTp base = BaseTp{10}) {
 
 template <typename T>
 auto arange(T start, T stop, T step = T{1}) {
-    std::size_t num;
+    std::size_t num = 0;
 
     if (((stop > start) && (step < T{0})) ||
         ((stop < start) && (step > T{0}))) {

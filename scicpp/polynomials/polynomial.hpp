@@ -294,23 +294,23 @@ auto polypow(const std::vector<T> &P, std::size_t pow) {
         return std::vector(1, T{1});
     } else if (pow == 1) {
         return std::vector<T>(P.cbegin(), P.cend());
-    } else {
-        std::vector<T> x(P.cbegin(), P.cend());
-        std::vector<T> y(1, T(1));
-        x.reserve(pow * (P.size() - 1) + 1);
-        y.reserve(pow * (P.size() - 1) + 1);
+    }
 
-        while (pow > 1) {
-            if (pow % 2 == 1) {
-                y = std::move(polymul<method>(x, y));
-            }
+    std::vector<T> x(P.cbegin(), P.cend());
+    std::vector<T> y(1, T(1));
+    x.reserve(pow * (P.size() - 1) + 1);
+    y.reserve(pow * (P.size() - 1) + 1);
 
-            pow = pow / 2;
-            x = std::move(polymul<method>(x, x));
+    while (pow > 1) {
+        if (pow % 2 == 1) {
+            y = std::move(polymul<method>(x, y));
         }
 
-        return polymul(x, y);
+        pow = pow / 2;
+        x = std::move(polymul<method>(x, x));
     }
+
+    return polymul(x, y);
 }
 
 // Specialization for the default convolution method (DIRECT)
