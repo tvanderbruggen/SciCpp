@@ -15,8 +15,8 @@ using namespace std::literals;
 
 int main() {
     // ---- Print a long vector
-    const auto v = sci::linspace(0., 10., 10000000);
-    sci::print(v);
+    sci::print(sci::linspace(0., 10., 10000000));
+    sci::print(sci::linspace(1., 10000000., 10000000));
 
     // ---- Print a short array of reals
     sci::print(sci::linspace(1.0, 456.156, 100));

@@ -13,6 +13,7 @@
 
 #include <array>
 #include <complex>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -24,85 +25,112 @@ namespace scicpp {
 
 namespace detail {
 
-template <typename T>
-auto fprint_element(T value, int precision, bool fixed, int width);
-
-template <class Stream, typename T>
-void fprint_tuple_element(
-    Stream &stream, T x, int precision, bool fixed, int width) {
-    stream << fprint_element(x, precision, fixed, width);
-    stream << ", ";
-}
-
-template <typename T>
-bool is_negative(T value) {
-    return (std::fpclassify(value) == FP_ZERO &&
-            std::signbit(value)) // Negative zero
-           || value < T(0);
-}
-
-template <class Stream, typename T>
-void fprint_complex(Stream &stream, const std::complex<T> &z) {
-    if (is_negative(z.imag())) {
-        stream << z.real() << "-" << -z.imag() << "j";
-    } else {
-        stream << z.real() << "+" << z.imag() << "j";
-    }
-}
-
-template <typename T>
-auto fprint_element(T value, int precision, bool fixed, int width) {
-    std::stringstream ss;
-
-    if (fixed) {
-        ss << std::fixed;
-    } else {
-        ss << std::scientific;
-    }
-
-    ss << std::setprecision(precision);
-
-    if (width >= 0) {
-        ss << std::setw(width);
-    }
-
-    ss << std::setfill(' ');
-
-    if constexpr (meta::is_complex_v<T>) {
-        if constexpr (units::is_quantity_v<typename T::value_type>) {
-            fprint_complex(ss, units::value(value));
+struct ElementFormater {
+    ElementFormater(int precision, bool fixed, int width)
+        : precision(precision), fixed(fixed), width(width) {
+        if (fixed) {
+            ss << std::fixed;
         } else {
-            fprint_complex(ss, value);
+            ss << std::scientific;
         }
-    } else if constexpr (meta::is_std_tuple_v<T> || meta::is_std_pair_v<T>) {
-        ss << "(";
-        std::apply(
-            [&](auto... x) {
-                (fprint_tuple_element(ss, x, precision, fixed, width), ...);
-            },
-            meta::subtuple<1>(value));
-        ss << fprint_element(
-            std::get<std::tuple_size_v<T> - 1>(value), precision, fixed, width);
-        ss << ")";
-    } else if constexpr (units::is_quantity_v<T>) {
-        ss << value.value();
-    } else {
-        ss << value;
+
+        ss << std::setprecision(precision);
+        ss << std::setfill(' ');
     }
 
-    return ss.str();
-}
+    void reset() {
+        // https://stackoverflow.com/questions/7623650/resetting-a-stringstream
+        ss.str(std::string());
+        ss.clear();
+
+        if (width >= 0) {
+            ss << std::setw(width);
+        }
+    }
+
+    template <typename T>
+    void print_tuple_element(T x) {
+        print_element(x, false);
+        ss << ", ";
+    }
+
+    template <typename T>
+    bool is_negative(T value) const {
+        return (std::fpclassify(value) == FP_ZERO &&
+                std::signbit(value)) // Negative zero
+               || value < T(0);
+    }
+
+    template <typename T>
+    void print_complex(const std::complex<T> &z) {
+        if (is_negative(z.imag())) {
+            ss << z.real() << "-" << -z.imag() << "j";
+        } else {
+            ss << z.real() << "+" << z.imag() << "j";
+        }
+    }
+
+    template <typename T>
+    auto print_element(T value, bool rst = true) {
+        if (rst) {
+            reset();
+        }
+
+        if constexpr (meta::is_complex_v<T>) {
+            print_complex(units::value(value));
+        } else if constexpr (meta::is_std_tuple_v<T> ||
+                             meta::is_std_pair_v<T>) {
+            ss << "(";
+            std::apply([&](auto... x) { (print_tuple_element(x), ...); },
+                       meta::subtuple<1>(value));
+            print_element(std::get<std::tuple_size_v<T> - 1>(value), false);
+            ss << ")";
+        } else {
+            ss << units::value(value);
+        }
+    }
+
+    auto remove_trailling_zeros(std::string &str) const {
+        if (str != "0") {
+            const auto first = str.find_last_not_of('0') + 1;
+            str.replace(first, str.size(), str.size() - first, ' ');
+        }
+    }
+
+    auto str() {
+        if (fixed) {
+            auto str = ss.str();
+            remove_trailling_zeros(str);
+            return str;
+        } else {
+            return ss.str();
+        }
+    }
+
+    int precision;
+    bool fixed;
+    int width;
+
+    std::stringstream ss;
+}; // class ElementFormater
 
 template <class Array>
 int get_width([[maybe_unused]] const Array &A, int fixed) {
-    if constexpr (meta::is_std_tuple_v<typename Array::value_type>) {
+    using T = typename Array::value_type;
+    if constexpr (meta::is_std_tuple_v<T>) {
         return -1;
-    }
-
-    if (!fixed) {
-        return 15;
+    } else if constexpr (meta::is_complex_v<T>) {
+        if (!fixed) {
+            return 15;
+        } else {
+            return 12;
+        }
     } else {
-        return 12;
+        if (!fixed) {
+            return 12;
+        } else {
+            return 12;
+        }
     }
 }
 
@@ -123,7 +151,7 @@ bool use_scientific_notation(const Array &A) {
         const auto fabs = vectorize([](auto x) { return units::fabs(x); });
         const auto abs_non_zero = filter(fabs(A), filters::not_zero);
 
-        if (abs_non_zero.size() == 0) {
+        if (abs_non_zero.empty()) {
             return false;
         }
 
@@ -154,7 +182,7 @@ auto get_edgeitems(const Array &A, std::size_t num_edgeitems) {
 struct PrintOptions {
     PrintOptions()
         : separator(' '), precision(8), threshold(1000), linewidth(75),
-          edgeitems(3) {}
+          edgeitems(3), suppress(false) {}
 
     char separator;
     int precision;
@@ -164,20 +192,29 @@ struct PrintOptions {
     int linewidth;
     // Number of array items in summary at beginning and end of each dimension
     std::size_t edgeitems;
+    // If true, always print floating point numbers using fixed point notation
+    bool suppress;
 };
 
 template <class Stream, class Array, meta::enable_if_iterable<Array> = 0>
-void fprint(Stream &stream, const Array &A, const PrintOptions &prtopts) {
+void print(Stream &stream, const Array &A, const PrintOptions &prtopts) {
+    if (A.empty()) {
+        stream << "[]\n";
+        return;
+    }
+
     stream << "[";
     int pos = 1;
 
     if (A.size() <= prtopts.threshold) {
-        const auto fixed = !detail::use_scientific_notation(A);
+        const auto fixed =
+            prtopts.suppress || !detail::use_scientific_notation(A);
         const auto width = detail::get_width(A, fixed);
+        detail::ElementFormater fmter(prtopts.precision, fixed, width);
 
         for (std::size_t i = 0; i < A.size() - 1; ++i) {
-            const auto str = detail::fprint_element(
-                A[i], prtopts.precision, fixed, width);
+            fmter.print_element(A[i]);
+            const auto str = fmter.str();
             stream << prtopts.separator;
             pos += (1 + int(str.size()));
 
@@ -190,16 +227,18 @@ void fprint(Stream &stream, const Array &A, const PrintOptions &prtopts) {
         }
 
         stream << prtopts.separator;
-        stream << detail::fprint_element(
-            A[A.size() - 1], prtopts.precision, fixed, width);
+        fmter.print_element(A[A.size() - 1]);
+        stream << fmter.str();
     } else {
-        const auto fixed = !detail::use_scientific_notation(
-            detail::get_edgeitems(A, prtopts.edgeitems));
+        const auto fixed = prtopts.suppress ||
+                           !detail::use_scientific_notation(
+                               detail::get_edgeitems(A, prtopts.edgeitems));
         const auto width = detail::get_width(A, fixed);
+        detail::ElementFormater fmter(prtopts.precision, fixed, width);
 
         for (std::size_t i = 0; i < prtopts.edgeitems; ++i) {
-            const auto str = detail::fprint_element(
-                A[i], prtopts.precision, fixed, width);
+            fmter.print_element(A[i]);
+            const auto str = fmter.str();
             stream << prtopts.separator;
             pos += (1 + int(str.size()));
 
@@ -214,11 +253,10 @@ void fprint(Stream &stream, const Array &A, const PrintOptions &prtopts) {
         stream << prtopts.separator << "...";
         pos += 3;
 
-        for (std::size_t i = A.size() - prtopts.edgeitems;
-             i < A.size() - 1;
+        for (std::size_t i = A.size() - prtopts.edgeitems; i < A.size() - 1;
              ++i) {
-            const auto str = detail::fprint_element(
-                A[i], prtopts.precision, fixed, width);
+            fmter.print_element(A[i]);
+            const auto str = fmter.str();
             stream << prtopts.separator;
             pos += (1 + int(str.size()));
 
@@ -230,27 +268,29 @@ void fprint(Stream &stream, const Array &A, const PrintOptions &prtopts) {
             }
         }
 
-        stream << detail::fprint_element(
-            A[A.size() - 1], prtopts.precision, fixed, width);
+        stream << prtopts.separator;
+        fmter.print_element(A[A.size() - 1]);
+        stream << fmter.str();
     }
 
     stream << "]\n";
 }
 
 template <class Stream, class T>
-void fprint(Stream &stream, const T &A) {
+void print(Stream &stream, const T &A) {
     if constexpr (meta::is_iterable_v<T>) {
-        fprint(stream, A, PrintOptions{});
+        print(stream, A, PrintOptions{});
     } else {
-        stream << detail::fprint_element(
-            A, PrintOptions{}.precision, false, 12);
+        detail::ElementFormater fmter(PrintOptions{}.precision, false, 12);
+        fmter.print_element(A);
+        stream << fmter.str();
         stream << "\n";
     }
 }
 
 template <class T>
 void print(const T &A) {
-    fprint(std::cout, A);
+    print(std::cout, A);
 }
 
 } // namespace scicpp

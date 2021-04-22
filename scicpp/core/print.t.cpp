@@ -11,21 +11,40 @@
 
 namespace scicpp {
 
+TEST_CASE("Print empty array") {
+    std::stringstream ss;
+    const std::array<int, 0> v{};
+    print(ss, v);
+    REQUIRE(ss.str() == "[]\n");
+}
+
+TEST_CASE("Print empty vector") {
+    std::stringstream ss;
+    const std::vector<double> v(0);
+    print(ss, v);
+    REQUIRE(ss.str() == "[]\n");
+}
+
 TEST_CASE("Print a long vector") {
     std::stringstream ss;
     const auto v = linspace(0., 10., 10000000);
-    fprint(ss, v);
-    REQUIRE(ss.str() == "[ 0, 1e-06, 2e-06, ..., 10, 10, 10 ]\n");
+    print(ss, v);
+    REQUIRE(
+        ss.str() ==
+        "[ 0.00000000e+00 1.00000010e-06 2.00000020e-06 ... 9.99999800e+00 \n"
+        "  9.99999900e+00 1.00000000e+01]\n");
 }
 
 TEST_CASE("Print a short array of reals") {
     std::stringstream ss;
     const auto window = signal::windows::hann<double, 16>();
-    fprint(ss, window);
-    REQUIRE(ss.str() == "[ 0, 0.0432273, 0.165435, 0.345492, 0.552264, \n"
-                        "  0.75, 0.904508, 0.989074, 0.989074, 0.904508, \n"
-                        "  0.75, 0.552264, 0.345492, 0.165435, 0.0432273, \n"
-                        "  0 ]\n");
+    print(ss, window);
+    REQUIRE(
+        ss.str() ==
+        "[   0.           0.04322727   0.1654347    0.3454915    0.55226423 \n"
+        "    0.75         0.9045085    0.9890738    0.9890738    0.9045085  \n"
+        "    0.75         0.55226423   0.3454915    0.1654347    0.04322727   "
+        "0.        ]\n");
 }
 
 TEST_CASE("Print a short array of complex") {
@@ -35,24 +54,25 @@ TEST_CASE("Print a short array of complex") {
     const auto window = signal::windows::hann<double, 16>();
     const auto phi = linspace<window.size()>(0., 2. * pi<double>);
     const auto window_cplx = window * exp(1.i * phi);
-    fprint(ss, window_cplx);
-    REQUIRE(
-        ss.str() ==
-        "[ 0 + 0i, 0.0394901 + 0.0175821i, 0.110697 + 0.122942i, 0.106763 "
-        "+ 0.328582i, -0.0577273 + 0.549239i, \n"
-        "  -0.375 + 0.649519i, -0.731763 + 0.531657i, -0.96746 + 0.20564i, "
-        "-0.96746 - 0.20564i, -0.731763 - 0.531657i, \n"
-        "  -0.375 - 0.649519i, -0.0577273 - 0.549239i, 0.106763 - 0.328582i, "
-        "0.110697 - 0.122942i, 0.0394901 - 0.0175821i, \n"
-        "  0 - 0i ]\n");
+    print(ss, window_cplx);
+    REQUIRE(ss.str() ==
+            "[   0.00000000+0.00000000j   0.03949008+0.01758212j \n"
+            "    0.11069742+0.12294194j   0.10676275+0.32858195j \n"
+            "   -0.05772733+0.54923887j  -0.37500000+0.64951905j \n"
+            "   -0.73176275+0.53165676j  -0.96746016+0.20564001j \n"
+            "   -0.96746016-0.20564001j  -0.73176275-0.53165676j \n"
+            "   -0.37500000-0.64951905j  -0.05772733-0.54923887j \n"
+            "    0.10676275-0.32858195j   0.11069742-0.12294194j \n"
+            "    0.03949008-0.01758212j   0.00000000-0.00000000j]\n");
 }
 
 TEST_CASE("Print a short array of units") {
     using namespace units::literals;
 
     std::stringstream ss;
-    fprint(ss, std::array{1._m, 2._m, 3._m, 4._m});
-    REQUIRE(ss.str() == "[ 1, 2, 3, 4 ]\n");
+    print(ss, std::array{1._m, 2._m, 3._m, 4._m});
+    REQUIRE(ss.str() ==
+            "[   1.           2.           3.           4.        ]\n");
 }
 
 TEST_CASE("Print a short array of tuples") {
@@ -63,17 +83,13 @@ TEST_CASE("Print a short array of tuples") {
     }
 
     std::stringstream ss;
-    fprint(ss, atup);
-    REQUIRE(ss.str() == "[ (0, 0, 0), \n"
-                        "  (1, 1, 3.14), \n"
-                        "  (2, 0, 12.56), \n"
-                        "  (3, 1, 28.26), \n"
-                        "  (4, 0, 50.24), \n"
-                        "  (5, 1, 78.5), \n"
-                        "  (6, 0, 113.04), \n"
-                        "  (7, 1, 153.86), \n"
-                        "  (8, 0, 200.96), \n"
-                        "  (9, 1, 254.34) ]\n");
+    print(ss, atup);
+    REQUIRE(ss.str() == "[ (0, 0, 0.00000000e+00) (1, 1, 3.14000000e+00) (2, "
+                        "0, 1.25600000e+01) \n"
+                        "  (3, 1, 2.82600000e+01) (4, 0, 5.02400000e+01) (5, "
+                        "1, 7.85000000e+01) \n"
+                        "  (6, 0, 1.13040000e+02) (7, 1, 1.53860000e+02) (8, "
+                        "0, 2.00960000e+02) (9, 1, 2.54340000e+02)]\n");
 }
 
 TEST_CASE("Print a long vector of tuples") {
@@ -84,32 +100,33 @@ TEST_CASE("Print a long vector of tuples") {
     }
 
     std::stringstream ss;
-    fprint(ss, vtup);
-    REQUIRE(ss.str() ==
-            "[ (0, 0, 0), (1, 1, 3.14), (2, 0, 12.56), ..., (9999997, 1, "
-            "3.14e+14), (9999998, 0, 3.14e+14), (9999999, 1, 3.14e+14) ]\n");
+    print(ss, vtup);
+    REQUIRE(ss.str() == "[ (0, 0, 0.00000000e+00) (1, 1, 3.14000000e+00) (2, "
+                        "0, 1.25600000e+01) ... \n"
+                        "  (9999997, 1, 3.13999812e+14) (9999998, 0, "
+                        "3.13999874e+14) (9999999, 1, 3.13999937e+14)]\n");
 }
 
 TEST_CASE("Print complex") {
     std::stringstream ss;
-    fprint(ss, 1. + 2.i);
-    REQUIRE(ss.str() == "1 + 2i\n");
+    print(ss, 1. + 2.i);
+    REQUIRE(ss.str() == "1.00000000e+00+2.00000000e+00j\n");
 }
 
 TEST_CASE("Print quantity") {
     using namespace units::literals;
 
     std::stringstream ss;
-    fprint(ss, 1_m);
-    REQUIRE(ss.str() == "1\n");
+    print(ss, 1_m);
+    REQUIRE(ss.str() == "1.00000000e+00\n");
 }
 
 TEST_CASE("Print complex quantity") {
     using namespace units::literals;
 
     std::stringstream ss;
-    fprint(ss, std::complex(1_m, 2_m));
-    REQUIRE(ss.str() == "1 + 2i\n");
+    print(ss, std::complex(1_m, 2_m));
+    REQUIRE(ss.str() == "1.00000000e+00+2.00000000e+00j\n");
 }
 
 } // namespace scicpp
