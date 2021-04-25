@@ -208,19 +208,8 @@ bool use_scientific_notation(const Array &A) {
 
 template <class Array>
 auto get_edgeitems(const Array &A, std::size_t num_edgeitems) {
-    std::array<std::vector<typename Array::value_type>, 2> edgeitems;
-    std::get<0>(edgeitems).reserve(num_edgeitems);
-    std::get<1>(edgeitems).reserve(num_edgeitems);
-
-    for (std::size_t i = 0; i < num_edgeitems; ++i) {
-        std::get<0>(edgeitems).push_back(A[i]);
-    }
-
-    for (std::size_t i = A.size() - num_edgeitems; i < A.size(); ++i) {
-        std::get<1>(edgeitems).push_back(A[i]);
-    }
-
-    return edgeitems;
+    return std::array{std::vector(A.cbegin(), A.cbegin() + int(num_edgeitems)),
+                      std::vector(A.cend() - int(num_edgeitems), A.cend())};
 }
 
 template <class Stream, class Array>
@@ -229,13 +218,14 @@ int print_array_elements(Stream &stream,
                          const PrintOptions &prtopts,
                          ElementFormater &fmter,
                          int pos) {
-    std::string sep = "";
+    auto *sep = "";
+    std::size_t sep_size = 0;
 
     for (const auto &a : A) {
         fmter.print_element(a);
         const auto str = fmter.str();
         stream << sep;
-        pos += int(sep.size() + str.size());
+        pos += int(sep_size + str.size());
 
         if (pos >= prtopts.linewidth) {
             stream << "\n " << str;
@@ -244,7 +234,8 @@ int print_array_elements(Stream &stream,
             stream << str;
         }
 
-        sep = prtopts.separator;
+        sep = prtopts.separator.c_str();
+        sep_size = prtopts.separator.size();
     }
 
     return pos;
@@ -271,6 +262,7 @@ void print(Stream &stream, const Array &A, const PrintOptions &prtopts) {
         detail::ElementFormater fmter(prtopts, fixed, width);
         detail::print_array_elements(stream, A, prtopts, fmter, pos);
     } else {
+        scicpp_require(A.size() > 2 * prtopts.edgeitems);
         const auto edgeitems = detail::get_edgeitems(A, prtopts.edgeitems);
         const auto scientific =
             detail::use_scientific_notation(std::get<0>(edgeitems)) ||
