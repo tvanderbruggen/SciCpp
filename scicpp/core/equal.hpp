@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_EQUAL
 #define SCICPP_CORE_EQUAL
@@ -97,7 +97,7 @@ bool scicpp_pure array_equal(const Array &f1, const Array &f2) {
 }
 
 //---------------------------------------------------------------------------------
-// almost_equal
+// strings_equal
 // https://stackoverflow.com/questions/27490858/how-can-you-compare-two-character-strings-statically-at-compile-time
 //---------------------------------------------------------------------------------
 

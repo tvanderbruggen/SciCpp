@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_PRINT
 #define SCICPP_CORE_PRINT
@@ -26,7 +26,10 @@ namespace scicpp {
 struct PrintOptions {
     PrintOptions()
         : separator(" "), precision(8), threshold(1000), linewidth(75),
-          edgeitems(3), suppress(false), nanstr("nan"), infstr("inf") {}
+          edgeitems(3), suppress(false), nanstr("nan"), infstr("inf") {
+        scicpp_require(linewidth > 0);
+        scicpp_require(threshold >= 2 * edgeitems);
+    }
 
     std::string separator;
     int precision;
@@ -245,8 +248,6 @@ int print_array_elements(Stream &stream,
 
 template <class Stream, class Array, meta::enable_if_iterable<Array> = 0>
 void print(Stream &stream, const Array &A, const PrintOptions &prtopts) {
-    scicpp_require(prtopts.threshold > 2 * prtopts.edgeitems);
-
     if (A.empty()) {
         stream << "[]\n";
         return;
@@ -263,6 +264,7 @@ void print(Stream &stream, const Array &A, const PrintOptions &prtopts) {
         detail::print_array_elements(stream, A, prtopts, fmter, pos);
     } else {
         scicpp_require(A.size() > 2 * prtopts.edgeitems);
+
         const auto edgeitems = detail::get_edgeitems(A, prtopts.edgeitems);
         const auto scientific =
             detail::use_scientific_notation(std::get<0>(edgeitems)) ||
