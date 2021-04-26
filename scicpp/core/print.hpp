@@ -281,7 +281,7 @@ void print(Stream &stream, const Array &A, const PrintOptions &prtopts) {
     }
 
     stream << "]\n";
-} // namespace detail
+}
 
 template <class Stream, class T>
 void print(Stream &stream, const T &A) {
@@ -290,14 +290,21 @@ void print(Stream &stream, const T &A) {
     } else {
         detail::ElementFormater fmter(PrintOptions{}, false, 12);
         fmter.print_element(A);
-        stream << fmter.str();
-        stream << "\n";
+        stream << fmter.str() << "\n";
     }
 }
 
 template <class T>
 void print(const T &A) {
     print(std::cout, A);
+}
+
+template <class Array, meta::enable_if_iterable<Array> = 0>
+auto array2string(const Array &A,
+                  const PrintOptions &prtopts = PrintOptions{}) {
+    std::ostringstream ss;
+    print(ss, A, prtopts);
+    return ss.str();
 }
 
 } // namespace scicpp
