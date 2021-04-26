@@ -51,38 +51,38 @@ namespace detail {
 
 struct ElementFormater {
     ElementFormater(const PrintOptions &prtopts, bool fixed, int width)
-        : prtopts(prtopts), fixed(fixed), width(width) {
+        : m_prtopts(prtopts), m_fixed(fixed), m_width(width) {
         if (fixed) {
-            ss << std::fixed;
+            m_ss << std::fixed;
         } else {
-            ss << std::scientific;
+            m_ss << std::scientific;
         }
 
-        ss << std::setprecision(prtopts.precision);
-        ss << std::setfill(' ');
+        m_ss << std::setprecision(m_prtopts.precision);
+        m_ss << std::setfill(' ');
     }
 
     void reset() {
         // https://stackoverflow.com/questions/7623650/resetting-a-stringstream
-        ss.str(std::string());
-        ss.clear();
+        m_ss.str(std::string());
+        m_ss.clear();
 
-        if (width >= 0) {
-            ss << std::setw(width);
+        if (m_width >= 0) {
+            m_ss << std::setw(m_width);
         }
     }
 
     template <typename Tuple>
     void print_tuple(Tuple tup) {
-        ss << "(";
+        m_ss << "(";
         const auto print_tuple_element = [&](auto x) {
             print_scalar_value(x);
-            ss << ", ";
+            m_ss << ", ";
         };
         std::apply([&](auto... x) { (print_tuple_element(x), ...); },
                    meta::subtuple<1>(tup));
         print_scalar_value(std::get<std::tuple_size_v<Tuple> - 1>(tup));
-        ss << ")";
+        m_ss << ")";
     }
 
     template <typename T>
@@ -97,28 +97,28 @@ struct ElementFormater {
         print_scalar_value(z.real());
 
         if (is_negative(z.imag())) {
-            ss << "-";
+            m_ss << "-";
             print_scalar_value(-z.imag());
         } else {
-            ss << "+";
+            m_ss << "+";
             print_scalar_value(z.imag());
         }
 
-        ss << "j";
+        m_ss << "j";
     }
 
     template <typename T>
     void print_scalar_value(T value) {
         if (units::isnan(value)) {
-            ss << prtopts.nanstr;
+            m_ss << m_prtopts.nanstr;
         } else if (units::isinf(value)) {
             if (units::signbit(value)) {
-                ss << "-" << prtopts.infstr;
+                m_ss << "-" << m_prtopts.infstr;
             } else {
-                ss << prtopts.infstr;
+                m_ss << m_prtopts.infstr;
             }
         } else {
-            ss << units::value(value);
+            m_ss << units::value(value);
         }
     }
 
@@ -144,20 +144,20 @@ struct ElementFormater {
     }
 
     auto str() {
-        if (fixed) {
-            auto str = ss.str();
+        if (m_fixed) {
+            auto str = m_ss.str();
             remove_trailling_zeros(str);
             return str;
         } else {
-            return ss.str();
+            return m_ss.str();
         }
     }
 
-    const PrintOptions &prtopts;
-    bool fixed;
-    int width;
+    const PrintOptions &m_prtopts;
+    bool m_fixed;
+    int m_width;
 
-    std::stringstream ss;
+    std::ostringstream m_ss;
 }; // class ElementFormater
 
 template <class Array>

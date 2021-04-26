@@ -5,11 +5,13 @@
 
 #include "scicpp/signal/windows.hpp"
 
+#include <sstream>
+
 NONIUS_BENCHMARK("Print an array of 500 pts to std::stringstream",
                  [](nonius::chronometer meter) {
                      const auto window =
                          scicpp::signal::windows::hann<double, 500>();
-                     std::stringstream ss;
+                     std::ostringstream ss;
 
                      meter.measure([&] { scicpp::print(ss, window); });
                  })
@@ -18,7 +20,7 @@ NONIUS_BENCHMARK("Print an array of 1000 pts to std::stringstream",
                  [](nonius::chronometer meter) {
                      const auto window =
                          scicpp::signal::windows::hann<double, 1000>();
-                     std::stringstream ss;
+                     std::ostringstream ss;
 
                      meter.measure([&] { scicpp::print(ss, window); });
                  })
@@ -27,7 +29,7 @@ NONIUS_BENCHMARK("Print an array of 2000 pts to std::stringstream",
                  [](nonius::chronometer meter) {
                      const auto window =
                          scicpp::signal::windows::hann<double, 2000>();
-                     std::stringstream ss;
+                     std::ostringstream ss;
 
                      meter.measure([&] { scicpp::print(ss, window); });
                  })
