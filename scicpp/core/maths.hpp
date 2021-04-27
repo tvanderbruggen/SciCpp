@@ -126,4 +126,4 @@ const auto cbrt = vectorize([](auto x) { return units::cbrt(x); });
 
 } // namespace scicpp
 
-#endif // SCICPPCORE_MATHS
+#endif // SCICPP_CORE_MATHS

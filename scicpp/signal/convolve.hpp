@@ -5,6 +5,7 @@
 #define SCICPP_SIGNAL_CONVOLVE
 
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/maths.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/utils.hpp"
@@ -136,12 +137,10 @@ constexpr auto correlate(const U &a, const V &v) {
     std::reverse_copy(v.cbegin(), v.cend(), v_rev.begin());
 
     if constexpr (meta::is_complex_v<typename U::value_type>) {
-        std::transform(v_rev.cbegin(), v_rev.cend(), v_rev.begin(), [](auto x) {
-            return std::conj(x);
-        });
+        return convolve<method>(a, conj(v_rev));
+    } else {
+        return convolve<method>(a, v_rev);
     }
-
-    return convolve<method>(a, v_rev);
 }
 
 template <class U, class V>
