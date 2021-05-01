@@ -155,12 +155,17 @@ template <class Array1, class Array2, class BinaryOp>
 template <class Func>
 auto vectorize(Func &&f) {
     return [&](auto &&... arrays) {
-        return map(
-            [&](auto &&... args) scicpp_const {
-                return std::invoke(std::forward<Func>(f),
-                                   std::forward<decltype(args)>(args)...);
-            },
-            std::forward<decltype(arrays)>(arrays)...);
+        if constexpr ((meta::is_iterable_v<decltype(arrays)> && ...)) {
+            return map(
+                [&](auto &&... args) scicpp_const {
+                    return std::invoke(std::forward<Func>(f),
+                                       std::forward<decltype(args)>(args)...);
+                },
+                std::forward<decltype(arrays)>(arrays)...);
+        } else {
+            return std::invoke(std::forward<Func>(f),
+                               std::forward<decltype(arrays)>(arrays)...);
+        }
     };
 }
 

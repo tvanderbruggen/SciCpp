@@ -132,11 +132,14 @@ TEST_CASE("Complex numbers") {
     const std::vector v{1. - 1.i, -42. + 3.i, -64. + 42.i};
 
     REQUIRE(almost_equal(real(v), {1., -42., -64.}));
+    REQUIRE(almost_equal(real(1. - 1.i), 1.));
     REQUIRE(almost_equal(imag(v), {-1., 3., 42.}));
+    REQUIRE(almost_equal(imag(1. - 1.i), -1.));
     REQUIRE(almost_equal(
         angle(v),
         {std::arg(1. - 1.i), std::arg(-42. + 3.i), std::arg(-64. + 42.i)}));
     REQUIRE(almost_equal(conj(v), {1. + 1.i, -42. - 3.i, -64. - 42.i}));
+    REQUIRE(almost_equal(conj(std::array{1., 2.}), {1., 2.}));
     REQUIRE(almost_equal(
         norm(v),
         {std::norm(1. - 1.i), std::norm(-42. + 3.i), std::norm(-64. + 42.i)}));

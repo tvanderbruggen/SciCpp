@@ -15,6 +15,7 @@
 #include <array>
 #include <complex>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace scicpp::signal {
@@ -137,7 +138,7 @@ constexpr auto correlate(const U &a, const V &v) {
     std::reverse_copy(v.cbegin(), v.cend(), v_rev.begin());
 
     if constexpr (meta::is_complex_v<typename U::value_type>) {
-        return convolve<method>(a, conj(v_rev));
+        return convolve<method>(a, conj(std::move(v_rev)));
     } else {
         return convolve<method>(a, v_rev);
     }

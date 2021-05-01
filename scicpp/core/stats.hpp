@@ -269,17 +269,10 @@ constexpr auto covariance(InputIt1 first1,
                               (raw_t1(n1) * m11 + raw_t1(n2) * m21);
             const auto m2_c = (raw_t2{1} / raw_t2(n_c)) *
                               (raw_t2(n1) * m12 + raw_t2(n2) * m22);
-            if constexpr (meta::is_complex_v<T2>) {
-                const auto covar_c = covar1 + covar2 +
-                                     (raw_t(n1) * raw_t(n2) / raw_t(n_c)) *
-                                         std::conj(m12 - m22) * (m11 - m21);
-                return std::make_tuple(m1_c, m2_c, covar_c, n_c);
-            } else {
-                const auto covar_c = covar1 + covar2 +
-                                     (raw_t(n1) * raw_t(n2) / raw_t(n_c)) *
-                                         (m12 - m22) * (m11 - m21);
-                return std::make_tuple(m1_c, m2_c, covar_c, n_c);
-            }
+            const auto covar_c = covar1 + covar2 +
+                                 (raw_t(n1) * raw_t(n2) / raw_t(n_c)) *
+                                     conj(m12 - m22) * (m11 - m21);
+            return std::make_tuple(m1_c, m2_c, covar_c, n_c);
         });
 
     if (unlikely(c_ - ddof <= 0)) {
@@ -508,13 +501,7 @@ auto cov(const Array1 &f1, const Array2 &f2, Predicate filter) {
     Eigen::Matrix<T, 2, 2> res;
     res(0, 0) = T(var<ddof>(f1, filter));
     res(0, 1) = covar;
-
-    if constexpr (meta::is_complex_v<T>) {
-        res(1, 0) = std::conj(covar);
-    } else {
-        res(1, 0) = covar;
-    }
-
+    res(1, 0) = conj(covar);
     res(1, 1) = T(var<ddof>(f2, filter));
     return res;
 }
