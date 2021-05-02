@@ -107,7 +107,7 @@ using pressure = quantity_divide<force<T, Scale>, area<T>>;
 
 // Frequency = 1 / Time
 template <typename T, typename Scale = scale<std::ratio<1>>>
-using frequency = quantity_invert<time<T, Scale>>;
+using frequency = quantity_divide<dimensionless<T, Scale>, time<T>>;
 
 // Data rate = Quantity of data / Time
 template <typename T, typename Scale = scale<std::ratio<1>>>

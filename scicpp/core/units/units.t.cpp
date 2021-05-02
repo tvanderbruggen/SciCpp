@@ -166,6 +166,16 @@ TEST_CASE("Pressure") {
     REQUIRE(almost_equal(1_atm, 101.325_kPa));
 }
 
+TEST_CASE("Frequency") {
+    static_assert(is_frequency<hertz<>>);
+    REQUIRE(almost_equal(1.0 / 1_s, 1_Hz));
+    REQUIRE(almost_equal(1.0 / 1_ms, 1_kHz));
+    REQUIRE(almost_equal(1.0 / 1_us, 1_MHz));
+    REQUIRE(almost_equal(3.14 / 1_us, 3.14_MHz));
+    REQUIRE(almost_equal(1.0 / 1000_s, 1_mHz));
+    REQUIRE(1_GHz > 1_MHz);
+}
+
 TEST_CASE("Data quantity") {
     REQUIRE(almost_equal(1_B, 8_b));
     REQUIRE(1_B >= 8_b);

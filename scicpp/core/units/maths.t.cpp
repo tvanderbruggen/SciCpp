@@ -51,6 +51,11 @@ TEST_CASE("sqrt") {
     REQUIRE(almost_equal(sqrt(9_Hz) + sqrt(9_Hz), 6. * sqrt(1_Hz)));
     REQUIRE(almost_equal(sqrt(2_kHz) + sqrt(2_Hz), sqrt(2000_Hz) + sqrt(2_Hz)));
     REQUIRE(almost_equal(sqrt(9_MHz) + sqrt(9_Hz), 3003. * sqrt(1_Hz)));
+
+    REQUIRE(almost_equal(sqrt(1_uH * 1_uF), 1_us));
+    REQUIRE(almost_equal(sqrt(1_uH / 1_uF), 1_Ohm));
+    REQUIRE(almost_equal(1.0 / sqrt(1_uH * 1_uF), 1_MHz));
+    REQUIRE(almost_equal(1.0 / sqrt(1_uH * 1_uF), 1_MHz));
 }
 
 TEST_CASE("cbrt") {

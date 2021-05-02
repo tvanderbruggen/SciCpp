@@ -335,7 +335,8 @@ struct quantity {
 
     constexpr auto inv() const {
         using DimInv = dimension_divide<dimension<std::ratio<1>>, Dim>;
-        return quantity<T, DimInv, Scale>(T{1} / m_value);
+        using ScaleInv = scale_divide<scale<std::ratio<1>>, Scale>;
+        return quantity<T, DimInv, ScaleInv>(T{1} / m_value);
     }
 
     constexpr auto value() const { return m_value; }
