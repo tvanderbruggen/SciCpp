@@ -40,6 +40,18 @@ constexpr auto amax(const Array &f) {
 }
 
 //---------------------------------------------------------------------------------
+// argmax
+//---------------------------------------------------------------------------------
+
+template <class Array>
+constexpr auto argmax(const Array &f) {
+    scicpp_require(!f.empty());
+
+    return std::size_t(
+        std::distance(f.cbegin(), std::max_element(f.cbegin(), f.cend())));
+}
+
+//---------------------------------------------------------------------------------
 // amin
 //---------------------------------------------------------------------------------
 
@@ -50,6 +62,18 @@ constexpr auto amin(const Array &f) {
     }
 
     return *std::min_element(f.cbegin(), f.cend());
+}
+
+//---------------------------------------------------------------------------------
+// argmin
+//---------------------------------------------------------------------------------
+
+template <class Array>
+constexpr auto argmin(const Array &f) {
+    scicpp_require(!f.empty());
+
+    return std::size_t(
+        std::distance(f.cbegin(), std::min_element(f.cbegin(), f.cend())));
 }
 
 //---------------------------------------------------------------------------------
