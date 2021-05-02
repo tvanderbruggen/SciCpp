@@ -101,6 +101,8 @@ TEST_CASE("Exponents and logarithms") {
                          {std::log(1.), std::log(2.), std::log(3.)}));
     REQUIRE(almost_equal(log2(std::vector{1., 2., 3.}),
                          {std::log2(1.), std::log2(2.), std::log2(3.)}));
+    REQUIRE(almost_equal(log10(std::vector{1., 2., 3.}),
+                         {std::log10(1.), std::log10(2.), std::log10(3.)}));
     REQUIRE(almost_equal<2>(log1p(std::array{1., 2., 3.}),
                             {std::log1p(1.), std::log1p(2.), std::log1p(3.)}));
 }

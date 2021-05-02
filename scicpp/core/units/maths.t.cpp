@@ -171,6 +171,9 @@ TEST_CASE("exp, log") {
     REQUIRE(almost_equal(log2(1.), 0.));
     REQUIRE(almost_equal(log2(1_m / 1_m), 0.));
 
+    REQUIRE(almost_equal(log10(1.), 0.));
+    REQUIRE(almost_equal(log10(1_m / 1_m), 0.));
+
     REQUIRE(almost_equal(log1p(0.), 0.));
     REQUIRE(almost_equal(log1p(0_m / 1_m), 0.));
 }

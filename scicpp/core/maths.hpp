@@ -77,6 +77,7 @@ const auto expm1 = vectorize([](auto x) { return units::expm1(x); });
 const auto exp2 = vectorize([](auto x) { return units::exp2(x); });
 const auto log = vectorize([](auto x) { return units::log(x); });
 const auto log2 = vectorize([](auto x) { return units::log2(x); });
+const auto log10 = vectorize([](auto x) { return units::log10(x); });
 const auto log1p = vectorize([](auto x) { return units::log1p(x); });
 
 // Rounding

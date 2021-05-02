@@ -297,6 +297,13 @@ auto log2(T x) {
 }
 
 template <typename T>
+auto log10(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "log10 requires a dimensionless argument");
+    return std::log10(value(x));
+}
+
+template <typename T>
 auto log1p(T x) {
     static_assert(detail::is_dimensionless_like<T>,
                   "log1p requires a dimensionless argument");
