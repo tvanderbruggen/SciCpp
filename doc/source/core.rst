@@ -80,6 +80,12 @@ Create arrays from existing data
 :ref:`TxtLoader <core_TxtLoader>`
     Load data from a character separated values text file.
 
+Save arrays to file
+----------------
+
+:ref:`TxtSaver <core_txtsaver>`
+    Save an array to a text file.
+
 Sums, products, differences
 ----------------
 
@@ -149,6 +155,12 @@ Statistics
 
 :ref:`stats::amin <core_stats_amin>`
     Return the minimum value of an array.
+
+:ref:`stats::argmax <core_stats_argmax>`
+    Returns the indices of the maximum value of an array.
+
+:ref:`stats::argmin <core_stats_argmin>`
+    Returns the indices of the minimum value of an array.
 
 :ref:`stats::ptp <core_stats_ptp>`
     Return the peak-to-peak span of an array.
@@ -243,6 +255,6 @@ Printing
 :ref:`print <core_print>`
     Print an array onto the screen.
 
-:ref:`fprint <core_fprint>`
-    Print an array to a file stream.
+:ref:`array2string <core_array2string>`
+    Format a array to a string.
 
