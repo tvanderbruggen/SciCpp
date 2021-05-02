@@ -57,10 +57,12 @@ TEST_CASE("logspace std::array") {
 
     SECTION("std::array with quantities") {
         using namespace units::literals;
-        REQUIRE(logspace<0>(2_m, 3_m).empty());
-        REQUIRE(almost_equal(logspace<1>(2_m, 3_m), {100_m}));
+        REQUIRE(logspace<0, units::meter<double>>(2., 3.).empty());
+        REQUIRE(
+            almost_equal(logspace<1, units::meter<double>>(2., 3.), {100_m}));
+        print(logspace<4, units::mass<double>>(2., 3.));
         REQUIRE(almost_equal(
-            logspace<4>(2_kg, 3_kg),
+            logspace<4, units::mass<double>>(2., 3.),
             {100_kg, 215.44346900318845_kg, 464.15888336127773_kg, 1000_kg}));
     }
 
@@ -74,10 +76,11 @@ TEST_CASE("logspace std::array") {
 
     SECTION("std::vector with quantities") {
         using namespace units::literals;
-        REQUIRE(logspace(2_m, 3_m, 0).empty());
-        REQUIRE(almost_equal(logspace(2_m, 3_m, 1), {100_m}));
+        REQUIRE(logspace<units::meter<double>>(2., 3., 0).empty());
+        REQUIRE(
+            almost_equal(logspace<units::meter<double>>(2., 3., 1), {100_m}));
         REQUIRE(almost_equal(
-            logspace(2_kg, 3_kg, 4),
+            logspace<units::mass<double>>(2., 3., 4),
             {100_kg, 215.44346900318845_kg, 464.15888336127773_kg, 1000_kg}));
     }
 }

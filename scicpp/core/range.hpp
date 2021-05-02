@@ -32,12 +32,12 @@ auto linspace_filler(Array &&a, T start, T stop) {
         return std::move(a);
     }
 
-    if (a.size() == 1U) {
+    if (a.size() == 1) {
         a[0] = start;
         return std::move(a);
     }
 
-    std::iota(a.begin(), a.end(), T(0));
+    std::iota(a.begin(), a.end(), T{0});
     const auto step = units::value(stop - start) / raw_t(a.size() - 1);
     return start + std::move(a) * step;
 }
@@ -60,42 +60,55 @@ auto linspace(T start, T stop, std::size_t num) {
 
 namespace detail {
 
-template <class Array, typename BaseTp, typename T = typename Array::value_type>
-auto logspace_filler(Array &&a, T start, T stop, BaseTp base) {
-    if (a.size() == 0) {
+template <class Array, typename RepTp, typename T = typename Array::value_type>
+auto logspace_filler(Array &&a, RepTp start, RepTp stop, RepTp base) {
+    if (a.empty()) {
         return std::move(a);
     }
 
     if (a.size() == 1) {
-        a[0] = T(std::pow(base, units::value(start)));
+        a[0] = T(std::pow(base, start));
         return std::move(a);
     }
 
-    std::iota(a.begin(), a.end(), T(0));
-    const auto step = (stop - start) / BaseTp(a.size() - 1);
+    std::iota(a.begin(), a.end(), T{0});
+    const auto step = (stop - start) / RepTp(a.size() - 1);
+
     return map(
         [=](auto x) {
-            // FIXME Use units::pow, units::fma
-            return T(std::pow(base,
-                              std::fma(units::value(x),
-                                       units::value(step),
-                                       units::value(start))));
+            return T(std::pow(base, std::fma(units::value(x), step, start)));
         },
-        a);
+        std::move(a));
 }
 
 } // namespace detail
 
-template <std::size_t N,
-          typename T,
-          typename BaseTp = units::representation_t<T>>
-auto logspace(T start, T stop, BaseTp base = BaseTp{10}) {
+template <std::size_t N, typename T>
+auto logspace(T start, T stop, T base = T{10}) {
     return detail::logspace_filler(std::array<T, N>{}, start, stop, base);
 }
 
-template <typename T, typename BaseTp = units::representation_t<T>>
-auto logspace(T start, T stop, std::size_t num, BaseTp base = BaseTp{10}) {
+template <std::size_t N,
+          typename Qty,
+          typename RepTp = units::representation_t<Qty>,
+          units::enable_if_is_quantity<Qty> = 0>
+auto logspace(RepTp start, RepTp stop, RepTp base = RepTp{10}) {
+    return detail::logspace_filler(std::array<Qty, N>{}, start, stop, base);
+}
+
+template <typename T>
+auto logspace(T start, T stop, std::size_t num, T base = T{10}) {
     return detail::logspace_filler(std::vector<T>(num), start, stop, base);
+}
+
+template <typename Qty,
+          typename RepTp = units::representation_t<Qty>,
+          units::enable_if_is_quantity<Qty> = 0>
+auto logspace(RepTp start,
+              RepTp stop,
+              std::size_t num,
+              RepTp base = RepTp{10}) {
+    return detail::logspace_filler(std::vector<Qty>(num), start, stop, base);
 }
 
 //---------------------------------------------------------------------------------
