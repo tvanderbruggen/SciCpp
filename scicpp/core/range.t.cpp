@@ -8,7 +8,57 @@
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/units/units.hpp"
 
+#include <complex>
+
 namespace scicpp {
+
+TEST_CASE("empty") {
+    REQUIRE(empty<double>().empty());
+}
+
+TEST_CASE("full") {
+    SECTION("std::array") {
+        REQUIRE(full<0, double>(2.).empty());
+        REQUIRE(almost_equal(full<1, double>(2.), {2.}));
+        REQUIRE(almost_equal(full<5, double>(2.), {2., 2., 2., 2., 2.}));
+    }
+
+    SECTION("std::vector") {
+        REQUIRE(full<double>(0, 2.).empty());
+        REQUIRE(almost_equal(full<double>(1, 2.), {2.}));
+        REQUIRE(almost_equal(full<double>(5, 2.), {2., 2., 2., 2., 2.}));
+    }
+}
+
+TEST_CASE("zeros") {
+    SECTION("std::array") {
+        REQUIRE(zeros<0, double>().empty());
+        REQUIRE(almost_equal(zeros<1, double>(), {0.}));
+        REQUIRE(almost_equal(zeros<5, double>(), {0., 0., 0., 0., 0.}));
+        REQUIRE(almost_equal(zeros<1, std::complex<double>>(), {0. + 0.i}));
+    }
+
+    SECTION("std::vector") {
+        REQUIRE(zeros<double>(0).empty());
+        REQUIRE(almost_equal(zeros<double>(1), {0.}));
+        REQUIRE(almost_equal(zeros<double>(5), {0., 0., 0., 0., 0.}));
+    }
+}
+
+TEST_CASE("ones") {
+    SECTION("std::array") {
+        REQUIRE(ones<0, double>().empty());
+        REQUIRE(almost_equal(ones<1, double>(), {1.}));
+        REQUIRE(almost_equal(ones<5, double>(), {1., 1., 1., 1., 1.}));
+        REQUIRE(almost_equal(ones<1, std::complex<double>>(), {1. + 0.i}));
+    }
+
+    SECTION("std::vector") {
+        REQUIRE(ones<double>(0).empty());
+        REQUIRE(almost_equal(ones<double>(1), {1.}));
+        REQUIRE(almost_equal(ones<double>(5), {1., 1., 1., 1., 1.}));
+    }
+}
 
 TEST_CASE("linspace") {
     SECTION("std::array") {

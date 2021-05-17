@@ -177,6 +177,12 @@ auto zero_padding(const std::vector<T> &v, std::size_t new_size) {
 
 template <typename T>
 auto fft(const std::vector<std::complex<T>> &x) {
+    scicpp_require(!x.empty());
+
+    if (x.size() == 1) {
+        return std::vector{x[0]};
+    }
+
     Eigen::FFT<T> fft_engine;
     std::vector<std::complex<T>> y;
     fft_engine.fwd(y, x);
@@ -185,6 +191,12 @@ auto fft(const std::vector<std::complex<T>> &x) {
 
 template <typename T>
 auto fft(const std::vector<T> &x) {
+    scicpp_require(!x.empty());
+
+    if (x.size() == 1) {
+        return std::vector{std::complex(x[0])};
+    }
+
     Eigen::FFT<T> fft_engine;
     std::vector<std::complex<T>> y;
     fft_engine.fwd(y, x);
@@ -193,6 +205,12 @@ auto fft(const std::vector<T> &x) {
 
 template <typename T>
 auto rfft(const std::vector<T> &x) {
+    scicpp_require(!x.empty());
+
+    if (x.size() == 1) {
+        return std::vector{std::complex(x[0])};
+    }
+
     Eigen::FFT<T> fft_engine;
     fft_engine.SetFlag(Eigen::FFT<T>::HalfSpectrum);
     std::vector<std::complex<T>> y;

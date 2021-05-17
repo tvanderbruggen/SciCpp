@@ -6,6 +6,7 @@
 
 #include "scicpp/core/constants.hpp"
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/range.hpp"
 
 #include <algorithm>
 #include <array>
@@ -37,14 +38,12 @@ void symmetric_filler(Array &w, Func f) {
 
 template <typename T, std::size_t M>
 auto boxcar() {
-    std::array<T, M> w{};
-    w.fill(T{1});
-    return w;
+    return ones<M, T>();
 }
 
 template <typename T>
 auto boxcar(std::size_t M) {
-    return std::vector<T>(M, T{1});
+    return ones<T>(M);
 }
 
 namespace detail {
@@ -82,7 +81,7 @@ namespace detail {
 
 template <class Array>
 void cosine_filler(Array &w) {
-    if (w.size() > 0) {
+    if (!w.empty()) {
         using T = typename Array::value_type;
         const T scaling = pi<T> / T(w.size());
         symmetric_filler(

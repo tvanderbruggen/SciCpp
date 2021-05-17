@@ -17,6 +17,12 @@ TEST_CASE("almost_equal real") {
         REQUIRE(!almost_equal(inf, -inf));
     }
 
+    SECTION("Zero") {
+        REQUIRE(almost_equal(0., 0.));
+        REQUIRE(almost_equal(-0., -0.));
+        REQUIRE(almost_equal(0., -0.));
+    }
+
     SECTION("near zero") {
         REQUIRE(almost_equal(0., 0.00000000000000011102));
         REQUIRE(almost_equal(0.00000000000000011102, 0.));

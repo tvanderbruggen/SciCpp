@@ -32,7 +32,8 @@ template <int rel_tol, typename T>
 bool fp_equal_predicate(T a, T b) {
     static_assert(rel_tol >= 0);
 
-    constexpr T tol = rel_tol * std::numeric_limits<T>::epsilon() / 2;
+    constexpr auto eps = std::numeric_limits<T>::epsilon();
+    constexpr auto tol = rel_tol * eps / 2.0;
 
     if (std::isnan(a) && std::isnan(b)) {
         return true;
@@ -42,11 +43,13 @@ bool fp_equal_predicate(T a, T b) {
         return std::signbit(a) == std::signbit(b);
     }
 
-    if (is_zero(a) || is_zero(b)) {
+    const auto max_val = std::max(std::fabs(a), std::fabs(b));
+
+    if (max_val < eps) {
         return std::fabs(a - b) <= tol;
     }
 
-    return std::fabs(a - b) <= tol * std::max(std::fabs(a), std::fabs(b));
+    return std::fabs(a - b) <= tol * max_val;
 }
 
 } // namespace detail

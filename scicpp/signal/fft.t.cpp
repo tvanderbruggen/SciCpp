@@ -7,6 +7,7 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/random.hpp"
+#include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
 #include "scicpp/signal/windows.hpp"
 
@@ -19,6 +20,7 @@ TEST_CASE("Forward complex FFT") {
                                 {6. + 6.i,
                                  -0.6339745962155614 + 2.3660254037844388i,
                                  -2.3660254037844388 + 0.6339745962155614i}));
+        REQUIRE(almost_equal(fft(full(1, 1. + 1.i)), {1. + 1.i}));
     }
 
     SECTION("Real input vector") {
@@ -27,12 +29,36 @@ TEST_CASE("Forward complex FFT") {
                                 {6. + 0.i,
                                  -1.5 + 0.8660254037844386i,
                                  -1.5 - 0.8660254037844386i}));
+        REQUIRE(almost_equal(fft(ones<double>(1)), {1. + 0.i}));
+        REQUIRE(almost_equal(fft(zeros<double>(1)), {0. + 0.i}));
     }
 }
 
 TEST_CASE("Forward real FFT") {
-    std::vector x{1., 2., 3.};
-    REQUIRE(almost_equal<2>(rfft(x), {6. + 0.i, -1.5 + 0.8660254037844386i}));
+    SECTION("Odd length") {
+        std::vector x{1., 2., 3.};
+        REQUIRE(
+            almost_equal<2>(rfft(x), {6. + 0.i, -1.5 + 0.8660254037844386i}));
+        REQUIRE(almost_equal(rfft(ones<double>(1)), {1. + 0.i}));
+        REQUIRE(almost_equal(rfft(zeros<double>(1)), {0. + 0.i}));
+    }
+
+    SECTION("Even length") {
+        auto x = zeros<double>(16);
+        x[0] = 1.0;
+        x[8] = 1.0;
+        // print(rfft(x));
+        REQUIRE(almost_equal(rfft(x),
+                             {2. + 0.i,
+                              0. + 0.i,
+                              2. - 0.i,
+                              0. + 0.i,
+                              2. + 0.i,
+                              0. + 0.i,
+                              2. + 0.i,
+                              0. + 0.i,
+                              2. + 0.i}));
+    }
 }
 
 TEST_CASE("Inverse real FFT") {
