@@ -19,6 +19,10 @@
 
 namespace scicpp::signal {
 
+enum SpectrumScaling : int { DENSITY, SPECTRUM };
+
+enum SpectrumSides : int { ONESIDED, TWOSIDED };
+
 template <typename T = double>
 class Spectrum {
   public:
@@ -41,8 +45,8 @@ class Spectrum {
         return *this;
     }
 
-    template <typename Array>
-    auto welch(const Array &a) {
+    template <SpectrumScaling scaling = DENSITY, typename Array>
+    auto welch(const Array &x) {
         using namespace scicpp::operators;
         using EltTp = typename Array::value_type;
 
@@ -50,13 +54,9 @@ class Spectrum {
         static_assert(std::is_same_v<EltTp, T> ||
                       std::is_same_v<EltTp, std::complex<T>>);
 
-        if (a.empty()) {
+        if (x.empty()) {
             return std::make_tuple(empty<T>(), empty<T>());
         }
-
-        const auto asize = signed_size_t(a.size());
-        const auto nstep = m_nperseg - m_noverlap;
-        const auto nseg = 1 + (asize - m_nperseg) / nstep;
 
         // Padding
         // const auto npad = m_nperseg + nseg * nstep - asize;
@@ -65,43 +65,39 @@ class Spectrum {
 
         if constexpr (meta::is_complex_v<EltTp>) {
             const auto freqs = fftfreq(std::size_t(m_nperseg), T{1} / m_fs);
-
-            auto res = welch_impl(
-                std::size_t(freqs.size()), nseg, nstep, a, [](auto v) {
-                    return fft(v);
-                });
-
-            return std::make_tuple(freqs,
-                                   std::move(res) / (m_fs * m_s2 * T(nseg)));
+            auto res = welch_impl(freqs.size(), x, fft_func);
+            return std::make_tuple(
+                freqs, normalize<scaling, TWOSIDED>(std::move(res)));
         } else {
             const auto freqs = rfftfreq(std::size_t(m_nperseg), T{1} / m_fs);
-
-            auto res = welch_impl(
-                std::size_t(freqs.size()), nseg, nstep, a, [](auto v) {
-                    return rfft(v);
-                });
-
-            res = 2.0 * std::move(res) / (m_fs * m_s2 * T(nseg));
-            // Don't find why in scipy code, but need it to match scipy result
-            res.front() *= 0.5;
-
-            if (!(m_nperseg % 2)) {
-                // Last point is unpaired Nyquist freq point, don't double
-                res.back() *= 0.5;
-            }
-
-            return std::make_tuple(freqs, res);
+            auto res = welch_impl(freqs.size(), x, rfft_func);
+            return std::make_tuple(
+                freqs, normalize<scaling, ONESIDED>(std::move(res)));
         }
     }
 
+    // template <typename Array>
+    // auto csd(const Array &x, const Array &y) {
+
+    // }
+
   private:
     static constexpr signed_size_t dflt_nperseg = 256;
+    static constexpr auto rfft_func = [](auto v) { return rfft(v); };
+    static constexpr auto fft_func = [](auto v) { return fft(v); };
 
     T m_fs = T{1};
     std::vector<T> m_window = windows::hann<T>(dflt_nperseg);
+    T m_s1 = get_s1();
     T m_s2 = get_s2();
     signed_size_t m_nperseg = get_nperseg();
     signed_size_t m_noverlap = get_noverlap();
+
+    auto get_s1() {
+        // S1 = (Sum_i w_i)^2
+        const auto s = sum(m_window);
+        return s * s;
+    }
 
     auto get_s2() {
         // S2 = Sum_i w_i^2
@@ -114,22 +110,23 @@ class Spectrum {
     auto get_noverlap() { return m_nperseg / 2; }
 
     void set_parameters() {
+        m_s1 = get_s1();
         m_s2 = get_s2();
         m_nperseg = get_nperseg();
         m_noverlap = get_noverlap();
     }
 
     template <typename Array, typename FFTFunc>
-    auto welch_impl(std::size_t nfft,
-                    signed_size_t nseg,
-                    signed_size_t nstep,
-                    const Array &a,
-                    FFTFunc &&fftfunc) {
+    auto welch_impl(std::size_t nfft, const Array &a, FFTFunc &&fftfunc) {
+        using namespace scicpp::operators;
+
+        const auto asize = signed_size_t(a.size());
+        const auto nstep = m_nperseg - m_noverlap;
+        const auto nseg = 1 + (asize - m_nperseg) / nstep;
+
         auto res = zeros<T>(nfft);
 
         for (signed_size_t i = 0; i < nseg; ++i) {
-            using namespace scicpp::operators;
-
             auto seg = subvector(a, i * nstep, i * nstep + m_nperseg);
             scicpp_require(seg.size() == m_window.size());
 
@@ -138,7 +135,31 @@ class Spectrum {
                   norm(fftfunc((std::move(seg) - stats::mean(seg)) * m_window));
         }
 
-        return res;
+        return std::move(res) / T(nseg);
+    }
+
+    template <SpectrumScaling scaling, SpectrumSides sides>
+    auto normalize(std::vector<T> &&v) {
+        using namespace scicpp::operators;
+
+        if constexpr (scaling == DENSITY) {
+            v = std::move(v) / (m_fs * m_s2);
+        } else { // scaling == SPECTRUM
+            v = std::move(v) / m_s1;
+        }
+
+        if constexpr (sides == ONESIDED) {
+            v = 2.0 * std::move(v);
+            // Don't find why in scipy code, but need it to match scipy result
+            v.front() *= 0.5;
+
+            if (!(m_nperseg % 2)) {
+                // Last point is unpaired Nyquist freq point, don't double
+                v.back() *= 0.5;
+            }
+        }
+
+        return std::move(v);
     }
 
     template <typename Array>

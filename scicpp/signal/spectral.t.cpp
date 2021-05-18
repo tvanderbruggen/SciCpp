@@ -23,8 +23,8 @@ TEST_CASE("welch") {
         const auto [f2, p2] = Spectrum()
                                   .window(windows::hann<double>(20))
                                   .welch(std::array<double, 0>{});
-        REQUIRE(f1.empty());
-        REQUIRE(p1.empty());
+        REQUIRE(f2.empty());
+        REQUIRE(p2.empty());
     }
 
     SECTION("Even size") {
@@ -138,6 +138,21 @@ TEST_CASE("welch") {
                                  0.576813628666607,
                                  0.5521803059420826,
                                  0.4124386896584573}));
+        const auto [f1, p1] = Spectrum()
+                                  .window(windows::hann<double>(8.0))
+                                  .welch<SpectrumScaling::SPECTRUM>(x);
+        // print(p1);
+        REQUIRE(almost_equal(
+            f1, {0., 0.125, 0.25, 0.375, -0.5, -0.375, -0.25, -0.125}));
+        REQUIRE(almost_equal<6>(p1,
+                                {0.0878864665954072,
+                                 0.0883797192125266,
+                                 0.1183243512733034,
+                                 0.1236029204285586,
+                                 0.1229143753991226,
+                                 0.1236029204285586,
+                                 0.1183243512733034,
+                                 0.0883797192125266}));
     }
 
     SECTION("White noise") {
