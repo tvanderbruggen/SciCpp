@@ -44,7 +44,7 @@ constexpr auto amax(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto argmax(const Array &f) {
+constexpr scicpp_pure auto argmax(const Array &f) {
     scicpp_require(!f.empty());
 
     return std::size_t(
@@ -69,7 +69,7 @@ constexpr auto amin(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto argmin(const Array &f) {
+constexpr scicpp_pure auto argmin(const Array &f) {
     scicpp_require(!f.empty());
 
     return std::size_t(

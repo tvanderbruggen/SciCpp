@@ -24,8 +24,8 @@ TEST_CASE("fmax, fmin, fdim") {
     REQUIRE(almost_equal(fmin(-3.14, 0.), -3.14));
     REQUIRE(almost_equal(fmin(-3.14_m, 0_m), -3.14_m));
 
-    REQUIRE(almost_equal(fdim(4, 1), 3));
-    REQUIRE(almost_equal(fdim(1, 4), 0));
+    REQUIRE(fdim(4, 1) == 3);
+    REQUIRE(fdim(1, 4) == 0);
     REQUIRE(almost_equal(fdim(4_nmol, 1_nmol), 3_nmol));
     REQUIRE(almost_equal(fdim(1_nmol, 4_nmol), 0_nmol));
 }

@@ -13,14 +13,18 @@
 
 namespace scicpp::signal {
 
+// Use Spectrum{} instead of Spectrum() for initialization
+// because of a bug with GCC:
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81486
+
 TEST_CASE("welch") {
     SECTION("Empty") {
         const auto [f1, p1] =
-            Spectrum().window(windows::hann<double>(20)).welch(empty<double>());
+            Spectrum{}.window(windows::hann<double>(20)).welch(empty<double>());
         REQUIRE(f1.empty());
         REQUIRE(p1.empty());
 
-        const auto [f2, p2] = Spectrum()
+        const auto [f2, p2] = Spectrum{}
                                   .window(windows::hann<double>(20))
                                   .welch(std::array<double, 0>{});
         REQUIRE(f2.empty());
@@ -41,7 +45,7 @@ TEST_CASE("welch") {
 
         const auto x = linspace(1.0, 10.0, 100);
         const auto [f, Pxx] =
-            Spectrum().window(windows::hann<double>(20)).welch(x);
+            Spectrum{}.window(windows::hann<double>(20)).welch(x);
 
         REQUIRE(almost_equal(
             f, {0., 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5}));
@@ -65,7 +69,7 @@ TEST_CASE("welch") {
         x[0] = 1.0;
         x[8] = 1.0;
         const auto [f1, p1] =
-            Spectrum().window(windows::hann<double>(8)).welch(x);
+            Spectrum{}.window(windows::hann<double>(8)).welch(x);
         REQUIRE(almost_equal(f1, linspace(0., 0.5, 5)));
         // print(p1);
         REQUIRE(almost_equal<8>(p1,
@@ -75,7 +79,7 @@ TEST_CASE("welch") {
                                  0.2307254514666428,
                                  0.1147200837058478}));
         const auto [f2, p2] =
-            Spectrum().window(windows::gaussian(8, 2.0)).welch(x);
+            Spectrum{}.window(windows::gaussian(8, 2.0)).welch(x);
         // print(p2);
         REQUIRE(almost_equal(f2, linspace(0., 0.5, 5)));
         REQUIRE(almost_equal<8>(p2,
@@ -85,7 +89,7 @@ TEST_CASE("welch") {
                                  0.1947573237389626,
                                  0.097508612646513}));
         const auto [f3, p3] =
-            Spectrum().window(windows::gaussian(9, 2.0)).welch(x);
+            Spectrum{}.window(windows::gaussian(9, 2.0)).welch(x);
         // print(p3);
         REQUIRE(almost_equal(f3,
                              {0.,
@@ -100,7 +104,7 @@ TEST_CASE("welch") {
                                  0.2262491500241708,
                                  0.2202554469147203}));
         const auto [f4, p4] =
-            Spectrum().window(windows::gaussian(16, 2.0)).welch(x);
+            Spectrum{}.window(windows::gaussian(16, 2.0)).welch(x);
         // print(p4);
         REQUIRE(almost_equal(
             f4, {0., 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5}));
@@ -115,7 +119,7 @@ TEST_CASE("welch") {
                                  0.5290399525770682,
                                  0.2654870587529604}));
         const auto [f5, p5] =
-            Spectrum().window(windows::gaussian(1, 2.0)).welch(x);
+            Spectrum{}.window(windows::gaussian(1, 2.0)).welch(x);
         // print(p5);
         REQUIRE(almost_equal(f5, {0.}));
         REQUIRE(almost_equal(p5, {0.}));
@@ -125,8 +129,9 @@ TEST_CASE("welch") {
         auto x = zeros<std::complex<double>>(16);
         x[0] = 1.0 + 2.0i;
         x[8] = 1.0 + 2.0i;
-        const auto [f, p] =
-            Spectrum().window(windows::hann<double>(8.0)).welch(x);
+
+        auto spec = Spectrum{}.window(windows::hann<double>(8.0));
+        const auto [f, p] = spec.welch(x);
         REQUIRE(almost_equal(
             f, {0., 0.125, 0.25, 0.375, -0.5, -0.375, -0.25, -0.125}));
         REQUIRE(almost_equal<4>(p,
@@ -138,9 +143,7 @@ TEST_CASE("welch") {
                                  0.576813628666607,
                                  0.5521803059420826,
                                  0.4124386896584573}));
-        const auto [f1, p1] = Spectrum()
-                                  .window(windows::hann<double>(8.0))
-                                  .welch<SpectrumScaling::SPECTRUM>(x);
+        const auto [f1, p1] = spec.welch<SpectrumScaling::SPECTRUM>(x);
         // print(p1);
         REQUIRE(almost_equal(
             f1, {0., 0.125, 0.25, 0.375, -0.5, -0.375, -0.25, -0.125}));
@@ -159,7 +162,7 @@ TEST_CASE("welch") {
         // Generate a Gaussian white-noise with sigma = 1
         const auto noise = random::randn<double>(10000);
         const auto [f, psd] =
-            Spectrum().window(windows::boxcar<double>(2000)).welch(noise);
+            Spectrum{}.window(windows::boxcar<double>(2000)).welch(noise);
         // The expected PSD for a white noise is 2 * sigma ^ 2
         // print(stats::mean(psd));
         REQUIRE(std::fabs(stats::mean(psd) - 2.) / 2. < 1. / std::sqrt(10000));

@@ -239,8 +239,8 @@ TEST_CASE("scicpp::savetxt tuple std::vector") {
     savetxt(fname, t, ',', '\n');
     const auto [v0, v1, v2] =
         TxtLoader<int, bool, double>().delimiter(',').load(fname);
-    REQUIRE(almost_equal(std::get<0>(t), v0));
-    REQUIRE(almost_equal(std::get<1>(t), v1));
+    REQUIRE(array_equal(std::get<0>(t), v0));
+    REQUIRE(array_equal(std::get<1>(t), v1));
     REQUIRE(almost_equal(std::get<2>(t), v2));
 }
 

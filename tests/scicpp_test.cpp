@@ -30,5 +30,6 @@ using namespace std::literals;
 #include "scicpp/signal/fft.t.cpp"
 #include "scicpp/signal/waveforms.t.cpp"
 #include "scicpp/signal/windows.t.cpp"
+#include "scicpp/signal/spectral.t.cpp"
 #include "scicpp/core/interpolate.t.cpp"
 #include "scicpp/core/print.t.cpp"

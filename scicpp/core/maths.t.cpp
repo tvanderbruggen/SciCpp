@@ -151,10 +151,10 @@ TEST_CASE("Complex numbers") {
 }
 
 TEST_CASE("Rational routines") {
-    REQUIRE(almost_equal(gcd(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
-                         {std::gcd(1, 3), std::gcd(2, 2), std::gcd(3, 1)}));
-    REQUIRE(almost_equal(lcm(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
-                         {std::lcm(1, 3), std::lcm(2, 2), std::lcm(3, 1)}));
+    REQUIRE(array_equal(gcd(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
+                        {std::gcd(1, 3), std::gcd(2, 2), std::gcd(3, 1)}));
+    REQUIRE(array_equal(lcm(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
+                        {std::lcm(1, 3), std::lcm(2, 2), std::lcm(3, 1)}));
 }
 
 TEST_CASE("Miscellaneous") {

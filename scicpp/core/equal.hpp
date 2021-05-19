@@ -33,7 +33,7 @@ bool fp_equal_predicate(T a, T b) {
     static_assert(rel_tol >= 0);
 
     constexpr auto eps = std::numeric_limits<T>::epsilon();
-    constexpr auto tol = rel_tol * eps / 2.0;
+    constexpr auto tol = T(rel_tol) * eps / T{2};
 
     if (std::isnan(a) && std::isnan(b)) {
         return true;
@@ -45,7 +45,7 @@ bool fp_equal_predicate(T a, T b) {
 
     const auto max_val = std::max(std::fabs(a), std::fabs(b));
 
-    if (max_val < eps) {
+    if (is_zero(a) || is_zero(b) || max_val < eps) {
         return std::fabs(a - b) <= tol;
     }
 

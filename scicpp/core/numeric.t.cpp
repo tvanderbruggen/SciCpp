@@ -275,13 +275,13 @@ TEST_CASE("Arithmetic operators") {
     const std::vector v1{2., 4., 6.};
 
     REQUIRE(almost_equal(-a, {-1., -2., -3.}));
-    REQUIRE(almost_equal(-ai, {-1, -2, -3}));
+    REQUIRE(array_equal(-ai, {-1, -2, -3}));
     REQUIRE(almost_equal(-v, {-1., -2., -3.}));
     REQUIRE(almost_equal(2. * a, {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2., {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2.i, {2.i, 4.i, 6.i}));
-    REQUIRE(almost_equal(2 * ai, {2, 4, 6}));
-    REQUIRE(almost_equal(ai * 2, {2, 4, 6}));
+    REQUIRE(array_equal(2 * ai, {2, 4, 6}));
+    REQUIRE(array_equal(ai * 2, {2, 4, 6}));
     REQUIRE(almost_equal(2. * v, {2., 4., 6.}));
     REQUIRE(almost_equal(v * 2., {2., 4., 6.}));
     REQUIRE(almost_equal(v * 2.i, {2.i, 4.i, 6.i}));
@@ -289,52 +289,52 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(2. + a, {3., 4., 5.}));
     REQUIRE(almost_equal(2.i + a, {2.i + 1., 2.i + 2., 2.i + 3.}));
     REQUIRE(almost_equal(a + 2., {3., 4., 5.}));
-    REQUIRE(almost_equal(2 + ai, {3, 4, 5}));
-    REQUIRE(almost_equal(ai + 2, {3, 4, 5}));
+    REQUIRE(array_equal(2 + ai, {3, 4, 5}));
+    REQUIRE(array_equal(ai + 2, {3, 4, 5}));
     REQUIRE(almost_equal(2. + v, {3., 4., 5.}));
     REQUIRE(almost_equal(v + 2., {3., 4., 5.}));
 
     REQUIRE(almost_equal(2. - a, {1., 0., -1.}));
     REQUIRE(almost_equal(a - 2., {-1., 0., 1.}));
-    REQUIRE(almost_equal(2 - ai, {1, 0, -1}));
-    REQUIRE(almost_equal(ai - 2, {-1, 0, 1}));
+    REQUIRE(array_equal(2 - ai, {1, 0, -1}));
+    REQUIRE(array_equal(ai - 2, {-1, 0, 1}));
     REQUIRE(almost_equal(2. - v, {1., 0., -1.}));
     REQUIRE(almost_equal(v - 2., {-1., 0., 1.}));
 
     REQUIRE(almost_equal(2. / a, {2., 1., 2. / 3.}));
     REQUIRE(almost_equal(a / 2., {0.5, 1., 3. / 2.}));
-    REQUIRE(almost_equal(2 / ai, {2, 1, 0}));
-    REQUIRE(almost_equal(ai / 2, {0, 1, 1}));
+    REQUIRE(array_equal(2 / ai, {2, 1, 0}));
+    REQUIRE(array_equal(ai / 2, {0, 1, 1}));
     REQUIRE(almost_equal(2. / v, {2., 1., 2. / 3.}));
     REQUIRE(almost_equal(v / 2., {0.5, 1., 3. / 2.}));
     REQUIRE(almost_equal(v / 2.i, {-0.5i, -1.i, -3.i / 2.}));
 
     REQUIRE(almost_equal(2. % a, {0., 0., 2.}));
     REQUIRE(almost_equal(a % 2., {1., 0., 1.}));
-    REQUIRE(almost_equal(2 % ai, {0, 0, 2}));
-    REQUIRE(almost_equal(ai % 2, {1, 0, 1}));
+    REQUIRE(array_equal(2 % ai, {0, 0, 2}));
+    REQUIRE(array_equal(ai % 2, {1, 0, 1}));
     REQUIRE(almost_equal(2. % v, {0., 0., 2.}));
     REQUIRE(almost_equal(v % 2., {1., 0., 1.}));
 
     REQUIRE(almost_equal(a1 * a, {2., 8., 18.}));
-    REQUIRE(almost_equal(a1i * ai, {2, 8, 18}));
+    REQUIRE(array_equal(a1i * ai, {2, 8, 18}));
     REQUIRE(almost_equal(v1 * v, {2., 8., 18.}));
     REQUIRE(almost_equal(v1 * 2.i * v, {4.i, 16.i, 36.i}));
 
     REQUIRE(almost_equal(a1 + a, {3., 6., 9.}));
-    REQUIRE(almost_equal(a1i + ai, {3, 6, 9}));
+    REQUIRE(array_equal(a1i + ai, {3, 6, 9}));
     REQUIRE(almost_equal(v1 + v, {3., 6., 9.}));
 
     REQUIRE(almost_equal(a1 - a, {1., 2., 3.}));
-    REQUIRE(almost_equal(a1i - ai, {1, 2, 3}));
+    REQUIRE(array_equal(a1i - ai, {1, 2, 3}));
     REQUIRE(almost_equal(v1 - v, {1., 2., 3.}));
 
     REQUIRE(almost_equal(a1 / a, {2., 2., 2.}));
-    REQUIRE(almost_equal(a1i / ai, {2, 2, 2}));
+    REQUIRE(array_equal(a1i / ai, {2, 2, 2}));
     REQUIRE(almost_equal(v1 / v, {2., 2., 2.}));
 
     REQUIRE(almost_equal(a1 % a, {0., 0., 0.}));
-    REQUIRE(almost_equal(a1i % ai, {0, 0, 0}));
+    REQUIRE(array_equal(a1i % ai, {0, 0, 0}));
     REQUIRE(almost_equal(v1 % v, {0., 0., 0.}));
 }
 
