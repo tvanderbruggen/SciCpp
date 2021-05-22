@@ -169,4 +169,98 @@ TEST_CASE("welch") {
     }
 }
 
+TEST_CASE("csd") {
+    SECTION("Empty") {
+        const auto [f1, p1] = Spectrum{}
+                                  .window(windows::hann<double>(20))
+                                  .csd(empty<double>(), empty<double>());
+        REQUIRE(f1.empty());
+        REQUIRE(p1.empty());
+
+        const auto [f2, p2] =
+            Spectrum{}
+                .window(windows::hann<double>(20))
+                .csd(std::array<double, 0>{}, std::array<double, 0>{});
+        REQUIRE(f2.empty());
+        REQUIRE(p2.empty());
+
+        const auto [f3, p3] = Spectrum{}
+                                  .window(windows::hann<double>(20))
+                                  .csd(empty<std::complex<double>>(),
+                                       empty<std::complex<double>>());
+        REQUIRE(f3.empty());
+        REQUIRE(p3.empty());
+    }
+
+    SECTION("Same data real") {
+        const auto x = linspace(1.0, 10.0, 100);
+        const auto [f, Pxx] = Spectrum{}.window(windows::Hann, 20).csd(x, x);
+
+        REQUIRE(almost_equal(
+            f, {0., 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5}));
+        // print(Pxx);
+        REQUIRE(almost_equal<1300>(Pxx,
+                                   {1.1717462900635261e-30,
+                                    1.0856685702984454e+00,
+                                    1.0217229970700109e-01,
+                                    5.1690953307982762e-03,
+                                    6.7054096389153556e-04,
+                                    1.2711280749082613e-04,
+                                    2.8351467354801672e-05,
+                                    6.5075192982108344e-06,
+                                    1.3856758812935259e-06,
+                                    2.7844868643021482e-07,
+                                    5.6211853247788487e-08}));
+    }
+
+    SECTION("Different data real same size") {
+        const auto x = linspace(1.0, 10.0, 100);
+        const auto y = linspace(10.0, 100.0, 100);
+        const auto [f, Pxy] = Spectrum{}.window(windows::Hamming, 15).csd(x, y);
+
+        // print(f);
+        REQUIRE(almost_equal<4>(f,
+                                {0.,
+                                 0.0666666666666667,
+                                 0.1333333333333333,
+                                 0.2,
+                                 0.2666666666666667,
+                                 0.3333333333333333,
+                                 0.4,
+                                 0.4666666666666667}));
+        // print(Pxy);
+        REQUIRE(
+            almost_equal(Pxy,
+                         {-3.7062851089728351e-30 + 0.0000000000000000e+00i,
+                          5.5638353667040628e+00 - 3.1311659646683040e-15i,
+                          1.3896361537945315e-01 + 2.8720474849532764e-16i,
+                          1.9363830151308823e-03 + 7.8567939380376008e-18i,
+                          9.1683760095253690e-03 + 3.2446435506274200e-17i,
+                          1.0622173917597896e-02 + 5.6852044063349557e-17i,
+                          1.0516902037792620e-02 - 8.7090083435688860e-17i,
+                          1.0293880420302366e-02 + 2.1149639898068783e-17i}));
+    }
+
+    SECTION("Different data complex same size") {
+        auto x = ones<std::complex<double>>(16);
+        x[0] = 1.0 + 2.0i;
+        x[8] = 1.0 + 2.0i;
+
+        auto y = ones<std::complex<double>>(16);
+        y[0] = 3.0 - 4.0i;
+        y[8] = 1.0 + 2.0i;
+
+        const auto [f, Pxy] = Spectrum{}.window(windows::Hamming, 5).csd(x, y);
+
+        REQUIRE(almost_equal(f, {0., 0.2, 0.4, -0.4, -0.2}));
+        // print(Pxy);
+        REQUIRE(almost_equal<120>(Pxy,
+                                  {0.0212130325814537 - 0.0848521303258146i,
+                                   0.2412993147862689 - 0.0598938467147468i,
+                                   0.5759137177951847 - 0.003695125716331i,
+                                   0.5759137177951847 - 0.003695125716331i,
+                                   0.2412993147862689 - 0.0598938467147468i}));
+    }
+}
+
 } // namespace scicpp::signal

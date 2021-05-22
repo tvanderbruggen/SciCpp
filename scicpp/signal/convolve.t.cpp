@@ -116,13 +116,13 @@ TEST_CASE("fftconvolve") {
         const std::vector v{1. + 0.i, 0.5i, 1. + 0.i};
         const auto res = fftconvolve(a, v);
         // print(res);
-        REQUIRE(almost_equal<10000>(res,
-                                    {3.14 + 1.i,
-                                     2.2 + 4.71i,
-                                     43.57 + 2.35i,
-                                     2.7 + 102.94i,
-                                     2.6 + 0.i,
-                                     78.8i}));
+        REQUIRE(almost_equal<200>(res,
+                                  {3.14 + 1.i,
+                                   2.2 + 4.71i,
+                                   43.57 + 2.35i,
+                                   2.7 + 102.94i,
+                                   2.6 + 0.i,
+                                   78.8i}));
     }
 }
 

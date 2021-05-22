@@ -19,7 +19,7 @@
 
 namespace scicpp::signal {
 
-enum SpectrumScaling : int { DENSITY, SPECTRUM };
+enum SpectrumScaling : int { NONE, DENSITY, SPECTRUM };
 
 enum SpectrumSides : int { ONESIDED, TWOSIDED };
 
@@ -45,6 +45,12 @@ class Spectrum {
         return *this;
     }
 
+    auto window(windows::Window win, std::size_t N) {
+        m_window = windows::get_window<T>(win, N);
+        set_parameters();
+        return *this;
+    }
+
     template <SpectrumScaling scaling = DENSITY, typename Array>
     auto welch(const Array &x) {
         using namespace scicpp::operators;
@@ -58,28 +64,50 @@ class Spectrum {
             return std::make_tuple(empty<T>(), empty<T>());
         }
 
-        // Padding
-        // const auto npad = m_nperseg + nseg * nstep - asize;
-        // scicpp_require(npad >= 0);
-        // auto x = zero_padding(a, std::size_t(npad));
+        const auto freqs = get_freqs<EltTp>();
 
         if constexpr (meta::is_complex_v<EltTp>) {
-            const auto freqs = fftfreq(std::size_t(m_nperseg), T{1} / m_fs);
-            auto res = welch_impl(freqs.size(), x, fft_func);
-            return std::make_tuple(
-                freqs, normalize<scaling, TWOSIDED>(std::move(res)));
+            return std::make_tuple(freqs,
+                                   normalize<scaling, TWOSIDED>(
+                                       welch_impl(freqs.size(), x, fft_func)));
         } else {
-            const auto freqs = rfftfreq(std::size_t(m_nperseg), T{1} / m_fs);
-            auto res = welch_impl(freqs.size(), x, rfft_func);
-            return std::make_tuple(
-                freqs, normalize<scaling, ONESIDED>(std::move(res)));
+            return std::make_tuple(freqs,
+                                   normalize<scaling, ONESIDED>(
+                                       welch_impl(freqs.size(), x, rfft_func)));
         }
     }
 
-    // template <typename Array>
-    // auto csd(const Array &x, const Array &y) {
+    template <SpectrumScaling scaling = DENSITY, typename Array>
+    auto csd(const Array &x, const Array &y) {
+        using namespace scicpp::operators;
+        using EltTp = typename Array::value_type;
 
-    // }
+        static_assert(meta::is_iterable_v<Array>);
+        static_assert(std::is_same_v<EltTp, T> ||
+                      std::is_same_v<EltTp, std::complex<T>>);
+
+        if (x.empty() || y.empty()) {
+            return std::make_tuple(empty<T>(), empty<std::complex<T>>());
+        }
+
+        const auto freqs = get_freqs<EltTp>();
+
+        if (x.size() == y.size()) {
+            if constexpr (meta::is_complex_v<EltTp>) {
+                return std::make_tuple(freqs,
+                                       normalize<scaling, TWOSIDED>(welch2_impl(
+                                           freqs.size(), x, y, fft_func)));
+            } else {
+                return std::make_tuple(freqs,
+                                       normalize<scaling, ONESIDED>(welch2_impl(
+                                           freqs.size(), x, y, rfft_func)));
+            }
+
+        } else {
+            // TODO padding
+            return std::make_tuple(empty<T>(), empty<std::complex<T>>());
+        }
+    }
 
   private:
     static constexpr signed_size_t dflt_nperseg = 256;
@@ -116,6 +144,15 @@ class Spectrum {
         m_noverlap = get_noverlap();
     }
 
+    template <typename EltTp>
+    auto get_freqs() {
+        if constexpr (meta::is_complex_v<EltTp>) {
+            return fftfreq(std::size_t(m_nperseg), T{1} / m_fs);
+        } else {
+            return rfftfreq(std::size_t(m_nperseg), T{1} / m_fs);
+        }
+    }
+
     template <typename Array, typename FFTFunc>
     auto welch_impl(std::size_t nfft, const Array &a, FFTFunc &&fftfunc) {
         using namespace scicpp::operators;
@@ -138,15 +175,40 @@ class Spectrum {
         return std::move(res) / T(nseg);
     }
 
-    template <SpectrumScaling scaling, SpectrumSides sides>
-    auto normalize(std::vector<T> &&v) {
+    template <typename Array, typename FFTFunc>
+    auto welch2_impl(std::size_t nfft,
+                     const Array &x,
+                     const Array &y,
+                     FFTFunc &&fftfunc) {
         using namespace scicpp::operators;
+        scicpp_require(x.size() == y.size());
 
-        if constexpr (scaling == DENSITY) {
-            v = std::move(v) / (m_fs * m_s2);
-        } else { // scaling == SPECTRUM
-            v = std::move(v) / m_s1;
+        const auto asize = signed_size_t(x.size());
+        const auto nstep = m_nperseg - m_noverlap;
+        const auto nseg = 1 + (asize - m_nperseg) / nstep;
+
+        auto res = zeros<std::complex<T>>(nfft);
+
+        for (signed_size_t i = 0; i < nseg; ++i) {
+            auto seg_x = subvector(x, i * nstep, i * nstep + m_nperseg);
+            scicpp_require(seg_x.size() == m_window.size());
+            auto seg_y = subvector(y, i * nstep, i * nstep + m_nperseg);
+            scicpp_require(seg_y.size() == m_window.size());
+
+            // detrend = "constant" => Substract mean
+            res =
+                std::move(res) +
+                conj(fftfunc((std::move(seg_x) - stats::mean(seg_x)) *
+                             m_window)) *
+                    fftfunc((std::move(seg_y) - stats::mean(seg_y)) * m_window);
         }
+
+        return std::move(res) / T(nseg);
+    }
+
+    template <SpectrumScaling scaling, SpectrumSides sides, typename SpecTp>
+    auto normalize(std::vector<SpecTp> &&v) {
+        using namespace scicpp::operators;
 
         if constexpr (sides == ONESIDED) {
             v = 2.0 * std::move(v);
@@ -159,7 +221,13 @@ class Spectrum {
             }
         }
 
-        return std::move(v);
+        if constexpr (scaling == DENSITY) {
+            return std::move(v) / (m_fs * m_s2);
+        } else if constexpr (scaling == SPECTRUM) {
+            return std::move(v) / m_s1;
+        } else { // scaling == NONE
+            return std::move(v);
+        }
     }
 
     template <typename Array>

@@ -6,6 +6,7 @@
 
 #include "signal/convolve.hpp"
 #include "signal/fft.hpp"
+#include "signal/spectral.hpp"
 #include "signal/waveforms.hpp"
 #include "signal/windows.hpp"
 
