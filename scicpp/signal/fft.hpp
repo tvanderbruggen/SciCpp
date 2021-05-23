@@ -162,13 +162,22 @@ Integral next_fast_len(Integral n) {
     return detail::next_ugly_number(n);
 }
 
-template <typename T>
-auto zero_padding(const std::vector<T> &v, std::size_t new_size) {
+template <typename Array>
+auto zero_padding(const Array &v, std::size_t new_size) {
+    static_assert(meta::is_iterable_v<Array>);
+
+    using T = typename Array::value_type;
     std::vector<T> res(new_size, T{0});
     std::copy(v.cbegin(),
               v.cbegin() + signed_size_t(std::min(new_size, v.size())),
               res.begin());
     return res;
+}
+
+template <typename T>
+auto zero_padding(std::vector<T> &&v, std::size_t new_size) {
+    v.resize(new_size, T{0});
+    return std::move(v);
 }
 
 //---------------------------------------------------------------------------------

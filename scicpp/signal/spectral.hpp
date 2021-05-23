@@ -77,14 +77,25 @@ class Spectrum {
         }
     }
 
-    template <SpectrumScaling scaling = DENSITY, typename Array>
-    auto csd(const Array &x, const Array &y) {
+    template <SpectrumScaling scaling = DENSITY,
+              typename Array1,
+              typename Array2>
+    auto csd(const Array1 &x, const Array2 &y) {
         using namespace scicpp::operators;
-        using EltTp = typename Array::value_type;
+        using EltTp1 = typename Array1::value_type;
+        using EltTp2 = typename Array2::value_type;
 
-        static_assert(meta::is_iterable_v<Array>);
-        static_assert(std::is_same_v<EltTp, T> ||
-                      std::is_same_v<EltTp, std::complex<T>>);
+        static_assert(meta::is_iterable_v<Array1>);
+        static_assert(meta::is_iterable_v<Array2>);
+        static_assert(std::is_same_v<EltTp1, T> ||
+                      std::is_same_v<EltTp1, std::complex<T>>);
+        static_assert(std::is_same_v<EltTp2, T> ||
+                      std::is_same_v<EltTp2, std::complex<T>>);
+
+        using EltTp = std::conditional_t<meta::is_complex_v<EltTp1> ||
+                                             meta::is_complex_v<EltTp2>,
+                                         std::complex<T>,
+                                         T>;
 
         if (x.empty() || y.empty()) {
             return std::make_tuple(empty<T>(), empty<std::complex<T>>());
@@ -102,10 +113,12 @@ class Spectrum {
                                        normalize<scaling, ONESIDED>(welch2_impl(
                                            freqs.size(), x, y, rfft_func)));
             }
-
         } else {
-            // TODO padding
-            return std::make_tuple(empty<T>(), empty<std::complex<T>>());
+            if (x.size() > y.size()) {
+                return csd<scaling>(x, zero_padding(y, x.size()));
+            } else { // x.size() < y.size()
+                return csd<scaling>(zero_padding(x, y.size()), y);
+            }
         }
     }
 
@@ -175,10 +188,10 @@ class Spectrum {
         return std::move(res) / T(nseg);
     }
 
-    template <typename Array, typename FFTFunc>
+    template <typename Array1, typename Array2, typename FFTFunc>
     auto welch2_impl(std::size_t nfft,
-                     const Array &x,
-                     const Array &y,
+                     const Array1 &x,
+                     const Array2 &y,
                      FFTFunc &&fftfunc) {
         using namespace scicpp::operators;
         scicpp_require(x.size() == y.size());

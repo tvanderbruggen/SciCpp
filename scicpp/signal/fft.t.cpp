@@ -314,6 +314,15 @@ TEST_CASE("zero_padding") {
     const std::vector v{1., 2., 3., 4., 5.};
     REQUIRE(almost_equal(zero_padding(v, 3), {1., 2., 3.}));
     REQUIRE(almost_equal(zero_padding(v, 7.), {1., 2., 3., 4., 5., 0., 0.}));
+
+    const std::array a{1., 2., 3., 4., 5.};
+    REQUIRE(almost_equal(zero_padding(a, 3), {1., 2., 3.}));
+    REQUIRE(almost_equal(zero_padding(a, 7.), {1., 2., 3., 4., 5., 0., 0.}));
+
+    REQUIRE(almost_equal(zero_padding(std::vector{1., 2., 3., 4., 5.}, 3),
+                         {1., 2., 3.}));
+    REQUIRE(almost_equal(zero_padding(std::vector{1., 2., 3., 4., 5.}, 7.),
+                         {1., 2., 3., 4., 5., 0., 0.}));
 }
 
 TEST_CASE("power_spectrum_density") {
