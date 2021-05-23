@@ -122,6 +122,18 @@ class Spectrum {
         }
     }
 
+    template <typename Array1, typename Array2>
+    auto coherence(const Array1 &x, const Array2 &y) {
+        using namespace scicpp::operators;
+        scicpp_require(x.size() == y.size());
+
+        auto [freqs, Pxy] = csd<NONE>(x, y);
+        auto Pxx = std::get<1>(welch<NONE>(x));
+        auto Pyy = std::get<1>(welch<NONE>(y));
+        return std::make_tuple(
+            freqs, norm(std::move(Pxy)) / std::move(Pxx) / std::move(Pyy));
+    }
+
   private:
     static constexpr signed_size_t dflt_nperseg = 256;
     static constexpr auto rfft_func = [](auto v) { return rfft(v); };

@@ -145,6 +145,7 @@ TEST_CASE("Complex numbers") {
     REQUIRE(almost_equal(
         norm(v),
         {std::norm(1. - 1.i), std::norm(-42. + 3.i), std::norm(-64. + 42.i)}));
+    REQUIRE(almost_equal(norm(std::array{1., 2.}), {1., 4.}));
     REQUIRE(almost_equal(
         polar(std::vector{1., 2., 3.}, std::vector{3_rad, 2_rad, 1_rad}),
         {std::polar(1., 3.), std::polar(2., 2.), std::polar(3., 1.)}));

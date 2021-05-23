@@ -24,6 +24,7 @@ namespace scicpp::signal {
 
 template <class Array>
 auto fftshift(Array &&a) {
+    static_assert(meta::is_iterable_v<Array>);
     std::rotate(
         a.begin(), a.begin() + signed_size_t(a.size() + 1) / 2, a.end());
     return std::move(a);
@@ -31,6 +32,7 @@ auto fftshift(Array &&a) {
 
 template <class Array>
 auto fftshift(const Array &a) {
+    static_assert(meta::is_iterable_v<Array>);
     auto res = utils::set_array(a);
     const auto offset = (signed_size_t(a.size() - 1) / 2) + 1;
     std::copy(a.cbegin() + offset, a.cend(), res.begin());
@@ -42,12 +44,14 @@ auto fftshift(const Array &a) {
 
 template <class Array>
 auto ifftshift(Array &&a) {
+    static_assert(meta::is_iterable_v<Array>);
     std::rotate(a.begin(), a.begin() + signed_size_t(a.size()) / 2, a.end());
     return std::move(a);
 }
 
 template <class Array>
 auto ifftshift(const Array &a) {
+    static_assert(meta::is_iterable_v<Array>);
     auto res = utils::set_array(a);
     const auto offset = (signed_size_t(a.size()) / 2);
     std::copy(a.cbegin() + offset, a.cend(), res.begin());
@@ -279,47 +283,6 @@ auto irfft(const std::vector<std::complex<T>> &y, int n = -1) {
     }
 
     return x;
-}
-
-//---------------------------------------------------------------------------------
-// Power spectrum
-//---------------------------------------------------------------------------------
-
-/// Compute the power spectrum density of a real signal
-///
-/// \param x Real signal vector
-/// \param fs Sampling frequency (float)
-/// \param w Window vector must have the same size than x
-///
-/// \return A vector that contains the power spectral density.
-///
-/// \rst
-///  The output as unit of :math:`\rm{V}^{2}/\rm{Hz}` if x is in :math:`\rm{V}`
-///  and fs is in :math:`\rm{Hz}`.
-/// \endrst
-template <class Array, typename T = typename Array::value_type>
-auto power_spectrum_density(const Array &x, T fs, Array &&w) {
-    using namespace scicpp::operators;
-    const auto S2 =
-        std::get<0>(reduce(w, [](auto r, auto v) { return r + v * v; }, T{0}));
-    return (2. / (fs * S2)) * norm(rfft(x * std::forward<Array>(w)));
-}
-
-/// Compute the power spectrum density of a real signal
-///
-/// \param x Real signal vector
-/// \param fs Sampling frequency (float)
-/// \param win Name of the window
-///
-/// \return A vector that contains the power spectral density.
-///
-/// \rst
-///  The output as unit of :math:`\rm{V}^{2}/\rm{Hz}` if x is in :math:`\rm{V}`
-///  and fs is in :math:`\rm{Hz}`.
-/// \endrst
-template <class Array, typename T = typename Array::value_type>
-auto power_spectrum_density(const Array &x, T fs, windows::Window win) {
-    return power_spectrum_density(x, fs, windows::get_window<T>(win, x.size()));
 }
 
 } // namespace scicpp::signal

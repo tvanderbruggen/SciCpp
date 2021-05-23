@@ -409,4 +409,57 @@ TEST_CASE("csd") {
     }
 }
 
+TEST_CASE("coherence") {
+    SECTION("real signals") {
+        const auto x = linspace(1.0, 10.0, 50);
+        const auto y = linspace(10.0, 100.0, 50);
+
+        const auto [f, Cxx] =
+            Spectrum{}.window(windows::Bartlett, 13).coherence(x, x);
+        REQUIRE(almost_equal<4>(f,
+                                {0.,
+                                 0.0769230769230769,
+                                 0.1538461538461539,
+                                 0.2307692307692308,
+                                 0.3076923076923077,
+                                 0.3846153846153846,
+                                 0.4615384615384616}));
+        // print(Cxx);
+        REQUIRE(almost_equal(Cxx, ones<double>(f.size())));
+
+        const auto [_, Cxy] =
+            Spectrum{}.window(windows::Bartlett, 13).coherence(x, y);
+        print(Cxy);
+        REQUIRE(almost_equal<12>(Cxy,
+                                 {0.0249133674714442,
+                                  0.9999999999999998,
+                                  0.9999999999999998,
+                                  1.0000000000000002,
+                                  1.0000000000000002,
+                                  1.,
+                                  1.0000000000000002}));
+    }
+
+    SECTION("complex signals") {
+        auto x = ones<std::complex<double>>(16);
+        x[0] = 1.0 + 2.0i;
+        x[8] = 1.0 + 2.0i;
+
+        auto y = ones<std::complex<double>>(16);
+        y[0] = 3.0 + 4.0i;
+        y[8] = 1.0 + 2.0i;
+
+        const auto [f, Cxy] =
+            Spectrum{}.window(windows::Flattop, 5).coherence(x, y);
+        REQUIRE(almost_equal(f, {0., 0.2, 0.4, -0.4, -0.2}));
+        // print(Cxy);
+        REQUIRE(almost_equal<4>(Cxy,
+                                 {0.9272167446777885,
+                                  0.9157842754322916,
+                                  0.8963246361527033,
+                                  0.8963246361527033,
+                                  0.9157842754322917}));
+    }
+}
+
 } // namespace scicpp::signal
