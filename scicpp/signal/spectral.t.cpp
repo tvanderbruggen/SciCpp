@@ -410,6 +410,13 @@ TEST_CASE("csd") {
 }
 
 TEST_CASE("coherence") {
+    SECTION("empty") {
+        const auto x = empty<double>();
+        const auto [f, Cxx] = Spectrum{}.coherence(x, x);
+        REQUIRE(f.empty());
+        REQUIRE(Cxx.empty());
+    }
+
     SECTION("real signals") {
         const auto x = linspace(1.0, 10.0, 50);
         const auto y = linspace(10.0, 100.0, 50);
@@ -454,11 +461,11 @@ TEST_CASE("coherence") {
         REQUIRE(almost_equal(f, {0., 0.2, 0.4, -0.4, -0.2}));
         // print(Cxy);
         REQUIRE(almost_equal<4>(Cxy,
-                                 {0.9272167446777885,
-                                  0.9157842754322916,
-                                  0.8963246361527033,
-                                  0.8963246361527033,
-                                  0.9157842754322917}));
+                                {0.9272167446777885,
+                                 0.9157842754322916,
+                                 0.8963246361527033,
+                                 0.8963246361527033,
+                                 0.9157842754322917}));
     }
 }
 

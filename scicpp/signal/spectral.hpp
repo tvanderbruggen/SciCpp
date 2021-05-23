@@ -139,6 +139,12 @@ class Spectrum {
     static constexpr auto rfft_func = [](auto v) { return rfft(v); };
     static constexpr auto fft_func = [](auto v) { return fft(v); };
 
+    // detrend = "constant" => Substract mean
+    static constexpr auto detrend = [](auto &&x) {
+        using namespace scicpp::operators;
+        return std::move(x) - stats::mean(x);
+    };
+
     T m_fs = T{1};
     std::vector<T> m_window = windows::hann<T>(dflt_nperseg);
     T m_s1 = get_s1();
@@ -192,9 +198,8 @@ class Spectrum {
             auto seg = subvector(a, i * nstep, i * nstep + m_nperseg);
             scicpp_require(seg.size() == m_window.size());
 
-            // detrend = "constant" => Substract mean
             res = std::move(res) +
-                  norm(fftfunc((std::move(seg) - stats::mean(seg)) * m_window));
+                  norm(fftfunc(detrend(std::move(seg)) * m_window));
         }
 
         return std::move(res) / T(nseg);
@@ -220,12 +225,9 @@ class Spectrum {
             auto seg_y = subvector(y, i * nstep, i * nstep + m_nperseg);
             scicpp_require(seg_y.size() == m_window.size());
 
-            // detrend = "constant" => Substract mean
-            res =
-                std::move(res) +
-                conj(fftfunc((std::move(seg_x) - stats::mean(seg_x)) *
-                             m_window)) *
-                    fftfunc((std::move(seg_y) - stats::mean(seg_y)) * m_window);
+            res = std::move(res) +
+                  conj(fftfunc(detrend(std::move(seg_x)) * m_window)) *
+                      fftfunc(detrend(std::move(seg_y)) * m_window);
         }
 
         return std::move(res) / T(nseg);
