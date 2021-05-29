@@ -11,6 +11,7 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
+#include "scicpp/core/utils.hpp"
 #include "scicpp/signal/fft.hpp"
 #include "scicpp/signal/windows.hpp"
 
@@ -134,6 +135,16 @@ class Spectrum {
             freqs, norm(std::move(Pxy)) / std::move(Pxx) / std::move(Pyy));
     }
 
+    template <typename Array1, typename Array2>
+    auto tfestimate(const Array1 &x, const Array2 &y) {
+        using namespace scicpp::operators;
+        scicpp_require(x.size() == y.size());
+
+        auto [freqs, Pyx] = csd<NONE>(y, x);
+        auto Pxx = std::get<1>(welch<NONE>(x));
+        return std::make_tuple(freqs, std::move(Pyx) / std::move(Pxx));
+    }
+
   private:
     static constexpr signed_size_t dflt_nperseg = 256;
     static constexpr auto rfft_func = [](auto v) { return rfft(v); };
@@ -195,7 +206,7 @@ class Spectrum {
         auto res = zeros<T>(nfft);
 
         for (signed_size_t i = 0; i < nseg; ++i) {
-            auto seg = subvector(a, i * nstep, i * nstep + m_nperseg);
+            auto seg = utils::subvector(a, std::size_t(m_nperseg), i * nstep);
             scicpp_require(seg.size() == m_window.size());
 
             res = std::move(res) +
@@ -220,9 +231,9 @@ class Spectrum {
         auto res = zeros<std::complex<T>>(nfft);
 
         for (signed_size_t i = 0; i < nseg; ++i) {
-            auto seg_x = subvector(x, i * nstep, i * nstep + m_nperseg);
+            auto seg_x = utils::subvector(x, std::size_t(m_nperseg), i * nstep);
             scicpp_require(seg_x.size() == m_window.size());
-            auto seg_y = subvector(y, i * nstep, i * nstep + m_nperseg);
+            auto seg_y = utils::subvector(y, std::size_t(m_nperseg), i * nstep);
             scicpp_require(seg_y.size() == m_window.size());
 
             res = std::move(res) +
@@ -255,13 +266,6 @@ class Spectrum {
         } else { // scaling == NONE
             return std::move(v);
         }
-    }
-
-    template <typename Array>
-    auto subvector(const Array &a, signed_size_t first, signed_size_t last) {
-        scicpp_require(last >= first);
-        // could use C++20 span
-        return std::vector(a.cbegin() + first, a.cbegin() + last);
     }
 }; // class Spectrum
 

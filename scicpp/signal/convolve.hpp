@@ -90,7 +90,7 @@ template <typename T>
 auto fftconvolve(const std::vector<T> &a, const std::vector<T> &v) {
     const auto res_size = a.size() + v.size() - 1;
 
-    return utils::move_subvector(
+    return utils::subvector(
         [&]() {
             using namespace scicpp::operators;
 

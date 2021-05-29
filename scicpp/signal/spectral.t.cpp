@@ -436,7 +436,7 @@ TEST_CASE("coherence") {
 
         const auto [_, Cxy] =
             Spectrum{}.window(windows::Bartlett, 13).coherence(x, y);
-        print(Cxy);
+        // print(Cxy);
         REQUIRE(almost_equal<12>(Cxy,
                                  {0.0249133674714442,
                                   0.9999999999999998,
@@ -466,6 +466,32 @@ TEST_CASE("coherence") {
                                  0.8963246361527033,
                                  0.8963246361527033,
                                  0.9157842754322917}));
+    }
+}
+
+TEST_CASE("tfestimate") {
+    SECTION("empty") {
+        const auto x = empty<double>();
+        const auto [f, Txx] = Spectrum{}.tfestimate(x, x);
+        REQUIRE(f.empty());
+        REQUIRE(Txx.empty());
+    }
+
+    SECTION("real signals") {
+        const auto x = linspace(1.0, 10.0, 50);
+        const auto [f, Txx] =
+            Spectrum{}.window(windows::Bartlett, 13).tfestimate(x, x);
+        // print(f);
+        REQUIRE(almost_equal<4>(f,
+                                {0.,
+                                 0.0769230769230769,
+                                 0.1538461538461539,
+                                 0.2307692307692308,
+                                 0.3076923076923077,
+                                 0.3846153846153846,
+                                 0.4615384615384616}));
+        // print(Txx);
+        REQUIRE(almost_equal(Txx, ones<std::complex<double>>(7)));
     }
 }
 

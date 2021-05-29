@@ -32,14 +32,27 @@ auto set_array(const Array &a) {
 }
 
 //---------------------------------------------------------------------------------
-// move_sub_vector
+// subvector
 //---------------------------------------------------------------------------------
 
-template <typename T>
-auto move_subvector(std::vector<T> &&v, std::size_t len) {
+template <typename T,
+          typename DiffTp = typename std::vector<T>::difference_type>
+auto subvector(std::vector<T> &&v, std::size_t len, DiffTp offset = 0) {
     return std::vector<T>(
-        std::make_move_iterator(v.begin()),
-        std::make_move_iterator(v.begin() + int(std::min(len, v.size()))));
+        std::make_move_iterator(v.begin() + offset),
+        std::make_move_iterator(v.begin() + offset +
+                                int(std::min(len, v.size()))));
+}
+
+template <typename Array, typename DiffTp = typename Array::difference_type>
+auto subvector(const Array &v, std::size_t len, DiffTp offset = 0) {
+    using T = typename Array::value_type;
+    static_assert(meta::is_iterable_v<Array>);
+
+    return std::vector<T>(
+        std::make_move_iterator(v.begin() + offset),
+        std::make_move_iterator(v.begin() + offset +
+                                int(std::min(len, v.size()))));
 }
 
 //---------------------------------------------------------------------------------
