@@ -88,23 +88,22 @@ auto direct_convolve(const std::vector<T> &a, const std::vector<T> &v) {
 
 template <typename T>
 auto fftconvolve(const std::vector<T> &a, const std::vector<T> &v) {
+    using namespace scicpp::operators;
+
     const auto res_size = a.size() + v.size() - 1;
+    const auto fft_size = next_fast_len(res_size);
+    const auto a_pad = zero_padding(a, fft_size);
+    const auto v_pad = zero_padding(v, fft_size);
 
-    return utils::subvector(
-        [&]() {
-            using namespace scicpp::operators;
-
-            const auto fft_size = next_fast_len(res_size);
-            const auto a_pad = zero_padding(a, fft_size);
-            const auto v_pad = zero_padding(v, fft_size);
-
-            if constexpr (meta::is_complex_v<T>) {
-                return ifft(fft(a_pad) * fft(v_pad), int(fft_size));
-            } else {
-                return irfft(rfft(a_pad) * rfft(v_pad), int(fft_size));
-            }
-        }(),
-        res_size);
+    if constexpr (meta::is_complex_v<T>) {
+        auto res = ifft(fft(a_pad) * fft(v_pad), int(fft_size));
+        res.resize(res_size);
+        return res;
+    } else {
+        auto res = irfft(rfft(a_pad) * rfft(v_pad), int(fft_size));
+        res.resize(res_size);
+        return res;
+    }
 }
 
 //---------------------------------------------------------------------------------

@@ -27,7 +27,7 @@ Hyperbolic functions
 Exponents and logarithms
 ^^^^^^^^^^^^^^^^
 
-:code:`exp`, :code:`expm1`, :code:`exp2`, :code:`log`, :code:`log2`, :code:`log1p`.
+:code:`exp`, :code:`expm1`, :code:`exp2`, :code:`log`, :code:`log2`, :code:`log10`, :code:`log1p`.
 
 Rounding
 ^^^^^^^^^^^^^^^^
@@ -58,6 +58,21 @@ Provides arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:
 
 The statement :code:`using namespace scicpp::operators` must be included in the scope where
 operators are used.
+
+Ones and zeros
+----------------
+
+:ref:`empty <core_empty>`
+    Return an empty :code:`std::vector` of a given type.
+
+:ref:`zeros <core_zeros>`
+    Return a new array of given shape and type, filled with zeros.
+
+:ref:`ones <core_ones>`
+    Return a new array of given shape and type, filled with ones.
+
+:ref:`full <core_full>`
+    Return a new array of given shape and type, filled with fill_value.
 
 Ranges
 -------------

@@ -206,6 +206,7 @@ class Spectrum {
         auto res = zeros<T>(nfft);
 
         for (signed_size_t i = 0; i < nseg; ++i) {
+            // In principle we could avoid to reallocate a vector each time
             auto seg = utils::subvector(a, std::size_t(m_nperseg), i * nstep);
             scicpp_require(seg.size() == m_window.size());
 
@@ -231,6 +232,7 @@ class Spectrum {
         auto res = zeros<std::complex<T>>(nfft);
 
         for (signed_size_t i = 0; i < nseg; ++i) {
+            // In principle we could avoid to reallocate a vector each time
             auto seg_x = utils::subvector(x, std::size_t(m_nperseg), i * nstep);
             scicpp_require(seg_x.size() == m_window.size());
             auto seg_y = utils::subvector(y, std::size_t(m_nperseg), i * nstep);
