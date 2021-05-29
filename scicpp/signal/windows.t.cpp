@@ -125,6 +125,11 @@ TEST_CASE("Flat-top") {
 }
 
 TEST_CASE("Gaussian") {
+    SECTION("Empty") {
+        REQUIRE(gaussian(0, 14.0).empty());
+        REQUIRE(gaussian<double, 0>(14.0).empty());
+    }
+
     SECTION("Odd size") {
         REQUIRE(almost_equal(gaussian<double>(5, 2.),
                              {0.6065306597126334,
@@ -142,7 +147,7 @@ TEST_CASE("Gaussian") {
     }
 
     SECTION("Even size") {
-        REQUIRE(almost_equal(gaussian<double>(4, 3.14),
+        REQUIRE(almost_equal(gaussian(4, 3.14),
                              {0.8921669573788574,
                               0.9874020281709599,
                               0.9874020281709599,
@@ -152,6 +157,49 @@ TEST_CASE("Gaussian") {
                               0.9874020281709599,
                               0.9874020281709599,
                               0.8921669573788574}));
+    }
+}
+
+TEST_CASE("Kaiser") {
+    SECTION("Empty") {
+        REQUIRE(kaiser(0, 14.0).empty());
+        REQUIRE(kaiser<double, 0>(14.0).empty());
+    }
+
+    SECTION("Odd size") {
+        // print(kaiser(5, 14.0));
+        REQUIRE(almost_equal<8>(kaiser(5, 14.0),
+                                {7.7268668352703676e-06,
+                                 1.6493218754795197e-01,
+                                 1.0000000000000000e+00,
+                                 1.6493218754795197e-01,
+                                 7.7268668352703676e-06}));
+        REQUIRE(almost_equal<8>(kaiser<double, 5>(14.0),
+                                {7.7268668352703676e-06,
+                                 1.6493218754795197e-01,
+                                 1.0000000000000000e+00,
+                                 1.6493218754795197e-01,
+                                 7.7268668352703676e-06}));
+    }
+
+    SECTION("Even size") {
+        // print(kaiser(4, 20.0));
+        REQUIRE(almost_equal<16>(kaiser(4, 20.0),
+                                 {2.2957746293894510e-08,
+                                  3.2825222610412064e-01,
+                                  3.2825222610412064e-01,
+                                  2.2957746293894510e-08}));
+        REQUIRE(almost_equal<16>(kaiser<double, 4>(20.0),
+                                 {2.2957746293894510e-08,
+                                  3.2825222610412064e-01,
+                                  3.2825222610412064e-01,
+                                  2.2957746293894510e-08}));
+        REQUIRE(almost_equal<16>(kaiser(4, -20.0),
+                                 {2.2957746293894510e-08,
+                                  3.2825222610412064e-01,
+                                  3.2825222610412064e-01,
+                                  2.2957746293894510e-08}));
+        REQUIRE(almost_equal(kaiser(4, 0.0), ones<double>(4)));
     }
 }
 

@@ -240,6 +240,10 @@ template <class Array, typename T = typename Array::value_type>
 void gaussian_filler(Array &w, T sigma) {
     scicpp_require(sigma > T{0});
 
+    if (w.empty()) {
+        return;
+    }
+
     const T shift = w.size() % 2 == 0 ? T{0.5} : T{0};
     const T i0 = T(w.size() / 2) - shift;
     const T scaling = -T{1} / (T{2} * sigma * sigma);
@@ -263,6 +267,45 @@ template <typename T>
 auto gaussian(std::size_t M, T sigma) {
     std::vector<T> w(M);
     detail::gaussian_filler(w, sigma);
+    return w;
+}
+
+//---------------------------------------------------------------------------------
+// Kaiser
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+void kaiser_filler(Array &w, T beta) {
+    scicpp_require(beta >= T{0});
+
+    if (w.empty()) {
+        return;
+    }
+
+    const auto alpha = 0.5 * T(w.size() - 1);
+    const auto i0_beta = std::cyl_bessel_i(0, beta);
+
+    symmetric_filler(w, [=](std::size_t i) {
+        const auto r = (T(i) - alpha) / alpha;
+        return std::cyl_bessel_i(0, beta * std::sqrt(T{1} - r * r)) / i0_beta;
+    });
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M>
+auto kaiser(T beta) {
+    std::array<T, M> w{};
+    detail::kaiser_filler(w, std::abs(beta));
+    return w;
+}
+
+template <typename T>
+auto kaiser(std::size_t M, T beta) {
+    std::vector<T> w(M);
+    detail::kaiser_filler(w, std::abs(beta));
     return w;
 }
 
