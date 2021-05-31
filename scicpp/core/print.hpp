@@ -24,27 +24,20 @@
 namespace scicpp {
 
 struct PrintOptions {
-    PrintOptions()
-        : separator(" "), precision(8), threshold(1000), linewidth(75),
-          edgeitems(3), suppress(false), nanstr("nan"), infstr("inf") {
-        scicpp_require(linewidth > 0);
-        scicpp_require(threshold >= 2 * edgeitems);
-    }
-
-    std::string separator;
-    int precision;
+    std::string separator{" "};
+    int precision{8};
     // Total number of array elements which trigger summarization rather than full repr
-    std::size_t threshold;
+    std::size_t threshold{1000};
     // Number of characters per line for the purpose of inserting line breaks
-    int linewidth;
+    int linewidth{75};
     // Number of array items in summary at beginning and end of each dimension
-    std::size_t edgeitems;
+    std::size_t edgeitems{3};
     // If true, always print floating point numbers using fixed point notation
-    bool suppress;
+    bool suppress{false};
     // String representation of floating point not-a-number
-    std::string nanstr;
+    std::string nanstr{"nan"};
     // String representation of floating point infinity
-    std::string infstr;
+    std::string infstr{"inf"};
 };
 
 namespace detail {
@@ -143,7 +136,7 @@ struct ElementFormater {
         }
     }
 
-    auto str() {
+    auto str() const {
         if (m_fixed) {
             auto str = m_ss.str();
             remove_trailling_zeros(str);
@@ -221,7 +214,7 @@ int print_array_elements(Stream &stream,
                          const PrintOptions &prtopts,
                          ElementFormater &fmter,
                          int pos) {
-    auto *sep = "";
+    const auto *sep = "";
     std::size_t sep_size = 0;
 
     for (const auto &a : A) {
