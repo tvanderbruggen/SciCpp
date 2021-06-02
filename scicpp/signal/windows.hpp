@@ -283,6 +283,37 @@ auto gaussian(std::size_t M, T sigma) {
 }
 
 //---------------------------------------------------------------------------------
+// General Gaussian
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+void general_gaussian_filler(Array &w, T p, T sigma) {
+    const T shift = w.size() % 2 == 0 ? T{0.5} : T{0};
+    const T i0 = T(w.size() / 2) - shift;
+
+    symmetric_filler(w, [=](std::size_t i) {
+        const T n = T(i) - i0;
+        return std::exp(-0.5 * std::pow(n / sigma, T{2} * p));
+    });
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, Symmetry sym = Symmetric>
+auto general_gaussian(T p, T sigma) {
+    return detail::build_window_array<T, M, sym>(
+        [&](auto &w) { detail::general_gaussian_filler(w, p, sigma); });
+}
+
+template <typename T, Symmetry sym = Symmetric>
+auto general_gaussian(std::size_t M, T p, T sigma) {
+    return detail::build_window_vector<T, sym>(
+        M, [&](auto &w) { detail::general_gaussian_filler(w, p, sigma); });
+}
+
+//---------------------------------------------------------------------------------
 // Kaiser
 //---------------------------------------------------------------------------------
 
