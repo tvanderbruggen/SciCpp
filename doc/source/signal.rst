@@ -93,8 +93,14 @@ Window Functions
 :ref:`windows::gaussian <signal_windows_gaussian>`
     Return a Gaussian window.
 
+:ref:`windows::general_gaussian <signal_windows_general_gaussian>`
+    Return a generalized Gaussian window.
+
 :ref:`windows::kaiser <signal_windows_kaiser>`
     Return a Kaiser window.
+
+:ref:`windows::enbw <signal_windows_enbw>`
+    Return the equivalent noise bandwidth of a window.
 
 Spectral analysis
 ------------------

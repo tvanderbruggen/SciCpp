@@ -158,30 +158,18 @@ class Spectrum {
 
     T m_fs = T{1};
     std::vector<T> m_window = windows::hann<T>(dflt_nperseg);
-    T m_s1 = get_s1();
-    T m_s2 = get_s2();
+    T m_s1 = windows::s1(m_window);
+    T m_s2 = windows::s2(m_window);
     signed_size_t m_nperseg = get_nperseg();
     signed_size_t m_noverlap = get_noverlap();
-
-    auto get_s1() {
-        // S1 = (Sum_i w_i)^2
-        const auto s = sum(m_window);
-        return s * s;
-    }
-
-    auto get_s2() {
-        // S2 = Sum_i w_i^2
-        return std::get<0>(
-            reduce(m_window, [](auto r, auto v) { return r + v * v; }, T{0}));
-    }
 
     auto get_nperseg() { return signed_size_t(m_window.size()); }
 
     auto get_noverlap() { return m_nperseg / 2; }
 
     void set_parameters() {
-        m_s1 = get_s1();
-        m_s2 = get_s2();
+        m_s1 = windows::s1(m_window);
+        m_s2 = windows::s2(m_window);
         m_nperseg = get_nperseg();
         m_noverlap = get_noverlap();
     }

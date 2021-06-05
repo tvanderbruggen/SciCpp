@@ -409,4 +409,14 @@ TEST_CASE("get_window") {
     }
 }
 
+//---------------------------------------------------------------------------------
+// window utilities
+//---------------------------------------------------------------------------------
+
+TEST_CASE("enbw") {
+    const auto fs = 10000.0;
+    const auto bw = enbw(hann<double>(1000), fs);
+    REQUIRE(almost_equal(bw, 15.015015015014990));
+}
+
 } // namespace scicpp::signal::windows

@@ -5,7 +5,9 @@
 #define SCICPP_SIGNAL_WINDOWS
 
 #include "scicpp/core/constants.hpp"
+#include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
 
 #include <algorithm>
@@ -412,6 +414,30 @@ auto get_window(Window win, std::size_t N) {
     default:
         scicpp_unreachable;
     }
+}
+
+//---------------------------------------------------------------------------------
+// window utilities
+//---------------------------------------------------------------------------------
+
+// S1 = (Sum_i w_i)^2
+template <typename Array>
+auto s1(const Array &window) {
+    return std::norm(sum(window));
+}
+
+// S2 = Sum_i w_i^2
+template <typename Array>
+auto s2(const Array &window) {
+    using T = typename Array::value_type;
+    return std::get<0>(
+        reduce(window, [](auto r, auto v) { return r + std::norm(v); }, T{0}));
+}
+
+// https://fr.mathworks.com/help/signal/ref/enbw.html
+template <typename Array, typename T = typename Array::value_type>
+auto enbw(const Array &window, T fs = T{1}) {
+    return fs * s2(window) / s1(window);
 }
 
 } // namespace scicpp::signal::windows
