@@ -14,9 +14,9 @@ int main() {
            sci::stats::mean(noise),
            sci::stats::std(noise));
 
-    const auto fs = 1.0; // Sampling frequency
-    const auto psd = sci::signal::power_spectrum_density(
-        noise, fs, sci::signal::windows::Window::Flattop);
+    const auto [f, psd] = sci::signal::Spectrum{}
+                              .window(sci::signal::windows::Flattop, 2000)
+                              .welch(noise);
 
     // The expected PSD for a white noise is 2 * sigma ^ 2
     printf("PSD = %f\n", sci::stats::mean(psd));
