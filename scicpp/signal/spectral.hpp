@@ -253,7 +253,6 @@ class Spectrum {
         if constexpr (sides == ONESIDED) {
             v = 2.0 * std::move(v);
             // Don't find why in scipy code, but need it to match scipy result
-            // Scipy use a "periodic window"
             v.front() *= 0.5;
 
             if (!(m_nperseg % 2)) {

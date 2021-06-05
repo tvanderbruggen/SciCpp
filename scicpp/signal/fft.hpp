@@ -63,11 +63,11 @@ auto ifftshift(const Array &a) {
 
 namespace detail {
 
+using namespace scicpp::operators;
+
 template <class Array, typename T = typename Array::value_type>
 auto fftfreq_impl(Array &&res, T d) {
-    using namespace scicpp::operators;
     scicpp_require(d > T{0});
-
     const auto N = signed_size_t(res.size());
     std::iota(res.begin(), res.end(), -T(N / 2));
     return ifftshift(std::forward<Array>(res) / (d * T(N)));
@@ -75,9 +75,7 @@ auto fftfreq_impl(Array &&res, T d) {
 
 template <class Array, typename T = typename Array::value_type>
 auto rfftfreq_impl(Array &&res, std::size_t N, T d) {
-    using namespace scicpp::operators;
     scicpp_require(d > T{0});
-
     std::iota(res.begin(), res.end(), T{0});
     return std::forward<Array>(res) / (d * T(N));
 }

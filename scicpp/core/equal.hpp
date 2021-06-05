@@ -45,7 +45,7 @@ bool fp_equal_predicate(T a, T b) {
 
     const auto max_val = std::max(std::fabs(a), std::fabs(b));
 
-    if (is_zero(a) || is_zero(b) || max_val < eps) {
+    if (is_zero(a) || is_zero(b) || max_val < tol) {
         return std::fabs(a - b) <= tol;
     }
 
