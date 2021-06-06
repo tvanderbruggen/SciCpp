@@ -108,6 +108,9 @@ Spectral analysis
 :ref:`Spectrum <signal_Spectrum>`
     A class to configure the spectral analysis.
 
+:ref:`Spectrum::periodogram <signal_Spectrum_periodogram>`
+    Estimate power spectral density using a periodogram.
+
 :ref:`Spectrum::welch <signal_Spectrum_welch>`
     Estimate power spectral density using Welch’s method.
 

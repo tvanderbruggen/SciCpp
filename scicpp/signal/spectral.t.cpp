@@ -130,7 +130,7 @@ TEST_CASE("welch") {
         x[0] = 1.0 + 2.0i;
         x[8] = 1.0 + 2.0i;
 
-        auto spec = Spectrum{}.window(windows::hann<double>(8.0));
+        auto spec = Spectrum{}.window(windows::hann<double>(8));
         const auto [f, p] = spec.welch(x);
         REQUIRE(almost_equal(
             f, {0., 0.125, 0.25, 0.375, -0.5, -0.375, -0.25, -0.125}));
@@ -167,6 +167,85 @@ TEST_CASE("welch") {
         // print(stats::mean(psd));
         REQUIRE(std::fabs(stats::mean(psd) - 2.) / 2. < 1. / std::sqrt(10000));
     }
+}
+
+TEST_CASE("noverlap") {
+    auto x = zeros<std::complex<double>>(16);
+    x[0] = 1.0 + 2.0i;
+    x[8] = 1.0 + 2.0i;
+    auto spec =
+        Spectrum{}.window(windows::hann<double>(8)).fs(10.0).noverlap(4);
+    const auto [f, p] = spec.welch(x);
+    // print(f);
+    // print(p);
+    REQUIRE(almost_equal(f, {0., 1.25, 2.5, 3.75, -5., -3.75, -2.5, -1.25}));
+    REQUIRE(almost_equal<8>(p,
+                            {0.04101368441119,
+                             0.0412438689658457,
+                             0.0552180305942083,
+                             0.0576813628666607,
+                             0.0573600418529239,
+                             0.0576813628666607,
+                             0.0552180305942083,
+                             0.0412438689658457}));
+    spec.noverlap(0);
+    const auto [f1, p1] = spec.welch(x);
+    // print(f1);
+    print(p1);
+    REQUIRE(almost_equal(f1, {0., 1.25, 2.5, 3.75, -5., -3.75, -2.5, -1.25}));
+    REQUIRE(almost_equal<75>(p1,
+                             {3.6458333333333336e-02,
+                              1.2876444549389519e-02,
+                              1.3566428021272650e-04,
+                              8.7245037310924216e-06,
+                              0.0000000000000000e+00,
+                              8.7245037310924064e-06,
+                              1.3566428021272650e-04,
+                              1.2876444549389514e-02}));
+}
+
+TEST_CASE("periodogram") {
+    auto x = zeros<std::complex<double>>(16);
+    x[0] = 1.0 + 2.0i;
+    x[8] = 1.0 + 2.0i;
+    auto spec = Spectrum{}.window(windows::hann<double>(16)).fs(10.0);
+    const auto [f, p] = spec.periodogram(x);
+    // print(f);
+    // print(p);
+    REQUIRE(almost_equal(f,
+                         {0.,
+                          0.625,
+                          1.25,
+                          1.875,
+                          2.5,
+                          3.125,
+                          3.75,
+                          4.375,
+                          -5.,
+                          -4.375,
+                          -3.75,
+                          -3.125,
+                          -2.5,
+                          -1.875,
+                          -1.25,
+                          -0.625}));
+    REQUIRE(almost_equal<1500>(p,
+                               {0.0002364317230476,
+                                0.0218936985942652,
+                                0.0830806633107641,
+                                0.0882007605538029,
+                                0.0864386074072716,
+                                0.0871837823196038,
+                                0.0868713552374593,
+                                0.0869767748617318,
+                                0.0869570651175314,
+                                0.0869767748617318,
+                                0.0868713552374593,
+                                0.0871837823196038,
+                                0.0864386074072716,
+                                0.0882007605538029,
+                                0.083080663310764,
+                                0.0218936985942652}));
 }
 
 TEST_CASE("csd") {

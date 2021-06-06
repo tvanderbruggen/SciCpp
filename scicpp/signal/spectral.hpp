@@ -29,8 +29,19 @@ class Spectrum {
   public:
     Spectrum() = default;
 
+    // -------------------------------------------------------------------------
+    // Spectrum analysis configuration
+    // -------------------------------------------------------------------------
+
     auto fs(T fs) {
         m_fs = fs;
+        return *this;
+    }
+
+    auto noverlap(signed_size_t noverlap) {
+        scicpp_require(noverlap <= m_nperseg);
+        m_use_dflt_overlpap = false;
+        m_noverlap = noverlap;
         return *this;
     }
 
@@ -50,6 +61,17 @@ class Spectrum {
         m_window = windows::get_window<T>(win, N);
         set_parameters();
         return *this;
+    }
+
+    // -------------------------------------------------------------------------
+    // Spectrum computations
+    // -------------------------------------------------------------------------
+
+    template <SpectrumScaling scaling = DENSITY, typename Array>
+    auto periodogram(const Array &x) {
+        scicpp_require(x.size() == m_window.size());
+        noverlap(0);
+        return welch(x);
     }
 
     template <SpectrumScaling scaling = DENSITY, typename Array>
@@ -161,17 +183,21 @@ class Spectrum {
     T m_s1 = windows::s1(m_window);
     T m_s2 = windows::s2(m_window);
     signed_size_t m_nperseg = get_nperseg();
-    signed_size_t m_noverlap = get_noverlap();
+    bool m_use_dflt_overlpap = true;
+    signed_size_t m_noverlap = m_nperseg / 2;
 
     auto get_nperseg() { return signed_size_t(m_window.size()); }
-
-    auto get_noverlap() { return m_nperseg / 2; }
 
     void set_parameters() {
         m_s1 = windows::s1(m_window);
         m_s2 = windows::s2(m_window);
         m_nperseg = get_nperseg();
-        m_noverlap = get_noverlap();
+
+        if (m_use_dflt_overlpap) {
+            m_noverlap = m_nperseg / 2;
+        }
+
+        scicpp_require(m_noverlap <= m_nperseg);
     }
 
     template <typename EltTp>
