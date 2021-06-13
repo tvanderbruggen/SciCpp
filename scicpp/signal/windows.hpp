@@ -130,6 +130,35 @@ auto cosine(std::size_t M) {
         M, [](auto &w) { detail::cosine_filler(w); });
 }
 
+namespace detail {
+
+template <class Array>
+void bohman_filler(Array &w) {
+    if (!w.empty()) {
+        using T = typename Array::value_type;
+        const auto step = T{2} / T(w.size() - 1);
+        symmetric_filler(w, [=](std::size_t i) {
+            const auto x = T(i) * step - T{1};
+            return (T{1} - x) * std::cos(pi<T> * x) +
+                   std::sin(pi<T> * x) / pi<T>;
+        });
+    }
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, Symmetry sym = Symmetric>
+auto bohman() {
+    return detail::build_window_array<T, M, sym>(
+        [](auto &w) { detail::bohman_filler(w); });
+}
+
+template <typename T, Symmetry sym = Symmetric>
+auto bohman(std::size_t M) {
+    return detail::build_window_vector<T, sym>(
+        M, [](auto &w) { detail::bohman_filler(w); });
+}
+
 //---------------------------------------------------------------------------------
 // Cosine sum windows
 //---------------------------------------------------------------------------------

@@ -103,6 +103,40 @@ TEST_CASE("Cosine") {
     }
 }
 
+TEST_CASE("bohman") {
+    SECTION("bohman") {
+        REQUIRE(bohman<double>(0).empty());
+        REQUIRE(bohman<double, 0>().empty());
+    }
+
+    SECTION("Odd size") {
+        // print(bohman<double>(5));
+        REQUIRE(almost_equal<4>(
+            bohman<double>(5),
+            {0., 0.3183098861837907, 1., 0.3183098861837907, 0.}));
+        // print(bohman<double, Periodic>(7));
+        REQUIRE(almost_equal<16>(bohman<double, Periodic>(7),
+                                {0.,
+                                 0.0707247468110934,
+                                 0.4374840121676052,
+                                 0.9103685132461523,
+                                 0.9103685132461525,
+                                 0.4374840121676056,
+                                 0.0707247468110935}));
+    }
+
+    SECTION("Even size") {
+        // print(bohman<double>(4));
+        REQUIRE(
+            almost_equal<4>(bohman<double>(4),
+                            {0., 0.6089977810442293, 0.6089977810442295, 0.}));
+        // print(bohman<double, 4, Periodic>());
+        REQUIRE(
+            almost_equal<4>(bohman<double, 4, Periodic>(),
+                            {0., 0.3183098861837907, 1., 0.3183098861837907}));
+    }
+}
+
 //---------------------------------------------------------------------------------
 // Cosine sum windows
 //---------------------------------------------------------------------------------
