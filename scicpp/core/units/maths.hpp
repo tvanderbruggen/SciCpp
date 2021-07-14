@@ -121,7 +121,7 @@ auto cbrt(T x) {
     }
 }
 
-template <intmax_t n, typename T>
+template <intmax_t n, typename T, meta::disable_if_iterable<T> = 0>
 constexpr auto pow([[maybe_unused]] T a) {
     if constexpr (is_quantity_v<T>) {
         using rept_t = typename T::value_type;

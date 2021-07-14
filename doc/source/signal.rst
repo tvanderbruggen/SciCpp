@@ -66,6 +66,9 @@ Window Functions
 :ref:`windows::cosine <signal_windows_cosine>`
     Return a window with a cosine shape.
 
+:ref:`windows::bohman <signal_windows_bohman>`
+    Return a Bohman window.
+
 :ref:`windows::general_cosine <signal_windows_general_cosine>`
     Generic weighted sum of cosine terms window.
 

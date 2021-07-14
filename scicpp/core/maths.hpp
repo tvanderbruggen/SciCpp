@@ -132,6 +132,34 @@ const auto absolute = vectorize([](auto x) {
 const auto sqrt = vectorize([](auto x) { return units::sqrt(x); });
 const auto cbrt = vectorize([](auto x) { return units::cbrt(x); });
 
+// pow
+
+template <typename T1, typename T2>
+constexpr auto pow(T1 &&x, T2 &&y) {
+    if constexpr (meta::is_iterable_v<T1>) {
+        if constexpr (meta::is_iterable_v<T2>) {
+            return map([](auto x, auto y) { return std::pow(x, y); },
+                       std::forward<T1>(x),
+                       std::forward<T2>(y));
+        } else { // y is a scalar
+            return map([&](auto x) { return std::pow(x, y); },
+                       std::forward<T1>(x));
+        }
+    } else { // x is a scalar
+        if constexpr (meta::is_iterable_v<T2>) {
+            return map([&](auto y) { return std::pow(x, y); },
+                       std::forward<T2>(y));
+        } else {
+            return std::pow(x, y);
+        }
+    }
+}
+
+template <intmax_t n, typename T, meta::enable_if_iterable<T> = 0>
+constexpr auto pow(T a) {
+    return map([](auto x) { return units::pow<n>(x); }, std::forward<T>(a));
+}
+
 } // namespace scicpp
 
 #endif // SCICPP_CORE_MATHS

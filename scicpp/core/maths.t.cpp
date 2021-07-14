@@ -177,6 +177,14 @@ TEST_CASE("Miscellaneous") {
     REQUIRE(almost_equal<2>(
         cbrt(std::vector{1_mF, 2_mF, 3_mF}),
         {units::cbrt(1_mF), units::cbrt(2_mF), units::cbrt(3_mF)}));
+
+    REQUIRE(almost_equal<2>(
+        pow(std::vector{1., 2., 3.}, std::vector{2., 2., 2.}), {1., 4., 9.}));
+    REQUIRE(almost_equal<2>(pow(std::vector{1., 2., 3.}, 2.), {1., 4., 9.}));
+    REQUIRE(almost_equal<2>(pow(3., std::vector{1., 2., 3.}), {3., 9., 27.}));
+    REQUIRE(almost_equal<2>(pow<3>(std::vector{1_m, 2_m, 3_m}),
+                            {1_m3, 8_m3, 27_m3}));
+    REQUIRE(almost_equal<2>(pow<3>(3_m), 27_m3));
 }
 
 } // namespace scicpp

@@ -49,7 +49,7 @@ Rational routines
 Miscellaneous
 ^^^^^^^^^^^^^^^^
 
-:code:`absolute`, :code:`sqrt`, :code:`cbrt`.
+:code:`absolute`, :code:`sqrt`, :code:`cbrt`, :code:`pow`.
 
 Arithmetic operators
 -------------
