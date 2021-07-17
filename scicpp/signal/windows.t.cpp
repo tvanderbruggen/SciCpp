@@ -128,11 +128,11 @@ TEST_CASE("bohman") {
     SECTION("Even size") {
         // print(bohman<double>(4));
         REQUIRE(
-            almost_equal<4>(bohman<double>(4),
+            almost_equal<8>(bohman<double>(4),
                             {0., 0.6089977810442293, 0.6089977810442295, 0.}));
         // print(bohman<double, 4, Periodic>());
         REQUIRE(
-            almost_equal<4>(bohman<double, 4, Periodic>(),
+            almost_equal<8>(bohman<double, 4, Periodic>(),
                             {0., 0.3183098861837907, 1., 0.3183098861837907}));
     }
 }
