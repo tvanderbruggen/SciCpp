@@ -138,16 +138,16 @@ template <typename T1, typename T2>
 constexpr auto pow(T1 &&x, T2 &&y) {
     if constexpr (meta::is_iterable_v<T1>) {
         if constexpr (meta::is_iterable_v<T2>) {
-            return map([](auto x, auto y) { return std::pow(x, y); },
+            return map([](auto a, auto b) { return std::pow(a, b); },
                        std::forward<T1>(x),
                        std::forward<T2>(y));
         } else { // y is a scalar
-            return map([&](auto x) { return std::pow(x, y); },
+            return map([&](auto a) { return std::pow(a, y); },
                        std::forward<T1>(x));
         }
     } else { // x is a scalar
         if constexpr (meta::is_iterable_v<T2>) {
-            return map([&](auto y) { return std::pow(x, y); },
+            return map([&](auto a) { return std::pow(x, a); },
                        std::forward<T2>(y));
         } else {
             return std::pow(x, y);
