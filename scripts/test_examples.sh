@@ -25,3 +25,4 @@ make COMPILER=$compiler EXAMPLE=doc/polynomial_Polynomial example
 make COMPILER=$compiler EXAMPLE=doc/polynomial_polydiv example
 make COMPILER=$compiler EXAMPLE=doc/linalg_lstsq example
 make COMPILER=$compiler EXAMPLE=doc/signal_windows_general_cosine example
+make COMPILER=$compiler EXAMPLE=doc/signal_spectrum example

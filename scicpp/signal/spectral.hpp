@@ -153,6 +153,10 @@ class Spectrum {
         auto [freqs, Pxy] = csd<NONE>(x, y);
         auto Pxx = std::get<1>(welch<NONE>(x));
         auto Pyy = std::get<1>(welch<NONE>(y));
+
+        scicpp_require(Pxy.size() == Pxx.size());
+        scicpp_require(Pxy.size() == Pyy.size());
+
         return std::make_tuple(
             freqs, norm(std::move(Pxy)) / std::move(Pxx) / std::move(Pyy));
     }

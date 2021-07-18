@@ -109,7 +109,7 @@ Spectral analysis
 ------------------
 
 :ref:`Spectrum <signal_Spectrum>`
-    A class to configure the spectral analysis.
+    A class to configure spectral analysis parameters.
 
 :ref:`Spectrum::periodogram <signal_Spectrum_periodogram>`
     Estimate power spectral density using a periodogram.
