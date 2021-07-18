@@ -367,13 +367,6 @@ TEST_CASE("std/var/sem complex") {
     REQUIRE(almost_equal(var(b), 10_m2));
 }
 
-TEST_CASE("detail::power_v") {
-    REQUIRE(almost_equal(detail::power_v<0>(std::vector{1., 2., 3.}),
-                         {1., 1., 1.}));
-    REQUIRE(almost_equal(detail::power_v<3>(std::array{1., 2., 3.}),
-                         {1., 8., 27.}));
-}
-
 TEST_CASE("moment") {
     REQUIRE(almost_equal(moment<0>(std::vector{1., 2., 3., 4.}), 1.));
     REQUIRE(almost_equal(moment<1>(std::array{1., 2., 3., 4.}), 0.));

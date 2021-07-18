@@ -425,13 +425,6 @@ constexpr auto tsem(const Array &f,
 // moment
 //---------------------------------------------------------------------------------
 
-namespace detail {
-
-template <intmax_t n>
-const auto power_v = vectorize([](auto x) { return units::pow<n>(x); });
-
-} // namespace detail
-
 template <intmax_t n, class Array, class Predicate>
 auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
     using namespace operators;
@@ -446,7 +439,7 @@ auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
     } else {
         // This allocates an extra array,
         // but preserves pairwise recursion precision
-        return mean(detail::power_v<n>(f - mean(f, filter)), filter);
+        return mean(pow<n>(f - mean(f, filter)), filter);
         // Combination of moments
         // http://prod.sandia.gov/techlib/access-control.cgi/2008/086212.pdf
     }
