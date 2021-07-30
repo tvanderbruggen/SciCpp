@@ -140,6 +140,15 @@ Sums, products, differences
 :ref:`vdot <core_vdot>`
     Return the dot product of two vectors.
 
+Searching
+----------------
+
+:ref:`argmax, nanargmax <core_stats_argmax>`
+    Returns the indices of the maximum value of an array.
+
+:ref:`argmin, nanargmin <core_stats_argmin>`
+    Returns the indices of the minimum value of an array.
+
 Comparisons and Logical
 ----------------
 
@@ -170,12 +179,6 @@ Statistics
 
 :ref:`stats::amin <core_stats_amin>`
     Return the minimum value of an array.
-
-:ref:`stats::argmax <core_stats_argmax>`
-    Returns the indices of the maximum value of an array.
-
-:ref:`stats::argmin <core_stats_argmin>`
-    Returns the indices of the minimum value of an array.
 
 :ref:`stats::ptp <core_stats_ptp>`
     Return the peak-to-peak span of an array.

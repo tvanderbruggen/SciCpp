@@ -28,21 +28,6 @@ TEST_CASE("amax physical quantities") {
     REQUIRE(almost_equal(amax(std::vector{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 6_m));
 }
 
-TEST_CASE("argmax") {
-    static_assert(argmax(std::array{1., 2., 3.}) == 2);
-    REQUIRE(argmax(std::vector{1., 2., 3.}) == 2);
-    REQUIRE(argmax(std::vector{1., 3., 3., 2.}) == 1);
-    REQUIRE(argmax(std::array{0, 5, 2, 3, 4, 5}) == 1);
-}
-
-TEST_CASE("argmax physical quantities") {
-    using namespace units::literals;
-    static_assert(argmax(std::array{1_m, 2_m, 3_m}) == 2);
-    REQUIRE(argmax(std::vector{1_m, 2_m, 3_m}) == 2);
-    REQUIRE(argmax(std::vector{1_m, 3_m, 3_m, 2_m}) == 1);
-    REQUIRE(argmax(std::array{0_m, 5_m, 2_m, 3_m, 4_m, 5_m}) == 1);
-}
-
 TEST_CASE("amin") {
     static_assert(float_equal(amin(std::array{1., 2., 3.}), 1.));
     REQUIRE(std::isnan(amin(std::array<double, 0>{})));
@@ -55,21 +40,6 @@ TEST_CASE("amin physical quantities") {
     REQUIRE(units::isnan(amin(std::array<units::length<double>, 0>{})));
     REQUIRE(almost_equal(amin(std::array{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 1_m));
     REQUIRE(almost_equal(amin(std::vector{1_m, 4_m, 5_m, 6_m, 2_m, 3_m}), 1_m));
-}
-
-TEST_CASE("argmin") {
-    static_assert(argmin(std::array{1., 2., 3.}) == 0);
-    REQUIRE(argmin(std::vector{1., 2., 3.}) == 0);
-    REQUIRE(argmin(std::vector{1., -3., -3., 2.}) == 1);
-    REQUIRE(argmin(std::array{0, -5, 2, 3, 4, -5}) == 1);
-}
-
-TEST_CASE("argmin physical quantities") {
-    using namespace units::literals;
-    static_assert(argmin(std::array{1_s, 2_s, 3_s}) == 0);
-    REQUIRE(argmin(std::vector{1_s, 2_s, 3_s}) == 0);
-    REQUIRE(argmin(std::vector{1_s, -3_s, -3_s, 2_s}) == 1);
-    REQUIRE(argmin(std::array{0_s, -5_s, 2_s, 3_s, 4_s, -5_s}) == 1);
 }
 
 TEST_CASE("ptp") {

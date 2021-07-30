@@ -709,6 +709,130 @@ void mask_array(std::vector<T> &a, const Mask &m) {
     a = mask(std::move(a), m);
 }
 
+//---------------------------------------------------------------------------------
+// argmin, argmax
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class InputIt, class Predicate, class Comparator>
+constexpr scicpp_pure auto
+argcmp(InputIt first, InputIt last, Predicate filter, Comparator compare) {
+    using IteratorType = typename std::iterator_traits<InputIt>::value_type;
+    using IdxTp = typename std::iterator_traits<InputIt>::difference_type;
+
+    static_assert(meta::is_predicate<Predicate, IteratorType>);
+    static_assert(meta::is_predicate<Comparator, IteratorType, IteratorType>);
+    scicpp_require(std::distance(first, last) > 0);
+
+    auto it = first;
+
+    while (!filter(*it)) {
+        scicpp_require(it != last && "No valid value found");
+        ++it;
+    }
+
+    if (std::distance(it, last) == 1) {
+        return std::distance(first, it);
+    }
+
+    IdxTp idx = 0;
+    auto max = *it;
+    ++it;
+
+    for (; it != last; ++it) {
+        if (filter(*it) && compare(*it, max)) {
+            max = *it;
+            idx = std::distance(first, it);
+        }
+    }
+
+    return idx;
+}
+
+} // namespace detail
+
+// argmax
+
+template <class InputIt, class Predicate>
+constexpr scicpp_pure auto
+argmax(InputIt first, InputIt last, Predicate filter) {
+    return detail::argcmp(
+        first, last, filter, [](auto u, auto v) { return u > v; });
+}
+
+template <class Array, class Predicate>
+constexpr scicpp_pure auto argmax(const Array &a, Predicate filter) {
+    return argmax(a.cbegin(), a.cend(), filter);
+}
+
+template <class Array>
+constexpr scicpp_pure auto argmax(const Array &a) {
+    return argmax(a.cbegin(), a.cend(), filters::all);
+}
+
+template <class Array>
+constexpr scicpp_pure auto nanargmax(const Array &a) {
+    return argmax(a.cbegin(), a.cend(), filters::not_nan);
+}
+
+// argmin
+
+template <class InputIt, class Predicate>
+constexpr scicpp_pure auto
+argmin(InputIt first, InputIt last, Predicate filter) {
+    return detail::argcmp(
+        first, last, filter, [](auto u, auto v) { return u < v; });
+}
+
+template <class Array, class Predicate>
+constexpr scicpp_pure auto argmin(const Array &a, Predicate filter) {
+    return argmin(a.cbegin(), a.cend(), filter);
+}
+
+template <class Array>
+constexpr scicpp_pure auto argmin(const Array &a) {
+    return argmin(a.cbegin(), a.cend(), filters::all);
+}
+
+template <class Array>
+constexpr scicpp_pure auto nanargmin(const Array &a) {
+    return argmin(a.cbegin(), a.cend(), filters::not_nan);
+}
+
+//---------------------------------------------------------------------------------
+// argwhere, nonzero
+//---------------------------------------------------------------------------------
+
+template <class InputIt, class Predicate>
+constexpr auto argwhere(InputIt first, InputIt last, Predicate filter) {
+    using IteratorType = typename std::iterator_traits<InputIt>::value_type;
+    using IdxTp = typename std::iterator_traits<InputIt>::difference_type;
+
+    static_assert(meta::is_predicate<Predicate, IteratorType>);
+
+    std::vector<IdxTp> res{};
+    res.reserve(std::size_t(std::distance(first, last)));
+
+    for (auto it = first; it != last; ++it) {
+        if (filter(*it)) {
+            res.push_back(std::distance(first, it));
+        }
+    }
+
+    return res;
+}
+
+template <class Array, class Predicate>
+auto argwhere(const Array &a, Predicate filter) {
+    return argwhere(a.cbegin(), a.cend(), filter);
+}
+
+template <class Array>
+auto nonzero(const Array &a) {
+    return argwhere(a.cbegin(), a.cend(), filters::not_zero);
+}
+
 } // namespace scicpp
 
 #endif // SCICPP_CORE_NUMERIC
