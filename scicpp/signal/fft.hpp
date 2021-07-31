@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_SIGNAL_FFT
 #define SCICPP_SIGNAL_FFT
@@ -24,6 +24,7 @@ namespace scicpp::signal {
 
 template <class Array>
 auto fftshift(Array &&a) {
+    static_assert(meta::is_iterable_v<Array>);
     std::rotate(
         a.begin(), a.begin() + signed_size_t(a.size() + 1) / 2, a.end());
     return std::move(a);
@@ -31,6 +32,7 @@ auto fftshift(Array &&a) {
 
 template <class Array>
 auto fftshift(const Array &a) {
+    static_assert(meta::is_iterable_v<Array>);
     auto res = utils::set_array(a);
     const auto offset = (signed_size_t(a.size() - 1) / 2) + 1;
     std::copy(a.cbegin() + offset, a.cend(), res.begin());
@@ -42,12 +44,14 @@ auto fftshift(const Array &a) {
 
 template <class Array>
 auto ifftshift(Array &&a) {
+    static_assert(meta::is_iterable_v<Array>);
     std::rotate(a.begin(), a.begin() + signed_size_t(a.size()) / 2, a.end());
     return std::move(a);
 }
 
 template <class Array>
 auto ifftshift(const Array &a) {
+    static_assert(meta::is_iterable_v<Array>);
     auto res = utils::set_array(a);
     const auto offset = (signed_size_t(a.size()) / 2);
     std::copy(a.cbegin() + offset, a.cend(), res.begin());
@@ -59,14 +63,21 @@ auto ifftshift(const Array &a) {
 
 namespace detail {
 
+using namespace scicpp::operators;
+
 template <class Array, typename T = typename Array::value_type>
 auto fftfreq_impl(Array &&res, T d) {
-    using namespace scicpp::operators;
     scicpp_require(d > T{0});
-
     const auto N = signed_size_t(res.size());
     std::iota(res.begin(), res.end(), -T(N / 2));
     return ifftshift(std::forward<Array>(res) / (d * T(N)));
+}
+
+template <class Array, typename T = typename Array::value_type>
+auto rfftfreq_impl(Array &&res, std::size_t N, T d) {
+    scicpp_require(d > T{0});
+    std::iota(res.begin(), res.end(), T{0});
+    return std::forward<Array>(res) / (d * T(N));
 }
 
 } // namespace detail
@@ -81,6 +92,18 @@ template <typename T>
 auto fftfreq(std::size_t n, T d = T{1}) {
     scicpp_require(n > 0);
     return detail::fftfreq_impl(std::vector<T>(n), d);
+}
+
+template <std::size_t N, typename T>
+auto rfftfreq(T d = T{1}) {
+    static_assert(N > 0);
+    return detail::rfftfreq_impl(std::array<T, N / 2 + 1>{}, N, d);
+}
+
+template <typename T>
+auto rfftfreq(std::size_t n, T d = T{1}) {
+    scicpp_require(n > 0);
+    return detail::rfftfreq_impl(std::vector<T>(n / 2 + 1), n, d);
 }
 
 namespace detail {
@@ -141,13 +164,22 @@ Integral next_fast_len(Integral n) {
     return detail::next_ugly_number(n);
 }
 
-template <typename T>
-auto zero_padding(const std::vector<T> &v, std::size_t new_size) {
+template <typename Array>
+auto zero_padding(const Array &v, std::size_t new_size) {
+    static_assert(meta::is_iterable_v<Array>);
+
+    using T = typename Array::value_type;
     std::vector<T> res(new_size, T{0});
     std::copy(v.cbegin(),
               v.cbegin() + signed_size_t(std::min(new_size, v.size())),
               res.begin());
     return res;
+}
+
+template <typename T>
+auto zero_padding(std::vector<T> &&v, std::size_t new_size) {
+    v.resize(new_size, T{0});
+    return std::move(v);
 }
 
 //---------------------------------------------------------------------------------
@@ -156,6 +188,12 @@ auto zero_padding(const std::vector<T> &v, std::size_t new_size) {
 
 template <typename T>
 auto fft(const std::vector<std::complex<T>> &x) {
+    scicpp_require(!x.empty());
+
+    if (x.size() == 1) {
+        return std::vector{x[0]};
+    }
+
     Eigen::FFT<T> fft_engine;
     std::vector<std::complex<T>> y;
     fft_engine.fwd(y, x);
@@ -164,6 +202,12 @@ auto fft(const std::vector<std::complex<T>> &x) {
 
 template <typename T>
 auto fft(const std::vector<T> &x) {
+    scicpp_require(!x.empty());
+
+    if (x.size() == 1) {
+        return std::vector{std::complex(x[0])};
+    }
+
     Eigen::FFT<T> fft_engine;
     std::vector<std::complex<T>> y;
     fft_engine.fwd(y, x);
@@ -172,6 +216,12 @@ auto fft(const std::vector<T> &x) {
 
 template <typename T>
 auto rfft(const std::vector<T> &x) {
+    scicpp_require(!x.empty());
+
+    if (x.size() == 1) {
+        return std::vector{std::complex(x[0])};
+    }
+
     Eigen::FFT<T> fft_engine;
     fft_engine.SetFlag(Eigen::FFT<T>::HalfSpectrum);
     std::vector<std::complex<T>> y;
@@ -231,47 +281,6 @@ auto irfft(const std::vector<std::complex<T>> &y, int n = -1) {
     }
 
     return x;
-}
-
-//---------------------------------------------------------------------------------
-// Power spectrum
-//---------------------------------------------------------------------------------
-
-/// Compute the power spectrum density of a real signal
-///
-/// \param x Real signal vector
-/// \param fs Sampling frequency (float)
-/// \param w Window vector must have the same size than x
-///
-/// \return A vector that contains the power spectral density.
-///
-/// \rst
-///  The output as unit of :math:`\rm{V}^{2}/\rm{Hz}` if x is in :math:`\rm{V}`
-///  and fs is in :math:`\rm{Hz}`.
-/// \endrst
-template <class Array, typename T = typename Array::value_type>
-auto power_spectrum_density(const Array &x, T fs, Array &&w) {
-    using namespace scicpp::operators;
-    const auto S2 =
-        std::get<0>(reduce(w, [](auto r, auto v) { return r + v * v; }, T{0}));
-    return (2. / (fs * S2)) * norm(rfft(x * std::forward<Array>(w)));
-}
-
-/// Compute the power spectrum density of a real signal
-///
-/// \param x Real signal vector
-/// \param fs Sampling frequency (float)
-/// \param win Name of the window
-///
-/// \return A vector that contains the power spectral density.
-///
-/// \rst
-///  The output as unit of :math:`\rm{V}^{2}/\rm{Hz}` if x is in :math:`\rm{V}`
-///  and fs is in :math:`\rm{Hz}`.
-/// \endrst
-template <class Array, typename T = typename Array::value_type>
-auto power_spectrum_density(const Array &x, T fs, windows::Window win) {
-    return power_spectrum_density(x, fs, windows::get_window<T>(win, x.size()));
 }
 
 } // namespace scicpp::signal

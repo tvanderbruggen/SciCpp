@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "maths.hpp"
 
@@ -101,6 +101,8 @@ TEST_CASE("Exponents and logarithms") {
                          {std::log(1.), std::log(2.), std::log(3.)}));
     REQUIRE(almost_equal(log2(std::vector{1., 2., 3.}),
                          {std::log2(1.), std::log2(2.), std::log2(3.)}));
+    REQUIRE(almost_equal(log10(std::vector{1., 2., 3.}),
+                         {std::log10(1.), std::log10(2.), std::log10(3.)}));
     REQUIRE(almost_equal<2>(log1p(std::array{1., 2., 3.}),
                             {std::log1p(1.), std::log1p(2.), std::log1p(3.)}));
 }
@@ -132,24 +134,28 @@ TEST_CASE("Complex numbers") {
     const std::vector v{1. - 1.i, -42. + 3.i, -64. + 42.i};
 
     REQUIRE(almost_equal(real(v), {1., -42., -64.}));
+    REQUIRE(almost_equal(real(1. - 1.i), 1.));
     REQUIRE(almost_equal(imag(v), {-1., 3., 42.}));
+    REQUIRE(almost_equal(imag(1. - 1.i), -1.));
     REQUIRE(almost_equal(
         angle(v),
         {std::arg(1. - 1.i), std::arg(-42. + 3.i), std::arg(-64. + 42.i)}));
     REQUIRE(almost_equal(conj(v), {1. + 1.i, -42. - 3.i, -64. - 42.i}));
+    REQUIRE(almost_equal(conj(std::array{1., 2.}), {1., 2.}));
     REQUIRE(almost_equal(
         norm(v),
         {std::norm(1. - 1.i), std::norm(-42. + 3.i), std::norm(-64. + 42.i)}));
+    REQUIRE(almost_equal(norm(std::array{1., 2.}), {1., 4.}));
     REQUIRE(almost_equal(
         polar(std::vector{1., 2., 3.}, std::vector{3_rad, 2_rad, 1_rad}),
         {std::polar(1., 3.), std::polar(2., 2.), std::polar(3., 1.)}));
 }
 
 TEST_CASE("Rational routines") {
-    REQUIRE(almost_equal(gcd(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
-                         {std::gcd(1, 3), std::gcd(2, 2), std::gcd(3, 1)}));
-    REQUIRE(almost_equal(lcm(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
-                         {std::lcm(1, 3), std::lcm(2, 2), std::lcm(3, 1)}));
+    REQUIRE(array_equal(gcd(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
+                        {std::gcd(1, 3), std::gcd(2, 2), std::gcd(3, 1)}));
+    REQUIRE(array_equal(lcm(std::vector{1, 2, 3}, std::vector{3, 2, 1}),
+                        {std::lcm(1, 3), std::lcm(2, 2), std::lcm(3, 1)}));
 }
 
 TEST_CASE("Miscellaneous") {
@@ -171,6 +177,14 @@ TEST_CASE("Miscellaneous") {
     REQUIRE(almost_equal<2>(
         cbrt(std::vector{1_mF, 2_mF, 3_mF}),
         {units::cbrt(1_mF), units::cbrt(2_mF), units::cbrt(3_mF)}));
+
+    REQUIRE(almost_equal<2>(
+        pow(std::vector{1., 2., 3.}, std::vector{2., 2., 2.}), {1., 4., 9.}));
+    REQUIRE(almost_equal<2>(pow(std::vector{1., 2., 3.}, 2.), {1., 4., 9.}));
+    REQUIRE(almost_equal<2>(pow(3., std::vector{1., 2., 3.}), {3., 9., 27.}));
+    REQUIRE(almost_equal<2>(pow<3>(std::vector{1_m, 2_m, 3_m}),
+                            {1_m3, 8_m3, 27_m3}));
+    REQUIRE(almost_equal<2>(pow<3>(3_m), 27_m3));
 }
 
 } // namespace scicpp

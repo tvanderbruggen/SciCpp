@@ -16,12 +16,13 @@ make COMPILER=$compiler EXAMPLE=photodetector-noise example
 
 # doc examples
 
-make EXAMPLE=doc/core_stats_median example
-make EXAMPLE=doc/core_stats_mean example
-make EXAMPLE=doc/core_stats_var example
-make EXAMPLE=doc/core_map example
-make EXAMPLE=doc/core_fromstring example
-make EXAMPLE=doc/polynomial_Polynomial example
-make EXAMPLE=doc/polynomial_polydiv example
-make EXAMPLE=doc/linalg_lstsq example
-make EXAMPLE=doc/signal_windows_general_cosine example
+make COMPILER=$compiler EXAMPLE=doc/core_stats_median example
+make COMPILER=$compiler EXAMPLE=doc/core_stats_mean example
+make COMPILER=$compiler EXAMPLE=doc/core_stats_var example
+make COMPILER=$compiler EXAMPLE=doc/core_map example
+make COMPILER=$compiler EXAMPLE=doc/core_fromstring example
+make COMPILER=$compiler EXAMPLE=doc/polynomial_Polynomial example
+make COMPILER=$compiler EXAMPLE=doc/polynomial_polydiv example
+make COMPILER=$compiler EXAMPLE=doc/linalg_lstsq example
+make COMPILER=$compiler EXAMPLE=doc/signal_windows_general_cosine example
+make COMPILER=$compiler EXAMPLE=doc/signal_spectrum example

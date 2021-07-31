@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_MATHS
 #define SCICPP_CORE_MATHS
@@ -35,7 +35,7 @@ constexpr auto fabs(T &&x) {
         // to quiet warning, but this is not constexpr.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
-        if (x == U(0.)) {
+        if (units::value(x) == units::representation_t<U>(0.)) {
             return U(+0.);
         }
 #pragma GCC diagnostic pop
@@ -77,6 +77,7 @@ const auto expm1 = vectorize([](auto x) { return units::expm1(x); });
 const auto exp2 = vectorize([](auto x) { return units::exp2(x); });
 const auto log = vectorize([](auto x) { return units::log(x); });
 const auto log2 = vectorize([](auto x) { return units::log2(x); });
+const auto log10 = vectorize([](auto x) { return units::log10(x); });
 const auto log1p = vectorize([](auto x) { return units::log1p(x); });
 
 // Rounding
@@ -93,7 +94,14 @@ const auto real = vectorize([](auto z) { return std::real(z); });
 const auto imag = vectorize([](auto z) { return std::imag(z); });
 const auto angle = vectorize([](auto z) { return std::arg(z); });
 const auto norm = vectorize([](auto z) { return std::norm(z); });
-const auto conj = vectorize([](auto z) { return std::conj(z); });
+
+const auto conj = vectorize([](auto z) {
+    if constexpr (meta::is_complex_v<decltype(z)>) {
+        return std::conj(z);
+    } else {
+        return z;
+    }
+});
 
 const auto polar = vectorize([](auto r, auto theta) {
     using T = decltype(theta);
@@ -124,6 +132,34 @@ const auto absolute = vectorize([](auto x) {
 const auto sqrt = vectorize([](auto x) { return units::sqrt(x); });
 const auto cbrt = vectorize([](auto x) { return units::cbrt(x); });
 
+// pow
+
+template <typename T1, typename T2>
+constexpr auto pow(T1 &&x, T2 &&y) {
+    if constexpr (meta::is_iterable_v<T1>) {
+        if constexpr (meta::is_iterable_v<T2>) {
+            return map([](auto a, auto b) { return std::pow(a, b); },
+                       std::forward<T1>(x),
+                       std::forward<T2>(y));
+        } else { // y is a scalar
+            return map([&](auto a) { return std::pow(a, y); },
+                       std::forward<T1>(x));
+        }
+    } else { // x is a scalar
+        if constexpr (meta::is_iterable_v<T2>) {
+            return map([&](auto a) { return std::pow(x, a); },
+                       std::forward<T2>(y));
+        } else {
+            return std::pow(x, y);
+        }
+    }
+}
+
+template <intmax_t n, typename T, meta::enable_if_iterable<T> = 0>
+constexpr auto pow(T a) {
+    return map([](auto x) { return units::pow<n>(x); }, std::forward<T>(a));
+}
+
 } // namespace scicpp
 
-#endif // SCICPPCORE_MATHS
+#endif // SCICPP_CORE_MATHS

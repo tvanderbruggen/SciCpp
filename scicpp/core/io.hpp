@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_IO
 #define SCICPP_CORE_IO
@@ -63,12 +63,15 @@ auto to_number([[maybe_unused]] const char *str) {
 
         if (std::sscanf(str, "%lf+%lfj", &x, &y) > 0) {
             return std::complex(x, y);
-        } else { // Invalid input
-            const auto nan = std::numeric_limits<scal_t>::quiet_NaN();
-            return std::complex(nan, nan);
         }
-    } else {
+
+        // Invalid input
+        const auto nan = std::numeric_limits<scal_t>::quiet_NaN();
+        return std::complex(nan, nan);
+    } else if constexpr (meta::is_string_v<T>) {
         return T{str};
+    } else {
+        return T{};
     }
 }
 
@@ -106,9 +109,9 @@ std::optional<DataType> convert(const token_t &tok,
 
     if (filter != filters.end()) {
         return filter->second(res) ? std::make_optional(res) : std::nullopt;
-    } else {
-        return res;
     }
+
+    return res;
 }
 
 template <class TokenOp>
@@ -452,7 +455,7 @@ class TxtLoader {
     }
 
     auto converters(ConvertersDict converters) {
-        m_converters = converters;
+        m_converters = std::move(converters);
         return *this;
     }
 
@@ -462,7 +465,7 @@ class TxtLoader {
     }
 
     auto filters(FiltersDict filters) {
-        m_filters = filters;
+        m_filters = std::move(filters);
         return *this;
     }
 

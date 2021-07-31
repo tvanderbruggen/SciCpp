@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "quantity.hpp"
 
@@ -10,6 +10,7 @@
 #include "scicpp/core/units/maths.hpp"
 #include "scicpp/core/units/units.hpp"
 
+#include <complex>
 #include <cstdio>
 #include <type_traits>
 
@@ -193,6 +194,51 @@ TEST_CASE("Multiply by constant") {
     REQUIRE(almost_equal(10._V * 100._mA * 3.14, 3140._mW));
     REQUIRE(almost_equal<2>(3.14_degF * 10, 31.4_degF));
     REQUIRE(almost_equal<2>(10 * 3.14_degF, 31.4_degF));
+}
+
+TEST_CASE("Quantity complex") {
+    const auto z1 = std::complex(1_m, 2_m);
+    const auto z2 = std::complex(1_m, 1_m);
+    const auto z3 = std::complex(1_Hz, 1_Hz);
+
+    static_assert(meta::is_complex_v<std::decay_t<decltype(z1)>>);
+    // static_assert(is_complex_quantity<decltype(z1)>());
+    // static_assert(!is_complex_quantity<double>());
+    // static_assert(!is_complex_quantity<std::complex<double>>());
+
+    REQUIRE(almost_equal(std::real(z1), 1_m));
+    REQUIRE(almost_equal(std::imag(z1), 2_m));
+    REQUIRE(almost_equal(std::real(value(z1)), 1.0));
+    REQUIRE(almost_equal(value(z1), std::complex(1.0, 2.0)));
+
+    REQUIRE(almost_equal(z1 - z2, std::complex(0_m, 1_m)));
+    REQUIRE(almost_equal(z1 + z2, std::complex(2_m, 3_m)));
+    REQUIRE(almost_equal(z1 * z2, std::complex(-1_m2, 3_m2)));
+    REQUIRE(almost_equal(z1 * z3, std::complex(-1_m_per_s, 3_m_per_s)));
+    REQUIRE(almost_equal(1i * z1, std::complex(-2_m, 1_m)));
+    REQUIRE(almost_equal(z1 * 1i, std::complex(-2_m, 1_m)));
+    REQUIRE(almost_equal(z1 * 2.0, std::complex(2_m, 4_m)));
+    REQUIRE(almost_equal(2.0 * z1, std::complex(2_m, 4_m)));
+    REQUIRE(almost_equal(2_m * z1, std::complex(2_m2, 4_m2)));
+    REQUIRE(almost_equal(2_A * std::complex(1_V, 2_V), std::complex(2_W, 4_W)));
+    REQUIRE(almost_equal(z1 * 2.0, std::complex(2_m, 4_m)));
+    REQUIRE(almost_equal(z1 * 2_m, std::complex(2_m2, 4_m2)));
+    REQUIRE(almost_equal(std::complex(1_V, 2_V) * 2_A, std::complex(2_W, 4_W)));
+    REQUIRE(almost_equal(z1 / 2.0, std::complex(0.5_m, 1_m)));
+    REQUIRE(almost_equal(
+        z1 / 2_m,
+        std::complex(dimensionless<double>(0.5), dimensionless<double>(1.0))));
+    REQUIRE(almost_equal(z1 / 1i, std::complex(2_m, -1_m)));
+    REQUIRE(almost_equal(z1 / 2_s, std::complex(0.5_m_per_s, 1_m_per_s)));
+    REQUIRE(almost_equal(1.0 / z3, std::complex(0.5_s, -0.5_s)));
+    REQUIRE(almost_equal(
+        1_Hz / z3,
+        std::complex(dimensionless<double>(0.5), -dimensionless<double>(0.5))));
+    REQUIRE(almost_equal(1_kg / z2, std::complex(0.5_kg / 1_m, -0.5_kg / 1_m)));
+    REQUIRE(almost_equal(
+        z1 / z2,
+        std::complex(dimensionless<double>(1.5), dimensionless<double>(0.5))));
+    REQUIRE(almost_equal(z1 / z3, std::complex(1.5_m * 1_s, 0.5_m * 1_s)));
 }
 
 } // namespace scicpp::units

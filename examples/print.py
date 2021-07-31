@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+# Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 import numpy as np
 from scipy.signal import hann
 
 if __name__ == "__main__":
     # ---- Print a long vector
-    v = np.linspace(0., 10., 100000000)
+    v = np.linspace(0., 10., 10000000)
     print(v)
 
     # ---- Print a short array of reals
@@ -34,3 +34,6 @@ if __name__ == "__main__":
        vtup[i] = (i, i % 2, 3.14 * i * i)
     
     print(vtup)
+
+    # ---- Print an empty array
+    print(np.array([]))

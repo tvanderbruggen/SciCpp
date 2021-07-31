@@ -1,5 +1,6 @@
 #include "equal.hpp"
 
+#include "scicpp/core/constants.hpp"
 #include "scicpp/core/units/units.hpp"
 
 namespace scicpp {
@@ -14,6 +15,12 @@ TEST_CASE("almost_equal real") {
         constexpr auto inf = std::numeric_limits<double>::infinity();
         REQUIRE(almost_equal(inf, inf));
         REQUIRE(!almost_equal(inf, -inf));
+    }
+
+    SECTION("Zero") {
+        REQUIRE(almost_equal(0., 0.));
+        REQUIRE(almost_equal(-0., -0.));
+        REQUIRE(almost_equal(0., -0.));
     }
 
     SECTION("near zero") {
@@ -96,6 +103,11 @@ TEST_CASE("operator==") {
         REQUIRE(!array_equal(f1, {1, 2, 42}));
         REQUIRE(!array_equal(f1, {1, 2}));
     }
+}
+
+TEST_CASE("strings_equal") {
+    static_assert(strings_equal("str1", "str1"));
+    static_assert(!strings_equal("str1", "str2"));
 }
 
 } // namespace scicpp

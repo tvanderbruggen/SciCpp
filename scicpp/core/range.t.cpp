@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "range.hpp"
 
@@ -8,7 +8,57 @@
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/units/units.hpp"
 
+#include <complex>
+
 namespace scicpp {
+
+TEST_CASE("empty") {
+    REQUIRE(empty<double>().empty());
+}
+
+TEST_CASE("full") {
+    SECTION("std::array") {
+        REQUIRE(full<0, double>(2.).empty());
+        REQUIRE(almost_equal(full<1, double>(2.), {2.}));
+        REQUIRE(almost_equal(full<5, double>(2.), {2., 2., 2., 2., 2.}));
+    }
+
+    SECTION("std::vector") {
+        REQUIRE(full<double>(0, 2.).empty());
+        REQUIRE(almost_equal(full<double>(1, 2.), {2.}));
+        REQUIRE(almost_equal(full<double>(5, 2.), {2., 2., 2., 2., 2.}));
+    }
+}
+
+TEST_CASE("zeros") {
+    SECTION("std::array") {
+        REQUIRE(zeros<0, double>().empty());
+        REQUIRE(almost_equal(zeros<1, double>(), {0.}));
+        REQUIRE(almost_equal(zeros<5, double>(), {0., 0., 0., 0., 0.}));
+        REQUIRE(almost_equal(zeros<1, std::complex<double>>(), {0. + 0.i}));
+    }
+
+    SECTION("std::vector") {
+        REQUIRE(zeros<double>(0).empty());
+        REQUIRE(almost_equal(zeros<double>(1), {0.}));
+        REQUIRE(almost_equal(zeros<double>(5), {0., 0., 0., 0., 0.}));
+    }
+}
+
+TEST_CASE("ones") {
+    SECTION("std::array") {
+        REQUIRE(ones<0, double>().empty());
+        REQUIRE(almost_equal(ones<1, double>(), {1.}));
+        REQUIRE(almost_equal(ones<5, double>(), {1., 1., 1., 1., 1.}));
+        REQUIRE(almost_equal(ones<1, std::complex<double>>(), {1. + 0.i}));
+    }
+
+    SECTION("std::vector") {
+        REQUIRE(ones<double>(0).empty());
+        REQUIRE(almost_equal(ones<double>(1), {1.}));
+        REQUIRE(almost_equal(ones<double>(5), {1., 1., 1., 1., 1.}));
+    }
+}
 
 TEST_CASE("linspace") {
     SECTION("std::array") {
@@ -57,10 +107,12 @@ TEST_CASE("logspace std::array") {
 
     SECTION("std::array with quantities") {
         using namespace units::literals;
-        REQUIRE(logspace<0>(2_m, 3_m).empty());
-        REQUIRE(almost_equal(logspace<1>(2_m, 3_m), {100_m}));
+        REQUIRE(logspace<0, units::meter<double>>(2., 3.).empty());
+        REQUIRE(
+            almost_equal(logspace<1, units::meter<double>>(2., 3.), {100_m}));
+        print(logspace<4, units::mass<double>>(2., 3.));
         REQUIRE(almost_equal(
-            logspace<4>(2_kg, 3_kg),
+            logspace<4, units::mass<double>>(2., 3.),
             {100_kg, 215.44346900318845_kg, 464.15888336127773_kg, 1000_kg}));
     }
 
@@ -74,10 +126,11 @@ TEST_CASE("logspace std::array") {
 
     SECTION("std::vector with quantities") {
         using namespace units::literals;
-        REQUIRE(logspace(2_m, 3_m, 0).empty());
-        REQUIRE(almost_equal(logspace(2_m, 3_m, 1), {100_m}));
+        REQUIRE(logspace<units::meter<double>>(2., 3., 0).empty());
+        REQUIRE(
+            almost_equal(logspace<units::meter<double>>(2., 3., 1), {100_m}));
         REQUIRE(almost_equal(
-            logspace(2_kg, 3_kg, 4),
+            logspace<units::mass<double>>(2., 3., 4),
             {100_kg, 215.44346900318845_kg, 464.15888336127773_kg, 1000_kg}));
     }
 }

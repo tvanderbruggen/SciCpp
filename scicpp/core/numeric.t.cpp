@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "numeric.hpp"
 
@@ -275,13 +275,13 @@ TEST_CASE("Arithmetic operators") {
     const std::vector v1{2., 4., 6.};
 
     REQUIRE(almost_equal(-a, {-1., -2., -3.}));
-    REQUIRE(almost_equal(-ai, {-1, -2, -3}));
+    REQUIRE(array_equal(-ai, {-1, -2, -3}));
     REQUIRE(almost_equal(-v, {-1., -2., -3.}));
     REQUIRE(almost_equal(2. * a, {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2., {2., 4., 6.}));
     REQUIRE(almost_equal(a * 2.i, {2.i, 4.i, 6.i}));
-    REQUIRE(almost_equal(2 * ai, {2, 4, 6}));
-    REQUIRE(almost_equal(ai * 2, {2, 4, 6}));
+    REQUIRE(array_equal(2 * ai, {2, 4, 6}));
+    REQUIRE(array_equal(ai * 2, {2, 4, 6}));
     REQUIRE(almost_equal(2. * v, {2., 4., 6.}));
     REQUIRE(almost_equal(v * 2., {2., 4., 6.}));
     REQUIRE(almost_equal(v * 2.i, {2.i, 4.i, 6.i}));
@@ -289,52 +289,52 @@ TEST_CASE("Arithmetic operators") {
     REQUIRE(almost_equal(2. + a, {3., 4., 5.}));
     REQUIRE(almost_equal(2.i + a, {2.i + 1., 2.i + 2., 2.i + 3.}));
     REQUIRE(almost_equal(a + 2., {3., 4., 5.}));
-    REQUIRE(almost_equal(2 + ai, {3, 4, 5}));
-    REQUIRE(almost_equal(ai + 2, {3, 4, 5}));
+    REQUIRE(array_equal(2 + ai, {3, 4, 5}));
+    REQUIRE(array_equal(ai + 2, {3, 4, 5}));
     REQUIRE(almost_equal(2. + v, {3., 4., 5.}));
     REQUIRE(almost_equal(v + 2., {3., 4., 5.}));
 
     REQUIRE(almost_equal(2. - a, {1., 0., -1.}));
     REQUIRE(almost_equal(a - 2., {-1., 0., 1.}));
-    REQUIRE(almost_equal(2 - ai, {1, 0, -1}));
-    REQUIRE(almost_equal(ai - 2, {-1, 0, 1}));
+    REQUIRE(array_equal(2 - ai, {1, 0, -1}));
+    REQUIRE(array_equal(ai - 2, {-1, 0, 1}));
     REQUIRE(almost_equal(2. - v, {1., 0., -1.}));
     REQUIRE(almost_equal(v - 2., {-1., 0., 1.}));
 
     REQUIRE(almost_equal(2. / a, {2., 1., 2. / 3.}));
     REQUIRE(almost_equal(a / 2., {0.5, 1., 3. / 2.}));
-    REQUIRE(almost_equal(2 / ai, {2, 1, 0}));
-    REQUIRE(almost_equal(ai / 2, {0, 1, 1}));
+    REQUIRE(array_equal(2 / ai, {2, 1, 0}));
+    REQUIRE(array_equal(ai / 2, {0, 1, 1}));
     REQUIRE(almost_equal(2. / v, {2., 1., 2. / 3.}));
     REQUIRE(almost_equal(v / 2., {0.5, 1., 3. / 2.}));
     REQUIRE(almost_equal(v / 2.i, {-0.5i, -1.i, -3.i / 2.}));
 
     REQUIRE(almost_equal(2. % a, {0., 0., 2.}));
     REQUIRE(almost_equal(a % 2., {1., 0., 1.}));
-    REQUIRE(almost_equal(2 % ai, {0, 0, 2}));
-    REQUIRE(almost_equal(ai % 2, {1, 0, 1}));
+    REQUIRE(array_equal(2 % ai, {0, 0, 2}));
+    REQUIRE(array_equal(ai % 2, {1, 0, 1}));
     REQUIRE(almost_equal(2. % v, {0., 0., 2.}));
     REQUIRE(almost_equal(v % 2., {1., 0., 1.}));
 
     REQUIRE(almost_equal(a1 * a, {2., 8., 18.}));
-    REQUIRE(almost_equal(a1i * ai, {2, 8, 18}));
+    REQUIRE(array_equal(a1i * ai, {2, 8, 18}));
     REQUIRE(almost_equal(v1 * v, {2., 8., 18.}));
     REQUIRE(almost_equal(v1 * 2.i * v, {4.i, 16.i, 36.i}));
 
     REQUIRE(almost_equal(a1 + a, {3., 6., 9.}));
-    REQUIRE(almost_equal(a1i + ai, {3, 6, 9}));
+    REQUIRE(array_equal(a1i + ai, {3, 6, 9}));
     REQUIRE(almost_equal(v1 + v, {3., 6., 9.}));
 
     REQUIRE(almost_equal(a1 - a, {1., 2., 3.}));
-    REQUIRE(almost_equal(a1i - ai, {1, 2, 3}));
+    REQUIRE(array_equal(a1i - ai, {1, 2, 3}));
     REQUIRE(almost_equal(v1 - v, {1., 2., 3.}));
 
     REQUIRE(almost_equal(a1 / a, {2., 2., 2.}));
-    REQUIRE(almost_equal(a1i / ai, {2, 2, 2}));
+    REQUIRE(array_equal(a1i / ai, {2, 2, 2}));
     REQUIRE(almost_equal(v1 / v, {2., 2., 2.}));
 
     REQUIRE(almost_equal(a1 % a, {0., 0., 0.}));
-    REQUIRE(almost_equal(a1i % ai, {0, 0, 0}));
+    REQUIRE(array_equal(a1i % ai, {0, 0, 0}));
     REQUIRE(almost_equal(v1 % v, {0., 0., 0.}));
 }
 
@@ -431,6 +431,79 @@ TEST_CASE("mask physical quantity") {
     std::vector v1{1._m, 2._m, 3._m};
     mask_array(v1, m1);
     REQUIRE(almost_equal(v1, {2_m}));
+}
+
+TEST_CASE("argmax") {
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    static_assert(argmax(std::array{1., 2., 3.}) == 2);
+    REQUIRE(argmax(std::vector{1.}) == 0);
+    REQUIRE(argmax(std::vector{1., 2., 3.}) == 2);
+    REQUIRE(argmax(std::vector{1., 3., 3., 2.}) == 1);
+    REQUIRE(argmax(std::array{0, 5, 2, 3, 4, 5}) == 1);
+    REQUIRE(nanargmax(std::array{nan, 0., nan, 5., 2., 3., nan, 4., 5.}) == 3);
+}
+
+TEST_CASE("argmax physical quantities") {
+    using namespace units::literals;
+    constexpr auto nan = std::numeric_limits<units::meter<double>>::quiet_NaN();
+    static_assert(argmax(std::array{1_m, 2_m, 3_m}) == 2);
+    REQUIRE(argmax(std::vector{1_kg}) == 0);
+    REQUIRE(argmax(std::vector{1_m, 2_m, 3_m}) == 2);
+    REQUIRE(argmax(std::vector{1_m, 3_m, 3_m, 2_m}) == 1);
+    REQUIRE(argmax(std::array{0_m, 5_m, 2_m, 3_m, 4_m, 5_m}) == 1);
+    REQUIRE(nanargmax(
+                std::array{nan, 0_m, nan, 5_m, 2_m, 3_m, nan, 4_m, 5_m}) == 3);
+}
+
+TEST_CASE("argmin") {
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    static_assert(argmin(std::array{1., 2., 3.}) == 0);
+    REQUIRE(argmin(std::vector{1.}) == 0);
+    REQUIRE(argmin(std::vector{1., 2., 3.}) == 0);
+    REQUIRE(argmin(std::vector{1., -3., -3., 2.}) == 1);
+    REQUIRE(argmin(std::array{0, -5, 2, 3, 4, -5}) == 1);
+    REQUIRE(nanargmin(std::array{nan, 0., -5., nan, 2., 3., 4., nan, -5.}) ==
+            2);
+}
+
+TEST_CASE("argmin physical quantities") {
+    using namespace units::literals;
+    constexpr auto nan =
+        std::numeric_limits<units::second<double>>::quiet_NaN();
+    static_assert(argmin(std::array{1_s, 2_s, 3_s}) == 0);
+    REQUIRE(argmin(std::vector{1_Hz}) == 0);
+    REQUIRE(argmin(std::vector{1_s, 2_s, 3_s}) == 0);
+    REQUIRE(argmin(std::vector{1_s, -3_s, -3_s, 2_s}) == 1);
+    REQUIRE(argmin(std::array{0_s, -5_s, 2_s, 3_s, 4_s, -5_s}) == 1);
+    REQUIRE(nanargmin(std::array{
+                nan, 0_s, -5_s, nan, 2_s, 3_s, 4_s, nan, -5_s}) == 2);
+}
+
+TEST_CASE("argwhere, nonzero") {
+    const std::array a{1., 0., -2., 3., 0., 0.};
+    const std::vector v{1., 0., -2., 3., 0., 0.};
+    const std::vector v0{0., 0., 0., 0.};
+
+    REQUIRE(almost_equal(nonzero(a), {0, 2, 3}));
+    REQUIRE(almost_equal(nonzero(v), {0, 2, 3}));
+    REQUIRE(nonzero(v0).empty());
+
+    REQUIRE(almost_equal(argwhere(a, [](auto x) { return x > 0; }), {0, 3}));
+    REQUIRE(almost_equal(argwhere(v, [](auto x) { return x > 0; }), {0, 3}));
+}
+
+TEST_CASE("argwhere, nonzero physical quantities") {
+    using namespace units::literals;
+    const std::array a{1_m, 0_m, -2_m, 3_m, 0_m, 0_m};
+    const std::vector v{1_s, 0_s, -2_s, 3_s, 0_s, 0_s};
+    const std::vector v0{0_kg, 0_kg, 0_kg, 0_kg};
+
+    REQUIRE(almost_equal(nonzero(a), {0, 2, 3}));
+    REQUIRE(almost_equal(nonzero(v), {0, 2, 3}));
+    REQUIRE(nonzero(v0).empty());
+
+    REQUIRE(almost_equal(argwhere(a, [](auto x) { return x > 0_m; }), {0, 3}));
+    REQUIRE(almost_equal(argwhere(v, [](auto x) { return x > 0_s; }), {0, 3}));
 }
 
 } // namespace scicpp

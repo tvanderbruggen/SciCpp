@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include <array>
+#include <complex>
 #include <scicpp/core.hpp>
 #include <scicpp/signal.hpp>
 #include <tuple>
@@ -14,15 +15,19 @@ using namespace std::literals;
 
 int main() {
     // ---- Print a long vector
-    const auto v = sci::linspace(0., 10., 100000000);
-    sci::print(v);
+    sci::print(sci::linspace(0., 10., 10000000));
+    sci::print(sci::linspace(1., 10000000., 10000000));
 
     // ---- Print a short array of reals
+    sci::print(sci::linspace(1.0, 456.156, 100));
+    sci::print(sci::linspace(1.0, 456156.0, 100));
+
     const auto window = sci::signal::windows::hann<double, 16>();
     sci::print(window);
 
     // ---- Print a short array of complex
     const auto phi = sci::linspace<window.size()>(0., 2. * M_PI);
+    sci::print(sci::exp(1.i * phi));
     const auto window_cplx = window * sci::exp(1.i * phi);
     sci::print(window_cplx);
 
@@ -46,4 +51,7 @@ int main() {
     }
 
     sci::print(vtup);
+
+    // ---- Print a complex
+    sci::print(1. + 2.i);
 }

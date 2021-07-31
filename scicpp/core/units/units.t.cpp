@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "units.hpp"
 
@@ -164,6 +164,16 @@ TEST_CASE("Pressure") {
     REQUIRE(almost_equal(1_mmHg, 1._torr));
     REQUIRE(almost_equal(1_psi, 0.0689476_bar));
     REQUIRE(almost_equal(1_atm, 101.325_kPa));
+}
+
+TEST_CASE("Frequency") {
+    static_assert(is_frequency<hertz<>>);
+    REQUIRE(almost_equal(1.0 / 1_s, 1_Hz));
+    REQUIRE(almost_equal(1.0 / 1_ms, 1_kHz));
+    REQUIRE(almost_equal(1.0 / 1_us, 1_MHz));
+    REQUIRE(almost_equal(3.14 / 1_us, 3.14_MHz));
+    REQUIRE(almost_equal(1.0 / 1000_s, 1_mHz));
+    REQUIRE(1_GHz > 1_MHz);
 }
 
 TEST_CASE("Data quantity") {

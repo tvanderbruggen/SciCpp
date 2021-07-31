@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_STATS
 #define SCICPP_CORE_STATS
@@ -8,6 +8,7 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
+#include <Eigen/Dense>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -204,63 +205,115 @@ auto nangmean(Array &&f) {
 }
 
 //---------------------------------------------------------------------------------
+// covariance
+//---------------------------------------------------------------------------------
+
+template <int ddof = 0, class InputIt1, class InputIt2, class Predicate>
+constexpr auto covariance(InputIt1 first1,
+                          InputIt1 last1,
+                          InputIt2 first2,
+                          InputIt2 last2,
+                          Predicate filter) {
+    using T1 = typename std::iterator_traits<InputIt1>::value_type;
+    using T2 = typename std::iterator_traits<InputIt2>::value_type;
+    using raw_t1 = units::representation_t<T1>;
+    using raw_t2 = units::representation_t<T2>;
+    using raw_t = std::common_type_t<raw_t1, raw_t2>;
+    using prod_t = decltype(std::declval<T1>() * std::declval<T2>());
+
+    static_assert(meta::is_predicate<Predicate, T1>);
+    static_assert(meta::is_predicate<Predicate, T2>);
+
+    scicpp_require(std::distance(first1, last1) ==
+                   std::distance(first2, last2));
+
+    if (std::distance(first1, last1) == 0) {
+        return std::make_tuple(std::numeric_limits<prod_t>::quiet_NaN(),
+                               signed_size_t(0));
+    }
+
+    // Pairwise recursive implementation of covariance summation
+    const auto [m1_, m2_, cov_, c_] = pairwise_accumulate<64>(
+        first1,
+        last1,
+        first2,
+        last2,
+        [&](auto f1, auto l1, auto f2, auto l2) {
+            const auto m1 = mean(f1, l1, filter);
+            const auto m2 = mean(f2, l2, filter);
+
+            auto res = utils::set_zero<prod_t>();
+            signed_size_t cnt = 0;
+
+            for (; f1 != l1; ++f1, ++f2) {
+                if (filter(*f1) && filter(*f2)) {
+                    if constexpr (meta::is_complex_v<T2>) {
+                        res += (*f1 - m1) * std::conj(*f2 - m2);
+                    } else {
+                        res += (*f1 - m1) * (*f2 - m2);
+                    }
+                    cnt++;
+                }
+            }
+
+            return std::make_tuple(m1, m2, res, cnt);
+        },
+        [&](const auto res1, const auto res2) {
+            // Combine covariances
+            // https://stackoverflow.com/questions/45773857/merging-covariance-from-two-sets-to-create-new-covariance
+            const auto [m11, m12, covar1, n1] = res1;
+            const auto [m21, m22, covar2, n2] = res2;
+
+            const auto n_c = n1 + n2;
+            const auto m1_c = (raw_t1{1} / raw_t1(n_c)) *
+                              (raw_t1(n1) * m11 + raw_t1(n2) * m21);
+            const auto m2_c = (raw_t2{1} / raw_t2(n_c)) *
+                              (raw_t2(n1) * m12 + raw_t2(n2) * m22);
+            const auto covar_c = covar1 + covar2 +
+                                 (raw_t(n1) * raw_t(n2) / raw_t(n_c)) *
+                                     conj(m12 - m22) * (m11 - m21);
+            return std::make_tuple(m1_c, m2_c, covar_c, n_c);
+        });
+
+    if (unlikely(c_ - ddof <= 0)) {
+        return std::make_tuple(std::numeric_limits<decltype(cov_)>::infinity(),
+                               c_);
+    } else {
+        return std::make_tuple(cov_ / raw_t(c_ - ddof), c_);
+    }
+}
+
+template <int ddof = 0, class Array1, class Array2, class Predicate>
+constexpr auto
+covariance(const Array1 &f1, const Array2 &f2, Predicate filter) {
+    return std::get<0>(covariance<ddof>(
+        f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend(), filter));
+}
+
+template <int ddof = 0, class Array1, class Array2>
+constexpr auto covariance(const Array1 &f1, const Array2 &f2) {
+    return covariance<ddof>(f1, f2, filters::all);
+}
+
+template <int ddof = 0, class Array1, class Array2>
+auto nancovariance(const Array1 &f1, const Array2 &f2) {
+    return covariance<ddof>(f1, f2, filters::not_nan);
+}
+
+//---------------------------------------------------------------------------------
 // var
 //---------------------------------------------------------------------------------
 
 template <int ddof = 0, class InputIt, class Predicate>
 constexpr auto var(InputIt first, InputIt last, Predicate filter) {
-    using T = typename std::iterator_traits<InputIt>::value_type;
-    using raw_t = units::representation_t<T>;
-    using prod_t = decltype(std::declval<T>() * std::declval<T>());
+    const auto [v, n] = covariance<ddof>(first, last, first, last, filter);
+    using T = std::decay_t<decltype(v)>;
 
-    if (std::distance(first, last) == 0) {
-        return std::make_tuple(std::numeric_limits<prod_t>::quiet_NaN(),
-                               signed_size_t(0));
-    }
-
-    // Pairwise recursive implementation of variance summation
-    const auto [m_, v_, c_] = pairwise_accumulate<64>(
-        first,
-        last,
-        [&](auto f, auto l) {
-            const auto m0 = mean(f, l, filter);
-
-            const auto square_acc = [m0](auto r, auto v) {
-                const auto diff = v - m0;
-                return r + diff * diff;
-                // Benchmark: this is slower on both GCC and Clang
-                // (and also not constexpr)
-                // return std::fma(diff, diff, r);
-            };
-
-            const auto [res, cnt] =
-                filter_reduce(f, l, square_acc, prod_t(0), filter);
-            return std::make_tuple(m0, res / raw_t(cnt), cnt);
-        },
-        [&](const auto res1, const auto res2) {
-            // Combine variances
-            // https://www.emathzone.com/tutorials/basic-statistics/combined-variance.html
-            const auto [m1, var1, n1] = res1;
-            const auto [m2, var2, n2] = res2;
-
-            const auto n_c = n1 + n2;
-            const auto r = raw_t{1} / raw_t(n_c);
-            const auto m_c = r * (raw_t(n1) * m1 + raw_t(n2) * m2);
-            const auto var_c =
-                r * (raw_t(n1) * (var1 + (m1 - m_c) * (m1 - m_c)) +
-                     raw_t(n2) * (var2 + (m2 - m_c) * (m2 - m_c)));
-            return std::make_tuple(m_c, var_c, n_c);
-        });
-
-    if constexpr (ddof == 0) {
-        return std::make_tuple(v_, c_);
+    if constexpr (meta::is_complex_v<T>) {
+        // The variance is always a nonnegative real number
+        return std::make_tuple(std::real(v), n);
     } else {
-        if (unlikely(c_ - ddof <= 0)) {
-            return std::make_tuple(
-                std::numeric_limits<decltype(v_)>::infinity(), c_);
-        } else {
-            return std::make_tuple(v_ * raw_t(c_) / raw_t(c_ - ddof), c_);
-        }
+        return std::make_tuple(v, n);
     }
 }
 
@@ -318,17 +371,18 @@ auto tstd(const Array &a,
 
 template <int ddof = 1, class Array, class Predicate>
 auto sem(const Array &a, Predicate filter) {
-    using T = typename Array::value_type;
-    using raw_t = units::representation_t<T>;
     const auto [v, n] = var<ddof>(a.cbegin(), a.cend(), filter);
+    using T = std::decay_t<decltype(v)>;
+    using raw_t = units::representation_t<T>;
     return units::sqrt(v / raw_t(n));
 }
 
 template <int ddof = 1, class Array>
 auto sem(const Array &a) {
-    using T = typename Array::value_type;
+    const auto v = var<ddof>(a);
+    using T = std::decay_t<decltype(v)>;
     using raw_t = units::representation_t<T>;
-    return units::sqrt(var<ddof>(a) / raw_t(a.size()));
+    return units::sqrt(v / raw_t(a.size()));
 }
 
 template <int ddof = 1, class Array>
@@ -347,13 +401,6 @@ constexpr auto tsem(const Array &f,
 // moment
 //---------------------------------------------------------------------------------
 
-namespace detail {
-
-template <intmax_t n>
-const auto power_v = vectorize([](auto x) { return units::pow<n>(x); });
-
-} // namespace detail
-
 template <intmax_t n, class Array, class Predicate>
 auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
     using namespace operators;
@@ -368,7 +415,9 @@ auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
     } else {
         // This allocates an extra array,
         // but preserves pairwise recursion precision
-        return mean(detail::power_v<n>(f - mean(f, filter)), filter);
+        return mean(pow<n>(f - mean(f, filter)), filter);
+        // Combination of moments
+        // http://prod.sandia.gov/techlib/access-control.cgi/2008/086212.pdf
     }
 }
 
@@ -431,6 +480,33 @@ auto skew(const Array &f) {
 template <class Array>
 auto nanskew(const Array &f) {
     return skew(f, filters::not_nan);
+}
+
+//---------------------------------------------------------------------------------
+// covariance matrix
+//---------------------------------------------------------------------------------
+
+template <int ddof = 1, class Array1, class Array2, class Predicate>
+auto cov(const Array1 &f1, const Array2 &f2, Predicate filter) {
+    const auto covar = covariance<ddof>(f1, f2, filter);
+    using T = std::decay_t<decltype(covar)>;
+
+    Eigen::Matrix<T, 2, 2> res;
+    res(0, 0) = T(var<ddof>(f1, filter));
+    res(0, 1) = covar;
+    res(1, 0) = conj(covar);
+    res(1, 1) = T(var<ddof>(f2, filter));
+    return res;
+}
+
+template <int ddof = 1, class Array1, class Array2>
+auto cov(const Array1 &f1, const Array2 &f2) {
+    return cov<ddof>(f1, f2, filters::all);
+}
+
+template <int ddof = 1, class Array1, class Array2>
+auto nancov(const Array1 &f1, const Array2 &f2) {
+    return cov<ddof>(f1, f2, filters::not_nan);
 }
 
 } // namespace scicpp::stats

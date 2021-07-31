@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "stats.hpp"
 
@@ -10,6 +10,7 @@
 #include "scicpp/core/units/units.hpp"
 
 #include <cmath>
+#include <iostream>
 
 namespace scicpp::stats {
 
@@ -324,11 +325,16 @@ TEST_CASE("sem physical units") {
         almost_equal(tsem(x, {3_m, 17_m}, {false, true}), 1.118033988749895_m));
 }
 
-TEST_CASE("detail::power_v") {
-    REQUIRE(almost_equal(detail::power_v<0>(std::vector{1., 2., 3.}),
-                         {1., 1., 1.}));
-    REQUIRE(almost_equal(detail::power_v<3>(std::array{1., 2., 3.}),
-                         {1., 8., 27.}));
+TEST_CASE("std/var/sem complex") {
+    using namespace units::literals;
+
+    const auto a = std::array{1. + 2.i, 3. - 4.i};
+    REQUIRE(almost_equal(var(a), 10.));
+    REQUIRE(almost_equal(std(a), std::sqrt(10.)));
+    REQUIRE(almost_equal(sem(a), std::sqrt(10.)));
+
+    const auto b = std::array{std::complex(1_m, 2_m), std::complex(3_m, -4_m)};
+    REQUIRE(almost_equal(var(b), 10_m2));
 }
 
 TEST_CASE("moment") {
@@ -400,6 +406,122 @@ TEST_CASE("skew physical units") {
     REQUIRE(almost_equal(
         skew(std::array{2_kg, 8_kg, 0_kg, 4_kg, 1_kg, 9_kg, 9_kg, 0_kg}),
         units::dimensionless<double>(0.2650554122698573)));
+}
+
+TEST_CASE("covariance") {
+    static_assert(
+        float_equal(covariance(std::array{1., 2., 3.}, std::array{1., 2., 3.}),
+                    var(std::array{1., 2., 3.})));
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(std::isnan(
+        covariance(std::array<double, 0>{}, std::array<double, 0>{})));
+
+    auto v1 = std::vector(500000, 1.);
+    v1[0] = 1E10;
+    // printf("%.20f\n", covariance(v1, v1));
+    // Compare with result from numpy
+    REQUIRE(almost_equal<32>(covariance(v1, v1), 199999599960000.12));
+    auto v2 = std::vector(500000, 1.);
+    v2.back() = 1E10;
+    // printf("%.20f\n", covariance<1>(v1, v2));
+    // Compare with result from numpy (np.cov(v1, v1)[0][1]) for which ddof = 1
+    REQUIRE(almost_equal<55>(covariance<1>(v1, v2), -400000799.9215977));
+
+    REQUIRE(
+        almost_equal(nancovariance(std::array{1., nan, 2., 3., nan, 4., nan},
+                                   std::array{1., nan, 2., 3., nan, 4., nan}),
+                     var(std::array{1., 2., 3., 4.})));
+}
+
+TEST_CASE("covariance complex") {
+    using namespace operators;
+
+    const auto a1 = std::array{1. + 2.i, 8. + 4.i};
+    const auto a2 = std::array{6. + 3.i, 12.i};
+
+    // printf("%.20f + %.20fi\n", covariance<1>(a1, a1).real(), covariance<1>(a1, a1).imag());
+    // printf("%.20f + %.20fi\n", covariance<1>(a2, a2).real(), covariance<1>(a2, a2).imag());
+    // printf("%.20f + %.20fi\n", covariance<1>(a1, a2).real(), covariance<1>(a1, a2).imag());
+
+    REQUIRE(almost_equal(covariance<1>(a1, a1), 26.5 + 0.i));
+    REQUIRE(almost_equal(covariance<1>(a2, a2), 58.5 + 0.i));
+    REQUIRE(almost_equal(covariance<1>(a1, a2), -12. - 37.5i));
+
+    const auto a3 = std::array{6., 12.};
+    REQUIRE(almost_equal(covariance<1>(a3, a3), 18.));
+    REQUIRE(almost_equal(covariance<1>(a1, a3), 21. + 6.i));
+    REQUIRE(almost_equal(covariance<1>(a3, a1), 21. - 6.i));
+
+    // Test with array length > 64
+    // Compare with numpy results:
+    // >>> np.cov(np.linspace(1, 40, 233) + 1j * np.linspace(50, 865, 233),
+    //            np.linspace(5,489,233) + 1j * np.linspace(18,8486,233))
+    // array([[  56198.29353076693   +0.j            ,
+    //          584169.9776307966 +5420.055142687268j],
+    //        [ 584169.9776307966 -5420.055142687268j,
+    //         6072852.364744352     +0.j            ]])
+
+    const auto a = linspace(1., 40., 233) + 1.i * linspace(50., 865., 233);
+    const auto b = linspace(5., 489., 233) + 1.i * linspace(18., 8486., 233);
+
+    REQUIRE(almost_equal<25>(covariance<1>(a, b),
+                             584169.9776307966 + 5420.055142687268i));
+    REQUIRE(almost_equal<30>(covariance<1>(b, a),
+                             584169.9776307966 - 5420.055142687268i));
+    REQUIRE(almost_equal<25>(covariance<1>(a, a), 56198.29353076693 + 0.i));
+    REQUIRE(almost_equal<25>(covariance<1>(b, b), 6072852.364744352 + 0.i));
+}
+
+TEST_CASE("covariance physical units") {
+    using namespace units::literals;
+    REQUIRE(units::isnan(covariance(std::vector<units::mass<double>>{},
+                                    std::vector<units::length<double>>{})));
+    static_assert(
+        float_equal(covariance(std::array{1_V / 1_Hz, 2_V / 1_Hz, 3_V / 1_Hz},
+                               std::array{1_V, 2_V, 3_V}),
+                    var(std::array{1_V_per_rtHz, 2_V_per_rtHz, 3_V_per_rtHz})));
+
+    auto v1 = std::vector(500000, 1_W);
+    v1[0] = 1E10_W;
+    auto v2 = std::vector(500000, 1_s);
+    v2.back() = 1E10_s;
+    REQUIRE(almost_equal<55>(covariance<1>(v1, v2), -400000799.9215977_J));
+}
+
+TEST_CASE("cov") {
+    // >>> np.cov(np.linspace(1, 40, 233), np.linspace(50, 865, 233))
+    // array([[  128.39371841557679,  2683.0995002229497 ],
+    //        [ 2683.0995002229497 , 56069.89981235136   ]])
+
+    const auto a = linspace(1., 40., 233);
+    const auto b = linspace(50., 865., 233);
+    // std::cout << cov(a, b) << "\n";
+
+    Eigen::Matrix<double, 2, 2> m;
+    m << 128.39371841557679, 2683.0995002229497, //
+        2683.0995002229497, 56069.89981235136;   //
+    REQUIRE(m.isApprox(cov(a, b)));
+}
+
+TEST_CASE("cov complex") {
+    using namespace operators;
+    // >>> np.cov(np.linspace(1, 40, 2334879) + 1j * np.linspace(50, 865, 2334879),
+    //            np.linspace(5,489,2334879) + 1j * np.linspace(18,8486,2334879))
+    // array([[  55478.904616093    +0.j             ,
+    //          576692.0743033098+5350.6735415460425j],
+    //        [ 576692.0743033098-5350.6735415460425j,
+    //         5995114.369563842    +0.j             ]])
+
+    const auto a =
+        linspace(1., 40., 2334879) + 1.i * linspace(50., 865., 2334879);
+    const auto b =
+        linspace(5., 489., 2334879) + 1.i * linspace(18., 8486., 2334879);
+    // std::cout << cov(a, b) << "\n";
+
+    Eigen::Matrix<std::complex<double>, 2, 2> m;
+    m << 55478.904616093 + 0.i, 576692.0743033098 + 5350.6735415460425i,  //
+        576692.0743033098 - 5350.6735415460425i, 5995114.369563842 + 0.i; //
+    REQUIRE(m.isApprox(cov(a, b)));
 }
 
 } // namespace scicpp::stats

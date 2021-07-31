@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+# Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 MAJOR = 0
-MINOR = 2
+MINOR = 3
 PATCH = 0
 
 SCICPP_SRC=scicpp
@@ -20,7 +20,7 @@ DEBUG_FLAGS = #-g
 INCLUDES = -I. -I$(SCICPP_SRC)
 
 WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
-WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion
+WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual
 WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
 
@@ -32,7 +32,7 @@ ifeq ($(COMPILER),gcc)
 else
   CC = $(CROSS_COMPILE)clang
   CCXX = $(CROSS_COMPILE)clang
-  WARNINGS += -Wpessimizing-move -Wno-zero-length-array -Wextra-semi -Wreserved-id-macro
+  WARNINGS += -Wpessimizing-move -Wno-zero-length-array -Wextra-semi -Wreserved-id-macro -Wconversion
 #   WARNINGS += -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation-unknown-command -Wno-newline-eof -ferror-limit=200
 endif
 

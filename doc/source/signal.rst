@@ -36,6 +36,9 @@ FFT Helper Functions
 :ref:`fftfreq <signal_fftfreq>`
     Return the Discrete Fourier Transform sample frequencies.
 
+:ref:`rfftfreq <signal_rfftfreq>`
+    Return the Discrete Fourier Transform sample frequencies.
+
 :ref:`fftshift <signal_fftshift>`
     Shift the zero-frequency component to the center of the spectrum.
 
@@ -63,6 +66,9 @@ Window Functions
 :ref:`windows::cosine <signal_windows_cosine>`
     Return a window with a cosine shape.
 
+:ref:`windows::bohman <signal_windows_bohman>`
+    Return a Bohman window.
+
 :ref:`windows::general_cosine <signal_windows_general_cosine>`
     Generic weighted sum of cosine terms window.
 
@@ -89,6 +95,36 @@ Window Functions
 
 :ref:`windows::gaussian <signal_windows_gaussian>`
     Return a Gaussian window.
+
+:ref:`windows::general_gaussian <signal_windows_general_gaussian>`
+    Return a generalized Gaussian window.
+
+:ref:`windows::kaiser <signal_windows_kaiser>`
+    Return a Kaiser window.
+
+:ref:`windows::enbw <signal_windows_enbw>`
+    Return the equivalent noise bandwidth of a window.
+
+Spectral analysis
+------------------
+
+:ref:`Spectrum <signal_Spectrum>`
+    A class to configure spectral analysis parameters.
+
+:ref:`Spectrum::periodogram <signal_Spectrum_periodogram>`
+    Estimate power spectral density using a periodogram.
+
+:ref:`Spectrum::welch <signal_Spectrum_welch>`
+    Estimate power spectral density using Welch’s method.
+
+:ref:`Spectrum::csd <signal_Spectrum_csd>`
+    Estimate the cross power spectral density using Welch’s method.
+
+:ref:`Spectrum::coherence <signal_Spectrum_coherence>`
+    Estimate the magnitude squared coherence estimate of discrete-time signals using Welch’s method.
+
+:ref:`Spectrum::tfestimate <signal_Spectrum_tfestimate>`
+    Estimate the transfer function using Welch’s method.
 
 Waveforms
 -----------

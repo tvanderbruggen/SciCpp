@@ -4,5 +4,5 @@ checks=bugprone-*,clang-analyzer-*,cppcoreguidelines-*,-cppcoreguidelines-pro-bo
 
 for file in $tidy_files
 do
-  clang-tidy "$file" -checks=$checks -- -I. -I./scicpp -std=c++17 
+  clang-tidy-10 "$file" -checks=$checks -- -I. -I./scicpp -std=c++17 
 done

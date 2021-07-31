@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_UNITS_UNITS
 #define SCICPP_CORE_UNITS_UNITS
@@ -107,7 +107,7 @@ using pressure = quantity_divide<force<T, Scale>, area<T>>;
 
 // Frequency = 1 / Time
 template <typename T, typename Scale = scale<std::ratio<1>>>
-using frequency = quantity_invert<time<T, Scale>>;
+using frequency = quantity_divide<dimensionless<T, Scale>, time<T>>;
 
 // Data rate = Quantity of data / Time
 template <typename T, typename Scale = scale<std::ratio<1>>>
@@ -118,10 +118,11 @@ using data_rate = quantity_divide<data_quantity<T, Scale>, time<T>>;
 #define QUANTITY_TRAIT(qty)                                                    \
     template <class T>                                                         \
     constexpr bool is_##qty##_impl() {                                         \
-        if constexpr (is_quantity_v<T>) {                                      \
+        using Tp = std::decay_t<T>;                                            \
+        if constexpr (is_quantity_v<Tp>) {                                     \
             return is_same_dimension<                                          \
-                T,                                                             \
-                qty<typename T::value_type, typename T::scal>>;                \
+                Tp,                                                            \
+                qty<typename Tp::value_type, typename Tp::scal>>;              \
         } else {                                                               \
             return false;                                                      \
         }                                                                      \

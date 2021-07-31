@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "maths.hpp"
 
@@ -24,8 +24,8 @@ TEST_CASE("fmax, fmin, fdim") {
     REQUIRE(almost_equal(fmin(-3.14, 0.), -3.14));
     REQUIRE(almost_equal(fmin(-3.14_m, 0_m), -3.14_m));
 
-    REQUIRE(almost_equal(fdim(4, 1), 3));
-    REQUIRE(almost_equal(fdim(1, 4), 0));
+    REQUIRE(fdim(4, 1) == 3);
+    REQUIRE(fdim(1, 4) == 0);
     REQUIRE(almost_equal(fdim(4_nmol, 1_nmol), 3_nmol));
     REQUIRE(almost_equal(fdim(1_nmol, 4_nmol), 0_nmol));
 }
@@ -51,6 +51,11 @@ TEST_CASE("sqrt") {
     REQUIRE(almost_equal(sqrt(9_Hz) + sqrt(9_Hz), 6. * sqrt(1_Hz)));
     REQUIRE(almost_equal(sqrt(2_kHz) + sqrt(2_Hz), sqrt(2000_Hz) + sqrt(2_Hz)));
     REQUIRE(almost_equal(sqrt(9_MHz) + sqrt(9_Hz), 3003. * sqrt(1_Hz)));
+
+    REQUIRE(almost_equal(sqrt(1_uH * 1_uF), 1_us));
+    REQUIRE(almost_equal(sqrt(1_uH / 1_uF), 1_Ohm));
+    REQUIRE(almost_equal(1.0 / sqrt(1_uH * 1_uF), 1_MHz));
+    REQUIRE(almost_equal(1.0 / sqrt(1_uH * 1_uF), 1_MHz));
 }
 
 TEST_CASE("cbrt") {
@@ -151,6 +156,8 @@ TEST_CASE("numeric_limits") {
     REQUIRE(almost_equal(std::numeric_limits<meter<>>::round_error().value(),
                          std::numeric_limits<double>::round_error()));
     REQUIRE(!isnormal(std::numeric_limits<meter<>>::denorm_min()));
+    REQUIRE(signbit(-1_m));
+    REQUIRE(!signbit(1_m));
 }
 
 TEST_CASE("exp, log") {
@@ -169,8 +176,42 @@ TEST_CASE("exp, log") {
     REQUIRE(almost_equal(log2(1.), 0.));
     REQUIRE(almost_equal(log2(1_m / 1_m), 0.));
 
+    REQUIRE(almost_equal(log10(1.), 0.));
+    REQUIRE(almost_equal(log10(1_m / 1_m), 0.));
+
     REQUIRE(almost_equal(log1p(0.), 0.));
     REQUIRE(almost_equal(log1p(0_m / 1_m), 0.));
+}
+
+TEST_CASE("Complex") {
+    const auto z1 = std::complex(1_m, 2_m);
+    const auto z2 = std::complex(1_m, 1_m);
+
+    REQUIRE(almost_equal<2>(units::norm(z1), 5_m2));
+    REQUIRE(almost_equal<2>(units::norm(std::complex(1.0, 2.0)), 5.0));
+    REQUIRE(almost_equal<2>(units::norm(2.0), 4.0));
+    REQUIRE(almost_equal<2>(units::norm(2_m), 4_m2));
+
+    REQUIRE(almost_equal(units::abs(z1), 1_m * std::sqrt(5.0)));
+
+    REQUIRE(almost_equal(units::arg(z2), 45_deg));
+    REQUIRE(almost_equal(units::arg(1_m), 0_deg));
+
+    REQUIRE(almost_equal(units::polar(1., 0_rad), 1. + 0.i));
+    REQUIRE(
+        almost_equal<2>(units::polar(1., 45_deg),
+                        std::complex(1. / std::sqrt(2.), 1. / std::sqrt(2.))));
+    REQUIRE(almost_equal<2>(
+        units::polar(1_m, 45_deg),
+        std::complex(1_m / std::sqrt(2.), 1_m / std::sqrt(2.))));
+
+    REQUIRE(almost_equal(std::conj(z1), std::complex(1_m, -2_m)));
+    REQUIRE(almost_equal(units::proj(z1), z1));
+    constexpr auto inf_m = std::numeric_limits<meter<>>::infinity();
+    REQUIRE(almost_equal(units::proj(std::complex(inf_m, -1_m)),
+                         std::complex(inf_m, -0_m)));
+    REQUIRE(almost_equal(units::proj(std::complex(0_m, -inf_m)),
+                         std::complex(inf_m, -0_m)));
 }
 
 } // namespace scicpp::units

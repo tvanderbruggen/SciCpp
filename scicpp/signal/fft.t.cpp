@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "fft.hpp"
 
@@ -7,6 +7,7 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/random.hpp"
+#include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
 #include "scicpp/signal/windows.hpp"
 
@@ -19,6 +20,7 @@ TEST_CASE("Forward complex FFT") {
                                 {6. + 6.i,
                                  -0.6339745962155614 + 2.3660254037844388i,
                                  -2.3660254037844388 + 0.6339745962155614i}));
+        REQUIRE(almost_equal(fft(full(1, 1. + 1.i)), {1. + 1.i}));
     }
 
     SECTION("Real input vector") {
@@ -27,12 +29,36 @@ TEST_CASE("Forward complex FFT") {
                                 {6. + 0.i,
                                  -1.5 + 0.8660254037844386i,
                                  -1.5 - 0.8660254037844386i}));
+        REQUIRE(almost_equal(fft(ones<double>(1)), {1. + 0.i}));
+        REQUIRE(almost_equal(fft(zeros<double>(1)), {0. + 0.i}));
     }
 }
 
 TEST_CASE("Forward real FFT") {
-    std::vector x{1., 2., 3.};
-    REQUIRE(almost_equal<2>(rfft(x), {6. + 0.i, -1.5 + 0.8660254037844386i}));
+    SECTION("Odd length") {
+        std::vector x{1., 2., 3.};
+        REQUIRE(
+            almost_equal<2>(rfft(x), {6. + 0.i, -1.5 + 0.8660254037844386i}));
+        REQUIRE(almost_equal(rfft(ones<double>(1)), {1. + 0.i}));
+        REQUIRE(almost_equal(rfft(zeros<double>(1)), {0. + 0.i}));
+    }
+
+    SECTION("Even length") {
+        auto x = zeros<double>(16);
+        x[0] = 1.0;
+        x[8] = 1.0;
+        // print(rfft(x));
+        REQUIRE(almost_equal(rfft(x),
+                             {2. + 0.i,
+                              0. + 0.i,
+                              2. - 0.i,
+                              0. + 0.i,
+                              2. + 0.i,
+                              0. + 0.i,
+                              2. + 0.i,
+                              0. + 0.i,
+                              2. + 0.i}));
+    }
 }
 
 TEST_CASE("Inverse real FFT") {
@@ -115,6 +141,29 @@ TEST_CASE("fftfreq") {
                           0.12738853503184713,
                           -0.12738853503184713,
                           -0.06369426751592357}));
+}
+
+TEST_CASE("rfftfreq") {
+    REQUIRE(almost_equal(rfftfreq<10>(2.0), {0., 0.05, 0.1, 0.15, 0.2, 0.25}));
+    REQUIRE(almost_equal(rfftfreq<15>(2.0),
+                         {0.,
+                          0.03333333333333333,
+                          0.06666666666666666,
+                          0.1,
+                          0.13333333333333333,
+                          0.16666666666666666,
+                          0.2,
+                          0.23333333333333333}));
+    REQUIRE(almost_equal(rfftfreq(10, 2.0), {0., 0.05, 0.1, 0.15, 0.2, 0.25}));
+    REQUIRE(almost_equal(rfftfreq(15, 2.0),
+                         {0.,
+                          0.03333333333333333,
+                          0.06666666666666666,
+                          0.1,
+                          0.13333333333333333,
+                          0.16666666666666666,
+                          0.2,
+                          0.23333333333333333}));
 }
 
 TEST_CASE("fftshift") {
@@ -265,14 +314,15 @@ TEST_CASE("zero_padding") {
     const std::vector v{1., 2., 3., 4., 5.};
     REQUIRE(almost_equal(zero_padding(v, 3), {1., 2., 3.}));
     REQUIRE(almost_equal(zero_padding(v, 7.), {1., 2., 3., 4., 5., 0., 0.}));
-}
 
-TEST_CASE("power_spectrum_density") {
-    // Generate a Gaussian white-noise with sigma = 1
-    const auto noise = random::randn<double>(10000);
-    const auto psd = power_spectrum_density(noise, 1., windows::Window::Boxcar);
-    // The expected PSD for a white noise is 2 * sigma ^ 2
-    REQUIRE(std::fabs(stats::mean(psd) - 2.) / 2. < 1. / std::sqrt(10000));
+    const std::array a{1., 2., 3., 4., 5.};
+    REQUIRE(almost_equal(zero_padding(a, 3), {1., 2., 3.}));
+    REQUIRE(almost_equal(zero_padding(a, 7.), {1., 2., 3., 4., 5., 0., 0.}));
+
+    REQUIRE(almost_equal(zero_padding(std::vector{1., 2., 3., 4., 5.}, 3),
+                         {1., 2., 3.}));
+    REQUIRE(almost_equal(zero_padding(std::vector{1., 2., 3., 4., 5.}, 7.),
+                         {1., 2., 3., 4., 5., 0., 0.}));
 }
 
 } // namespace scicpp::signal

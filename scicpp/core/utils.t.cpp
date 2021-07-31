@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #include "utils.hpp"
 
@@ -19,10 +19,13 @@ TEST_CASE("set_array") {
     REQUIRE(set_array<float>(v) == std::vector<float>(v.size()));
 }
 
-TEST_CASE("move_subvector") {
-    REQUIRE(move_subvector(std::vector{1, 2, 3}, 2) == std::vector{1, 2});
-    REQUIRE(move_subvector(std::vector{1, 2, 3}, 0) == std::vector<int>{});
-    REQUIRE(move_subvector(std::vector{1, 2, 3}, 4) == std::vector{1, 2, 3});
+TEST_CASE("subvector") {
+    REQUIRE(subvector(std::vector{1, 2, 3}, 2) == std::vector{1, 2});
+    REQUIRE(subvector(std::vector{1, 2, 3}, 0) == std::vector<int>{});
+    REQUIRE(subvector(std::vector{1, 2, 3}, 4) == std::vector{1, 2, 3});
+    const auto v = std::vector{1, 2, 3};
+    REQUIRE(subvector(v, 2) == std::vector{1, 2});
+    REQUIRE(subvector(v, 4) == std::vector{1, 2, 3});
 }
 
 } // namespace scicpp::utils

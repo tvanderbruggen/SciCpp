@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_FUNCTIONAL
 #define SCICPP_CORE_FUNCTIONAL
@@ -155,12 +155,17 @@ template <class Array1, class Array2, class BinaryOp>
 template <class Func>
 auto vectorize(Func &&f) {
     return [&](auto &&... arrays) {
-        return map(
-            [&](auto &&... args) scicpp_const {
-                return std::invoke(std::forward<Func>(f),
-                                   std::forward<decltype(args)>(args)...);
-            },
-            std::forward<decltype(arrays)>(arrays)...);
+        if constexpr ((meta::is_iterable_v<decltype(arrays)> && ...)) {
+            return map(
+                [&](auto &&... args) scicpp_const {
+                    return std::invoke(std::forward<Func>(f),
+                                       std::forward<decltype(args)>(args)...);
+                },
+                std::forward<decltype(arrays)>(arrays)...);
+        } else {
+            return std::invoke(std::forward<Func>(f),
+                               std::forward<decltype(arrays)>(arrays)...);
+        }
     };
 }
 
@@ -173,6 +178,10 @@ namespace filters {
 constexpr auto all = []([[maybe_unused]] auto v) { return true; };
 constexpr auto none = []([[maybe_unused]] auto v) { return false; };
 constexpr auto not_nan = [](auto v) { return !units::isnan(v); };
+
+constexpr auto not_zero = [](auto v) {
+    return std::fpclassify(units::value(v)) != FP_ZERO;
+};
 
 template <typename T>
 struct Trim {
@@ -340,7 +349,7 @@ filter_reduce_associative(InputIt first,
                           InputIt last,
                           AssociativeBinaryOp op,
                           UnaryPredicate filter,
-                          T id_elt = T{0}) {
+                          T id_elt = utils::set_zero<T>()) {
     if constexpr (std::is_integral_v<T>) {
         // No precision problem for integers, as long as you don't overflow ...
         return filter_reduce(first, last, op, id_elt, filter);

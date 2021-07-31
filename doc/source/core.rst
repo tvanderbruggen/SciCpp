@@ -27,7 +27,7 @@ Hyperbolic functions
 Exponents and logarithms
 ^^^^^^^^^^^^^^^^
 
-:code:`exp`, :code:`expm1`, :code:`exp2`, :code:`log`, :code:`log2`, :code:`log1p`.
+:code:`exp`, :code:`expm1`, :code:`exp2`, :code:`log`, :code:`log2`, :code:`log10`, :code:`log1p`.
 
 Rounding
 ^^^^^^^^^^^^^^^^
@@ -49,7 +49,7 @@ Rational routines
 Miscellaneous
 ^^^^^^^^^^^^^^^^
 
-:code:`absolute`, :code:`sqrt`, :code:`cbrt`.
+:code:`absolute`, :code:`sqrt`, :code:`cbrt`, :code:`pow`.
 
 Arithmetic operators
 -------------
@@ -58,6 +58,21 @@ Provides arithmetic operators :code:`+`, :code:`-`, :code:`*`, :code:`/`, :code:
 
 The statement :code:`using namespace scicpp::operators` must be included in the scope where
 operators are used.
+
+Ones and zeros
+----------------
+
+:ref:`empty <core_empty>`
+    Return an empty :code:`std::vector` of a given type.
+
+:ref:`zeros <core_zeros>`
+    Return a new array of given shape and type, filled with zeros.
+
+:ref:`ones <core_ones>`
+    Return a new array of given shape and type, filled with ones.
+
+:ref:`full <core_full>`
+    Return a new array of given shape and type, filled with fill_value.
 
 Ranges
 -------------
@@ -79,6 +94,12 @@ Create arrays from existing data
 
 :ref:`TxtLoader <core_TxtLoader>`
     Load data from a character separated values text file.
+
+Save arrays to file
+----------------
+
+:ref:`TxtSaver <core_txtsaver>`
+    Save an array to a text file.
 
 Sums, products, differences
 ----------------
@@ -118,6 +139,21 @@ Sums, products, differences
 
 :ref:`vdot <core_vdot>`
     Return the dot product of two vectors.
+
+Searching
+----------------
+
+:ref:`argmax, nanargmax <core_argmax>`
+    Returns the indices of the maximum value of an array.
+
+:ref:`argmin, nanargmin <core_argmin>`
+    Returns the indices of the minimum value of an array.
+
+:ref:`argwhere <core_argwhere>`
+    Returns the indices of array elements matching a given condition.
+
+:ref:`nonzero <core_nonzero>`
+    Return the indices of the elements that are non-zero.
 
 Comparisons and Logical
 ----------------
@@ -183,10 +219,16 @@ Statistics
 :ref:`stats::skew, nanskew <core_stats_skew>`
     Compute the sample skewness of a data set.
 
+:ref:`stats::covariance, nancovariance <core_stats_covariance>`
+    Compute the covariance between two data sets.
+
+:ref:`stats::cov, nancov <core_stats_cov>`
+    Compute the covariance matrix between two data sets.
+
 Interpolate
 -------------
 
-:ref:`interpolate::rand <core_interpolate_interp1d>`
+:ref:`interpolate::interp1d <core_interpolate_interp1d>`
     Interpolate a 1D array.
 
 Units
@@ -237,6 +279,6 @@ Printing
 :ref:`print <core_print>`
     Print an array onto the screen.
 
-:ref:`fprint <core_fprint>`
-    Print an array to a file stream.
+:ref:`array2string <core_array2string>`
+    Format a array to a string.
 

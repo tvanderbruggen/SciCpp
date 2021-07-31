@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_RANGE
 #define SCICPP_CORE_RANGE
@@ -18,6 +18,59 @@
 namespace scicpp {
 
 //---------------------------------------------------------------------------------
+// empty
+//---------------------------------------------------------------------------------
+
+template <typename T>
+auto empty() {
+    return std::vector<T>(0);
+}
+
+//---------------------------------------------------------------------------------
+// full
+//---------------------------------------------------------------------------------
+
+template <std::size_t N, typename T>
+auto full(T fill_value) {
+    auto a = std::array<T, N>{};
+    a.fill(fill_value);
+    return a;
+}
+
+template <typename T>
+auto full(std::size_t N, T fill_value) {
+    return std::vector<T>(N, fill_value);
+}
+
+//---------------------------------------------------------------------------------
+// zeros
+//---------------------------------------------------------------------------------
+
+template <std::size_t N, typename T>
+auto zeros() {
+    return full<N, T>(T{0});
+}
+
+template <typename T>
+auto zeros(std::size_t N) {
+    return full<T>(N, T{0});
+}
+
+//---------------------------------------------------------------------------------
+// ones
+//---------------------------------------------------------------------------------
+
+template <std::size_t N, typename T>
+auto ones() {
+    return full<N, T>(T{1});
+}
+
+template <typename T>
+auto ones(std::size_t N) {
+    return full<T>(N, T{1});
+}
+
+//---------------------------------------------------------------------------------
 // Linspace
 //---------------------------------------------------------------------------------
 
@@ -32,12 +85,12 @@ auto linspace_filler(Array &&a, T start, T stop) {
         return std::move(a);
     }
 
-    if (a.size() == 1U) {
+    if (a.size() == 1) {
         a[0] = start;
         return std::move(a);
     }
 
-    std::iota(a.begin(), a.end(), T(0));
+    std::iota(a.begin(), a.end(), T{0});
     const auto step = units::value(stop - start) / raw_t(a.size() - 1);
     return start + std::move(a) * step;
 }
@@ -60,42 +113,55 @@ auto linspace(T start, T stop, std::size_t num) {
 
 namespace detail {
 
-template <class Array, typename BaseTp, typename T = typename Array::value_type>
-auto logspace_filler(Array &&a, T start, T stop, BaseTp base) {
-    if (a.size() == 0) {
+template <class Array, typename RepTp, typename T = typename Array::value_type>
+auto logspace_filler(Array &&a, RepTp start, RepTp stop, RepTp base) {
+    if (a.empty()) {
         return std::move(a);
     }
 
     if (a.size() == 1) {
-        a[0] = T(std::pow(base, units::value(start)));
+        a[0] = T(std::pow(base, start));
         return std::move(a);
     }
 
-    std::iota(a.begin(), a.end(), T(0));
-    const auto step = (stop - start) / BaseTp(a.size() - 1);
+    std::iota(a.begin(), a.end(), T{0});
+    const auto step = (stop - start) / RepTp(a.size() - 1);
+
     return map(
         [=](auto x) {
-            // FIXME Use units::pow, units::fma
-            return T(std::pow(base,
-                              std::fma(units::value(x),
-                                       units::value(step),
-                                       units::value(start))));
+            return T(std::pow(base, std::fma(units::value(x), step, start)));
         },
-        a);
+        std::move(a));
 }
 
 } // namespace detail
 
-template <std::size_t N,
-          typename T,
-          typename BaseTp = units::representation_t<T>>
-auto logspace(T start, T stop, BaseTp base = BaseTp{10}) {
+template <std::size_t N, typename T>
+auto logspace(T start, T stop, T base = T{10}) {
     return detail::logspace_filler(std::array<T, N>{}, start, stop, base);
 }
 
-template <typename T, typename BaseTp = units::representation_t<T>>
-auto logspace(T start, T stop, std::size_t num, BaseTp base = BaseTp{10}) {
+template <std::size_t N,
+          typename Qty,
+          typename RepTp = units::representation_t<Qty>,
+          units::enable_if_is_quantity<Qty> = 0>
+auto logspace(RepTp start, RepTp stop, RepTp base = RepTp{10}) {
+    return detail::logspace_filler(std::array<Qty, N>{}, start, stop, base);
+}
+
+template <typename T>
+auto logspace(T start, T stop, std::size_t num, T base = T{10}) {
     return detail::logspace_filler(std::vector<T>(num), start, stop, base);
+}
+
+template <typename Qty,
+          typename RepTp = units::representation_t<Qty>,
+          units::enable_if_is_quantity<Qty> = 0>
+auto logspace(RepTp start,
+              RepTp stop,
+              std::size_t num,
+              RepTp base = RepTp{10}) {
+    return detail::logspace_filler(std::vector<Qty>(num), start, stop, base);
 }
 
 //---------------------------------------------------------------------------------
@@ -104,7 +170,7 @@ auto logspace(T start, T stop, std::size_t num, BaseTp base = BaseTp{10}) {
 
 template <typename T>
 auto arange(T start, T stop, T step = T{1}) {
-    std::size_t num;
+    std::size_t num = 0;
 
     if (((stop > start) && (step < T{0})) ||
         ((stop < start) && (step > T{0}))) {

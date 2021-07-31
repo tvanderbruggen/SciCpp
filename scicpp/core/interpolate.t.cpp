@@ -54,7 +54,7 @@ TEST_CASE("interp1d - QUADRATIC") {
         const auto x = arange(0.0, 5.0, 0.5);
         const auto f = interp1d<InterpKind::QUADRATIC>(x, exp(-x));
         const auto xnew = arange(3.0, 4.0, 0.25);
-        REQUIRE(almost_equal<3>(f(xnew),
+        REQUIRE(almost_equal<4>(f(xnew),
                                 {0.04978706836786395,
                                  0.03875345918927947,
                                  0.030197383422318504,
