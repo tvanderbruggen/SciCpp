@@ -482,9 +482,11 @@ TEST_CASE("argmin physical quantities") {
 TEST_CASE("argwhere, nonzero") {
     const std::array a{1., 0., -2., 3., 0., 0.};
     const std::vector v{1., 0., -2., 3., 0., 0.};
+    const std::vector v0{0., 0., 0., 0.};
 
     REQUIRE(almost_equal(nonzero(a), {0, 2, 3}));
     REQUIRE(almost_equal(nonzero(v), {0, 2, 3}));
+    REQUIRE(nonzero(v0).empty());
 
     REQUIRE(almost_equal(argwhere(a, [](auto x) { return x > 0; }), {0, 3}));
     REQUIRE(almost_equal(argwhere(v, [](auto x) { return x > 0; }), {0, 3}));
@@ -494,9 +496,11 @@ TEST_CASE("argwhere, nonzero physical quantities") {
     using namespace units::literals;
     const std::array a{1_m, 0_m, -2_m, 3_m, 0_m, 0_m};
     const std::vector v{1_s, 0_s, -2_s, 3_s, 0_s, 0_s};
+    const std::vector v0{0_kg, 0_kg, 0_kg, 0_kg};
 
     REQUIRE(almost_equal(nonzero(a), {0, 2, 3}));
     REQUIRE(almost_equal(nonzero(v), {0, 2, 3}));
+    REQUIRE(nonzero(v0).empty());
 
     REQUIRE(almost_equal(argwhere(a, [](auto x) { return x > 0_m; }), {0, 3}));
     REQUIRE(almost_equal(argwhere(v, [](auto x) { return x > 0_s; }), {0, 3}));

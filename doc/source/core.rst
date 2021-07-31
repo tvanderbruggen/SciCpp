@@ -143,11 +143,17 @@ Sums, products, differences
 Searching
 ----------------
 
-:ref:`argmax, nanargmax <core_stats_argmax>`
+:ref:`argmax, nanargmax <core_argmax>`
     Returns the indices of the maximum value of an array.
 
-:ref:`argmin, nanargmin <core_stats_argmin>`
+:ref:`argmin, nanargmin <core_argmin>`
     Returns the indices of the minimum value of an array.
+
+:ref:`argwhere <core_argwhere>`
+    Returns the indices of array elements matching a given condition.
+
+:ref:`nonzero <core_nonzero>`
+    Return the indices of the elements that are non-zero.
 
 Comparisons and Logical
 ----------------
