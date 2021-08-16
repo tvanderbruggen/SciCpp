@@ -5,6 +5,7 @@
 #define SCICPP_CORE_STATS
 
 #include "scicpp/core/functional.hpp"
+#include "scicpp/core/macros.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
@@ -134,6 +135,97 @@ auto median(Array &&f) {
 template <class Array>
 auto nanmedian(const Array &f) {
     return median(f, filters::not_nan);
+}
+
+//---------------------------------------------------------------------------------
+// percentile
+//---------------------------------------------------------------------------------
+
+enum QuantileInterp : int { MIDPOINT, LINEAR };
+
+namespace detail {
+
+template <QuantileInterp interpolation = LINEAR, typename T>
+auto quantile_interp_index(T h) {
+    if constexpr (interpolation == MIDPOINT) {
+        // cf. std::midpoint (C++20)
+        return T{0.5} * (std::floor(h) + std::ceil(h));
+    } else if constexpr (interpolation == LINEAR) {
+        return h;
+    } else {
+        scicpp_unreachable;
+    }
+}
+
+// https://stackoverflow.com/questions/28548703/why-does-stdnth-element-return-sorted-vectors-for-input-vectors-with-n-33-el
+template <QuantileInterp interpolation = LINEAR, class InputIt, typename T>
+auto quantile_inplace(InputIt first, InputIt last, T q) {
+    scicpp_require(q >= T{0});
+    scicpp_require(q <= T{1});
+
+    const auto size = std::distance(first, last);
+
+    if (size == 0) {
+        return std::numeric_limits<T>::quiet_NaN();
+    }
+
+    if (size == 1) {
+        return *first;
+    }
+
+    const auto h0 = quantile_interp_index<interpolation>(q * (size - 1));
+
+    if (std::nearbyint(h0) == h0) { // h0 is an integer
+        const auto n0 = std::min(first + signed_size_t(h0), last);
+        std::nth_element(first, n0, last);
+        return *n0;
+    } else { // h0 not an integral index
+        const auto h_low = signed_size_t(h0);
+        const auto h_high = h_low + 1;
+
+        const auto n_high = std::min(first + h_high, last);
+        std::nth_element(first, n_high, last);
+        const auto x_low = *std::max_element(first, n_high);
+        const auto x_high = *n_high;
+        return x_low + (h0 - h_low) * (x_high - x_low);
+    }
+}
+
+} // namespace detail
+
+template <QuantileInterp interpolation = LINEAR,
+          class InputIt,
+          class Predicate,
+          typename T>
+auto percentile(InputIt first, InputIt last, T q, Predicate p) {
+    auto v = filter(std::vector(first, last), p);
+    return detail::quantile_inplace<interpolation>(
+        v.begin(), v.end(), q / 100.);
+}
+
+template <QuantileInterp interpolation = LINEAR,
+          class Array,
+          class Predicate,
+          typename T>
+auto percentile(const Array &f, T q, Predicate filter) {
+    return percentile<interpolation>(f.cbegin(), f.cend(), q, filter);
+}
+
+template <QuantileInterp interpolation = LINEAR, class Array, typename T>
+auto percentile(Array &&f, T q) {
+    if constexpr (std::is_lvalue_reference_v<Array>) {
+        auto tmp = f;
+        return detail::quantile_inplace<interpolation>(
+            tmp.begin(), tmp.end(), q / 100.);
+    } else {
+        return detail::quantile_inplace<interpolation>(
+            f.begin(), f.end(), q / 100.);
+    }
+}
+
+template <QuantileInterp interpolation = LINEAR, class Array, typename T>
+auto nanpercentile(const Array &f, T q) {
+    return percentile<interpolation>(f, q / 100., filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------

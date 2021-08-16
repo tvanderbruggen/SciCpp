@@ -120,6 +120,54 @@ TEST_CASE("median physical units") {
     REQUIRE(almost_equal(median(std::vector{1_m, 2_m, 3_m, 4_m}), 2.5_m));
 }
 
+TEST_CASE("percentile midpoint") {
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(std::isnan(percentile(std::array<double, 0>{}, 50.0)));
+
+    REQUIRE(almost_equal(percentile(std::array{1.}, 75.), 1.));
+    REQUIRE(almost_equal(percentile(std::array{1.}, 0.), 1.));
+    REQUIRE(almost_equal(percentile(std::array{1.}, 100.), 1.));
+
+    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 0.), 1.));
+    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 25.), 1.5));
+    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 50.), 2.));
+    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 75.), 2.5));
+    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 100.), 3.));
+
+    CHECK(almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 0.), 1.));
+    CHECK(
+        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 25.), 1.5));
+    CHECK(almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 50.), 2.));
+    CHECK(
+        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 75.), 2.5));
+    CHECK(
+        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 100.), 3.));
+
+    CHECK(almost_equal(percentile<MIDPOINT>(std::array{2., 4., 1., 3.}, 48.),
+                       2.5));
+    CHECK(almost_equal(percentile<MIDPOINT>(std::array{2., 4., 1., 3.}, 75.),
+                       3.5));
+}
+
+TEST_CASE("percentile linear") {
+    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 0.), 1.));
+    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 25.), 1.5));
+    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 50.), 2.));
+    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 75.), 2.5));
+    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 100.), 3.));
+
+    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 0.), 1.));
+    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 25.), 1.5));
+    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 50.), 2.));
+    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 75.), 2.5));
+    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 100.), 3.));
+
+    CHECK(almost_equal(percentile<LINEAR>(std::array{2., 4., 1., 3.}, 48.),
+                       2.44));
+    CHECK(almost_equal(percentile<LINEAR>(std::array{2., 4., 1., 3.}, 75.),
+                       3.25));
+}
+
 TEST_CASE("mean") {
     static_assert(float_equal(mean(std::array{1., 2., 3.}), 2.));
     REQUIRE(std::isnan(mean(std::array<double, 0>{})));

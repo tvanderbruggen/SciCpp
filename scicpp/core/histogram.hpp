@@ -7,10 +7,10 @@
 #include "scicpp/core/constants.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/maths.hpp"
+#include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
 #include "scicpp/core/units/quantity.hpp"
-#include "scicpp/core/print.hpp"
 
 #include <algorithm>
 #include <cmath>
