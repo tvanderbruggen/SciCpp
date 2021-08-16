@@ -192,6 +192,15 @@ Statistics
 :ref:`stats::average <core_stats_average>`
     Compute the weighted average.
 
+:ref:`stats::quantile, nanquantile <core_stats_quantile>`
+    Compute the q-th quantile.
+
+:ref:`stats::percentile, nanpercentile <core_stats_percentile>`
+    Compute the q-th percentile.
+
+:ref:`stats::iqr, naniqr <core_stats_iqr>`
+    Compute the interquartile range.
+
 :ref:`stats::median, nanmedian <core_stats_median>`
     Compute the median.
 

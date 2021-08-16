@@ -237,6 +237,16 @@ TEST_CASE("quantile physical units") {
         3.25_m));
 }
 
+TEST_CASE("iqr") {
+    using namespace units::literals;
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(iqr(std::array{2., 4., 1., 3.}), 1.5));
+    REQUIRE(
+        almost_equal(naniqr(std::array{2., nan, 4., 1., nan, 3., nan}), 1.5));
+    REQUIRE(almost_equal(iqr(std::array{2_mmol, 4_mmol, 1_mmol, 3_mmol}),
+                         1.5_mmol));
+}
+
 TEST_CASE("mean") {
     static_assert(float_equal(mean(std::array{1., 2., 3.}), 2.));
     REQUIRE(std::isnan(mean(std::array<double, 0>{})));
