@@ -138,16 +138,22 @@ auto nanmedian(const Array &f) {
 }
 
 //---------------------------------------------------------------------------------
-// percentile
+// quantile, percentile
 //---------------------------------------------------------------------------------
 
-enum QuantileInterp : int { MIDPOINT, LINEAR };
+enum QuantileInterp : int { LOWER, HIGHER, NEAREST, MIDPOINT, LINEAR };
 
 namespace detail {
 
 template <QuantileInterp interpolation = LINEAR, typename T>
 auto quantile_interp_index(T h) {
-    if constexpr (interpolation == MIDPOINT) {
+    if constexpr (interpolation == LOWER) {
+        return std::floor(h);
+    } else if constexpr (interpolation == HIGHER) {
+        return std::ceil(h);
+    } else if constexpr (interpolation == NEAREST) {
+        return std::nearbyint(h);
+    } else if constexpr (interpolation == MIDPOINT) {
         // cf. std::midpoint (C++20)
         return T{0.5} * (std::floor(h) + std::ceil(h));
     } else if constexpr (interpolation == LINEAR) {
@@ -166,7 +172,8 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
     const auto size = std::distance(first, last);
 
     if (size == 0) {
-        return std::numeric_limits<T>::quiet_NaN();
+        return std::numeric_limits<
+            typename std::iterator_traits<InputIt>::value_type>::quiet_NaN();
     }
 
     if (size == 1) {
@@ -181,13 +188,11 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
         return *n0;
     } else { // h0 not an integral index
         const auto h_low = signed_size_t(h0);
-        const auto h_high = h_low + 1;
-
-        const auto n_high = std::min(first + h_high, last);
+        const auto n_high = std::min(first + h_low + 1, last);
         std::nth_element(first, n_high, last);
         const auto x_low = *std::max_element(first, n_high);
         const auto x_high = *n_high;
-        return x_low + (h0 - h_low) * (x_high - x_low);
+        return x_low + (h0 - h_low) * (x_high - x_low); // cf. std::lerp (C++20)
     }
 }
 
@@ -197,35 +202,59 @@ template <QuantileInterp interpolation = LINEAR,
           class InputIt,
           class Predicate,
           typename T>
-auto percentile(InputIt first, InputIt last, T q, Predicate p) {
+auto quantile(InputIt first, InputIt last, T q, Predicate p) {
     auto v = filter(std::vector(first, last), p);
-    return detail::quantile_inplace<interpolation>(
-        v.begin(), v.end(), q / 100.);
+    return detail::quantile_inplace<interpolation>(v.begin(), v.end(), q);
 }
 
 template <QuantileInterp interpolation = LINEAR,
           class Array,
           class Predicate,
           typename T>
-auto percentile(const Array &f, T q, Predicate filter) {
-    return percentile<interpolation>(f.cbegin(), f.cend(), q, filter);
+auto quantile(const Array &f, T q, Predicate filter) {
+    return quantile<interpolation>(f.cbegin(), f.cend(), q, filter);
 }
 
 template <QuantileInterp interpolation = LINEAR, class Array, typename T>
-auto percentile(Array &&f, T q) {
+auto quantile(Array &&f, T q) {
     if constexpr (std::is_lvalue_reference_v<Array>) {
         auto tmp = f;
         return detail::quantile_inplace<interpolation>(
-            tmp.begin(), tmp.end(), q / 100.);
+            tmp.begin(), tmp.end(), q);
     } else {
-        return detail::quantile_inplace<interpolation>(
-            f.begin(), f.end(), q / 100.);
+        return detail::quantile_inplace<interpolation>(f.begin(), f.end(), q);
     }
 }
 
 template <QuantileInterp interpolation = LINEAR, class Array, typename T>
-auto nanpercentile(const Array &f, T q) {
-    return percentile<interpolation>(f, q / 100., filters::not_nan);
+auto nanquantile(const Array &f, T q) {
+    return quantile<interpolation>(f, q, filters::not_nan);
+}
+
+template <QuantileInterp interpolation = LINEAR,
+          class InputIt,
+          class Predicate,
+          typename T>
+auto percentile(InputIt first, InputIt last, T p, Predicate filter) {
+    return quantile<interpolation>(first, last, p / 100., filter);
+}
+
+template <QuantileInterp interpolation = LINEAR,
+          class Array,
+          class Predicate,
+          typename T>
+auto percentile(const Array &f, T p, Predicate filter) {
+    return quantile<interpolation>(f, p / 100., filter);
+}
+
+template <QuantileInterp interpolation = LINEAR, class Array, typename T>
+auto percentile(Array &&f, T p) {
+    return quantile<interpolation>(std::forward<Array>(f), p / 100.);
+}
+
+template <QuantileInterp interpolation = LINEAR, class Array, typename T>
+auto nanpercentile(const Array &f, T p) {
+    return nanquantile<interpolation>(f, p / 100.);
 }
 
 //---------------------------------------------------------------------------------
@@ -337,7 +366,7 @@ constexpr auto covariance(InputIt1 first1,
             auto res = utils::set_zero<prod_t>();
             signed_size_t cnt = 0;
 
-            for (; f1 != l1; ++f1, ++f2) {
+            for (; f1 != l1; ++f1, (void)++f2) {
                 if (filter(*f1) && filter(*f2)) {
                     if constexpr (meta::is_complex_v<T2>) {
                         res += (*f1 - m1) * std::conj(*f2 - m2);

@@ -128,44 +128,113 @@ TEST_CASE("percentile midpoint") {
     REQUIRE(almost_equal(percentile(std::array{1.}, 0.), 1.));
     REQUIRE(almost_equal(percentile(std::array{1.}, 100.), 1.));
 
-    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 0.), 1.));
-    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 25.), 1.5));
-    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 50.), 2.));
-    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 75.), 2.5));
-    CHECK(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 100.), 3.));
+    REQUIRE(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 0.), 1.));
+    REQUIRE(
+        almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 25.), 1.5));
+    REQUIRE(
+        almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 50.), 2.));
+    REQUIRE(
+        almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 75.), 2.5));
+    REQUIRE(
+        almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 100.), 3.));
 
-    CHECK(almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 0.), 1.));
-    CHECK(
+    REQUIRE(
+        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 0.), 1.));
+    REQUIRE(
         almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 25.), 1.5));
-    CHECK(almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 50.), 2.));
-    CHECK(
+    REQUIRE(
+        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 50.), 2.));
+    REQUIRE(
         almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 75.), 2.5));
-    CHECK(
+    REQUIRE(
         almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 100.), 3.));
 
-    CHECK(almost_equal(percentile<MIDPOINT>(std::array{2., 4., 1., 3.}, 48.),
-                       2.5));
-    CHECK(almost_equal(percentile<MIDPOINT>(std::array{2., 4., 1., 3.}, 75.),
-                       3.5));
+    REQUIRE(almost_equal(percentile<MIDPOINT>(std::array{2., 4., 1., 3.}, 48.),
+                         2.5));
+    REQUIRE(almost_equal(percentile<MIDPOINT>(std::array{2., 4., 1., 3.}, 75.),
+                         3.5));
+
+    REQUIRE(almost_equal(
+        nanpercentile<MIDPOINT>(std::array{1., 2., nan, 3.}, 0.), 1.));
+    REQUIRE(almost_equal(
+        nanpercentile<MIDPOINT>(std::array{2., nan, 4., 1., nan, 3.}, 75.),
+        3.5));
 }
 
 TEST_CASE("percentile linear") {
-    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 0.), 1.));
-    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 25.), 1.5));
-    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 50.), 2.));
-    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 75.), 2.5));
-    CHECK(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 100.), 3.));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 0.), 1.));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 25.), 1.5));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 50.), 2.));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 75.), 2.5));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 100.), 3.));
 
-    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 0.), 1.));
-    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 25.), 1.5));
-    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 50.), 2.));
-    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 75.), 2.5));
-    CHECK(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 100.), 3.));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 0.), 1.));
+    REQUIRE(
+        almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 25.), 1.5));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 50.), 2.));
+    REQUIRE(
+        almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 75.), 2.5));
+    REQUIRE(
+        almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 100.), 3.));
 
-    CHECK(almost_equal(percentile<LINEAR>(std::array{2., 4., 1., 3.}, 48.),
-                       2.44));
-    CHECK(almost_equal(percentile<LINEAR>(std::array{2., 4., 1., 3.}, 75.),
-                       3.25));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::array{2., 4., 1., 3.}, 48.),
+                         2.44));
+    REQUIRE(almost_equal(percentile<LINEAR>(std::array{2., 4., 1., 3.}, 75.),
+                         3.25));
+}
+
+TEST_CASE("percentile lower, higher, nearest") {
+    REQUIRE(
+        almost_equal(percentile<LOWER>(std::array{2., 4., 1., 3.}, 42.), 2.));
+    REQUIRE(
+        almost_equal(percentile<HIGHER>(std::array{2., 4., 1., 3.}, 42.), 3.));
+
+    REQUIRE(
+        almost_equal(percentile<NEAREST>(std::array{2., 4., 1., 3.}, 42.), 2.));
+}
+
+TEST_CASE("quantile") {
+    constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+    REQUIRE(almost_equal(quantile(std::array{1., 2., 3.}, 0.), 1.));
+    REQUIRE(almost_equal(quantile(std::array{1., 2., 3.}, 0.25), 1.5));
+    REQUIRE(almost_equal(quantile(std::array{1., 2., 3.}, 0.50), 2.));
+    REQUIRE(almost_equal(quantile(std::array{1., 2., 3.}, 0.75), 2.5));
+    REQUIRE(almost_equal(quantile(std::array{1., 2., 3.}, 1.), 3.));
+
+    REQUIRE(almost_equal(quantile(std::vector{2., 1., 3.}, 0.), 1.));
+    REQUIRE(almost_equal(quantile(std::vector{2., 1., 3.}, 0.25), 1.5));
+    REQUIRE(almost_equal(quantile(std::vector{2., 1., 3.}, 0.5), 2.));
+    REQUIRE(almost_equal(quantile(std::vector{2., 1., 3.}, 0.75), 2.5));
+    REQUIRE(almost_equal(quantile(std::vector{2., 1., 3.}, 1.), 3.));
+
+    REQUIRE(almost_equal(quantile(std::array{2., 4., 1., 3.}, 0.48), 2.44));
+    REQUIRE(almost_equal(quantile(std::array{2., 4., 1., 3.}, 0.75), 3.25));
+
+    REQUIRE(almost_equal(
+        nanquantile(std::array{nan, 2., 4., nan, 1., 3., nan}, 0.75), 3.25));
+}
+
+TEST_CASE("quantile physical units") {
+    using namespace units::literals;
+    constexpr auto nan =
+        units::length<double>(std::numeric_limits<double>::quiet_NaN());
+    REQUIRE(
+        units::isnan(percentile(std::array<units::meter<double>, 0>{}, 0.5)));
+
+    REQUIRE(almost_equal(quantile(std::vector{2_m, 1_m, 3_m}, 0.), 1_m));
+    REQUIRE(almost_equal(quantile(std::vector{2_m, 1_m, 3_m}, 0.25), 1.5_m));
+    REQUIRE(almost_equal(quantile(std::vector{2_m, 1_m, 3_m}, 0.5), 2_m));
+    REQUIRE(almost_equal(quantile(std::vector{2_m, 1_m, 3_m}, 0.75), 2.5_m));
+    REQUIRE(almost_equal(quantile(std::vector{2_m, 1_m, 3_m}, 1.), 3_m));
+
+    REQUIRE(almost_equal(quantile(std::array{2_kJ, 4_kJ, 1_kJ, 3_kJ}, 0.48),
+                         2.44_kJ));
+    REQUIRE(almost_equal(quantile(std::array{2_kJ, 4_kJ, 1_kJ, 3_kJ}, 0.75),
+                         3.25_kJ));
+
+    REQUIRE(almost_equal(
+        nanquantile(std::array{nan, 2_m, 4_m, nan, 1_m, 3_m, nan}, 0.75),
+        3.25_m));
 }
 
 TEST_CASE("mean") {
