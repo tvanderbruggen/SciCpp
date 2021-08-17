@@ -259,6 +259,11 @@ auto copysign(T x, T y) {
     return T(std::copysign(value(x), value(y)));
 }
 
+template <typename T>
+auto fpclassify(T x) {
+    return std::fpclassify(value(x));
+}
+
 // Exponents and logarithms
 
 template <typename T>

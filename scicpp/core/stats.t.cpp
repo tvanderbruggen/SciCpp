@@ -245,6 +245,9 @@ TEST_CASE("iqr") {
         almost_equal(naniqr(std::array{2., nan, 4., 1., nan, 3., nan}), 1.5));
     REQUIRE(almost_equal(iqr(std::array{2_mmol, 4_mmol, 1_mmol, 3_mmol}),
                          1.5_mmol));
+
+    const auto v = std::vector{2., 4., 1., 3.};
+    REQUIRE(almost_equal(iqr(v, 0., 100.), ptp(v)));
 }
 
 TEST_CASE("mean") {

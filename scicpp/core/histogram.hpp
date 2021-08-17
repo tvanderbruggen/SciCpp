@@ -5,6 +5,7 @@
 #define SCICPP_CORE_HISTOGRAM
 
 #include "scicpp/core/constants.hpp"
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/maths.hpp"
 #include "scicpp/core/print.hpp"
@@ -18,24 +19,50 @@
 
 namespace scicpp::stats {
 
-enum BinEdgesMethod : int { SCOTT, SQRT, RICE, STURGES };
+enum BinEdgesMethod : int { SCOTT, SQRT, RICE, STURGES, FD, DOANE, AUTO };
 
 namespace detail {
 
-template <BinEdgesMethod method = SQRT, typename Array>
+template <BinEdgesMethod method, typename Array>
 auto bin_width(const Array &x) {
+    scicpp_require(!x.empty());
     using T = typename Array::value_type;
+    using raw_t = typename units::representation_t<T>;
 
     if constexpr (method == SQRT) {
         return ptp(x) / sqrt(x.size());
     } else if constexpr (method == SCOTT) {
-        return cbrt(T{24} * sqrt(pi<T>) / T(x.size())) * std(x);
+        return cbrt(raw_t{24} * sqrt(pi<raw_t>) / raw_t(x.size())) * std(x);
     } else if constexpr (method == RICE) {
-        return T{0.5} * ptp(x) / cbrt(x.size());
+        return raw_t{0.5} * ptp(x) / cbrt(x.size());
     } else if constexpr (method == STURGES) {
         return ptp(x) / (log2(x.size()) + 1.0);
-    } else {
-        scicpp_unreachable;
+    } else if constexpr (method == FD) {
+        // Freedman-Diaconis histogram bin estimator.
+        return raw_t{2} * iqr(x) / cbrt(x.size());
+    } else if constexpr (method == DOANE) {
+        if (x.size() <= 2) {
+            return T{0};
+        }
+
+        const auto sg1 = sqrt(raw_t{6.0} * (x.size() - 2) /
+                              raw_t((x.size() + 1.0) * (x.size() + 3.0)));
+        const auto g1 = units::value(skew(x));
+
+        if (std::isnan(g1)) {
+            return T{0};
+        }
+
+        return ptp(x) / (1.0 + log2(x.size()) + log2(1.0 + absolute(g1) / sg1));
+    } else { // AUTO
+        const auto fd_bw = bin_width<FD>(x);
+        const auto sturges_bw = bin_width<STURGES>(x);
+
+        if (units::fpclassify(fd_bw) == FP_ZERO) {
+            return sturges_bw;
+        }
+
+        return units::fmin(fd_bw, sturges_bw);
     }
 }
 
@@ -43,11 +70,24 @@ auto bin_width(const Array &x) {
 
 template <BinEdgesMethod method = SQRT, typename Array>
 auto histogram_bin_edges(const Array &x) {
-    const auto width = detail::bin_width<method>(x);
-    const auto first_edge = amin(x);
-    const auto last_edge = amax(x);
+    using T = typename Array::value_type;
 
-    if (std::fpclassify(units::value(width)) == FP_ZERO) {
+    if (x.empty()) {
+        return linspace(T{0}, T{1}, 2);
+    }
+
+    // get outer edges
+    auto first_edge = amin(x);
+    auto last_edge = amax(x);
+
+    if (almost_equal(first_edge, last_edge)) {
+        first_edge -= T{0.5};
+        last_edge += T{0.5};
+    }
+
+    const auto width = detail::bin_width<method>(x);
+
+    if (units::fpclassify(width) == FP_ZERO) {
         return linspace(first_edge, last_edge, 2);
     }
 
