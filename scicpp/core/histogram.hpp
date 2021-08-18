@@ -15,9 +15,14 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include <vector>
 
 namespace scicpp::stats {
+
+//---------------------------------------------------------------------------------
+// histogram_bin_edges
+//---------------------------------------------------------------------------------
 
 enum BinEdgesMethod : int { SCOTT, SQRT, RICE, STURGES, FD, DOANE, AUTO };
 
@@ -26,6 +31,7 @@ namespace detail {
 template <BinEdgesMethod method, typename Array>
 auto bin_width(const Array &x) {
     scicpp_require(!x.empty());
+
     using T = typename Array::value_type;
     using raw_t = typename units::representation_t<T>;
 
@@ -45,15 +51,16 @@ auto bin_width(const Array &x) {
             return T{0};
         }
 
-        const auto sg1 = sqrt(raw_t{6.0} * (x.size() - 2) /
-                              raw_t((x.size() + 1.0) * (x.size() + 3.0)));
+        const auto sg1 = sqrt(raw_t{6} * (x.size() - 2) /
+                              raw_t((x.size() + 1) * (x.size() + 3)));
         const auto g1 = units::value(skew(x));
 
         if (std::isnan(g1)) {
             return T{0};
         }
 
-        return ptp(x) / (1.0 + log2(x.size()) + log2(1.0 + absolute(g1) / sg1));
+        return ptp(x) / (raw_t{1} + log2(x.size()) +
+                         log2(raw_t{1} + absolute(g1) / sg1));
     } else { // AUTO
         const auto fd_bw = bin_width<FD>(x);
         const auto sturges_bw = bin_width<STURGES>(x);
@@ -66,17 +73,14 @@ auto bin_width(const Array &x) {
     }
 }
 
-} // namespace detail
-
-template <BinEdgesMethod method = SQRT, typename Array>
-auto histogram_bin_edges(const Array &x) {
+template <typename Array>
+auto outer_edges(const Array &x) {
     using T = typename Array::value_type;
 
     if (x.empty()) {
-        return linspace(T{0}, T{1}, 2);
+        return std::make_pair(T{0}, T{1});
     }
 
-    // get outer edges
     auto first_edge = amin(x);
     auto last_edge = amax(x);
 
@@ -85,6 +89,20 @@ auto histogram_bin_edges(const Array &x) {
         last_edge += T{0.5};
     }
 
+    return std::make_pair(first_edge, last_edge);
+}
+
+} // namespace detail
+
+template <BinEdgesMethod method, typename Array>
+auto histogram_bin_edges(const Array &x) {
+    using T = typename Array::value_type;
+
+    if (x.empty()) {
+        return linspace(T{0}, T{1}, 2);
+    }
+
+    const auto [first_edge, last_edge] = detail::outer_edges(x);
     const auto width = detail::bin_width<method>(x);
 
     if (units::fpclassify(width) == FP_ZERO) {
@@ -96,29 +114,77 @@ auto histogram_bin_edges(const Array &x) {
     return linspace(first_edge, last_edge, n_equal_bins + 1);
 }
 
-template <typename T>
-class Histogram {
-  public:
-    auto bins(const std::vector<T> &bins) {
-        m_bins = bins;
-        return *this;
+template <typename Array>
+auto histogram_bin_edges(const Array &x, std::size_t bins = 10) {
+    const auto [first_edge, last_edge] = detail::outer_edges(x);
+    return linspace(first_edge, last_edge, bins + 1);
+}
+
+//---------------------------------------------------------------------------------
+// histogram
+//---------------------------------------------------------------------------------
+
+template <class InputIt,
+          typename T = typename std::iterator_traits<InputIt>::value_type>
+auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
+    if (bins.empty()) {
+        return empty<signed_size_t>();
     }
 
-    auto bins(std::vector<T> &&bins) {
-        m_bins = std::move(bins);
-        return *this;
+    scicpp_require(std::is_sorted(bins.cbegin(), bins.cend()));
+
+    auto res = zeros<signed_size_t>(bins.size() - 1);
+
+    for (; first != last; ++first) {
+        const auto it = std::upper_bound(bins.cbegin(), bins.cend(), *first);
+
+        if (it == bins.cend()) { // No bin found
+            if (almost_equal(*first, bins.back())) {
+                // Last bin edge is included
+                ++res.back();
+            }
+
+            continue;
+        }
+
+        const auto pos = std::size_t(
+            std::max(std::ptrdiff_t(0), std::distance(bins.cbegin(), it) - 1));
+        ++res[pos];
     }
 
-    auto bins(signed_size_t nbins) {
-        m_nbins = nbins;
-        return *this;
-    }
+    return res;
+}
 
-  private:
-    signed_size_t m_nbins = 10;
-    std::vector<T> m_bins;
+template <typename Array, typename T = typename Array::value_type>
+auto histogram(const Array &x, const std::vector<T> &bins) {
+    return histogram(x.cbegin(), x.cend(), bins);
+}
 
-}; // class Histogram
+// template <typename T>
+// class Histogram {
+//   public:
+//     auto bins(const std::vector<T> &bins) {
+//         m_bins = bins;
+//         m_nbins = m_bins.size();
+//         return *this;
+//     }
+
+//     auto bins(std::vector<T> &&bins) {
+//         m_bins = std::move(bins);
+//         m_nbins = m_bins.size();
+//         return *this;
+//     }
+
+//     auto bins(signed_size_t nbins) {
+//         m_nbins = nbins;
+//         return *this;
+//     }
+
+//   private:
+//     signed_size_t m_nbins = 10;
+//     std::vector<T> m_bins;
+
+// }; // class Histogram
 
 } // namespace scicpp::stats
 

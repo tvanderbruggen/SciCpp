@@ -156,10 +156,8 @@ auto quantile_interp_index(T h) {
     } else if constexpr (interpolation == MIDPOINT) {
         // cf. std::midpoint (C++20)
         return T{0.5} * (std::floor(h) + std::ceil(h));
-    } else if constexpr (interpolation == LINEAR) {
+    } else { // interpolation == LINEAR
         return h;
-    } else {
-        scicpp_unreachable;
     }
 }
 
