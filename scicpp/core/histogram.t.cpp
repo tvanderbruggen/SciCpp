@@ -83,9 +83,34 @@ TEST_CASE("histogram") {
     const auto a = std::array{0., 0., 0., 1., 2., 3., 3., 4., 5.};
 
     REQUIRE(histogram(a, empty<double>()).empty());
-    print(histogram(a, {0., 1., 2., 3., 4., 5.}));
+    // print(histogram(a, {0., 1., 2., 3., 4., 5.}));
     REQUIRE(histogram(a, {0., 1., 2., 3., 4., 5.}) ==
             std::vector<signed_size_t>({3, 1, 1, 2, 2}));
+    // print(histogram(a, {0., 1., 3., 4.5, 5.}));
+    REQUIRE(histogram(a, {0., 1., 3., 4.5, 5.}) ==
+            std::vector<signed_size_t>({3, 2, 3, 1}));
+    // print(histogram<true>(a, {0., 1., 2., 3., 4., 5.}));
+    REQUIRE(histogram<true>(a, {0., 1., 2., 3., 4., 5.}) ==
+            std::vector<signed_size_t>({3, 1, 1, 2, 2}));
+
+    const auto b = std::vector{560.,
+                               482.,
+                               456.,
+                               458.,
+                               745.,
+                               867.,
+                               785.,
+                               596.,
+                               785.,
+                               389.,
+                               223.,
+                               253.,
+                               852.};
+    // print(histogram<true>(b, {200., 400., 600., 800., 1000.}));
+    REQUIRE(histogram<true>(b, {200., 400., 600., 800., 1000.}) ==
+            std::vector<signed_size_t>({3, 5, 3, 2}));
+    REQUIRE(histogram(b, {200., 400., 600., 800., 1000.}) ==
+            std::vector<signed_size_t>({3, 5, 3, 2}));
 }
 
 } // namespace scicpp::stats

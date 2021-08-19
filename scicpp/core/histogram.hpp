@@ -29,7 +29,7 @@ enum BinEdgesMethod : int { SCOTT, SQRT, RICE, STURGES, FD, DOANE, AUTO };
 namespace detail {
 
 template <BinEdgesMethod method, typename Array>
-auto bin_width(const Array &x) {
+auto scicpp_pure bin_width(const Array &x) {
     scicpp_require(!x.empty());
 
     using T = typename Array::value_type;
@@ -74,7 +74,7 @@ auto bin_width(const Array &x) {
 }
 
 template <typename Array>
-auto outer_edges(const Array &x) {
+auto scicpp_pure outer_edges(const Array &x) noexcept {
     using T = typename Array::value_type;
 
     if (x.empty()) {
@@ -124,67 +124,64 @@ auto histogram_bin_edges(const Array &x, std::size_t bins = 10) {
 // histogram
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
+template <bool UniformBins = false,
+          class InputIt,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
-    if (bins.empty()) {
+    if (bins.size() <= 1) {
         return empty<signed_size_t>();
     }
 
     scicpp_require(std::is_sorted(bins.cbegin(), bins.cend()));
 
-    auto res = zeros<signed_size_t>(bins.size() - 1);
+    auto hist = zeros<signed_size_t>(bins.size() - 1);
 
-    for (; first != last; ++first) {
-        const auto it = std::upper_bound(bins.cbegin(), bins.cend(), *first);
+    if constexpr (UniformBins) {
+        // No search required if uniformly distributed bins,
+        // we can directly compute the index.
 
-        if (it == bins.cend()) { // No bin found
-            if (almost_equal(*first, bins.back())) {
-                // Last bin edge is included
-                ++res.back();
+        const auto step = bins[1] - bins[0];
+        scicpp_require(step >= T{0});
+
+        for (; first != last; ++first) {
+            const auto it =
+                std::ptrdiff_t(*first / step); // TODO missing offset
+            const auto pos = std::size_t(std::max(
+                std::ptrdiff_t(0), std::distance(bins.cbegin(), it) - 1));
+            ++hist[pos];
+        }
+    } else {
+        for (; first != last; ++first) {
+            const auto it =
+                std::upper_bound(bins.cbegin(), bins.cend(), *first);
+
+            if (it == bins.cend()) { // No bin found
+                if (almost_equal(*first, bins.back())) {
+                    // Last bin edge is included
+                    ++hist.back();
+                }
+
+                continue;
             }
 
-            continue;
+            const auto pos = std::size_t(std::max(
+                std::ptrdiff_t(0), std::distance(bins.cbegin(), it) - 1));
+            ++hist[pos];
         }
-
-        const auto pos = std::size_t(
-            std::max(std::ptrdiff_t(0), std::distance(bins.cbegin(), it) - 1));
-        ++res[pos];
     }
 
-    return res;
+    // We only return the histogram for this overload,
+    // the bins being an input argument.
+
+    return hist;
 }
 
-template <typename Array, typename T = typename Array::value_type>
+template <bool UniformBins = false,
+          typename Array,
+          typename T = typename Array::value_type>
 auto histogram(const Array &x, const std::vector<T> &bins) {
     return histogram(x.cbegin(), x.cend(), bins);
 }
-
-// template <typename T>
-// class Histogram {
-//   public:
-//     auto bins(const std::vector<T> &bins) {
-//         m_bins = bins;
-//         m_nbins = m_bins.size();
-//         return *this;
-//     }
-
-//     auto bins(std::vector<T> &&bins) {
-//         m_bins = std::move(bins);
-//         m_nbins = m_bins.size();
-//         return *this;
-//     }
-
-//     auto bins(signed_size_t nbins) {
-//         m_nbins = nbins;
-//         return *this;
-//     }
-
-//   private:
-//     signed_size_t m_nbins = 10;
-//     std::vector<T> m_bins;
-
-// }; // class Histogram
 
 } // namespace scicpp::stats
 

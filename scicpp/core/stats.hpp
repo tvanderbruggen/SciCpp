@@ -4,6 +4,7 @@
 #ifndef SCICPP_CORE_STATS
 #define SCICPP_CORE_STATS
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/numeric.hpp"
@@ -32,7 +33,7 @@ auto quiet_nan() {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto amax(const Array &f) {
+constexpr scicpp_pure auto amax(const Array &f) {
     if (f.empty()) {
         return detail::quiet_nan<Array>();
     }
@@ -45,7 +46,7 @@ constexpr auto amax(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto amin(const Array &f) {
+constexpr scicpp_pure auto amin(const Array &f) {
     if (f.empty()) {
         return detail::quiet_nan<Array>();
     }
@@ -58,7 +59,7 @@ constexpr auto amin(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto ptp(const Array &f) {
+constexpr scicpp_pure auto ptp(const Array &f) {
     if (f.empty()) {
         return detail::quiet_nan<Array>();
     }
@@ -180,7 +181,7 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
 
     const auto h0 = quantile_interp_index<interpolation>(q * (size - 1));
 
-    if (std::nearbyint(h0) == h0) { // h0 is an integer
+    if (almost_equal(std::nearbyint(h0), h0)) { // h0 is an integer
         const auto n0 = std::min(first + signed_size_t(h0), last);
         std::nth_element(first, n0, last);
         return *n0;
