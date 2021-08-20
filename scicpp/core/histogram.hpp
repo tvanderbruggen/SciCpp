@@ -115,16 +115,19 @@ auto histogram_bin_edges(const Array &x) {
 }
 
 template <typename Array>
-auto histogram_bin_edges(const Array &x, std::size_t bins = 10) {
+auto histogram_bin_edges(const Array &x, std::size_t nbins = 10) {
     const auto [first_edge, last_edge] = detail::outer_edges(x);
-    return linspace(first_edge, last_edge, bins + 1);
+    return linspace(first_edge, last_edge, nbins + 1);
 }
 
 //---------------------------------------------------------------------------------
 // histogram
 //---------------------------------------------------------------------------------
 
-template <bool UniformBins = false,
+constexpr bool UniformBins = true;
+constexpr bool NonUniformBins = false;
+
+template <bool use_uniform_bins = false,
           class InputIt,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
@@ -136,21 +139,32 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
 
     auto hist = zeros<signed_size_t>(bins.size() - 1);
 
-    if constexpr (UniformBins) {
+    if constexpr (use_uniform_bins) {
         // No search required if uniformly distributed bins,
         // we can directly compute the index.
 
         const auto step = bins[1] - bins[0];
-        scicpp_require(step >= T{0});
+        scicpp_require(step > T{0});
 
         for (; first != last; ++first) {
-            const auto it =
-                std::ptrdiff_t(*first / step); // TODO missing offset
-            const auto pos = std::size_t(std::max(
-                std::ptrdiff_t(0), std::distance(bins.cbegin(), it) - 1));
-            ++hist[pos];
+            const auto pos = (*first - bins.front()) / step;
+
+            if (pos >= T(hist.size())) {
+                if (almost_equal(*first, bins.back())) {
+                    // Last bin edge is included
+                    ++hist.back();
+                }
+
+                continue;
+            }
+
+            if (pos >= T{0}) {
+                ++hist[std::size_t(pos)];
+            }
         }
     } else {
+        // This works for both uniform and non-uniform bins.
+
         for (; first != last; ++first) {
             const auto it =
                 std::upper_bound(bins.cbegin(), bins.cend(), *first);
@@ -164,9 +178,11 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
                 continue;
             }
 
-            const auto pos = std::size_t(std::max(
-                std::ptrdiff_t(0), std::distance(bins.cbegin(), it) - 1));
-            ++hist[pos];
+            const auto pos = std::distance(bins.cbegin(), it) - 1;
+
+            if (pos >= T{0}) {
+                ++hist[std::size_t(pos)];
+            }
         }
     }
 
@@ -176,11 +192,23 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
     return hist;
 }
 
-template <bool UniformBins = false,
+template <bool use_uniform_bins = false,
           typename Array,
           typename T = typename Array::value_type>
 auto histogram(const Array &x, const std::vector<T> &bins) {
-    return histogram(x.cbegin(), x.cend(), bins);
+    return histogram<use_uniform_bins>(x.cbegin(), x.cend(), bins);
+}
+
+template <BinEdgesMethod method, typename Array>
+auto histogram(const Array &x) {
+    const auto bins = histogram_bin_edges<method>(x);
+    return std::make_pair(histogram<UniformBins>(x, bins), bins);
+}
+
+template <typename Array>
+auto histogram(const Array &x, std::size_t nbins = 10) {
+    const auto bins = histogram_bin_edges(x, nbins);
+    return std::make_pair(histogram<UniformBins>(x, bins), bins);
 }
 
 } // namespace scicpp::stats

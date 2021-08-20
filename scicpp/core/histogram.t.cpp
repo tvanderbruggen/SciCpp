@@ -83,14 +83,15 @@ TEST_CASE("histogram") {
     const auto a = std::array{0., 0., 0., 1., 2., 3., 3., 4., 5.};
 
     REQUIRE(histogram(a, empty<double>()).empty());
+    REQUIRE(histogram(a, std::vector{0.}).empty());
     // print(histogram(a, {0., 1., 2., 3., 4., 5.}));
     REQUIRE(histogram(a, {0., 1., 2., 3., 4., 5.}) ==
             std::vector<signed_size_t>({3, 1, 1, 2, 2}));
     // print(histogram(a, {0., 1., 3., 4.5, 5.}));
     REQUIRE(histogram(a, {0., 1., 3., 4.5, 5.}) ==
             std::vector<signed_size_t>({3, 2, 3, 1}));
-    // print(histogram<true>(a, {0., 1., 2., 3., 4., 5.}));
-    REQUIRE(histogram<true>(a, {0., 1., 2., 3., 4., 5.}) ==
+    // print(histogram<UniformBins>(a, {0., 1., 2., 3., 4., 5.}));
+    REQUIRE(histogram<UniformBins>(a, {0., 1., 2., 3., 4., 5.}) ==
             std::vector<signed_size_t>({3, 1, 1, 2, 2}));
 
     const auto b = std::vector{560.,
@@ -106,11 +107,22 @@ TEST_CASE("histogram") {
                                223.,
                                253.,
                                852.};
-    // print(histogram<true>(b, {200., 400., 600., 800., 1000.}));
-    REQUIRE(histogram<true>(b, {200., 400., 600., 800., 1000.}) ==
+    // print(histogram<UniformBins>(b, {200., 400., 600., 800., 1000.}));
+    REQUIRE(histogram<UniformBins>(b, {200., 400., 600., 800., 1000.}) ==
             std::vector<signed_size_t>({3, 5, 3, 2}));
     REQUIRE(histogram(b, {200., 400., 600., 800., 1000.}) ==
             std::vector<signed_size_t>({3, 5, 3, 2}));
+    // print(histogram<UniformBins>(b, {200., 400.}));
+    REQUIRE(histogram(b, {200., 400.}) == std::vector<signed_size_t>({3}));
+    REQUIRE(histogram<UniformBins>(b, {200., 400.}) ==
+            std::vector<signed_size_t>({3}));
+    REQUIRE(histogram(b, {400., 800.}) == std::vector<signed_size_t>({8}));
+    REQUIRE(histogram<UniformBins>(b, {400., 800.}) ==
+            std::vector<signed_size_t>({8}));
+
+    const auto [hist, bins] = histogram<AUTO>(b);
+    REQUIRE(hist == std::vector<signed_size_t>({2, 3, 3, 0, 5}));
+    REQUIRE(almost_equal<2>(bins, {223., 351.8, 480.6, 609.4, 738.2, 867.}));
 }
 
 } // namespace scicpp::stats
