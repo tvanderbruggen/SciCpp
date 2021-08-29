@@ -123,6 +123,43 @@ TEST_CASE("histogram") {
     const auto [hist, bins] = histogram<AUTO>(b);
     REQUIRE(hist == std::vector<signed_size_t>({2, 3, 3, 0, 5}));
     REQUIRE(almost_equal<2>(bins, {223., 351.8, 480.6, 609.4, 738.2, 867.}));
+
+    const auto [hist0, bins0] = histogram(b);
+    REQUIRE(hist0 ==
+            std::vector<signed_size_t>({2, 0, 1, 2, 1, 2, 0, 0, 3, 2}));
+    REQUIRE(almost_equal<2>(bins0,
+                            {223.,
+                             287.4,
+                             351.8,
+                             416.2,
+                             480.6,
+                             545.,
+                             609.4,
+                             673.8,
+                             738.2,
+                             802.6,
+                             867.}));
+
+    const auto [hist1, bins1] = histogram(b, 7);
+    REQUIRE(hist1 == std::vector<signed_size_t>({2, 1, 3, 1, 1, 1, 4}));
+    REQUIRE(almost_equal<2>(bins1,
+                            {223., 315., 407., 499., 591., 683., 775., 867.}));
+}
+
+TEST_CASE("histogram physical units") {
+    using namespace operators;
+    using namespace units::literals;
+
+    const auto a = std::array{0_V, 0_V, 0_V, 1_V, 2_V, 3_V, 3_V, 4_V, 5_V};
+
+    REQUIRE(histogram(a, empty<units::electric_potential<double>>()).empty());
+    REQUIRE(histogram(a, std::vector{0_V}).empty());
+    REQUIRE(histogram(a, {0_V, 1_V, 2_V, 3_V, 4_V, 5_V}) ==
+            std::vector<signed_size_t>({3, 1, 1, 2, 2}));
+    REQUIRE(histogram(a, {0_V, 1_V, 3_V, 4.5_V, 5_V}) ==
+            std::vector<signed_size_t>({3, 2, 3, 1}));
+    REQUIRE(histogram<UniformBins>(a, {0_V, 1_V, 2_V, 3_V, 4_V, 5_V}) ==
+            std::vector<signed_size_t>({3, 1, 1, 2, 2}));
 }
 
 } // namespace scicpp::stats

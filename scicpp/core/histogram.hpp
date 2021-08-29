@@ -131,6 +131,8 @@ template <bool use_uniform_bins = false,
           class InputIt,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
+    using raw_t = typename units::representation_t<T>;
+
     if (bins.size() <= 1) {
         return empty<signed_size_t>();
     }
@@ -147,9 +149,9 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
         scicpp_require(step > T{0});
 
         for (; first != last; ++first) {
-            const auto pos = (*first - bins.front()) / step;
+            const auto pos = units::value((*first - bins.front()) / step);
 
-            if (pos >= T(hist.size())) {
+            if (pos >= raw_t(hist.size())) {
                 if (almost_equal(*first, bins.back())) {
                     // Last bin edge is included
                     ++hist.back();
@@ -158,7 +160,7 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
                 continue;
             }
 
-            if (pos >= T{0}) {
+            if (pos >= raw_t{0}) {
                 ++hist[std::size_t(pos)];
             }
         }
@@ -180,7 +182,7 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
 
             const auto pos = std::distance(bins.cbegin(), it) - 1;
 
-            if (pos >= T{0}) {
+            if (pos >= raw_t{0}) {
                 ++hist[std::size_t(pos)];
             }
         }
