@@ -165,8 +165,7 @@ auto quantile_interp_index(T h) {
 // https://stackoverflow.com/questions/28548703/why-does-stdnth-element-return-sorted-vectors-for-input-vectors-with-n-33-el
 template <QuantileInterp interpolation, class InputIt, typename T>
 auto quantile_inplace(InputIt first, InputIt last, T q) {
-    scicpp_require(q >= T{0});
-    scicpp_require(q <= T{1});
+    scicpp_require(q >= T{0} && q <= T{1});
 
     const auto size = std::distance(first, last);
 
