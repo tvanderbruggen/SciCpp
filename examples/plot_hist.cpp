@@ -12,6 +12,8 @@ int main() {
 
     auto plot = plt::hist(x);
     plot.color("grey");
+    plot.log(true);
+    plot.rwidth(0.5);
     plot.xlabel("Smarts");
     plot.ylabel("Probability");
     plot.fontSize(12);

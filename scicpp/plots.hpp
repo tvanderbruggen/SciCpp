@@ -4,6 +4,6 @@
 #ifndef SCICPP_PLOTS_HEADER
 #define SCICPP_PLOTS_HEADER
 
-#include "plots/plots.hpp"
+#include "plots/hist.hpp"
 
 #endif // SCICPP_PLOTS_HEADER

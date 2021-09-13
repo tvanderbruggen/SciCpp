@@ -11,6 +11,8 @@
 
 namespace scicpp::plots {
 
+enum HistType : int { BAR, BARSTACKED, STEP, STEPFILLED };
+
 struct hist : sciplot::Plot {
   public:
     template <stats::BinEdgesMethod method = stats::AUTO, typename Array>
@@ -29,19 +31,53 @@ struct hist : sciplot::Plot {
         return (*this);
     }
 
+    auto log(bool logscale) {
+        m_logscale = logscale;
+        redraw();
+        return (*this);
+    }
+
+    auto histtype(HistType hist_type) {
+        m_hist_type = hist_type;
+        redraw();
+        return (*this);
+    }
+
+    auto rwidth(double rwidth) {
+        m_rwidth = rwidth;
+        redraw();
+        return (*this);
+    }
+
   private:
     std::string m_fill_color = "blue";
     sciplot::Vec m_bins;
     std::vector<signed_size_t> m_hist;
+    bool m_logscale = false;
+    HistType m_hist_type = BAR;
+    double m_rwidth = 1.0;
 
     void redraw() {
         this->clear();
-        this->drawStepsFilled(m_bins, m_hist)
-            .fillColor(m_fill_color)
-            .labelNone();
+
+        if (m_hist_type == BAR) {
+            this->drawBoxes(m_bins, m_hist).fillColor(m_fill_color).labelNone();
+            this->boxWidthRelative(m_rwidth);
+        } else if (m_hist_type == STEPFILLED) {
+            this->drawStepsFilled(m_bins, m_hist)
+                .fillColor(m_fill_color)
+                .labelNone();
+        } else {
+            // TODO: BARSTACKED, STEP
+        }
+
         this->border().right().top();
+
+        if (m_logscale) {
+            this->ytics().logscale(2);
+        }
     }
-}; // class Hist
+}; // class hist
 
 } // namespace scicpp::plots
 
