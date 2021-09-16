@@ -1,24 +1,36 @@
 #include <scicpp/core.hpp>
 #include <scicpp/plots.hpp>
 
-int main() {
-    namespace sci = scicpp;
-    namespace plt = sci::plots;
+namespace sci = scicpp;
+namespace plt = sci::plots;
+
+template <std::size_t N, typename T>
+auto gaussian_noise(T mu, T sigma) {
     using namespace sci::operators;
+    return mu + sigma * sci::random::randn<T, N>();
+}
 
-    constexpr auto mu = 100.0;
-    constexpr auto sigma = 15.0;
-    const auto x = mu + sigma * sci::random::randn<double>(10000);
+int main() {
+    const auto x = gaussian_noise<10000>(100., 15.);
 
-    auto plot = plt::hist(x);
-    plot.color("grey");
-    plot.log(true);
-    plot.rwidth(0.5);
-    plot.xlabel("Smarts");
-    plot.ylabel("Probability");
-    plot.fontSize(12);
-    plot.size(749, 749);
-    plot.show();
+    // Plot basic histogram
+    auto plot0 = plt::hist(x);
+    plot0.xlabel("Smarts");
+    plot0.ylabel("Probability");
+    plot0.fontSize(12);
+    plot0.size(500, 500);
+    plot0.show();
+
+    // Plot logscale histogram with auto bin
+    auto plot1 = plt::hist<sci::stats::BinEdgesMethod::AUTO>(x);
+    plot1.color("grey");
+    plot1.log(true);
+    plot1.rwidth(0.75);
+    plot1.xlabel("Smarts");
+    plot1.ylabel("Probability");
+    plot1.fontSize(12);
+    plot1.size(500, 500);
+    plot1.show();
 
     // plot.save("hist.pdf");
 }

@@ -8,19 +8,22 @@
 
 #include <sciplot/sciplot.hpp>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace scicpp::plots {
 
 enum HistType : int { BAR, BARSTACKED, STEP, STEPFILLED };
 
-struct hist : sciplot::Plot {
-  public:
-    template <stats::BinEdgesMethod method = stats::AUTO, typename Array>
-    hist(const Array &x) {
-        auto [hist, bins] = stats::histogram<method>(x);
-        m_hist = std::move(hist);
-        m_bins = sciplot::Vec(bins.data(), bins.size());
+namespace detail {
 
+template <typename HistVector>
+struct histplot : sciplot::Plot {
+  public:
+    template <typename Array>
+    histplot(HistVector &&hist, const Array &bins)
+        : m_hist(std::move(hist)),
+          m_bins(sciplot::Vec(bins.data(), bins.size())) {
         this->xrange(bins.front(), bins.back());
         redraw();
     }
@@ -28,31 +31,35 @@ struct hist : sciplot::Plot {
     auto color(const std::string &fill_color) {
         m_fill_color = fill_color;
         redraw();
-        return (*this);
+        return *this;
     }
 
     auto log(bool logscale) {
         m_logscale = logscale;
-        redraw();
-        return (*this);
+
+        if (m_logscale) {
+            this->ytics().logscale(10);
+        }
+
+        return *this;
     }
 
     auto histtype(HistType hist_type) {
         m_hist_type = hist_type;
         redraw();
-        return (*this);
+        return *this;
     }
 
     auto rwidth(double rwidth) {
         m_rwidth = rwidth;
         redraw();
-        return (*this);
+        return *this;
     }
 
   private:
     std::string m_fill_color = "blue";
+    HistVector m_hist;
     sciplot::Vec m_bins;
-    std::vector<signed_size_t> m_hist;
     bool m_logscale = false;
     HistType m_hist_type = BAR;
     double m_rwidth = 1.0;
@@ -74,10 +81,31 @@ struct hist : sciplot::Plot {
         this->border().right().top();
 
         if (m_logscale) {
-            this->ytics().logscale(2);
+            this->ytics().logscale(10);
         }
     }
-}; // class hist
+}; // class histplot
+
+} // namespace detail
+
+template <bool use_uniform_bins = false,
+          typename Array,
+          typename T = typename Array::value_type>
+auto hist(const Array &x, const std::vector<T> &bins) {
+    return detail::histplot(stats::histogram<use_uniform_bins>(x, bins), bins);
+}
+
+template <stats::BinEdgesMethod method, typename Array>
+auto hist(const Array &x) {
+    auto [hist_res, bins] = stats::histogram<method>(x);
+    return detail::histplot(std::move(hist_res), std::move(bins));
+}
+
+template <typename Array>
+auto hist(const Array &x, std::size_t nbins = 10) {
+    auto [hist_res, bins] = stats::histogram(x, nbins);
+    return detail::histplot(std::move(hist_res), std::move(bins));
+}
 
 } // namespace scicpp::plots
 
