@@ -7,10 +7,14 @@ namespace plt = sci::plots;
 template <std::size_t N, typename T>
 auto gaussian_noise(T mu, T sigma) {
     using namespace sci::operators;
-    return mu + sigma * sci::random::randn<T, N>();
+    using rep_t = sci::units::representation_t<T>;
+
+    return mu + sigma * sci::random::randn<rep_t, N>();
 }
 
 int main() {
+    using namespace sci::units::literals;
+
     const auto x = gaussian_noise<10000>(100., 15.);
 
     // Plot basic histogram
@@ -20,6 +24,7 @@ int main() {
     plot0.fontSize(12);
     plot0.size(500, 500);
     plot0.show();
+    // plot0.save("hist.pdf");
 
     // Plot logscale histogram with auto bin
     auto plot1 = plt::hist<sci::stats::BinEdgesMethod::AUTO>(x);
@@ -32,5 +37,12 @@ int main() {
     plot1.size(500, 500);
     plot1.show();
 
-    // plot.save("hist.pdf");
+    // Plot histogram of data with units
+    const auto V = gaussian_noise<10000>(100_V, 15_V); // Voltage noise data
+    auto plot2 = plt::hist(V);
+    plot2.xlabel("Smarts");
+    plot2.ylabel("Probability");
+    plot2.fontSize(12);
+    plot2.size(500, 500);
+    plot2.show();
 }

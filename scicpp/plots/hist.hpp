@@ -5,6 +5,7 @@
 #define SCICPP_PLOTS_PLOTS
 
 #include "scicpp/core/histogram.hpp"
+#include "scicpp/core/units/quantity.hpp"
 
 #include <sciplot/sciplot.hpp>
 #include <string>
@@ -20,11 +21,14 @@ namespace detail {
 template <typename HistVector>
 struct histplot : sciplot::Plot {
   public:
-    template <typename Array>
+    template <
+        typename Array,
+        typename RepTp = units::representation_t<typename Array::value_type>>
     histplot(HistVector &&hist, const Array &bins)
         : m_hist(std::move(hist)),
-          m_bins(sciplot::Vec(bins.data(), bins.size())) {
-        this->xrange(bins.front(), bins.back());
+          m_bins(sciplot::Vec(reinterpret_cast<const RepTp *>(bins.data()),
+                              bins.size())) {
+        xrange(m_bins[0], m_bins[m_bins.size() - 1]);
         redraw();
     }
 
@@ -38,7 +42,7 @@ struct histplot : sciplot::Plot {
         m_logscale = logscale;
 
         if (m_logscale) {
-            this->ytics().logscale(10);
+            ytics().logscale(10);
         }
 
         return *this;
@@ -65,23 +69,21 @@ struct histplot : sciplot::Plot {
     double m_rwidth = 1.0;
 
     void redraw() {
-        this->clear();
+        clear();
 
         if (m_hist_type == BAR) {
-            this->drawBoxes(m_bins, m_hist).fillColor(m_fill_color).labelNone();
-            this->boxWidthRelative(m_rwidth);
+            drawBoxes(m_bins, m_hist).fillColor(m_fill_color).labelNone();
+            boxWidthRelative(m_rwidth);
         } else if (m_hist_type == STEPFILLED) {
-            this->drawStepsFilled(m_bins, m_hist)
-                .fillColor(m_fill_color)
-                .labelNone();
+            drawStepsFilled(m_bins, m_hist).fillColor(m_fill_color).labelNone();
         } else {
             // TODO: BARSTACKED, STEP
         }
 
-        this->border().right().top();
+        border().right().top();
 
         if (m_logscale) {
-            this->ytics().logscale(10);
+            ytics().logscale(10);
         }
     }
 }; // class histplot

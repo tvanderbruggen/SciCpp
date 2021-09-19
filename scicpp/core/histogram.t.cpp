@@ -87,11 +87,18 @@ TEST_CASE("histogram") {
     // print(histogram(a, {0., 1., 2., 3., 4., 5.}));
     REQUIRE(histogram(a, {0., 1., 2., 3., 4., 5.}) ==
             std::vector<signed_size_t>({3, 1, 1, 2, 2}));
+    // print(histogram<Density>(a, {0., 1., 3., 4.5, 5.}));
+    REQUIRE(almost_equal(histogram<Density>(a, {0., 1., 2., 3., 4., 5.}),
+                         {0.3333333333333333,
+                          0.1111111111111111,
+                          0.1111111111111111,
+                          0.2222222222222222,
+                          0.2222222222222222}));
     // print(histogram(a, {0., 1., 3., 4.5, 5.}));
     REQUIRE(histogram(a, {0., 1., 3., 4.5, 5.}) ==
             std::vector<signed_size_t>({3, 2, 3, 1}));
-    // print(histogram<UniformBins>(a, {0., 1., 2., 3., 4., 5.}));
-    REQUIRE(histogram<UniformBins>(a, {0., 1., 2., 3., 4., 5.}) ==
+    // print(histogram<false, UniformBins>(a, {0., 1., 2., 3., 4., 5.}));
+    REQUIRE(histogram<Count, UniformBins>(a, {0., 1., 2., 3., 4., 5.}) ==
             std::vector<signed_size_t>({3, 1, 1, 2, 2}));
 
     const auto b = std::vector{560.,
@@ -107,17 +114,24 @@ TEST_CASE("histogram") {
                                223.,
                                253.,
                                852.};
-    // print(histogram<UniformBins>(b, {200., 400., 600., 800., 1000.}));
-    REQUIRE(histogram<UniformBins>(b, {200., 400., 600., 800., 1000.}) ==
+    // print(histogram<false, UniformBins>(b, {200., 400., 600., 800., 1000.}));
+    REQUIRE(histogram<Count, UniformBins>(b, {200., 400., 600., 800., 1000.}) ==
             std::vector<signed_size_t>({3, 5, 3, 2}));
+    //     print(histogram<Density, UniformBins>(b, {200., 400., 600., 800., 1000.}));
+    REQUIRE(almost_equal<2>(
+        histogram<Density, UniformBins>(b, {200., 400., 600., 800., 1000.}),
+        {0.0011538461538461537,
+         0.0019230769230769232,
+         0.0011538461538461537,
+         0.0007692307692307692}));
     REQUIRE(histogram(b, {200., 400., 600., 800., 1000.}) ==
             std::vector<signed_size_t>({3, 5, 3, 2}));
-    // print(histogram<UniformBins>(b, {200., 400.}));
+    // print(histogram<false, UniformBins>(b, {200., 400.}));
     REQUIRE(histogram(b, {200., 400.}) == std::vector<signed_size_t>({3}));
-    REQUIRE(histogram<UniformBins>(b, {200., 400.}) ==
+    REQUIRE(histogram<Count, UniformBins>(b, {200., 400.}) ==
             std::vector<signed_size_t>({3}));
     REQUIRE(histogram(b, {400., 800.}) == std::vector<signed_size_t>({8}));
-    REQUIRE(histogram<UniformBins>(b, {400., 800.}) ==
+    REQUIRE(histogram<Count, UniformBins>(b, {400., 800.}) ==
             std::vector<signed_size_t>({8}));
 
     const auto [hist, bins] = histogram<AUTO>(b);
@@ -158,7 +172,7 @@ TEST_CASE("histogram physical units") {
             std::vector<signed_size_t>({3, 1, 1, 2, 2}));
     REQUIRE(histogram(a, {0_V, 1_V, 3_V, 4.5_V, 5_V}) ==
             std::vector<signed_size_t>({3, 2, 3, 1}));
-    REQUIRE(histogram<UniformBins>(a, {0_V, 1_V, 2_V, 3_V, 4_V, 5_V}) ==
+    REQUIRE(histogram<Count, UniformBins>(a, {0_V, 1_V, 2_V, 3_V, 4_V, 5_V}) ==
             std::vector<signed_size_t>({3, 1, 1, 2, 2}));
 }
 

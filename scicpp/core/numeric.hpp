@@ -158,7 +158,7 @@ auto diff_once(const std::array<T, N> &a) {
     } else {
         std::array<T, N - 1> res{};
         std::adjacent_difference(a.cbegin() + 1, a.cend(), res.begin());
-        res[0] = a[0];
+        res[0] = a[1] - a[0];
         return res;
     }
 }
@@ -166,15 +166,8 @@ auto diff_once(const std::array<T, N> &a) {
 template <typename T>
 void diff_once(std::vector<T> &res) {
     scicpp_require(!res.empty());
-
-    if (res.size() > 1) {
-        const auto tmp = res[0];
-        std::adjacent_difference(res.begin() + 1, res.end(), res.begin());
-        res[0] = tmp;
-    }
-
-    // https://github.com/monero-project/monero/pull/4476/files
-    res.pop_back();
+    std::adjacent_difference(res.begin(), res.end(), res.begin());
+    res.erase(res.begin());
 }
 
 } // namespace detail

@@ -8,6 +8,7 @@
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/maths.hpp"
+#include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
@@ -127,14 +128,23 @@ auto histogram_bin_edges(const Array &x, std::size_t nbins = 10) {
 constexpr bool UniformBins = true;
 constexpr bool NonUniformBins = false;
 
-template <bool use_uniform_bins = false,
+constexpr bool Density = true;
+constexpr bool Count = false;
+
+template <bool density = false,
+          bool use_uniform_bins = false,
           class InputIt,
           typename T = typename std::iterator_traits<InputIt>::value_type>
 auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
+    using namespace operators;
     using raw_t = typename units::representation_t<T>;
 
     if (bins.size() <= 1) {
-        return empty<signed_size_t>();
+        if constexpr (density) {
+            return empty<T>();
+        } else {
+            return empty<signed_size_t>();
+        }
     }
 
     scicpp_require(std::is_sorted(bins.cbegin(), bins.cend()));
@@ -191,26 +201,31 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
     // We only return the histogram for this overload,
     // the bins being an input argument.
 
-    return hist;
+    if constexpr (density) {
+        return std::move(hist) / (sum(hist) * diff(bins));
+    } else {
+        return hist;
+    }
 }
 
-template <bool use_uniform_bins = false,
+template <bool density = false,
+          bool use_uniform_bins = false,
           typename Array,
           typename T = typename Array::value_type>
 auto histogram(const Array &x, const std::vector<T> &bins) {
-    return histogram<use_uniform_bins>(x.cbegin(), x.cend(), bins);
+    return histogram<density, use_uniform_bins>(x.cbegin(), x.cend(), bins);
 }
 
-template <BinEdgesMethod method, typename Array>
+template <BinEdgesMethod method, bool density = false, typename Array>
 auto histogram(const Array &x) {
     const auto bins = histogram_bin_edges<method>(x);
-    return std::make_pair(histogram<UniformBins>(x, bins), bins);
+    return std::make_pair(histogram<density, UniformBins>(x, bins), bins);
 }
 
-template <typename Array>
+template <bool density = false, typename Array>
 auto histogram(const Array &x, std::size_t nbins = 10) {
     const auto bins = histogram_bin_edges(x, nbins);
-    return std::make_pair(histogram<UniformBins>(x, bins), bins);
+    return std::make_pair(histogram<density, UniformBins>(x, bins), bins);
 }
 
 } // namespace scicpp::stats
