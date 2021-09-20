@@ -141,7 +141,11 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
 
     if (bins.size() <= 1) {
         if constexpr (density) {
-            return empty<T>();
+            if constexpr (units::is_quantity_v<T>) {
+                return empty<units::quantity_invert<T>>();
+            } else {
+                return empty<T>();
+            }
         } else {
             return empty<signed_size_t>();
         }

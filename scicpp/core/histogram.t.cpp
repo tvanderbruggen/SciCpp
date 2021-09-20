@@ -174,6 +174,14 @@ TEST_CASE("histogram physical units") {
             std::vector<signed_size_t>({3, 2, 3, 1}));
     REQUIRE(histogram<Count, UniformBins>(a, {0_V, 1_V, 2_V, 3_V, 4_V, 5_V}) ==
             std::vector<signed_size_t>({3, 1, 1, 2, 2}));
+
+    const auto b = std::vector{0_s, 0_s, 0_s, 1_s, 2_s, 3_s, 3_s, 4_s, 5_s};
+    REQUIRE(almost_equal(histogram<Density>(b, {0_s, 1_s, 2_s, 3_s, 4_s, 5_s}),
+                         {0.3333333333333333_Hz,
+                          0.1111111111111111_Hz,
+                          0.1111111111111111_Hz,
+                          0.2222222222222222_Hz,
+                          0.2222222222222222_Hz}));
 }
 
 } // namespace scicpp::stats
