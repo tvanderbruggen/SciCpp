@@ -167,15 +167,17 @@ template <QuantileInterp interpolation, class InputIt, typename T>
 auto quantile_inplace(InputIt first, InputIt last, T q) {
     scicpp_require(q >= T{0} && q <= T{1});
 
+    using ItTp = typename std::iterator_traits<InputIt>::value_type;
+    using RetTp = std::conditional_t<std::is_integral_v<ItTp>, double, ItTp>;
+
     const auto size = std::distance(first, last);
 
     if (size == 0) {
-        return std::numeric_limits<
-            typename std::iterator_traits<InputIt>::value_type>::quiet_NaN();
+        return std::numeric_limits<RetTp>::quiet_NaN();
     }
 
     if (size == 1) {
-        return *first;
+        return RetTp(*first);
     }
 
     const auto h0 = quantile_interp_index<interpolation>(q * (size - 1));
@@ -183,7 +185,7 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
     if (almost_equal(std::nearbyint(h0), h0)) { // h0 is an integer
         const auto n0 = std::min(first + signed_size_t(h0), last);
         std::nth_element(first, n0, last);
-        return *n0;
+        return RetTp(*n0);
     } else { // h0 not an integral index
         const auto h_low = signed_size_t(h0);
         const auto n_high = std::min(first + h_low + 1, last);

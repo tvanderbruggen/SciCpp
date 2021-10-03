@@ -21,6 +21,8 @@ make COMPILER=$compiler EXAMPLE=doc/core_stats_mean example
 make COMPILER=$compiler EXAMPLE=doc/core_stats_var example
 make COMPILER=$compiler EXAMPLE=doc/core_map example
 make COMPILER=$compiler EXAMPLE=doc/core_fromstring example
+make COMPILER=$compiler EXAMPLE=doc/core_stats_histogram_bin_edges example
+make COMPILER=$compiler EXAMPLE=doc/core_stats_histogram example
 make COMPILER=$compiler EXAMPLE=doc/polynomial_Polynomial example
 make COMPILER=$compiler EXAMPLE=doc/polynomial_polydiv example
 make COMPILER=$compiler EXAMPLE=doc/linalg_lstsq example

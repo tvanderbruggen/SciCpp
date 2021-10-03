@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 #ifndef SCICPP_CORE_HISTOGRAM
 #define SCICPP_CORE_HISTOGRAM
@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -34,7 +35,8 @@ auto scicpp_pure bin_width(const Array &x) {
     scicpp_require(!x.empty());
 
     using T = typename Array::value_type;
-    using raw_t = typename units::representation_t<T>;
+    using ret_t = std::conditional_t<std::is_integral_v<T>, double, T>;
+    using raw_t = typename units::representation_t<ret_t>;
 
     if constexpr (method == SQRT) {
         return ptp(x) / sqrt(x.size());
@@ -49,7 +51,7 @@ auto scicpp_pure bin_width(const Array &x) {
         return raw_t{2} * iqr(x) / cbrt(x.size());
     } else if constexpr (method == DOANE) {
         if (x.size() <= 2) {
-            return T{0};
+            return ret_t{0};
         }
 
         const auto sg1 = sqrt(raw_t{6} * (x.size() - 2) /
@@ -57,7 +59,7 @@ auto scicpp_pure bin_width(const Array &x) {
         const auto g1 = units::value(skew(x));
 
         if (std::isnan(g1)) {
-            return T{0};
+            return ret_t{0};
         }
 
         return ptp(x) / (raw_t{1} + log2(x.size()) +
@@ -77,17 +79,18 @@ auto scicpp_pure bin_width(const Array &x) {
 template <typename Array>
 auto scicpp_pure outer_edges(const Array &x) noexcept {
     using T = typename Array::value_type;
+    using RetTp = std::conditional_t<std::is_integral_v<T>, double, T>;
 
     if (x.empty()) {
-        return std::make_pair(T{0}, T{1});
+        return std::make_pair(RetTp{0}, RetTp{1});
     }
 
-    auto first_edge = amin(x);
-    auto last_edge = amax(x);
+    auto first_edge = RetTp(amin(x));
+    auto last_edge = RetTp(amax(x));
 
     if (almost_equal(first_edge, last_edge)) {
-        first_edge -= T{0.5};
-        last_edge += T{0.5};
+        first_edge -= RetTp{0.5};
+        last_edge += RetTp{0.5};
     }
 
     return std::make_pair(first_edge, last_edge);
@@ -98,9 +101,10 @@ auto scicpp_pure outer_edges(const Array &x) noexcept {
 template <BinEdgesMethod method, typename Array>
 auto histogram_bin_edges(const Array &x) {
     using T = typename Array::value_type;
+    using RetTp = std::conditional_t<std::is_integral_v<T>, double, T>;
 
     if (x.empty()) {
-        return linspace(T{0}, T{1}, 2);
+        return linspace(RetTp{0}, RetTp{1}, 2);
     }
 
     const auto [first_edge, last_edge] = detail::outer_edges(x);
@@ -131,10 +135,12 @@ constexpr bool NonUniformBins = false;
 constexpr bool Density = true;
 constexpr bool Count = false;
 
-template <bool density = false,
-          bool use_uniform_bins = false,
-          class InputIt,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
+template <
+    bool density = false,
+    bool use_uniform_bins = false,
+    class InputIt,
+    typename ItTp = typename std::iterator_traits<InputIt>::value_type,
+    typename T = std::conditional_t<std::is_integral_v<ItTp>, double, ItTp>>
 auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
     using namespace operators;
     using raw_t = typename units::representation_t<T>;
@@ -163,10 +169,10 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
         scicpp_require(step > T{0});
 
         for (; first != last; ++first) {
-            const auto pos = units::value((*first - bins.front()) / step);
+            const auto pos = units::value((T(*first) - bins.front()) / step);
 
             if (pos >= raw_t(hist.size())) {
-                if (almost_equal(*first, bins.back())) {
+                if (almost_equal(T(*first), bins.back())) {
                     // Last bin edge is included
                     ++hist.back();
                 }
@@ -186,7 +192,7 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
                 std::upper_bound(bins.cbegin(), bins.cend(), *first);
 
             if (it == bins.cend()) { // No bin found
-                if (almost_equal(*first, bins.back())) {
+                if (almost_equal(T(*first), bins.back())) {
                     // Last bin edge is included
                     ++hist.back();
                 }
@@ -212,21 +218,23 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
     }
 }
 
-template <bool density = false,
-          bool use_uniform_bins = false,
-          typename Array,
-          typename T = typename Array::value_type>
+template <
+    bool density = false,
+    bool use_uniform_bins = false,
+    class Array,
+    typename ItTp = typename Array::value_type,
+    typename T = std::conditional_t<std::is_integral_v<ItTp>, double, ItTp>>
 auto histogram(const Array &x, const std::vector<T> &bins) {
     return histogram<density, use_uniform_bins>(x.cbegin(), x.cend(), bins);
 }
 
-template <BinEdgesMethod method, bool density = false, typename Array>
+template <BinEdgesMethod method, bool density = false, class Array>
 auto histogram(const Array &x) {
     const auto bins = histogram_bin_edges<method>(x);
     return std::make_pair(histogram<density, UniformBins>(x, bins), bins);
 }
 
-template <bool density = false, typename Array>
+template <bool density = false, class Array>
 auto histogram(const Array &x, std::size_t nbins = 10) {
     const auto bins = histogram_bin_edges(x, nbins);
     return std::make_pair(histogram<density, UniformBins>(x, bins), bins);
