@@ -14,6 +14,7 @@ auto gaussian_noise(T mu, T sigma) {
 
 int main() {
     using namespace sci::units::literals;
+    using namespace sci::stats;
 
     const auto x = gaussian_noise<10000>(100., 15.);
 
@@ -27,7 +28,7 @@ int main() {
     // plot0.save("hist.pdf");
 
     // Plot logscale histogram with auto bin
-    auto plot1 = plt::hist<sci::stats::BinEdgesMethod::AUTO>(x);
+    auto plot1 = plt::hist<BinEdgesMethod::AUTO>(x);
     plot1.color("grey");
     plot1.log(true);
     plot1.rwidth(0.75);
@@ -39,7 +40,7 @@ int main() {
 
     // Plot histogram of data with units
     const auto V = gaussian_noise<10000>(100_V, 15_V); // Voltage noise data
-    auto plot2 = plt::hist(V);
+    auto plot2 = plt::hist<Density>(V);
     plot2.xlabel("Smarts");
     plot2.ylabel("Probability");
     plot2.fontSize(12);

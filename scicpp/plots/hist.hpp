@@ -71,11 +71,34 @@ struct histplot : sciplot::Plot {
     void redraw() {
         clear();
 
+        using HistTp = typename HistVector::value_type;
+        using RepTp = units::representation_t<HistTp>;
+
         if (m_hist_type == BAR) {
-            drawBoxes(m_bins, m_hist).fillColor(m_fill_color).labelNone();
+            if constexpr (units::is_quantity_v<HistTp>) {
+                drawBoxes(
+                    m_bins,
+                    sciplot::Vec(reinterpret_cast<const RepTp *>(m_hist.data()),
+                                 m_hist.size()))
+                    .fillColor(m_fill_color)
+                    .labelNone();
+            } else {
+                drawBoxes(m_bins, m_hist).fillColor(m_fill_color).labelNone();
+            }
             boxWidthRelative(m_rwidth);
         } else if (m_hist_type == STEPFILLED) {
-            drawStepsFilled(m_bins, m_hist).fillColor(m_fill_color).labelNone();
+            if constexpr (units::is_quantity_v<HistTp>) {
+                drawStepsFilled(
+                    m_bins,
+                    sciplot::Vec(reinterpret_cast<const RepTp *>(m_hist.data()),
+                                 m_hist.size()))
+                    .fillColor(m_fill_color)
+                    .labelNone();
+            } else {
+                drawStepsFilled(m_bins, m_hist)
+                    .fillColor(m_fill_color)
+                    .labelNone();
+            }
         } else {
             // TODO: BARSTACKED, STEP
         }
@@ -90,22 +113,24 @@ struct histplot : sciplot::Plot {
 
 } // namespace detail
 
-template <bool use_uniform_bins = false,
+template <bool density = false,
+          bool use_uniform_bins = false,
           typename Array,
           typename T = typename Array::value_type>
 auto hist(const Array &x, const std::vector<T> &bins) {
-    return detail::histplot(stats::histogram<use_uniform_bins>(x, bins), bins);
+    return detail::histplot(
+        stats::histogram<density, use_uniform_bins>(x, bins), bins);
 }
 
-template <stats::BinEdgesMethod method, typename Array>
+template <stats::BinEdgesMethod method, bool density = false, typename Array>
 auto hist(const Array &x) {
-    auto [hist_res, bins] = stats::histogram<method>(x);
+    auto [hist_res, bins] = stats::histogram<method, density>(x);
     return detail::histplot(std::move(hist_res), std::move(bins));
 }
 
-template <typename Array>
+template <bool density = false, typename Array>
 auto hist(const Array &x, std::size_t nbins = 10) {
-    auto [hist_res, bins] = stats::histogram(x, nbins);
+    auto [hist_res, bins] = stats::histogram<density>(x, nbins);
     return detail::histplot(std::move(hist_res), std::move(bins));
 }
 
