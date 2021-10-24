@@ -36,6 +36,7 @@ Modules:
    linalg.rst
    polynomial.rst
    signal.rst
+   plots.rst
 
 Introduction
 --------
