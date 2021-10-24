@@ -81,7 +81,7 @@ auto scicpp_pure outer_edges(const Array &x) noexcept {
     using T = typename Array::value_type;
     using RetTp = std::conditional_t<std::is_integral_v<T>, double, T>;
 
-    if (x.empty()) {
+    if (unlikely(x.empty())) {
         return std::make_pair(RetTp{0}, RetTp{1});
     }
 
@@ -103,7 +103,7 @@ auto histogram_bin_edges(const Array &x) {
     using T = typename Array::value_type;
     using RetTp = std::conditional_t<std::is_integral_v<T>, double, T>;
 
-    if (x.empty()) {
+    if (unlikely(x.empty())) {
         return linspace(RetTp{0}, RetTp{1}, 2);
     }
 
@@ -145,7 +145,7 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
     using namespace operators;
     using raw_t = typename units::representation_t<T>;
 
-    if (bins.size() <= 1) {
+    if (unlikely(bins.size() <= 1)) {
         if constexpr (density) {
             if constexpr (units::is_quantity_v<T>) {
                 return empty<units::quantity_invert<T>>();

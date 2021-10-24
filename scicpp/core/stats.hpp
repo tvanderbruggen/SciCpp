@@ -34,7 +34,7 @@ auto quiet_nan() {
 
 template <class Array>
 constexpr scicpp_pure auto amax(const Array &f) {
-    if (f.empty()) {
+    if (unlikely(f.empty())) {
         return detail::quiet_nan<Array>();
     }
 
@@ -47,7 +47,7 @@ constexpr scicpp_pure auto amax(const Array &f) {
 
 template <class Array>
 constexpr scicpp_pure auto amin(const Array &f) {
-    if (f.empty()) {
+    if (unlikely(f.empty())) {
         return detail::quiet_nan<Array>();
     }
 
@@ -60,7 +60,7 @@ constexpr scicpp_pure auto amin(const Array &f) {
 
 template <class Array>
 constexpr scicpp_pure auto ptp(const Array &f) {
-    if (f.empty()) {
+    if (unlikely(f.empty())) {
         return detail::quiet_nan<Array>();
     }
 
@@ -74,7 +74,7 @@ constexpr scicpp_pure auto ptp(const Array &f) {
 
 template <class Array1, class Array2>
 constexpr auto average(const Array1 &f, const Array2 &weights) {
-    if (f.empty() || (f.size() != weights.size())) {
+    if (unlikely(f.empty() || (f.size() != weights.size()))) {
         return detail::quiet_nan<Array1>();
     }
 
@@ -94,7 +94,7 @@ auto median_inplace(InputIt first, InputIt last) {
     using raw_t = units::representation_t<T>;
     const auto size = std::distance(first, last);
 
-    if (size == 0) {
+    if (unlikely(size == 0)) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -172,7 +172,7 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
 
     const auto size = std::distance(first, last);
 
-    if (size == 0) {
+    if (unlikely(size == 0)) {
         return std::numeric_limits<RetTp>::quiet_NaN();
     }
 
@@ -293,7 +293,7 @@ template <class InputIt, class Predicate>
 constexpr auto mean(InputIt first, InputIt last, Predicate filter) {
     using T = typename std::iterator_traits<InputIt>::value_type;
 
-    if (std::distance(first, last) == 0) {
+    if (unlikely(std::distance(first, last) == 0)) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -331,7 +331,7 @@ template <class Array>
 auto gmean(Array &&f) {
     using T = typename std::decay_t<Array>::value_type;
 
-    if (f.empty()) {
+    if (unlikely(f.empty())) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -376,7 +376,7 @@ constexpr auto covariance(InputIt1 first1,
     scicpp_require(std::distance(first1, last1) ==
                    std::distance(first2, last2));
 
-    if (std::distance(first1, last1) == 0) {
+    if (unlikely(std::distance(first1, last1) == 0)) {
         return std::make_tuple(std::numeric_limits<prod_t>::quiet_NaN(),
                                signed_size_t(0));
     }
