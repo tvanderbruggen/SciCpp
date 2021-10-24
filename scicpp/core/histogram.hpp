@@ -26,7 +26,7 @@ namespace scicpp::stats {
 // histogram_bin_edges
 //---------------------------------------------------------------------------------
 
-enum BinEdgesMethod : int { SCOTT, SQRT, RICE, STURGES, FD, DOANE, AUTO };
+enum class BinEdgesMethod : int { SCOTT, SQRT, RICE, STURGES, FD, DOANE, AUTO };
 
 namespace detail {
 
@@ -38,18 +38,18 @@ auto scicpp_pure bin_width(const Array &x) {
     using ret_t = std::conditional_t<std::is_integral_v<T>, double, T>;
     using raw_t = typename units::representation_t<ret_t>;
 
-    if constexpr (method == SQRT) {
+    if constexpr (method == BinEdgesMethod::SQRT) {
         return ptp(x) / sqrt(x.size());
-    } else if constexpr (method == SCOTT) {
+    } else if constexpr (method == BinEdgesMethod::SCOTT) {
         return cbrt(raw_t{24} * sqrt(pi<raw_t>) / raw_t(x.size())) * std(x);
-    } else if constexpr (method == RICE) {
+    } else if constexpr (method == BinEdgesMethod::RICE) {
         return raw_t{0.5} * ptp(x) / cbrt(x.size());
-    } else if constexpr (method == STURGES) {
+    } else if constexpr (method == BinEdgesMethod::STURGES) {
         return ptp(x) / (log2(x.size()) + 1.0);
-    } else if constexpr (method == FD) {
+    } else if constexpr (method == BinEdgesMethod::FD) {
         // Freedman-Diaconis histogram bin estimator.
         return raw_t{2} * iqr(x) / cbrt(x.size());
-    } else if constexpr (method == DOANE) {
+    } else if constexpr (method == BinEdgesMethod::DOANE) {
         if (x.size() <= 2) {
             return ret_t{0};
         }
@@ -65,8 +65,8 @@ auto scicpp_pure bin_width(const Array &x) {
         return ptp(x) / (raw_t{1} + log2(x.size()) +
                          log2(raw_t{1} + absolute(g1) / sg1));
     } else { // AUTO
-        const auto fd_bw = bin_width<FD>(x);
-        const auto sturges_bw = bin_width<STURGES>(x);
+        const auto fd_bw = bin_width<BinEdgesMethod::FD>(x);
+        const auto sturges_bw = bin_width<BinEdgesMethod::STURGES>(x);
 
         if (units::fpclassify(fd_bw) == FP_ZERO) {
             return sturges_bw;

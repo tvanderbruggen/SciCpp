@@ -11,31 +11,37 @@
 namespace scicpp::stats {
 
 TEST_CASE("histogram_bin_edges array of floats") {
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(std::array<double, 0>{}),
-                            {0., 1.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(std::vector<double>(0)),
-                            {0., 1.}));
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::AUTO>(std::array<double, 0>{}),
+        {0., 1.}));
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::AUTO>(std::vector<double>(0)),
+        {0., 1.}));
 
     const auto arr = std::array{0., 0., 0., 1., 2., 3., 3., 4., 5.};
     // print(histogram_bin_edges<FD>(arr));
 
-    REQUIRE(almost_equal<2>(histogram_bin_edges<SQRT>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::SQRT>(arr),
                             {0., 1. + 2. / 3., 10. / 3., 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<SCOTT>(arr), {0., 2.5, 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<RICE>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::SCOTT>(arr),
+                            {0., 2.5, 5.}));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::RICE>(arr),
                             {0., 1., 2., 3., 4., 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<STURGES>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::STURGES>(arr),
                             {0., 1., 2., 3., 4., 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<FD>(arr), {0., 2.5, 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<DOANE>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::FD>(arr),
+                            {0., 2.5, 5.}));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::DOANE>(arr),
                             {0., 1., 2., 3., 4., 5.}));
     // print(histogram_bin_edges<DOANE>(std::vector{1., 1., 1.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<DOANE>(std::vector{1., 1., 1.}),
-                            {0.5, 1.5}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(std::vector{1., 1., 1.}),
-                            {0.5, 1.5}));
-    // print(detail::bin_width<AUTO>(arr));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(arr),
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::DOANE>(std::vector{1., 1., 1.}),
+        {0.5, 1.5}));
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::AUTO>(std::vector{1., 1., 1.}),
+        {0.5, 1.5}));
+    // print(detail::bin_width<BinEdgesMethod::AUTO>(arr));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::AUTO>(arr),
                             {0., 1., 2., 3., 4., 5.}));
 
     REQUIRE(almost_equal<2>(histogram_bin_edges(arr),
@@ -46,31 +52,37 @@ TEST_CASE("histogram_bin_edges array of floats") {
 }
 
 TEST_CASE("histogram_bin_edges array of ints") {
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(std::array<int, 0>{}),
-                            {0., 1.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(std::vector<int>(0)),
-                            {0., 1.}));
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::AUTO>(std::array<int, 0>{}),
+        {0., 1.}));
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::AUTO>(std::vector<int>(0)),
+        {0., 1.}));
 
     const auto arr = std::array{0, 0, 0, 1, 2, 3, 3, 4, 5};
     // print(histogram_bin_edges<FD>(arr));
 
-    REQUIRE(almost_equal<2>(histogram_bin_edges<SQRT>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::SQRT>(arr),
                             {0., 1. + 2. / 3., 10. / 3., 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<SCOTT>(arr), {0., 2.5, 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<RICE>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::SCOTT>(arr),
+                            {0., 2.5, 5.}));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::RICE>(arr),
                             {0., 1., 2., 3., 4., 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<STURGES>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::STURGES>(arr),
                             {0., 1., 2., 3., 4., 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<FD>(arr), {0., 2.5, 5.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<DOANE>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::FD>(arr),
+                            {0., 2.5, 5.}));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::DOANE>(arr),
                             {0., 1., 2., 3., 4., 5.}));
     // print(histogram_bin_edges<DOANE>(std::vector{1., 1., 1.}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<DOANE>(std::vector{1., 1., 1.}),
-                            {0.5, 1.5}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(std::vector{1., 1., 1.}),
-                            {0.5, 1.5}));
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::DOANE>(std::vector{1., 1., 1.}),
+        {0.5, 1.5}));
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::AUTO>(std::vector{1., 1., 1.}),
+        {0.5, 1.5}));
     // print(detail::bin_width<AUTO>(arr));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::AUTO>(arr),
                             {0., 1., 2., 3., 4., 5.}));
 
     REQUIRE(almost_equal<2>(histogram_bin_edges(arr),
@@ -83,30 +95,32 @@ TEST_CASE("histogram_bin_edges array of ints") {
 TEST_CASE("histogram_bin_edges physical quantities") {
     using namespace units::literals;
 
-    REQUIRE(almost_equal<2>(
-        histogram_bin_edges<AUTO>(std::array<units::mass<double>, 0>{}),
-        {0_kg, 1_kg}));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::AUTO>(
+                                std::array<units::mass<double>, 0>{}),
+                            {0_kg, 1_kg}));
 
     const auto arr = std::array{0_m, 0_m, 1_m, 2_m, 3_m, 3_m, 4_m, 5_m};
     // print(histogram_bin_edges<SQRT>(arr));
 
-    REQUIRE(almost_equal<2>(histogram_bin_edges<SQRT>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::SQRT>(arr),
                             {0_m, 1_m + 2_m / 3., 10_m / 3., 5_m}));
-    REQUIRE(
-        almost_equal<2>(histogram_bin_edges<SCOTT>(arr), {0_m, 2.5_m, 5_m}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<RICE>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::SCOTT>(arr),
+                            {0_m, 2.5_m, 5_m}));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::RICE>(arr),
                             {0_m, 1.25_m, 2.5_m, 3.75_m, 5_m}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<STURGES>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::STURGES>(arr),
                             {0_m, 1.25_m, 2.5_m, 3.75_m, 5_m}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<FD>(arr), {0_m, 2.5_m, 5_m}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<DOANE>(arr),
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::FD>(arr),
+                            {0_m, 2.5_m, 5_m}));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::DOANE>(arr),
                             {0_m, 1_m, 2_m, 3_m, 4_m, 5_m}));
-    REQUIRE(
-        almost_equal<2>(histogram_bin_edges<DOANE>(std::vector{1_A, 1_A, 1_A}),
-                        {0.5_A, 1.5_A}));
     REQUIRE(almost_equal<2>(
-        histogram_bin_edges<AUTO>(std::vector{1_A, 1_A, 1_A}), {0.5_A, 1.5_A}));
-    REQUIRE(almost_equal<2>(histogram_bin_edges<AUTO>(arr),
+        histogram_bin_edges<BinEdgesMethod::DOANE>(std::vector{1_A, 1_A, 1_A}),
+        {0.5_A, 1.5_A}));
+    REQUIRE(almost_equal<2>(
+        histogram_bin_edges<BinEdgesMethod::AUTO>(std::vector{1_A, 1_A, 1_A}),
+        {0.5_A, 1.5_A}));
+    REQUIRE(almost_equal<2>(histogram_bin_edges<BinEdgesMethod::AUTO>(arr),
                             {0_m, 1.25_m, 2.5_m, 3.75_m, 5_m}));
     REQUIRE(almost_equal<2>(
         histogram_bin_edges(arr),
@@ -169,7 +183,7 @@ TEST_CASE("histogram") {
     REQUIRE(histogram<Count, UniformBins>(b, {400., 800.}) ==
             std::vector<signed_size_t>({8}));
 
-    const auto [hist, bins] = histogram<AUTO>(b);
+    const auto [hist, bins] = histogram<BinEdgesMethod::AUTO>(b);
     REQUIRE(hist == std::vector<signed_size_t>({2, 3, 3, 0, 5}));
     REQUIRE(almost_equal<2>(bins, {223., 351.8, 480.6, 609.4, 738.2, 867.}));
 

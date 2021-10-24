@@ -23,7 +23,7 @@ Return a sorted :expr:`std::vector` with uniformly distributed bin edges.
 
 Compute the bin edges using a given method::
 
-    enum BinEdgesMethod : int {
+    enum class BinEdgesMethod : int {
         SCOTT,   // Less robust estimator that that takes into account data variability and data size.
         SQRT,    // Square root (of data size) estimator, used by Excel and other programs for its speed and simplicity.
         RICE,    // Estimator does not take variability into account, only data size. Commonly overestimates number of bins required.
