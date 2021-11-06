@@ -163,9 +163,14 @@ EXAMPLE_DEP = $(subst .o,.d,$(EXAMPLE_OBJ))
 $(EXAMPLE_TARGET): $(EXAMPLE_OBJ)
 	$(CCXX) -o $@ $< $(CXXFLAGS) $(LD_FLAGS) $(LIBS)
 
+# Build and run
 .PHONY: example
 example: $(EXAMPLE_TARGET)
 	$<
+
+# Build only
+.PHONY: example_build
+example_build: $(EXAMPLE_TARGET)
 
 .PHONY: example_py
 example_py:

@@ -234,9 +234,6 @@ Statistics
 :ref:`stats::cov, nancov <core_stats_cov>`
     Compute the covariance matrix between two data sets.
 
-:ref:`stats::cov, nancov <core_stats_cov>`
-    Compute the covariance matrix between two data sets.
-
 :ref:`stats::histogram_bin_edges <core_stats_histogram_bin_edges>`
     Compute the the edges of the bins for an histogram.
 

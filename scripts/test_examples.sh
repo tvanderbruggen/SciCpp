@@ -28,3 +28,6 @@ make COMPILER=$compiler EXAMPLE=doc/polynomial_polydiv example
 make COMPILER=$compiler EXAMPLE=doc/linalg_lstsq example
 make COMPILER=$compiler EXAMPLE=doc/signal_windows_general_cosine example
 make COMPILER=$compiler EXAMPLE=doc/signal_spectrum example
+
+# Plots => Build only
+make COMPILER=$compiler EXAMPLE=plot_hist example_build

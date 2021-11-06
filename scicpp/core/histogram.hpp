@@ -58,7 +58,7 @@ auto scicpp_pure bin_width(const Array &x) {
                               raw_t((x.size() + 1) * (x.size() + 3)));
         const auto g1 = units::value(skew(x));
 
-        if (std::isnan(g1)) {
+        if (unlikely(std::isnan(g1))) {
             return ret_t{0};
         }
 
