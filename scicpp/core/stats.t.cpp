@@ -128,69 +128,92 @@ TEST_CASE("percentile midpoint") {
     REQUIRE(almost_equal(percentile(std::array{1.}, 0.), 1.));
     REQUIRE(almost_equal(percentile(std::array{1.}, 100.), 1.));
 
-    REQUIRE(almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 0.), 1.));
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 25.), 1.5));
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 50.), 2.));
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 75.), 2.5));
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::array{1., 2., 3.}, 100.), 3.));
-
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 0.), 1.));
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 25.), 1.5));
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 50.), 2.));
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 75.), 2.5));
-    REQUIRE(
-        almost_equal(percentile<MIDPOINT>(std::vector{2., 1., 3.}, 100.), 3.));
-
-    REQUIRE(almost_equal(percentile<MIDPOINT>(std::array{2., 4., 1., 3.}, 48.),
-                         2.5));
-    REQUIRE(almost_equal(percentile<MIDPOINT>(std::array{2., 4., 1., 3.}, 75.),
-                         3.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::array{1., 2., 3.}, 0.), 1.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::array{1., 2., 3.}, 25.),
+        1.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::array{1., 2., 3.}, 50.), 2.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::array{1., 2., 3.}, 75.),
+        2.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::array{1., 2., 3.}, 100.),
+        3.));
 
     REQUIRE(almost_equal(
-        nanpercentile<MIDPOINT>(std::array{1., 2., nan, 3.}, 0.), 1.));
+        percentile<QuantileInterp::MIDPOINT>(std::vector{2., 1., 3.}, 0.), 1.));
     REQUIRE(almost_equal(
-        nanpercentile<MIDPOINT>(std::array{2., nan, 4., 1., nan, 3.}, 75.),
+        percentile<QuantileInterp::MIDPOINT>(std::vector{2., 1., 3.}, 25.),
+        1.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::vector{2., 1., 3.}, 50.),
+        2.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::vector{2., 1., 3.}, 75.),
+        2.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::vector{2., 1., 3.}, 100.),
+        3.));
+
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::array{2., 4., 1., 3.}, 48.),
+        2.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::array{2., 4., 1., 3.}, 75.),
         3.5));
+
+    REQUIRE(almost_equal(nanpercentile<QuantileInterp::MIDPOINT>(
+                             std::array{1., 2., nan, 3.}, 0.),
+                         1.));
+    REQUIRE(almost_equal(nanpercentile<QuantileInterp::MIDPOINT>(
+                             std::array{2., nan, 4., 1., nan, 3.}, 75.),
+                         3.5));
 }
 
 TEST_CASE("percentile linear") {
-    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 0.), 1.));
-    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 25.), 1.5));
-    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 50.), 2.));
-    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 75.), 2.5));
-    REQUIRE(almost_equal(percentile<LINEAR>(std::array{1., 2., 3.}, 100.), 3.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::array{1., 2., 3.}, 0.), 1.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::array{1., 2., 3.}, 25.), 1.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::array{1., 2., 3.}, 50.), 2.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::array{1., 2., 3.}, 75.), 2.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::array{1., 2., 3.}, 100.), 3.));
 
-    REQUIRE(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 0.), 1.));
-    REQUIRE(
-        almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 25.), 1.5));
-    REQUIRE(almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 50.), 2.));
-    REQUIRE(
-        almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 75.), 2.5));
-    REQUIRE(
-        almost_equal(percentile<LINEAR>(std::vector{2., 1., 3.}, 100.), 3.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::vector{2., 1., 3.}, 0.), 1.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::vector{2., 1., 3.}, 25.), 1.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::vector{2., 1., 3.}, 50.), 2.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::vector{2., 1., 3.}, 75.), 2.5));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::vector{2., 1., 3.}, 100.), 3.));
 
-    REQUIRE(almost_equal(percentile<LINEAR>(std::array{2., 4., 1., 3.}, 48.),
-                         2.44));
-    REQUIRE(almost_equal(percentile<LINEAR>(std::array{2., 4., 1., 3.}, 75.),
-                         3.25));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::array{2., 4., 1., 3.}, 48.),
+        2.44));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LINEAR>(std::array{2., 4., 1., 3.}, 75.),
+        3.25));
 }
 
 TEST_CASE("percentile lower, higher, nearest") {
-    REQUIRE(
-        almost_equal(percentile<LOWER>(std::array{2., 4., 1., 3.}, 42.), 2.));
-    REQUIRE(
-        almost_equal(percentile<HIGHER>(std::array{2., 4., 1., 3.}, 42.), 3.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::LOWER>(std::array{2., 4., 1., 3.}, 42.),
+        2.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::HIGHER>(std::array{2., 4., 1., 3.}, 42.),
+        3.));
 
-    REQUIRE(
-        almost_equal(percentile<NEAREST>(std::array{2., 4., 1., 3.}, 42.), 2.));
+    REQUIRE(almost_equal(
+        percentile<QuantileInterp::NEAREST>(std::array{2., 4., 1., 3.}, 42.),
+        2.));
 }
 
 TEST_CASE("quantile") {

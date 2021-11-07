@@ -142,19 +142,19 @@ auto nanmedian(const Array &f) {
 // quantile, percentile, iqr
 //---------------------------------------------------------------------------------
 
-enum QuantileInterp : int { LOWER, HIGHER, NEAREST, MIDPOINT, LINEAR };
+enum class QuantileInterp : int { LOWER, HIGHER, NEAREST, MIDPOINT, LINEAR };
 
 namespace detail {
 
 template <QuantileInterp interpolation, typename T>
 auto quantile_interp_index(T h) {
-    if constexpr (interpolation == LOWER) {
+    if constexpr (interpolation == QuantileInterp::LOWER) {
         return std::floor(h);
-    } else if constexpr (interpolation == HIGHER) {
+    } else if constexpr (interpolation == QuantileInterp::HIGHER) {
         return std::ceil(h);
-    } else if constexpr (interpolation == NEAREST) {
+    } else if constexpr (interpolation == QuantileInterp::NEAREST) {
         return std::nearbyint(h);
-    } else if constexpr (interpolation == MIDPOINT) {
+    } else if constexpr (interpolation == QuantileInterp::MIDPOINT) {
         // cf. std::midpoint (C++20)
         return T{0.5} * (std::floor(h) + std::ceil(h));
     } else { // interpolation == LINEAR
@@ -198,7 +198,7 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
 
 } // namespace detail
 
-template <QuantileInterp interpolation = LINEAR,
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
           class InputIt,
           class Predicate,
           typename T>
@@ -207,7 +207,7 @@ auto quantile(InputIt first, InputIt last, T q, Predicate p) {
     return detail::quantile_inplace<interpolation>(v.begin(), v.end(), q);
 }
 
-template <QuantileInterp interpolation = LINEAR,
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
           class Array,
           class Predicate,
           typename T>
@@ -215,7 +215,9 @@ auto quantile(const Array &f, T q, Predicate filter) {
     return quantile<interpolation>(f.cbegin(), f.cend(), q, filter);
 }
 
-template <QuantileInterp interpolation = LINEAR, class Array, typename T>
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          typename T>
 auto quantile(Array &&f, T q) {
     if constexpr (std::is_lvalue_reference_v<Array>) {
         auto tmp = f;
@@ -226,12 +228,14 @@ auto quantile(Array &&f, T q) {
     }
 }
 
-template <QuantileInterp interpolation = LINEAR, class Array, typename T>
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          typename T>
 auto nanquantile(const Array &f, T q) {
     return quantile<interpolation>(f, q, filters::not_nan);
 }
 
-template <QuantileInterp interpolation = LINEAR,
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
           class InputIt,
           class Predicate,
           typename T>
@@ -239,7 +243,7 @@ auto percentile(InputIt first, InputIt last, T p, Predicate filter) {
     return quantile<interpolation>(first, last, p / 100., filter);
 }
 
-template <QuantileInterp interpolation = LINEAR,
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
           class Array,
           class Predicate,
           typename T>
@@ -247,38 +251,42 @@ auto percentile(const Array &f, T p, Predicate filter) {
     return quantile<interpolation>(f, p / 100., filter);
 }
 
-template <QuantileInterp interpolation = LINEAR, class Array, typename T>
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          typename T>
 auto percentile(Array &&f, T p) {
     return quantile<interpolation>(std::forward<Array>(f), p / 100.);
 }
 
-template <QuantileInterp interpolation = LINEAR, class Array, typename T>
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          typename T>
 auto nanpercentile(const Array &f, T p) {
     return nanquantile<interpolation>(f, p / 100.);
 }
 
-template <QuantileInterp interpolation = LINEAR, class Array>
+template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
 auto iqr(Array &&f, double rng0 = 25., double rng1 = 75.) {
     const auto pct0 = percentile(std::forward<Array>(f), rng0);
     const auto pct1 = percentile(std::forward<Array>(f), rng1);
     return pct1 - pct0;
 }
 
-template <QuantileInterp interpolation = LINEAR, class Array>
+template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
 auto iqr(const Array &f, double rng0 = 25., double rng1 = 75.) {
     const auto pct0 = percentile(f, rng0);
     const auto pct1 = percentile(f, rng1);
     return pct1 - pct0;
 }
 
-template <QuantileInterp interpolation = LINEAR, class Array>
+template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
 auto naniqr(Array &&f, double rng0 = 25., double rng1 = 75.) {
     const auto pct0 = nanpercentile(std::forward<Array>(f), rng0);
     const auto pct1 = nanpercentile(std::forward<Array>(f), rng1);
     return pct1 - pct0;
 }
 
-template <QuantileInterp interpolation = LINEAR, class Array>
+template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
 auto naniqr(const Array &f, double rng0 = 25., double rng1 = 75.) {
     const auto pct0 = nanpercentile(f, rng0);
     const auto pct1 = nanpercentile(f, rng1);
