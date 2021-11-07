@@ -187,4 +187,18 @@ TEST_CASE("Miscellaneous") {
     REQUIRE(almost_equal<2>(pow<3>(3_m), 27_m3));
 }
 
+TEST_CASE("Lerp") {
+    using namespace units::literals;
+    REQUIRE(almost_equal(lerp(14, 16, 0.5), 15.));
+    REQUIRE(almost_equal(lerp(10, 11, 0.1), 10.1));
+    REQUIRE(almost_equal(lerp(10_A, 11_A, 0.1), 10.1_A));
+
+    REQUIRE(almost_equal(
+        lerp(std::vector{10, 11, 12}, std::vector{12, 14, 16}, 0.5),
+        {11., 12.5, 14.}));
+    REQUIRE(almost_equal(
+        lerp(std::vector{10_V, 11_V, 12_V}, std::vector{12_V, 14_V, 16_V}, 0.5),
+        {11_V, 12.5_V, 14_V}));
+}
+
 } // namespace scicpp

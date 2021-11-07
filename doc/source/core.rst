@@ -243,6 +243,9 @@ Statistics
 Interpolate
 -------------
 
+:ref:`lerp <core_lerp>`
+    Linear interpolation between two points.
+
 :ref:`interpolate::interp1d <core_interpolate_interp1d>`
     Interpolate a 1D array.
 

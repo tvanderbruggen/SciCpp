@@ -7,6 +7,7 @@
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/maths.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
@@ -192,7 +193,7 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
         std::nth_element(first, n_high, last);
         const auto x_low = *std::max_element(first, n_high);
         const auto x_high = *n_high;
-        return x_low + (h0 - h_low) * (x_high - x_low); // cf. std::lerp (C++20)
+        return lerp(x_low, x_high, h0 - h_low);
     }
 }
 
