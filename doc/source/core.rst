@@ -196,7 +196,7 @@ Statistics
     Compute the q-th quantile.
 
 :ref:`stats::percentile, nanpercentile <core_stats_percentile>`
-    Compute the q-th percentile.
+    Compute the p-th percentile.
 
 :ref:`stats::iqr, naniqr <core_stats_iqr>`
     Compute the interquartile range.
