@@ -166,8 +166,8 @@ constexpr auto pow(T a) {
 //---------------------------------------------------------------------------------
 
 // lerp c++ 20
-// Taken from https://github.com/llvm-mirror/libcxx/blob/master/include/cmath
-// This variant handles physical quantities
+// Derived from https://github.com/llvm-mirror/libcxx/blob/master/include/cmath
+// Handles physical quantities
 
 template <typename T1, typename T2, meta::disable_if_iterable<T1> = 0>
 constexpr auto lerp(T1 a, T1 b, T2 t) noexcept {
@@ -177,13 +177,16 @@ constexpr auto lerp(T1 a, T1 b, T2 t) noexcept {
         return t * b + (T2{1} - t) * a;
     }
 
-    if (almost_equal(t, T2{1})) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+    if (t == T2{1}) {
         return static_cast<ret_t>(b);
     }
+#pragma GCC diagnostic pop
 
     const auto x = static_cast<ret_t>(a) + t * (b - a);
 
-    if (t > T2{1} == b > a) {
+    if ((t > T2{1}) == (b > a)) {
         return b < x ? x : b;
     } else {
         return x < b ? x : b;
@@ -191,7 +194,7 @@ constexpr auto lerp(T1 a, T1 b, T2 t) noexcept {
 }
 
 template <typename T1, typename T2, meta::enable_if_iterable<T1> = 0>
-constexpr auto lerp(T1 &&a, T1 &&b, T2 t) noexcept {
+constexpr auto lerp(T1 &&a, T1 &&b, T2 t) {
     return map([=](auto x, auto y) { return lerp(x, y, t); },
                std::forward<T1>(a),
                std::forward<T1>(b));

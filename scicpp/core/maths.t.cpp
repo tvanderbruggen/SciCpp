@@ -189,6 +189,11 @@ TEST_CASE("Miscellaneous") {
 
 TEST_CASE("Lerp") {
     using namespace units::literals;
+
+    static_assert(float_equal(lerp(14, 16, 0.5), 15.));
+    static_assert(float_equal(lerp(10, 11, 0.1), 10.1));
+    static_assert(float_equal(lerp(10_A, 11_A, 0.1), 10.1_A));
+
     REQUIRE(almost_equal(lerp(14, 16, 0.5), 15.));
     REQUIRE(almost_equal(lerp(10, 11, 0.1), 10.1));
     REQUIRE(almost_equal(lerp(10_A, 11_A, 0.1), 10.1_A));
