@@ -31,7 +31,8 @@ int main() {
     plot1.show();
 
     // Plot histogram of data with units
-    const auto V = sci::random::normal<10000>(100_V, 15_V); // Voltage noise data
+    const auto V =
+        sci::random::normal<10000>(100_V, 15_V); // Voltage noise data
     auto plot2 = plt::hist<Density>(V);
     plot2.xlabel("Smarts");
     plot2.ylabel("Probability");

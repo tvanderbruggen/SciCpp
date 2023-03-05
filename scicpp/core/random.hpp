@@ -105,8 +105,6 @@ auto normal(T mu, T sigma, std::size_t N) {
     return mu + sigma * random::randn<rep_t>(N);
 }
 
-
-
 } // namespace scicpp::random
 
 #endif // SCICPP_CORE_RANDOM

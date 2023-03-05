@@ -5,5 +5,6 @@
 #define SCICPP_PLOTS_HEADER
 
 #include "plots/hist.hpp"
+#include "plots/spectrum.hpp"
 
 #endif // SCICPP_PLOTS_HEADER
