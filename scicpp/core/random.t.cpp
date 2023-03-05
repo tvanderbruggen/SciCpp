@@ -43,4 +43,36 @@ TEST_CASE("randn") {
     }
 }
 
+TEST_CASE("normal") {
+    SECTION("std::array") {
+        const auto mu = 0.0;
+        const auto sigma = 0.1;
+        const auto s = normal<1000>(mu, sigma);
+        REQUIRE(s.size() == 1000);
+        REQUIRE(std::fabs(stats::mean(s) - mu) < 0.01);
+        REQUIRE(std::fabs(stats::std(s) - sigma) < 0.01);
+    }
+
+    SECTION("std::vector") {
+        const auto mu = 0.0;
+        const auto sigma = 0.1;
+        const auto s = normal(mu, sigma, 1000);
+        REQUIRE(s.size() == 1000);
+        REQUIRE(std::fabs(stats::mean(s) - mu) < 0.01);
+        REQUIRE(std::fabs(stats::std(s) - sigma) < 0.01);
+    }
+
+    SECTION("Physical units") {
+        using namespace units::literals;
+
+        const auto mu = 0.0_V;
+        const auto sigma = 0.1_V;
+
+        const auto s = normal(mu, sigma, 1000);
+        REQUIRE(s.size() == 1000);
+        REQUIRE(units::fabs(stats::mean(s) - mu) < 0.01_V);
+        REQUIRE(units::fabs(stats::std(s) - sigma) < 0.01_V);
+    }
+}
+
 } // namespace scicpp::random

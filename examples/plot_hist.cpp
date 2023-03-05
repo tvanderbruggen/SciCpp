@@ -4,19 +4,11 @@
 namespace sci = scicpp;
 namespace plt = sci::plots;
 
-template <std::size_t N, typename T>
-auto gaussian_noise(T mu, T sigma) {
-    using namespace sci::operators;
-    using rep_t = sci::units::representation_t<T>;
-
-    return mu + sigma * sci::random::randn<rep_t, N>();
-}
-
 int main() {
     using namespace sci::units::literals;
     using namespace sci::stats;
 
-    const auto x = gaussian_noise<10000>(100., 15.);
+    const auto x = sci::random::normal<10000>(100., 15.);
 
     // Plot basic histogram
     auto plot0 = plt::hist(x);
@@ -39,7 +31,7 @@ int main() {
     plot1.show();
 
     // Plot histogram of data with units
-    const auto V = gaussian_noise<10000>(100_V, 15_V); // Voltage noise data
+    const auto V = sci::random::normal<10000>(100_V, 15_V); // Voltage noise data
     auto plot2 = plt::hist<Density>(V);
     plot2.xlabel("Smarts");
     plot2.ylabel("Probability");

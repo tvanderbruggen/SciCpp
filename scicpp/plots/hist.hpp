@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
+// Copyright (c) 2021-2022 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-#ifndef SCICPP_PLOTS_PLOTS
-#define SCICPP_PLOTS_PLOTS
+#ifndef SCICPP_PLOTS_HIST
+#define SCICPP_PLOTS_HIST
 
 #include "scicpp/core/histogram.hpp"
 #include "scicpp/core/units/quantity.hpp"
@@ -136,4 +136,4 @@ auto hist(const Array &x, std::size_t nbins = 10) {
 
 } // namespace scicpp::plots
 
-#endif // SCICPP_PLOTS_PLOTS
+#endif // SCICPP_PLOTS_HIST

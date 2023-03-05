@@ -177,6 +177,9 @@ Random
 :ref:`random::randn <core_random_randn>`
     Return normaly distributed random samples.
 
+:ref:`random::normal <core_random_normal>`
+    Draw random samples from a normal (Gaussian) distribution.
+
 Statistics
 -------------
 
