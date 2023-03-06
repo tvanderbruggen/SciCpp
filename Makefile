@@ -2,7 +2,7 @@
 # Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 MAJOR = 0
-MINOR = 3
+MINOR = 4
 PATCH = 0
 
 SCICPP_SRC=scicpp
