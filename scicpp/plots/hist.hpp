@@ -19,7 +19,7 @@ enum HistType : int { BAR, BARSTACKED, STEP, STEPFILLED };
 namespace detail {
 
 template <typename HistVector>
-struct histplot : sciplot::Plot {
+struct histplot : sciplot::Plot2D {
   public:
     template <
         typename Array,
@@ -58,6 +58,18 @@ struct histplot : sciplot::Plot {
         m_rwidth = rwidth;
         redraw();
         return *this;
+    }
+
+    auto canvas() {
+        sciplot::Figure fig = {{*this}};
+        sciplot::Canvas canvas = {{fig}};
+        return canvas;
+    }
+
+    void show(std::size_t width=750, std::size_t height=600) {
+        auto c = canvas();
+        c.size(width, height);
+        c.show();
     }
 
   private:
