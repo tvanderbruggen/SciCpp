@@ -11,6 +11,7 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
+#include "scicpp/core/units/units.hpp"
 #include "scicpp/core/utils.hpp"
 #include "scicpp/signal/fft.hpp"
 #include "scicpp/signal/windows.hpp"
@@ -33,8 +34,15 @@ class Spectrum {
     // Spectrum analysis configuration
     // -------------------------------------------------------------------------
 
-    auto fs(T fs) {
-        m_fs = fs;
+    template <typename FsTp>
+    auto fs(FsTp fs) {
+        if constexpr (units::is_quantity_v<FsTp>) {
+            static_assert(units::is_frequency<FsTp>, "fs must be a frequency");
+            m_fs = fs.eval();
+        } else {
+            m_fs = fs;
+        }
+
         return *this;
     }
 

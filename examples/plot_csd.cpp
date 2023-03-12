@@ -11,7 +11,7 @@ int main() {
     using namespace sci::operators;
     using namespace sci::units::literals;
 
-    const auto N = 1E4;
+    const auto N = 1E3;
     const auto fs = 1E2;
     const auto omega0 = 2_rad * sci::pi<double> * 10.0;
 
@@ -44,19 +44,4 @@ int main() {
     plot2.xlabel("FREQUENCY (Hz)");
     plot2.ylabel("PSD (dB / Hz)");
     plot2.show();
-
-    // Plot coherence
-    const auto s1 = sci::sin(omega0 * t * 10.0);
-    const auto s2 = sci::sin(omega0 * t * 10.0 + 1_rad * sci::pi<double> / 5.0);
-
-    auto spec_coh = sci::signal::Spectrum{}.fs(fs).window(
-        sci::signal::windows::Hamming, t.size() / 50);
-
-    auto plot3 = plt::cohere(spec_coh, s1, s2);
-
-    plot3.size(1000, 500);
-    plot3.color("green");
-    plot3.xlabel("FREQUENCY (Hz)");
-    plot3.ylabel("COHERENCE");
-    plot3.show();
 }
