@@ -66,7 +66,7 @@ struct histplot : sciplot::Plot2D {
         return canvas;
     }
 
-    void show(std::size_t width=750, std::size_t height=600) {
+    void show(std::size_t width = 750, std::size_t height = 600) {
         auto c = canvas();
         c.size(width, height);
         c.show();

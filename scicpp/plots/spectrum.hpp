@@ -15,7 +15,7 @@ namespace scicpp::plots {
 namespace detail {
 
 template <typename FreqArray, typename PowerArray>
-struct csdplot : sciplot::Plot {
+struct csdplot : sciplot::Plot2D {
   public:
     csdplot(FreqArray &&freqs, PowerArray &&power)
         : m_freqs(std::move(freqs)), m_power(std::move(power)) {
@@ -26,6 +26,18 @@ struct csdplot : sciplot::Plot {
         m_color = color;
         redraw();
         return *this;
+    }
+
+    auto canvas() {
+        sciplot::Figure fig = {{*this}};
+        sciplot::Canvas canvas = {{fig}};
+        return canvas;
+    }
+
+    void show(std::size_t width = 750, std::size_t height = 600) {
+        auto c = canvas();
+        c.size(width, height);
+        c.show();
     }
 
   private:
