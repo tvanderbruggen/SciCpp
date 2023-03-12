@@ -28,6 +28,12 @@ struct csdplot : sciplot::Plot2D {
         return *this;
     }
 
+    auto display_grid(bool display_grid) {
+        m_display_grid = display_grid;
+        redraw();
+        return *this;
+    }
+
     auto canvas() {
         sciplot::Figure fig = {{*this}};
         sciplot::Canvas canvas = {{fig}};
@@ -42,12 +48,19 @@ struct csdplot : sciplot::Plot2D {
 
   private:
     std::string m_color = "blue";
+    bool m_display_grid = true;
     FreqArray m_freqs;
     PowerArray m_power;
 
     void redraw() {
         clear();
         drawCurve(m_freqs, m_power).lineColor(m_color).labelNone();
+
+        if (m_display_grid) {
+            grid().lineType(-1).lineWidth(2).show();
+        } else {
+            grid().hide();
+        }
         border().right().top();
     }
 

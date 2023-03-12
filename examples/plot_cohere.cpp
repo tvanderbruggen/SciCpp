@@ -30,11 +30,11 @@ int main() {
     auto spec =
         sci::signal::Spectrum{}.fs(fs).window(sci::signal::windows::Hann, 256);
 
-    auto plot3 = plt::cohere(spec, s1, s2);
+    auto plot = plt::cohere(spec, s1, s2);
 
-    plot3.size(1000, 500);
-    plot3.color("green");
-    plot3.xlabel("FREQUENCY (Hz)");
-    plot3.ylabel("COHERENCE");
-    plot3.show();
+    plot.size(1000, 500);
+    plot.color("green");
+    plot.xlabel("FREQUENCY (Hz)");
+    plot.ylabel("COHERENCE");
+    plot.show();
 }
