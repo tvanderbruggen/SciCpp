@@ -7,7 +7,7 @@ Defined in header <scicpp/plots.hpp>
 
 Plot a histogram.
 
-Return a :expr:`sciplot::Plot` object.
+Return a :expr:`sciplot::Plot2D` object.
 
 --------------------------------------
 

@@ -59,7 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'SciCpp'
-copyright = u'2018-2021, T. Vanderbruggen'
+copyright = u'2018-2023, T. Vanderbruggen'
 author = u'T. Vanderbruggen'
 
 # The version info for the project you're documenting, acts as replacement for
