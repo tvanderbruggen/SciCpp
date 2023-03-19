@@ -17,6 +17,8 @@ int main() {
             10.0 * std::sin(double(i - 1) / data_num), double(i + 5));
     }
 
-    auto plot = plt::boxplot(data).capwidths(0.05);
+    auto plot = plt::boxplot(data)
+                    .capwidths({0.05, 0.05, 0.15, 0.1})
+                    .widths({0.1, 0.1, 0.3, 0.2});
     plot.show();
 }
