@@ -12,7 +12,7 @@ Extends Sciplot with some specialized plots available in Matplotlib (hist, psd, 
 :ref:`hist <plots_hist>`
     Plot a histogram.
 
-:ref:`csd / psd <plots_csd_psd>`
+:ref:`csd, psd <plots_csd_psd>`
     Plot the spectral density.
 
 :ref:`cohere <plots_cohere>`

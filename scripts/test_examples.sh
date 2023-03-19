@@ -33,3 +33,4 @@ make COMPILER=$compiler EXAMPLE=doc/signal_spectrum example
 make COMPILER=$compiler EXAMPLE=plot_hist example_build
 make COMPILER=$compiler EXAMPLE=plot_csd example_build
 make COMPILER=$compiler EXAMPLE=plot_cohere example_build
+make COMPILER=$compiler EXAMPLE=boxplot example_build

@@ -1,6 +1,6 @@
 .. _plots_csd_psd:
 
-scicpp::plots::csd / psd
+scicpp::plots::csd, scicpp::plots::psd
 ====================================
 
 Defined in header <scicpp/plots.hpp>

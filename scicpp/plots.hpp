@@ -4,6 +4,7 @@
 #ifndef SCICPP_PLOTS_HEADER
 #define SCICPP_PLOTS_HEADER
 
+#include "plots/boxplot.hpp"
 #include "plots/hist.hpp"
 #include "plots/spectrum.hpp"
 
