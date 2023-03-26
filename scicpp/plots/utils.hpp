@@ -12,6 +12,8 @@ namespace scicpp::plots {
 // Matplotlib markers to Gnuplot point types
 //---------------------------------------------------------------------------------
 
+namespace detail {
+
 using MarkersMap = std::unordered_map<char, int>;
 
 static const MarkersMap markers = {{'.', 0},
@@ -23,8 +25,10 @@ static const MarkersMap markers = {{'.', 0},
                                    {'v', 11},
                                    {'D', 13}};
 
+} // namespace detail
+
 int marker(char c) {
-    return markers.find(c)->second;
+    return detail::markers.find(c)->second;
 }
 
 } // namespace scicpp::plots
