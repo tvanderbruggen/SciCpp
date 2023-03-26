@@ -18,6 +18,7 @@ int main() {
     }
 
     auto plot = plt::boxplot(data)
+                    .showmeans(true)
                     .capwidths({0.05, 0.05, 0.15, 0.1})
                     .widths({0.1, 0.1, 0.3, 0.2});
     plot.show();

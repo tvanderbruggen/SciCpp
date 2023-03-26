@@ -7,5 +7,6 @@
 #include "plots/boxplot.hpp"
 #include "plots/hist.hpp"
 #include "plots/spectrum.hpp"
+#include "plots/utils.hpp"
 
 #endif // SCICPP_PLOTS_HEADER

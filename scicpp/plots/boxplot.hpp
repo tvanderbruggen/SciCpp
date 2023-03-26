@@ -6,7 +6,7 @@
 
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/stats.hpp"
-#include "scicpp/core/utils.hpp"
+#include "scicpp/plots/utils.hpp"
 
 #include <array>
 #include <sciplot/sciplot.hpp>
@@ -27,16 +27,15 @@ auto data_stats(const Array data, double whis) {
             constexpr double rng1 = 75.0;
             const auto Q1 = stats::percentile(f, rng0);
             const auto Q3 = stats::percentile(f, rng1);
-            const auto median = stats::median(f);
-
-            // constexpr double whis = 1.5; // TODO Use value from class
             const auto iqr = Q3 - Q1;
+            const auto median = stats::median(f);
+            const auto mean = stats::mean(f);
 
             const auto fliers = filter(f, [=](auto x) {
                 return (x < median - whis * iqr) || (x > median + whis * iqr);
             });
 
-            return std::tuple{median, Q1, Q3, fliers};
+            return std::tuple{median, mean, Q1, Q3, iqr, fliers};
         },
         data);
 }
@@ -65,6 +64,12 @@ struct boxplot : sciplot::Plot2D {
 
     auto showfliers(bool showfliers) {
         m_showfliers = showfliers;
+        redraw();
+        return *this;
+    }
+
+    auto showmeans(bool showmeans) {
+        m_showmeans = showmeans;
         redraw();
         return *this;
     }
@@ -117,6 +122,13 @@ struct boxplot : sciplot::Plot2D {
         return *this;
     }
 
+    auto whis(double whis) {
+        m_whis = whis;
+        m_stats = data_stats(m_data, m_whis);
+        redraw();
+        return *this;
+    }
+
     auto canvas() {
         sciplot::Figure fig = {{*this}};
         sciplot::Canvas canvas = {{fig}};
@@ -132,7 +144,14 @@ struct boxplot : sciplot::Plot2D {
   private:
     std::string m_boxcolor = "blue"; // Could be an array
     std::string m_median_line_color = "orange";
+
+    // Fliers
     std::string m_fliers_color = "blue";
+    char m_flier_marker = 'o';
+
+    // Mean
+    std::string m_mean_color = "red";
+    char m_mean_marker = 'D';
 
     Array m_data;
     StatsVector m_stats;
@@ -143,17 +162,17 @@ struct boxplot : sciplot::Plot2D {
     bool m_showcaps = true;
     bool m_showbox = true;
     bool m_showfliers = true;
+    bool m_showmeans = false;
 
     void redraw() {
         clear();
 
         for (std::size_t i = 0; i < m_stats.size(); ++i) {
-            const auto [median, Q1, Q3, fliers] = m_stats[i];
+            const auto [median, mean, Q1, Q3, iqr, fliers] = m_stats[i];
             const auto x_line = std::array{double(i + 1) - m_widths[i],
                                            double(i + 1) + m_widths[i]};
 
             // Draw whiskers
-            const auto iqr = Q3 - Q1;
             drawCurve(std::array{double(i + 1), double(i + 1)},
                       std::array{median - m_whis * iqr, median + m_whis * iqr})
                 .lineColor("black");
@@ -190,13 +209,20 @@ struct boxplot : sciplot::Plot2D {
 
             if (m_showfliers) {
                 drawPoints(std::vector(fliers.size(), double(i + 1)), fliers)
-                    .pointType(6)
+                    .pointType(marker(m_flier_marker))
                     .lineColor(m_fliers_color);
             }
 
             // Draw median
             drawCurve(x_line, std::array{median, median})
                 .lineColor(m_median_line_color);
+
+            if (m_showmeans) {
+                drawPoints(std::array{double(i + 1)}, std::array{mean})
+                    .pointType(marker(m_mean_marker))
+                    .pointSize(2)
+                    .lineColor(m_mean_color);
+            }
         }
 
         border().right().top();

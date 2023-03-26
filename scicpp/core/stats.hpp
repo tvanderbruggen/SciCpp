@@ -268,29 +268,31 @@ auto nanpercentile(const Array &f, T p) {
 
 template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
 auto iqr(Array &&f, double rng0 = 25., double rng1 = 75.) {
-    const auto pct0 = percentile(std::forward<Array>(f), rng0);
-    const auto pct1 = percentile(std::forward<Array>(f), rng1);
+    const auto pct0 = percentile<interpolation>(std::forward<Array>(f), rng0);
+    const auto pct1 = percentile<interpolation>(std::forward<Array>(f), rng1);
     return pct1 - pct0;
 }
 
 template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
 auto iqr(const Array &f, double rng0 = 25., double rng1 = 75.) {
-    const auto pct0 = percentile(f, rng0);
-    const auto pct1 = percentile(f, rng1);
+    const auto pct0 = percentile<interpolation>(f, rng0);
+    const auto pct1 = percentile<interpolation>(f, rng1);
     return pct1 - pct0;
 }
 
 template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
 auto naniqr(Array &&f, double rng0 = 25., double rng1 = 75.) {
-    const auto pct0 = nanpercentile(std::forward<Array>(f), rng0);
-    const auto pct1 = nanpercentile(std::forward<Array>(f), rng1);
+    const auto pct0 =
+        nanpercentile<interpolation>(std::forward<Array>(f), rng0);
+    const auto pct1 =
+        nanpercentile<interpolation>(std::forward<Array>(f), rng1);
     return pct1 - pct0;
 }
 
 template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
 auto naniqr(const Array &f, double rng0 = 25., double rng1 = 75.) {
-    const auto pct0 = nanpercentile(f, rng0);
-    const auto pct1 = nanpercentile(f, rng1);
+    const auto pct0 = nanpercentile<interpolation>(f, rng0);
+    const auto pct1 = nanpercentile<interpolation>(f, rng1);
     return pct1 - pct0;
 }
 
