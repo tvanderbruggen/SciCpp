@@ -11,6 +11,7 @@
 #include <array>
 #include <sciplot/sciplot.hpp>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -18,20 +19,52 @@ namespace scicpp::plots {
 
 namespace detail {
 
-template <typename StatsVector>
+template <typename Array>
+auto data_stats(const Array data, double whis) {
+    return map(
+        [=](auto f) {
+            constexpr double rng0 = 25.0;
+            constexpr double rng1 = 75.0;
+            const auto Q1 = stats::percentile(f, rng0);
+            const auto Q3 = stats::percentile(f, rng1);
+            const auto median = stats::median(f);
+
+            // constexpr double whis = 1.5; // TODO Use value from class
+            const auto iqr = Q3 - Q1;
+
+            const auto fliers = filter(f, [=](auto x) {
+                return (x < median - whis * iqr) || (x > median + whis * iqr);
+            });
+
+            return std::tuple{median, Q1, Q3, fliers};
+        },
+        data);
+}
+
+template <typename Array>
 struct boxplot : sciplot::Plot2D {
+    using StatsVector =
+        decltype(data_stats(std::declval<Array>(), std::declval<double>()));
+
     static constexpr double default_boxwidth = 0.1;
     static constexpr double default_capwidths = 0.1;
 
   public:
-    boxplot(StatsVector &&stats)
-        : m_stats(std::move(stats)), m_widths(m_stats.size(), default_boxwidth),
+    boxplot(const Array &data)
+        : m_data(data), m_widths(m_stats.size(), default_boxwidth),
           m_capwidths(m_stats.size(), default_capwidths) {
+        m_stats = data_stats(data, m_whis);
         redraw();
     }
 
     auto showcaps(bool showcaps) {
         m_showcaps = showcaps;
+        redraw();
+        return *this;
+    }
+
+    auto showfliers(bool showfliers) {
+        m_showfliers = showfliers;
         redraw();
         return *this;
     }
@@ -99,6 +132,9 @@ struct boxplot : sciplot::Plot2D {
   private:
     std::string m_boxcolor = "blue"; // Could be an array
     std::string m_median_line_color = "orange";
+    std::string m_fliers_color = "blue";
+
+    Array m_data;
     StatsVector m_stats;
     std::vector<double> m_widths;
     std::vector<double> m_capwidths;
@@ -106,12 +142,13 @@ struct boxplot : sciplot::Plot2D {
     double m_whis = 1.5;
     bool m_showcaps = true;
     bool m_showbox = true;
+    bool m_showfliers = true;
 
     void redraw() {
         clear();
 
         for (std::size_t i = 0; i < m_stats.size(); ++i) {
-            const auto [median, Q1, Q3] = m_stats[i];
+            const auto [median, Q1, Q3, fliers] = m_stats[i];
             const auto x_line = std::array{double(i + 1) - m_widths[i],
                                            double(i + 1) + m_widths[i]};
 
@@ -145,8 +182,16 @@ struct boxplot : sciplot::Plot2D {
                 // Draw border
                 drawCurve(x_line, std::array{Q1, Q1}).lineColor(m_boxcolor);
                 drawCurve(x_line, std::array{Q3, Q3}).lineColor(m_boxcolor);
-                drawCurve(std::array{x_line[0], x_line[0]}, std::array{Q1, Q3}).lineColor(m_boxcolor);
-                drawCurve(std::array{x_line[1], x_line[1]}, std::array{Q1, Q3}).lineColor(m_boxcolor);
+                drawCurve(std::array{x_line[0], x_line[0]}, std::array{Q1, Q3})
+                    .lineColor(m_boxcolor);
+                drawCurve(std::array{x_line[1], x_line[1]}, std::array{Q1, Q3})
+                    .lineColor(m_boxcolor);
+            }
+
+            if (m_showfliers) {
+                drawPoints(std::vector(fliers.size(), double(i + 1)), fliers)
+                    .pointType(6)
+                    .lineColor(m_fliers_color);
             }
 
             // Draw median
@@ -159,26 +204,12 @@ struct boxplot : sciplot::Plot2D {
     }
 }; // class boxplot
 
-template <typename DataArray>
-auto array_stats(const DataArray &f) {
-    constexpr double rng0 = 25.0;
-    constexpr double rng1 = 75.0;
-    const auto Q1 = stats::percentile(f, rng0);
-    const auto Q3 = stats::percentile(f, rng1);
-    return std::array{stats::median(f), Q1, Q3};
-}
-
-template <typename Array>
-auto stats(const Array &x) {
-    return map([](auto v) { return array_stats(v); }, x);
-}
-
 } // namespace detail
 
 // x: Array of array
 template <typename Array>
 auto boxplot(const Array &x) {
-    return detail::boxplot(detail::stats(x));
+    return detail::boxplot(x);
 }
 
 } // namespace scicpp::plots
