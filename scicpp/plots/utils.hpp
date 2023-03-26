@@ -27,8 +27,14 @@ static const MarkersMap markers = {{'.', 0},
 
 } // namespace detail
 
-int marker(char c) {
-    return detail::markers.find(c)->second;
+[[nodiscard]] scicpp_pure auto marker(char c) {
+    const auto elt = detail::markers.find(c);
+
+    if (elt != detail::markers.end()) {
+        return elt->second;
+    } else { // Unknown symbol
+        return 0;
+    }
 }
 
 } // namespace scicpp::plots
