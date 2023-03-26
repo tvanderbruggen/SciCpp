@@ -19,7 +19,7 @@ DEBUG_FLAGS = #-g
 
 INCLUDES = -I. -I$(SCICPP_SRC)
 
-WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic -Wshadow-field
+WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
 WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual
 WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
@@ -32,7 +32,7 @@ ifeq ($(COMPILER),gcc)
 else
   CC = $(CROSS_COMPILE)clang
   CCXX = $(CROSS_COMPILE)clang
-  WARNINGS += -Wpessimizing-move -Wno-zero-length-array -Wextra-semi -Wreserved-id-macro -Wconversion
+  WARNINGS += -Wpessimizing-move -Wno-zero-length-array -Wextra-semi -Wreserved-id-macro -Wconversion -Wshadow-field
 #   WARNINGS += -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation-unknown-command -Wno-newline-eof -ferror-limit=200
 endif
 
