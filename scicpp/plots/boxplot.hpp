@@ -49,7 +49,7 @@ struct boxplot : sciplot::Plot2D {
     static constexpr double default_capwidths = 0.1;
 
   public:
-    boxplot(const Array &data)
+    explicit boxplot(const Array &data)
         : m_data_seq(data), m_widths(m_stats.size(), default_boxwidth),
           m_capwidths(m_stats.size(), default_capwidths) {
         m_stats = data_stats(data, m_whis);
