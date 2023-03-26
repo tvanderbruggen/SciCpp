@@ -9,8 +9,8 @@ SCICPP_SRC=scicpp
 
 TMP=tmp
 
-# COMPILER ?= clang
-COMPILER ?= gcc
+COMPILER ?= clang
+# COMPILER ?= gcc
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native
@@ -19,7 +19,7 @@ DEBUG_FLAGS = #-g
 
 INCLUDES = -I. -I$(SCICPP_SRC)
 
-WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
+WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic -Wshadow-field
 WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual
 WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++

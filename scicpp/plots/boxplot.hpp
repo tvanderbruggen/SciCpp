@@ -50,7 +50,7 @@ struct boxplot : sciplot::Plot2D {
 
   public:
     boxplot(const Array &data)
-        : m_data(data), m_widths(m_stats.size(), default_boxwidth),
+        : m_data_seq(data), m_widths(m_stats.size(), default_boxwidth),
           m_capwidths(m_stats.size(), default_capwidths) {
         m_stats = data_stats(data, m_whis);
         redraw();
@@ -124,7 +124,7 @@ struct boxplot : sciplot::Plot2D {
 
     auto whis(double whis) {
         m_whis = whis;
-        m_stats = data_stats(m_data, m_whis);
+        m_stats = data_stats(m_data_seq, m_whis);
         redraw();
         return *this;
     }
@@ -147,13 +147,13 @@ struct boxplot : sciplot::Plot2D {
 
     // Fliers
     std::string m_fliers_color = "blue";
-    char m_flier_marker = 'o';
+    int m_flier_marker = marker('o');
 
     // Mean
     std::string m_mean_color = "red";
-    char m_mean_marker = 'D';
+    int m_mean_marker = marker('D');
 
-    Array m_data;
+    Array m_data_seq;
     StatsVector m_stats;
     std::vector<double> m_widths;
     std::vector<double> m_capwidths;
@@ -209,7 +209,7 @@ struct boxplot : sciplot::Plot2D {
 
             if (m_showfliers) {
                 drawPoints(std::vector(fliers.size(), double(i + 1)), fliers)
-                    .pointType(marker(m_flier_marker))
+                    .pointType(m_flier_marker)
                     .lineColor(m_fliers_color);
             }
 
@@ -219,7 +219,7 @@ struct boxplot : sciplot::Plot2D {
 
             if (m_showmeans) {
                 drawPoints(std::array{double(i + 1)}, std::array{mean})
-                    .pointType(marker(m_mean_marker))
+                    .pointType(m_mean_marker)
                     .pointSize(2)
                     .lineColor(m_mean_color);
             }
