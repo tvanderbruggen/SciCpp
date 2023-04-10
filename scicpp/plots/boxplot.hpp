@@ -20,7 +20,7 @@ namespace scicpp::plots {
 namespace detail {
 
 template <typename Array>
-auto data_stats(const Array data, double whis) {
+auto data_stats(const Array &data, double whis) {
     return map(
         [=](auto f) {
             constexpr double rng0 = 25.0;

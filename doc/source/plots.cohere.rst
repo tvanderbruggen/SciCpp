@@ -63,6 +63,9 @@ Example
         plot.show();
     }
 
+.. image:: _static/cohere.png
+   :width: 600
+
 See also
     ----------
     `Matplotlib documentation <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.cohere.html>`_

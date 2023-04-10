@@ -9,8 +9,17 @@ This is only required to use the plots module, not other scicpp modules.
 
 Extends Sciplot with some specialized plots available in Matplotlib (hist, psd, cohere, csd)
 
+Statistics
+----------------
+
 :ref:`hist <plots_hist>`
     Plot a histogram.
+
+:ref:`boxplot <plots_boxplot>`
+    Boxplots.
+
+Spectrum
+----------------
 
 :ref:`csd, psd <plots_csd_psd>`
     Plot the spectral density.

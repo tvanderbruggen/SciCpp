@@ -77,6 +77,14 @@ Example
         plot2.show();
     }
 
+
+.. image:: _static/csd.png
+   :width: 600
+
+.. image:: _static/psd.png
+   :width: 600
+
+
 See also
     ----------
     `Matplotlib documentation <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.csd.html>`_
