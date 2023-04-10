@@ -3,9 +3,9 @@
 # SciCpp
 
 <p float="left">
-  <img src="/doc/source/_static/psd.png" width="300" />
-  <img src="/doc/source/_static/basic_hist.png" width="300" /> 
-  <img src="/doc/source/_static/boxplot.png" width="300" /> 
+  <img src="/doc/source/_static/psd.png" width="250" />
+  <img src="/doc/source/_static/basic_hist.png" width="250" /> 
+  <img src="/doc/source/_static/boxplot.png" width="250" /> 
 </p>
 
 Yet another C++ scientific computing library.
