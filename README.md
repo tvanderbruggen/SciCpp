@@ -2,6 +2,12 @@
 
 # SciCpp
 
+<p float="left">
+  <img src="/doc/source/_static/psd.png" width="300" />
+  <img src="/doc/source/_static/basic_hist.png" width="300" /> 
+  <img src="/doc/source/_static/boxplot.png" width="300" /> 
+</p>
+
 Yet another C++ scientific computing library.
 
 Objective: Provide the SciPy / NumPy API for `std::array` and `std::vector`.
@@ -31,6 +37,12 @@ sudo bash scripts/install_eigen.sh
 ```
 
 that will install it globally on your system.
+
+If you want to use the plotting functions, you also need to install Sciplot:
+
+```
+sudo bash scripts/install_sciplot.sh
+```
 
 ## Developing SciCpp
 
