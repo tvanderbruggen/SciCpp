@@ -3,7 +3,7 @@ plots
 
 Plotting functions defined in header <scicpp/plots.hpp>.
 
-Base on the `Sciplot library <https://sciplot.github.io/>`_, which is a header only library.
+Based on the `Sciplot library <https://sciplot.github.io/>`_, which is a header only library.
 Gnuplot is required to run the executable.
 This is only required to use the plots module, not other scicpp modules.
 
