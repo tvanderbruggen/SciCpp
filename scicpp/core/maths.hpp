@@ -4,6 +4,7 @@
 #ifndef SCICPP_CORE_MATHS
 #define SCICPP_CORE_MATHS
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/units/units.hpp"
@@ -158,6 +159,45 @@ constexpr auto pow(T1 &&x, T2 &&y) {
 template <intmax_t n, typename T, meta::enable_if_iterable<T> = 0>
 constexpr auto pow(T a) {
     return map([](auto x) { return units::pow<n>(x); }, std::forward<T>(a));
+}
+
+//---------------------------------------------------------------------------------
+// C++ 20 midpoint and lerp
+//---------------------------------------------------------------------------------
+
+// lerp c++ 20
+// Derived from https://github.com/llvm-mirror/libcxx/blob/master/include/cmath
+// Handles physical quantities
+
+template <typename T1, typename T2, meta::disable_if_iterable<T1> = 0>
+constexpr auto lerp(T1 a, T1 b, T2 t) noexcept {
+    using ret_t = decltype(std::declval<T1>() * std::declval<T2>());
+
+    if ((a <= T1{0} && b >= T1{0}) || (a >= T1{0} && b <= T1{0})) {
+        return t * b + (T2{1} - t) * a;
+    }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+    if (t == T2{1}) {
+        return static_cast<ret_t>(b);
+    }
+#pragma GCC diagnostic pop
+
+    const auto x = static_cast<ret_t>(a) + t * (b - a);
+
+    if ((t > T2{1}) == (b > a)) {
+        return b < x ? x : b;
+    } else {
+        return x < b ? x : b;
+    }
+}
+
+template <typename T1, typename T2, meta::enable_if_iterable<T1> = 0>
+constexpr auto lerp(T1 &&a, T1 &&b, T2 t) {
+    return map([=](auto x, auto y) { return lerp(x, y, t); },
+               std::forward<T1>(a),
+               std::forward<T1>(b));
 }
 
 } // namespace scicpp

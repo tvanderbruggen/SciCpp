@@ -125,6 +125,11 @@ TEST_CASE("diff") {
         almost_equal(diff(std::vector{1., 2., 4., 7., 0.}, 2), {1., 1., -10.}));
     const std::vector v{1., 2., 4., 7., 0.};
     REQUIRE(almost_equal(diff(v, 2), {1., 1., -10.}));
+    // print(diff(std::vector{0., 1., 2., 3., 4.5, 5.}));
+    REQUIRE(almost_equal(diff(std::vector{0., 1., 2., 3., 4.5, 5.}),
+                         {1., 1., 1., 1.5, 0.5}));
+    REQUIRE(almost_equal(diff(std::array{0., 1., 2., 3., 4.5, 5.}),
+                         {1., 1., 1., 1.5, 0.5}));
 }
 
 TEST_CASE("diff physical quantity") {

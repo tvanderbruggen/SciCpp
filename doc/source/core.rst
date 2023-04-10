@@ -177,6 +177,9 @@ Random
 :ref:`random::randn <core_random_randn>`
     Return normaly distributed random samples.
 
+:ref:`random::normal <core_random_normal>`
+    Draw random samples from a normal (Gaussian) distribution.
+
 Statistics
 -------------
 
@@ -191,6 +194,15 @@ Statistics
 
 :ref:`stats::average <core_stats_average>`
     Compute the weighted average.
+
+:ref:`stats::quantile, nanquantile <core_stats_quantile>`
+    Compute the q-th quantile.
+
+:ref:`stats::percentile, nanpercentile <core_stats_percentile>`
+    Compute the p-th percentile.
+
+:ref:`stats::iqr, naniqr <core_stats_iqr>`
+    Compute the interquartile range.
 
 :ref:`stats::median, nanmedian <core_stats_median>`
     Compute the median.
@@ -225,8 +237,17 @@ Statistics
 :ref:`stats::cov, nancov <core_stats_cov>`
     Compute the covariance matrix between two data sets.
 
+:ref:`stats::histogram_bin_edges <core_stats_histogram_bin_edges>`
+    Compute the the edges of the bins for an histogram.
+
+:ref:`stats::histogram <core_stats_histogram>`
+    Compute the histogram of a dataset.
+
 Interpolate
 -------------
+
+:ref:`lerp <core_lerp>`
+    Linear interpolation between two points.
 
 :ref:`interpolate::interp1d <core_interpolate_interp1d>`
     Interpolate a 1D array.

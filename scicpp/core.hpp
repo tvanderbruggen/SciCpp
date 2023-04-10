@@ -7,6 +7,7 @@
 #include "core/constants.hpp"
 #include "core/equal.hpp"
 #include "core/functional.hpp"
+#include "core/histogram.hpp"
 #include "core/interpolate.hpp"
 #include "core/io.hpp"
 #include "core/macros.hpp"

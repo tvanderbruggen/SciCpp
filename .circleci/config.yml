@@ -19,6 +19,9 @@ jobs:
           name: Install Eigen
           command: bash scripts/install_eigen.sh
       - run:
+          name: Install Sciplot
+          command: bash scripts/install_sciplot.sh
+      - run:
           name: Test with GCC
           command: make COMPILER=gcc clean_test test
       - run:

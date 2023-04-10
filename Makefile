@@ -2,7 +2,7 @@
 # Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
 MAJOR = 0
-MINOR = 3
+MINOR = 4
 PATCH = 0
 
 SCICPP_SRC=scicpp
@@ -32,7 +32,7 @@ ifeq ($(COMPILER),gcc)
 else
   CC = $(CROSS_COMPILE)clang
   CCXX = $(CROSS_COMPILE)clang
-  WARNINGS += -Wpessimizing-move -Wno-zero-length-array -Wextra-semi -Wreserved-id-macro -Wconversion
+  WARNINGS += -Wpessimizing-move -Wno-zero-length-array -Wextra-semi -Wreserved-id-macro -Wconversion -Wshadow-field
 #   WARNINGS += -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation-unknown-command -Wno-newline-eof -ferror-limit=200
 endif
 
@@ -163,9 +163,14 @@ EXAMPLE_DEP = $(subst .o,.d,$(EXAMPLE_OBJ))
 $(EXAMPLE_TARGET): $(EXAMPLE_OBJ)
 	$(CCXX) -o $@ $< $(CXXFLAGS) $(LD_FLAGS) $(LIBS)
 
+# Build and run
 .PHONY: example
 example: $(EXAMPLE_TARGET)
 	$<
+
+# Build only
+.PHONY: example_build
+example_build: $(EXAMPLE_TARGET)
 
 .PHONY: example_py
 example_py:

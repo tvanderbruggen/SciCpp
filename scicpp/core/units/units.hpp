@@ -514,7 +514,8 @@ SCICPP_CORE_UNITS_SET_LITERAL(luminous_intensity, _ECd, std::exa)
 
 SCICPP_CORE_UNITS_DEFINE_PREFIXES_ALIAS(planar_angle, radian)
 
-using pi_ratio = std::ratio<21053343141, 6701487259>;
+using pi_ratio =
+    std::ratio<21053343141, 6701487259>; // Precise to 21 decimal places
 using deg_to_rad_ratio = std::ratio_divide<pi_ratio, std::ratio<180>>;
 using turn_to_rad_ratio = std::ratio_multiply<std::ratio<2>, pi_ratio>;
 

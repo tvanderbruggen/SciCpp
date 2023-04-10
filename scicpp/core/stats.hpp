@@ -4,7 +4,10 @@
 #ifndef SCICPP_CORE_STATS
 #define SCICPP_CORE_STATS
 
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/functional.hpp"
+#include "scicpp/core/macros.hpp"
+#include "scicpp/core/maths.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
@@ -31,8 +34,8 @@ auto quiet_nan() {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto amax(const Array &f) {
-    if (f.empty()) {
+constexpr scicpp_pure auto amax(const Array &f) {
+    if (unlikely(f.empty())) {
         return detail::quiet_nan<Array>();
     }
 
@@ -44,8 +47,8 @@ constexpr auto amax(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto amin(const Array &f) {
-    if (f.empty()) {
+constexpr scicpp_pure auto amin(const Array &f) {
+    if (unlikely(f.empty())) {
         return detail::quiet_nan<Array>();
     }
 
@@ -57,8 +60,8 @@ constexpr auto amin(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto ptp(const Array &f) {
-    if (f.empty()) {
+constexpr scicpp_pure auto ptp(const Array &f) {
+    if (unlikely(f.empty())) {
         return detail::quiet_nan<Array>();
     }
 
@@ -72,7 +75,7 @@ constexpr auto ptp(const Array &f) {
 
 template <class Array1, class Array2>
 constexpr auto average(const Array1 &f, const Array2 &weights) {
-    if (f.empty() || (f.size() != weights.size())) {
+    if (unlikely(f.empty() || (f.size() != weights.size()))) {
         return detail::quiet_nan<Array1>();
     }
 
@@ -92,7 +95,7 @@ auto median_inplace(InputIt first, InputIt last) {
     using raw_t = units::representation_t<T>;
     const auto size = std::distance(first, last);
 
-    if (size == 0) {
+    if (unlikely(size == 0)) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -137,6 +140,163 @@ auto nanmedian(const Array &f) {
 }
 
 //---------------------------------------------------------------------------------
+// quantile, percentile, iqr
+//---------------------------------------------------------------------------------
+
+enum class QuantileInterp : int { LOWER, HIGHER, NEAREST, MIDPOINT, LINEAR };
+
+namespace detail {
+
+template <QuantileInterp interpolation, typename T>
+auto quantile_interp_index(T h) {
+    if constexpr (interpolation == QuantileInterp::LOWER) {
+        return std::floor(h);
+    } else if constexpr (interpolation == QuantileInterp::HIGHER) {
+        return std::ceil(h);
+    } else if constexpr (interpolation == QuantileInterp::NEAREST) {
+        return std::nearbyint(h);
+    } else if constexpr (interpolation == QuantileInterp::MIDPOINT) {
+        // cf. std::midpoint (C++20)
+        return T{0.5} * (std::floor(h) + std::ceil(h));
+    } else { // interpolation == LINEAR
+        return h;
+    }
+}
+
+// https://stackoverflow.com/questions/28548703/why-does-stdnth-element-return-sorted-vectors-for-input-vectors-with-n-33-el
+template <QuantileInterp interpolation, class InputIt, typename T>
+auto quantile_inplace(InputIt first, InputIt last, T q) {
+    scicpp_require(q >= T{0} && q <= T{1});
+
+    using ItTp = typename std::iterator_traits<InputIt>::value_type;
+    using RetTp = std::conditional_t<std::is_integral_v<ItTp>, double, ItTp>;
+
+    const auto size = std::distance(first, last);
+
+    if (unlikely(size == 0)) {
+        return std::numeric_limits<RetTp>::quiet_NaN();
+    }
+
+    if (size == 1) {
+        return RetTp(*first);
+    }
+
+    const auto h0 = quantile_interp_index<interpolation>(q * (size - 1));
+
+    if (almost_equal(std::nearbyint(h0), h0)) { // h0 is an integer
+        const auto n0 = std::min(first + signed_size_t(h0), last);
+        std::nth_element(first, n0, last);
+        return RetTp(*n0);
+    } else { // h0 not an integral index
+        const auto h_low = signed_size_t(h0);
+        const auto n_high = std::min(first + h_low + 1, last);
+        std::nth_element(first, n_high, last);
+        const auto x_low = *std::max_element(first, n_high);
+        const auto x_high = *n_high;
+        return lerp(x_low, x_high, h0 - h_low);
+    }
+}
+
+} // namespace detail
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class InputIt,
+          class Predicate,
+          typename T>
+auto quantile(InputIt first, InputIt last, T q, Predicate p) {
+    auto v = filter(std::vector(first, last), p);
+    return detail::quantile_inplace<interpolation>(v.begin(), v.end(), q);
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          class Predicate,
+          typename T>
+auto quantile(const Array &f, T q, Predicate filter) {
+    return quantile<interpolation>(f.cbegin(), f.cend(), q, filter);
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          typename T>
+auto quantile(Array &&f, T q) {
+    if constexpr (std::is_lvalue_reference_v<Array>) {
+        auto tmp = f;
+        return detail::quantile_inplace<interpolation>(
+            tmp.begin(), tmp.end(), q);
+    } else {
+        return detail::quantile_inplace<interpolation>(f.begin(), f.end(), q);
+    }
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          typename T>
+auto nanquantile(const Array &f, T q) {
+    return quantile<interpolation>(f, q, filters::not_nan);
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class InputIt,
+          class Predicate,
+          typename T>
+auto percentile(InputIt first, InputIt last, T p, Predicate filter) {
+    return quantile<interpolation>(first, last, p / 100., filter);
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          class Predicate,
+          typename T>
+auto percentile(const Array &f, T p, Predicate filter) {
+    return quantile<interpolation>(f, p / 100., filter);
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          typename T>
+auto percentile(Array &&f, T p) {
+    return quantile<interpolation>(std::forward<Array>(f), p / 100.);
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR,
+          class Array,
+          typename T>
+auto nanpercentile(const Array &f, T p) {
+    return nanquantile<interpolation>(f, p / 100.);
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
+auto iqr(Array &&f, double rng0 = 25., double rng1 = 75.) {
+    const auto pct0 = percentile<interpolation>(std::forward<Array>(f), rng0);
+    const auto pct1 = percentile<interpolation>(std::forward<Array>(f), rng1);
+    return pct1 - pct0;
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
+auto iqr(const Array &f, double rng0 = 25., double rng1 = 75.) {
+    const auto pct0 = percentile<interpolation>(f, rng0);
+    const auto pct1 = percentile<interpolation>(f, rng1);
+    return pct1 - pct0;
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
+auto naniqr(Array &&f, double rng0 = 25., double rng1 = 75.) {
+    const auto pct0 =
+        nanpercentile<interpolation>(std::forward<Array>(f), rng0);
+    const auto pct1 =
+        nanpercentile<interpolation>(std::forward<Array>(f), rng1);
+    return pct1 - pct0;
+}
+
+template <QuantileInterp interpolation = QuantileInterp::LINEAR, class Array>
+auto naniqr(const Array &f, double rng0 = 25., double rng1 = 75.) {
+    const auto pct0 = nanpercentile<interpolation>(f, rng0);
+    const auto pct1 = nanpercentile<interpolation>(f, rng1);
+    return pct1 - pct0;
+}
+
+//---------------------------------------------------------------------------------
 // mean
 //---------------------------------------------------------------------------------
 
@@ -144,7 +304,7 @@ template <class InputIt, class Predicate>
 constexpr auto mean(InputIt first, InputIt last, Predicate filter) {
     using T = typename std::iterator_traits<InputIt>::value_type;
 
-    if (std::distance(first, last) == 0) {
+    if (unlikely(std::distance(first, last) == 0)) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -182,7 +342,7 @@ template <class Array>
 auto gmean(Array &&f) {
     using T = typename std::decay_t<Array>::value_type;
 
-    if (f.empty()) {
+    if (unlikely(f.empty())) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -227,7 +387,7 @@ constexpr auto covariance(InputIt1 first1,
     scicpp_require(std::distance(first1, last1) ==
                    std::distance(first2, last2));
 
-    if (std::distance(first1, last1) == 0) {
+    if (unlikely(std::distance(first1, last1) == 0)) {
         return std::make_tuple(std::numeric_limits<prod_t>::quiet_NaN(),
                                signed_size_t(0));
     }
@@ -245,7 +405,7 @@ constexpr auto covariance(InputIt1 first1,
             auto res = utils::set_zero<prod_t>();
             signed_size_t cnt = 0;
 
-            for (; f1 != l1; ++f1, ++f2) {
+            for (; f1 != l1; ++f1, (void)++f2) {
                 if (filter(*f1) && filter(*f2)) {
                     if constexpr (meta::is_complex_v<T2>) {
                         res += (*f1 - m1) * std::conj(*f2 - m2);
