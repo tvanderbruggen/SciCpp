@@ -144,12 +144,14 @@ TEST_CASE("filter_reduce") {
 }
 
 TEST_CASE("reduce") {
-    REQUIRE(std::get<0>(reduce(std::array{1, 2, 3},
-                               [](auto r, auto v) { return r + v * v; },
-                               0)) == 14);
-    static_assert(std::get<0>(reduce(std::array{1, 2, 3},
-                                     [](auto r, auto v) { return r + v * v; },
-                                     0)) == 14);
+    REQUIRE(std::get<0>(reduce(
+                std::array{1, 2, 3},
+                [](auto r, auto v) { return r + v * v; },
+                0)) == 14);
+    static_assert(std::get<0>(reduce(
+                      std::array{1, 2, 3},
+                      [](auto r, auto v) { return r + v * v; },
+                      0)) == 14);
 }
 
 TEST_CASE("cumacc") {

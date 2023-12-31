@@ -29,6 +29,13 @@ using electrical_conductivity =
 
 QUANTITY_TRAIT(electrical_conductivity)
 
+// Electrical resistivity = Electrical resistance * length
+template <typename T, typename Scale = scale<std::ratio<1>>>
+using electrical_resistivity =
+    quantity_multiply<electrical_resistance<T, Scale>, length<T>>;
+
+QUANTITY_TRAIT(electrical_resistivity)
+
 // Capacitance = Time / Resistance
 template <typename T, typename Scale = scale<std::ratio<1>>>
 using capacitance = quantity_divide<time<T, Scale>, electrical_resistance<T>>;
