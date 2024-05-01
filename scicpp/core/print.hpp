@@ -186,6 +186,8 @@ bool use_scientific_notation(const Array &A) {
                use_scientific_notation(imag(A));
     } else if constexpr (meta::is_std_tuple_v<T> || meta::is_std_pair_v<T>) {
         return true;
+    } else if constexpr (std::is_integral_v<T>) {
+        return false;
     } else {
         const auto fabs = vectorize([](auto x) { return units::fabs(x); });
         const auto filtered_array = filter(fabs(A), [](auto x) {
