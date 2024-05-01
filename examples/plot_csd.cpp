@@ -6,6 +6,7 @@
 
 namespace sci = scicpp;
 namespace plt = sci::plots;
+namespace sig = sci::signal;
 
 int main() {
     using namespace sci::operators;
@@ -21,15 +22,14 @@ int main() {
     const auto nse1 = sci::random::randn<double, 2813981405>(t.size() / 2);
     const auto nse2 = sci::random::randn<double, 4130028572>(t.size() / 2);
     const auto r = sci::exp(-sci::arange(0.0, N / 2 + 1) / fs / 0.05);
-    // TODO Implement convolve MODE=same
-    const auto cnse1 = sci::signal::fftconvolve(nse1, r) / fs;
-    const auto cnse2 = sci::signal::fftconvolve(nse2, r) / fs;
+    const auto cnse1 = sig::fftconvolve(nse1, r) / fs;
+    const auto cnse2 = sig::fftconvolve(nse2, r) / fs;
 
     const auto x = 0.01 * sci::sin(omega0 * t) + cnse1;
     const auto y = 0.01 * sci::sin(omega0 * t) + cnse2;
 
-    auto spec = sci::signal::Spectrum{}.fs(fs).window(
-        sci::signal::windows::Hamming, t.size());
+    // Configure the spectrum analyzer
+    auto spec = sig::Spectrum{}.fs(fs).window(sig::windows::Hamming, t.size());
 
     // Plot csd
     auto plot1 = plt::csd(spec, x, y);
