@@ -54,7 +54,7 @@ auto scicpp_pure bin_width(const Array &x) {
             return ret_t{0};
         }
 
-        const auto sg1 = sqrt(raw_t{6} * (x.size() - 2) /
+        const auto sg1 = sqrt(raw_t{6} * raw_t(x.size() - 2) /
                               raw_t((x.size() + 1) * (x.size() + 3)));
         const auto g1 = units::value(skew(x));
 
@@ -202,7 +202,7 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
 
             const auto pos = std::distance(bins.cbegin(), it) - 1;
 
-            if (pos >= raw_t{0}) {
+            if (static_cast<raw_t>(pos) >= raw_t{0}) {
                 ++hist[std::size_t(pos)];
             }
         }
@@ -212,7 +212,7 @@ auto histogram(InputIt first, InputIt last, const std::vector<T> &bins) {
     // the bins being an input argument.
 
     if constexpr (density) {
-        return std::move(hist) / (sum(hist) * diff(bins));
+        return std::move(hist) / (static_cast<int>(sum(hist)) * diff(bins));
     } else {
         return hist;
     }

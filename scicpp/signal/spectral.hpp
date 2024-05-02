@@ -197,6 +197,7 @@ class Spectrum {
     signed_size_t m_nperseg = get_nperseg();
     bool m_use_dflt_overlpap = true;
     signed_size_t m_noverlap = m_nperseg / 2;
+    // signed_size_t n_threads = 0;
 
     auto get_nperseg() { return signed_size_t(m_window.size()); }
 
