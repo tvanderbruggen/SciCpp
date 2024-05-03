@@ -574,4 +574,23 @@ TEST_CASE("tfestimate") {
     }
 }
 
+TEST_CASE("welch parallel") {
+    SECTION("Real") {
+        auto x = zeros<double>(16);
+        x[0] = 1.0;
+        x[8] = 1.0;
+        print(x);
+        const auto [f1, p1] =
+            Spectrum{}.window(windows::hann<double>(8)).nthreads(2).welch(x);
+        REQUIRE(almost_equal(f1, linspace(0., 0.5, 5)));
+        print(p1);
+        REQUIRE(almost_equal<8>(p1,
+                                {0.08202736882238,
+                                 0.1649754758633829,
+                                 0.220872122376833,
+                                 0.2307254514666428,
+                                 0.1147200837058478}));
+    }
+}
+
 } // namespace scicpp::signal

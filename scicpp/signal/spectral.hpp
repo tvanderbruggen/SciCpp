@@ -17,6 +17,8 @@
 #include "scicpp/signal/windows.hpp"
 
 #include <algorithm>
+#include <mutex>
+#include <thread>
 #include <tuple>
 
 namespace scicpp::signal {
@@ -50,6 +52,11 @@ class Spectrum {
         scicpp_require(noverlap <= m_nperseg);
         m_use_dflt_overlpap = false;
         m_noverlap = noverlap;
+        return *this;
+    }
+
+    auto nthreads(std::size_t nthreads) {
+        m_nthreads = nthreads;
         return *this;
     }
 
@@ -197,7 +204,7 @@ class Spectrum {
     signed_size_t m_nperseg = get_nperseg();
     bool m_use_dflt_overlpap = true;
     signed_size_t m_noverlap = m_nperseg / 2;
-    // signed_size_t n_threads = 0;
+    std::size_t m_nthreads = 0;
 
     auto get_nperseg() { return signed_size_t(m_window.size()); }
 
@@ -232,13 +239,50 @@ class Spectrum {
 
         auto res = zeros<T>(nfft);
 
-        for (signed_size_t i = 0; i < nseg; ++i) {
-            // In principle we could avoid to reallocate a vector each time
-            auto seg = utils::subvector(a, std::size_t(m_nperseg), i * nstep);
-            scicpp_require(seg.size() == m_window.size());
+        if (m_nthreads <= 1 || nseg == 1) {
+            for (signed_size_t i = 0; i < nseg; ++i) {
+                // In principle we could avoid to reallocate a vector each time
+                auto seg =
+                    utils::subvector(a, std::size_t(m_nperseg), i * nstep);
+                scicpp_require(seg.size() == m_window.size());
+                res = std::move(res) +
+                      norm(fftfunc(detrend(std::move(seg)) * m_window));
+            }
+        } else {
+            std::mutex mtx;
+            std::vector<std::thread> threads_pool(m_nthreads);
+            signed_size_t i = 0;
 
-            res = std::move(res) +
-                  norm(fftfunc(detrend(std::move(seg)) * m_window));
+            while (i < nseg) {
+                for (auto &thread : threads_pool) {
+                    thread = std::thread(
+                        [&](auto i) {
+                            auto seg = utils::subvector(
+                                a, std::size_t(m_nperseg), i * nstep);
+                            scicpp_require(seg.size() == m_window.size());
+                            auto seg_spectrum = norm(
+                                fftfunc(detrend(std::move(seg)) * m_window));
+
+                            {
+                                std::lock_guard guard(mtx);
+                                res = std::move(res) + std::move(seg_spectrum);
+                            }
+                        },
+                        i);
+
+                    ++i;
+
+                    if (i >= nseg) {
+                        break;
+                    }
+                }
+
+                for (auto &thread : threads_pool) {
+                    if (thread.joinable()) {
+                        thread.join();
+                    }
+                }
+            }
         }
 
         return std::move(res) / T(nseg);
