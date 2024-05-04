@@ -99,19 +99,19 @@ class Spectrum {
                       std::is_same_v<EltTp, std::complex<T>>);
 
         if (x.empty()) {
-            return std::make_tuple(empty<T>(), empty<T>());
+            return std::tuple{empty<T>(), empty<T>()};
         }
 
         const auto freqs = get_freqs<EltTp>();
 
         if constexpr (meta::is_complex_v<EltTp>) {
-            return std::make_tuple(freqs,
-                                   normalize<scaling, TWOSIDED>(
-                                       welch_impl(freqs.size(), x, fft_func)));
+            return std::tuple{freqs,
+                              normalize<scaling, TWOSIDED>(
+                                  welch_impl(freqs.size(), x, fft_func))};
         } else {
-            return std::make_tuple(freqs,
-                                   normalize<scaling, ONESIDED>(
-                                       welch_impl(freqs.size(), x, rfft_func)));
+            return std::tuple{freqs,
+                              normalize<scaling, ONESIDED>(
+                                  welch_impl(freqs.size(), x, rfft_func))};
         }
     }
 
@@ -136,20 +136,20 @@ class Spectrum {
                                          T>;
 
         if (x.empty() || y.empty()) {
-            return std::make_tuple(empty<T>(), empty<std::complex<T>>());
+            return std::tuple{empty<T>(), empty<std::complex<T>>()};
         }
 
         const auto freqs = get_freqs<EltTp>();
 
         if (x.size() == y.size()) {
             if constexpr (meta::is_complex_v<EltTp>) {
-                return std::make_tuple(freqs,
-                                       normalize<scaling, TWOSIDED>(welch2_impl(
-                                           freqs.size(), x, y, fft_func)));
+                return std::tuple{freqs,
+                                  normalize<scaling, TWOSIDED>(welch2_impl(
+                                      freqs.size(), x, y, fft_func))};
             } else {
-                return std::make_tuple(freqs,
-                                       normalize<scaling, ONESIDED>(welch2_impl(
-                                           freqs.size(), x, y, rfft_func)));
+                return std::tuple{freqs,
+                                  normalize<scaling, ONESIDED>(welch2_impl(
+                                      freqs.size(), x, y, rfft_func))};
             }
         } else {
             if (x.size() > y.size()) {
@@ -172,8 +172,8 @@ class Spectrum {
         scicpp_require(Pxy.size() == Pxx.size());
         scicpp_require(Pxy.size() == Pyy.size());
 
-        return std::make_tuple(
-            freqs, norm(std::move(Pxy)) / std::move(Pxx) / std::move(Pyy));
+        return std::tuple{
+            freqs, norm(std::move(Pxy)) / std::move(Pxx) / std::move(Pyy)};
     }
 
     template <typename Array1, typename Array2>
@@ -183,7 +183,7 @@ class Spectrum {
 
         auto [freqs, Pyx] = csd<NONE>(y, x);
         auto Pxx = std::get<1>(welch<NONE>(x));
-        return std::make_tuple(freqs, std::move(Pyx) / std::move(Pxx));
+        return std::tuple{freqs, std::move(Pyx) / std::move(Pxx)};
     }
 
   private:
