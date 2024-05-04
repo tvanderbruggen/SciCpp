@@ -9,8 +9,8 @@ SCICPP_SRC=scicpp
 
 TMP=tmp
 
-COMPILER ?= clang
-# COMPILER ?= gcc
+# COMPILER ?= clang
+COMPILER ?= gcc
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native
@@ -25,8 +25,8 @@ WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
 
 ifeq ($(COMPILER),gcc)
-  CC = $(CROSS_COMPILE)gcc-8
-  CCXX = $(CROSS_COMPILE)g++-8
+  CC = $(CROSS_COMPILE)gcc-9
+  CCXX = $(CROSS_COMPILE)g++-9
 
   WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond -Wsuggest-attribute=pure -Wsuggest-attribute=const
 else
