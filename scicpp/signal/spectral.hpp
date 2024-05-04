@@ -230,6 +230,40 @@ class Spectrum {
     }
 
     template <typename Array, typename FFTFunc>
+    auto
+    get_segment_psd(const Array &a, signed_size_t seg_idx, FFTFunc &&fftfunc) {
+        using namespace scicpp::operators;
+
+        auto seg = utils::subvector(a, std::size_t(m_nperseg), seg_idx);
+        scicpp_require(seg.size() == m_window.size());
+        return norm(fftfunc(detrend(std::move(seg)) * m_window));
+    }
+
+    template <class Func>
+    auto compute_segments_multithread(signed_size_t nseg, Func func) {
+        std::vector<std::thread> threads_pool(m_nthreads);
+        signed_size_t i = 0;
+
+        while (i < nseg) {
+            for (auto &thrd : threads_pool) {
+                thrd = std::thread(func, i);
+
+                ++i;
+
+                if (i >= nseg) {
+                    break;
+                }
+            }
+
+            for (auto &thrd : threads_pool) {
+                if (thrd.joinable()) {
+                    thrd.join();
+                }
+            }
+        }
+    }
+
+    template <typename Array, typename FFTFunc>
     auto welch_impl(std::size_t nfft, const Array &a, FFTFunc &&fftfunc) {
         using namespace scicpp::operators;
 
@@ -241,48 +275,18 @@ class Spectrum {
 
         if (m_nthreads <= 1 || nseg == 1) {
             for (signed_size_t i = 0; i < nseg; ++i) {
-                // In principle we could avoid to reallocate a vector each time
-                auto seg =
-                    utils::subvector(a, std::size_t(m_nperseg), i * nstep);
-                scicpp_require(seg.size() == m_window.size());
-                res = std::move(res) +
-                      norm(fftfunc(detrend(std::move(seg)) * m_window));
+                res = std::move(res) + get_segment_psd(a, i * nstep, fftfunc);
             }
         } else {
             std::mutex mtx;
-            std::vector<std::thread> threads_pool(m_nthreads);
-            signed_size_t i = 0;
+            compute_segments_multithread(nseg, [&](auto i) {
+                auto seg_spectrum = get_segment_psd(a, i * nstep, fftfunc);
 
-            while (i < nseg) {
-                for (auto &thread : threads_pool) {
-                    thread = std::thread(
-                        [&](auto i) {
-                            auto seg = utils::subvector(
-                                a, std::size_t(m_nperseg), i * nstep);
-                            scicpp_require(seg.size() == m_window.size());
-                            auto seg_spectrum = norm(
-                                fftfunc(detrend(std::move(seg)) * m_window));
-
-                            {
-                                std::lock_guard guard(mtx);
-                                res = std::move(res) + std::move(seg_spectrum);
-                            }
-                        },
-                        i);
-
-                    ++i;
-
-                    if (i >= nseg) {
-                        break;
-                    }
+                {
+                    std::lock_guard guard(mtx);
+                    res = std::move(res) + std::move(seg_spectrum);
                 }
-
-                for (auto &thread : threads_pool) {
-                    if (thread.joinable()) {
-                        thread.join();
-                    }
-                }
-            }
+            });
         }
 
         return std::move(res) / T(nseg);
