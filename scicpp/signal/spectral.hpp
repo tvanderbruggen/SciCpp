@@ -229,16 +229,6 @@ class Spectrum {
         }
     }
 
-    template <typename Array, typename FFTFunc>
-    auto
-    get_segment_psd(const Array &a, signed_size_t seg_idx, FFTFunc &&fftfunc) {
-        using namespace scicpp::operators;
-
-        auto seg = utils::subvector(a, std::size_t(m_nperseg), seg_idx);
-        scicpp_require(seg.size() == m_window.size());
-        return norm(fftfunc(detrend(std::move(seg)) * m_window));
-    }
-
     template <class Func>
     auto compute_segments_multithread(signed_size_t nseg, Func func) {
         std::vector<std::thread> threads_pool(m_nthreads);
@@ -263,24 +253,22 @@ class Spectrum {
         }
     }
 
-    template <typename Array, typename FFTFunc>
-    auto welch_impl(std::size_t nfft, const Array &a, FFTFunc &&fftfunc) {
+    template <typename Tp, class SegPsdFunc>
+    auto compute_spectrum(std::size_t nfft,
+                          signed_size_t nseg,
+                          SegPsdFunc get_segment_psd) {
         using namespace scicpp::operators;
 
-        const auto asize = signed_size_t(a.size());
-        const auto nstep = m_nperseg - m_noverlap;
-        const auto nseg = 1 + (asize - m_nperseg) / nstep;
-
-        auto res = zeros<T>(nfft);
+        auto res = zeros<Tp>(nfft);
 
         if (m_nthreads <= 1 || nseg == 1) {
             for (signed_size_t i = 0; i < nseg; ++i) {
-                res = std::move(res) + get_segment_psd(a, i * nstep, fftfunc);
+                res = std::move(res) + get_segment_psd(i);
             }
         } else {
             std::mutex mtx;
             compute_segments_multithread(nseg, [&](auto i) {
-                auto seg_spectrum = get_segment_psd(a, i * nstep, fftfunc);
+                auto seg_spectrum = get_segment_psd(i);
 
                 {
                     std::lock_guard guard(mtx);
@@ -290,6 +278,21 @@ class Spectrum {
         }
 
         return std::move(res) / T(nseg);
+    }
+
+    template <typename Array, typename FFTFunc>
+    auto welch_impl(std::size_t nfft, const Array &a, FFTFunc &&fftfunc) {
+        const auto asize = signed_size_t(a.size());
+        const auto nstep = m_nperseg - m_noverlap;
+        const auto nseg = 1 + (asize - m_nperseg) / nstep;
+
+        return compute_spectrum<T>(nfft, nseg, [&](auto i) {
+            using namespace scicpp::operators;
+
+            auto seg = utils::subvector(a, std::size_t(m_nperseg), i * nstep);
+            scicpp_require(seg.size() == m_window.size());
+            return norm(fftfunc(detrend(std::move(seg)) * m_window));
+        });
     }
 
     template <typename Array1, typename Array2, typename FFTFunc>
@@ -304,21 +307,16 @@ class Spectrum {
         const auto nstep = m_nperseg - m_noverlap;
         const auto nseg = 1 + (asize - m_nperseg) / nstep;
 
-        auto res = zeros<std::complex<T>>(nfft);
+        return compute_spectrum<std::complex<T>>(nfft, nseg, [&](auto i) {
+            using namespace scicpp::operators;
 
-        for (signed_size_t i = 0; i < nseg; ++i) {
-            // In principle we could avoid to reallocate a vector each time
             auto seg_x = utils::subvector(x, std::size_t(m_nperseg), i * nstep);
             scicpp_require(seg_x.size() == m_window.size());
             auto seg_y = utils::subvector(y, std::size_t(m_nperseg), i * nstep);
             scicpp_require(seg_y.size() == m_window.size());
-
-            res = std::move(res) +
-                  conj(fftfunc(detrend(std::move(seg_x)) * m_window)) *
-                      fftfunc(detrend(std::move(seg_y)) * m_window);
-        }
-
-        return std::move(res) / T(nseg);
+            return conj(fftfunc(detrend(std::move(seg_x)) * m_window)) *
+                   fftfunc(detrend(std::move(seg_y)) * m_window);
+        });
     }
 
     template <SpectrumScaling scaling, SpectrumSides sides, typename SpecTp>
