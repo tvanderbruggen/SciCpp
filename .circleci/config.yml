@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Install SciPy
-          command: apt-get update; apt-get install -y time python-numpy python-scipy;
+          command: apt-get update; apt-get install -y time python3-numpy python3-scipy;
       - run:
           name: Install GCC-9
           command: apt-get install -y g++-9 gcc-9 libc6-dev libc-dev make;
