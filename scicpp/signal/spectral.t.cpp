@@ -539,7 +539,7 @@ TEST_CASE("coherence") {
                                  0.3846153846153846,
                                  0.4615384615384616}));
         // print(Cxx);
-        REQUIRE(almost_equal(Cxx, ones<double>(f.size())));
+        REQUIRE(almost_equal<16>(Cxx, ones<double>(f.size())));
 
         const auto [_, Cxy] =
             Spectrum{}.window(windows::Bartlett, 13).coherence(x, y);
@@ -598,7 +598,7 @@ TEST_CASE("tfestimate") {
                                  0.3846153846153846,
                                  0.4615384615384616}));
         // print(Txx);
-        REQUIRE(almost_equal(Txx, ones<std::complex<double>>(7)));
+        REQUIRE(almost_equal<16>(Txx, ones<std::complex<double>>(7)));
     }
 }
 
