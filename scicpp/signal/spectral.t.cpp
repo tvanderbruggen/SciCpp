@@ -29,6 +29,12 @@ TEST_CASE("welch") {
                                   .welch(std::array<double, 0>{});
         REQUIRE(f2.empty());
         REQUIRE(p2.empty());
+
+        // Don't return frequencies
+        const auto p3 = Spectrum{}
+                            .window(windows::hann<double>(20))
+                            .welch<DENSITY, false>(std::array<double, 0>{});
+        REQUIRE(p3.empty());
     }
 
     SECTION("Even size") {
@@ -123,6 +129,21 @@ TEST_CASE("welch") {
         // print(p5);
         REQUIRE(almost_equal(f5, {0.}));
         REQUIRE(almost_equal(p5, {0.}));
+
+        // Don't return frequencies
+        const auto p6 = Spectrum{}
+                            .window(windows::gaussian(16, 2.0))
+                            .welch<DENSITY, false>(x);
+        REQUIRE(almost_equal<8>(p6,
+                                {0.033283705527078,
+                                 0.1552473685118426,
+                                 0.3652273927481822,
+                                 0.4944119749912214,
+                                 0.5275115073459213,
+                                 0.5288622631786398,
+                                 0.5309738347484061,
+                                 0.5290399525770682,
+                                 0.2654870587529604}));
     }
 
     SECTION("Complex") {
@@ -269,6 +290,13 @@ TEST_CASE("csd") {
                                        empty<std::complex<double>>());
         REQUIRE(f3.empty());
         REQUIRE(p3.empty());
+
+        // Don't return frequencies
+        const auto p4 = Spectrum{}
+                            .window(windows::hann<double>(20))
+                            .csd<DENSITY, false>(empty<std::complex<double>>(),
+                                                 empty<std::complex<double>>());
+        REQUIRE(p4.empty());
     }
 
     SECTION("Same data real") {

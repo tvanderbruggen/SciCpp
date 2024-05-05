@@ -82,14 +82,18 @@ class Spectrum {
     // Spectrum computations
     // -------------------------------------------------------------------------
 
-    template <SpectrumScaling scaling = DENSITY, typename Array>
+    template <SpectrumScaling scaling = DENSITY,
+              bool return_freqs = true,
+              typename Array>
     auto periodogram(const Array &x) {
         scicpp_require(x.size() == m_window.size());
         noverlap(0);
-        return welch(x);
+        return welch<scaling, return_freqs>(x);
     }
 
-    template <SpectrumScaling scaling = DENSITY, typename Array>
+    template <SpectrumScaling scaling = DENSITY,
+              bool return_freqs = true,
+              typename Array>
     auto welch(const Array &x) {
         using namespace scicpp::operators;
         using EltTp = typename Array::value_type;
@@ -98,24 +102,33 @@ class Spectrum {
         static_assert(std::is_same_v<EltTp, T> ||
                       std::is_same_v<EltTp, std::complex<T>>);
 
-        if (x.empty()) {
-            return std::tuple{empty<T>(), empty<T>()};
-        }
-
-        const auto freqs = get_freqs<EltTp>();
+        std::vector<T> psd;
 
         if constexpr (meta::is_complex_v<EltTp>) {
-            return std::tuple{freqs,
-                              normalize<scaling, TWOSIDED>(
-                                  welch_impl(freqs.size(), x, fft_func))};
+            psd = normalize<scaling, TWOSIDED>(
+                welch_impl(std::size_t(m_nperseg), x, fft_func));
         } else {
-            return std::tuple{freqs,
-                              normalize<scaling, ONESIDED>(
-                                  welch_impl(freqs.size(), x, rfft_func))};
+            psd = normalize<scaling, ONESIDED>(
+                welch_impl(std::size_t(m_nperseg) / 2 + 1, x, rfft_func));
+        }
+
+        if constexpr (return_freqs) {
+            if (x.empty()) {
+                return std::tuple{empty<T>(), empty<T>()};
+            } else {
+                return std::tuple{get_freqs<EltTp>(), psd};
+            }
+        } else {
+            if (x.empty()) {
+                return empty<T>();
+            } else {
+                return psd;
+            }
         }
     }
 
     template <SpectrumScaling scaling = DENSITY,
+              bool return_freqs = true,
               typename Array1,
               typename Array2>
     auto csd(const Array1 &x, const Array2 &y) {
@@ -136,26 +149,34 @@ class Spectrum {
                                          T>;
 
         if (x.empty() || y.empty()) {
-            return std::tuple{empty<T>(), empty<std::complex<T>>()};
+            if constexpr (return_freqs) {
+                return std::tuple{empty<T>(), empty<std::complex<T>>()};
+            } else {
+                return empty<std::complex<T>>();
+            }
         }
 
-        const auto freqs = get_freqs<EltTp>();
-
         if (x.size() == y.size()) {
+            std::vector<std::complex<T>> csd;
+
             if constexpr (meta::is_complex_v<EltTp>) {
-                return std::tuple{freqs,
-                                  normalize<scaling, TWOSIDED>(welch2_impl(
-                                      freqs.size(), x, y, fft_func))};
+                csd = normalize<scaling, TWOSIDED>(
+                    welch2_impl(std::size_t(m_nperseg), x, y, fft_func));
             } else {
-                return std::tuple{freqs,
-                                  normalize<scaling, ONESIDED>(welch2_impl(
-                                      freqs.size(), x, y, rfft_func))};
+                csd = normalize<scaling, ONESIDED>(welch2_impl(
+                    std::size_t(m_nperseg) / 2 + 1, x, y, rfft_func));
+            }
+
+            if constexpr (return_freqs) {
+                return std::tuple{get_freqs<EltTp>(), csd};
+            } else {
+                return csd;
             }
         } else {
             if (x.size() > y.size()) {
-                return csd<scaling>(x, zero_padding(y, x.size()));
+                return csd<scaling, return_freqs>(x, zero_padding(y, x.size()));
             } else { // x.size() < y.size()
-                return csd<scaling>(zero_padding(x, y.size()), y);
+                return csd<scaling, return_freqs>(zero_padding(x, y.size()), y);
             }
         }
     }
@@ -182,7 +203,7 @@ class Spectrum {
         scicpp_require(x.size() == y.size());
 
         auto [freqs, Pyx] = csd<NONE>(y, x);
-        auto Pxx = std::get<1>(welch<NONE>(x));
+        auto Pxx = welch<NONE, false>(x);
         return std::tuple{freqs, std::move(Pyx) / std::move(Pxx)};
     }
 
@@ -237,7 +258,6 @@ class Spectrum {
         while (i < nseg) {
             for (auto &thrd : threads_pool) {
                 thrd = std::thread(func, i);
-
                 ++i;
 
                 if (i >= nseg) {

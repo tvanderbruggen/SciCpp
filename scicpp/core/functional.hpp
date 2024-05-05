@@ -241,7 +241,7 @@ template <class InputIt, class UnaryPredicate, class BinaryOp, typename T>
         }
     }
 
-    return std::make_tuple(init, cnt);
+    return std::tuple{init, cnt};
 }
 
 template <class Array, class UnaryPredicate, class BinaryOp, typename T2>
