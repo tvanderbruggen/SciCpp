@@ -7,6 +7,8 @@
 #include <Eigen/Dense>
 #include <array>
 #include <complex>
+#include <cstdint>
+#include <cstdlib>
 #include <ratio>
 #include <string>
 #include <tuple>

@@ -7,6 +7,7 @@
 #include "scicpp/core/meta.hpp"
 
 #include <array>
+#include <cstdlib>
 #include <iterator>
 #include <vector>
 

@@ -8,15 +8,17 @@
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/units/quantity.hpp"
-#include "scicpp/core/utils.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <complex>
+#include <cstddef>
+#include <functional>
 #include <iterator>
-#include <limits>
 #include <numeric>
 #include <type_traits>
+#include <vector>
 
 namespace scicpp {
 

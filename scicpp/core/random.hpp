@@ -9,6 +9,7 @@
 #include "scicpp/core/units/quantity.hpp"
 
 #include <array>
+#include <cstdint>
 #include <random>
 #include <type_traits>
 #include <utility>

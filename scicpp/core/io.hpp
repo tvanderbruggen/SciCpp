@@ -12,10 +12,14 @@
 #include <Eigen/Dense>
 #include <algorithm>
 #include <any>
+#include <array>
+#include <complex>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <limits>
 #include <map>
 #include <optional>
 #include <sstream>

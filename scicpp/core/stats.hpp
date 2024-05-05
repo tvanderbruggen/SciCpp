@@ -13,10 +13,14 @@
 
 #include <Eigen/Dense>
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstdint>
+#include <iterator>
 #include <limits>
-#include <numeric>
 #include <tuple>
+#include <type_traits>
+#include <vector>
 
 namespace scicpp::stats {
 
