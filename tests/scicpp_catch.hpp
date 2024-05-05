@@ -10,7 +10,7 @@
 
 #include <limits>
 
-// Simple float comparision to test constexpr functions
+// Simple float comparison to test constexpr functions
 template <typename T>
 constexpr bool float_equal(T a, T b) {
     constexpr auto eps = std::numeric_limits<double>::epsilon();
