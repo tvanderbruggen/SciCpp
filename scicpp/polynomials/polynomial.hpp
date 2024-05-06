@@ -8,6 +8,7 @@
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
+#include "scicpp/core/numeric.hpp"
 #include "scicpp/linalg/solve.hpp"
 #include "scicpp/linalg/utils.hpp"
 #include "scicpp/signal/convolve.hpp"

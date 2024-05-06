@@ -5,6 +5,7 @@
 #define SCICPP_SIGNAL_FFT
 
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/numeric.hpp"
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
