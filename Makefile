@@ -174,7 +174,7 @@ example_build: $(EXAMPLE_TARGET)
 
 .PHONY: example_py
 example_py:
-	python $(EXAMPLE_PY)
+	python3 $(EXAMPLE_PY)
 
 .PHONY: clean_examples
 clean_examples:
