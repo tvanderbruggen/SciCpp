@@ -5,13 +5,12 @@
 #define SCICPP_SIGNAL_FFT
 
 #include "scicpp/core/macros.hpp"
-#include "scicpp/core/numeric.hpp"
 #include "scicpp/core/utils.hpp"
-#include "scicpp/signal/windows.hpp"
 
 #include <algorithm>
 #include <array>
 #include <complex>
+#include <cstdlib>
 #include <unsupported/Eigen/FFT>
 #include <utility>
 #include <vector>

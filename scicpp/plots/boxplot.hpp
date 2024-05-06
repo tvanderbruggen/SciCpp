@@ -9,6 +9,7 @@
 #include "scicpp/plots/utils.hpp"
 
 #include <array>
+#include <cstdlib>
 #include <sciplot/sciplot.hpp>
 #include <string>
 #include <tuple>

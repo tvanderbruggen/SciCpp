@@ -8,14 +8,13 @@
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/maths.hpp"
-#include "scicpp/core/numeric.hpp"
 #include "scicpp/core/units/units.hpp"
 #include "scicpp/polynomials/polynomial.hpp"
 
-#include <algorithm>
 #include <array>
 #include <cmath>
-#include <tuple>
+#include <cstdlib>
+#include <type_traits>
 #include <vector>
 
 namespace scicpp::signal {

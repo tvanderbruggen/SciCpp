@@ -8,7 +8,6 @@
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
-#include "scicpp/core/numeric.hpp"
 #include "scicpp/linalg/solve.hpp"
 #include "scicpp/linalg/utils.hpp"
 #include "scicpp/signal/convolve.hpp"
@@ -18,12 +17,12 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <complex>
+#include <cstdlib>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
-#include <limits>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -339,7 +338,7 @@ constexpr auto polyder_once(const std::array<T, N> &P) {
 
 template <typename T>
 void polyder_once(std::vector<T> &P) {
-    scicpp_require(P.size() >= 1);
+    scicpp_require(!P.empty());
     const auto N = P.size();
 
     for (std::size_t i = 0; i < (N - 1); ++i) {
@@ -440,7 +439,7 @@ constexpr auto polyint(const std::array<T, N> &P) {
 
 template <typename T>
 auto polyint(const std::vector<T> &P, signed_size_t m = 1) {
-    scicpp_require(P.size() > 0);
+    scicpp_require(!P.empty());
     scicpp_require(m >= 0);
 
     if (m == 0) {

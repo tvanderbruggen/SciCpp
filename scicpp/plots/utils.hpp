@@ -4,6 +4,8 @@
 #ifndef SCICPP_PLOTS_UTILS
 #define SCICPP_PLOTS_UTILS
 
+#include "scicpp/core/macros.hpp"
+
 #include <unordered_map>
 
 namespace scicpp::plots {
