@@ -8,6 +8,7 @@
 
 #include <Eigen/Dense>
 #include <array>
+#include <cstdlib>
 #include <vector>
 
 namespace scicpp::linalg {

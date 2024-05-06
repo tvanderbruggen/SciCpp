@@ -8,6 +8,7 @@
 #include "scicpp/core/stats.hpp"
 #include "scicpp/plots/utils.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <sciplot/sciplot.hpp>

@@ -29,7 +29,7 @@ static const MarkersMap markers = {{'.', 0},
 
 } // namespace detail
 
-[[nodiscard]] scicpp_pure auto marker(char c) {
+[[nodiscard]] scicpp_pure inline auto marker(char c) {
     const auto elt = detail::markers.find(c);
 
     if (elt != detail::markers.end()) {
