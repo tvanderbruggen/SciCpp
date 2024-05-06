@@ -6,14 +6,17 @@
 
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/functional.hpp"
+#include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/units/units.hpp"
 
 #include <array>
 #include <cmath>
 #include <complex>
+#include <cstdlib>
 #include <limits>
 #include <numeric>
+#include <type_traits>
 #include <vector>
 
 namespace scicpp {

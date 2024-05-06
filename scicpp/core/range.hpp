@@ -6,12 +6,14 @@
 
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/units/quantity.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstdint>
+#include <cstdlib>
 #include <numeric>
-#include <type_traits>
 #include <utility>
 #include <vector>
 

@@ -4,14 +4,10 @@
 #ifndef SCICPP_CORE_UNITS_UNITS
 #define SCICPP_CORE_UNITS_UNITS
 
-#include "scicpp/core/meta.hpp"
-#include "scicpp/core/units/arithmetic.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
 #include <cmath>
-#include <cstdint>
 #include <cstdio>
-#include <numeric>
 #include <ratio>
 #include <type_traits>
 

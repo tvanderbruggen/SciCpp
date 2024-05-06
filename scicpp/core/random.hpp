@@ -5,7 +5,6 @@
 #define SCICPP_CORE_RANDOM
 
 #include "scicpp/core/functional.hpp"
-#include "scicpp/core/numeric.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
 #include <array>

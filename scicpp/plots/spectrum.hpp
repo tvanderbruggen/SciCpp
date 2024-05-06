@@ -4,8 +4,10 @@
 #ifndef SCICPP_PLOTS_CSD
 #define SCICPP_PLOTS_CSD
 
+#include "scicpp/core/maths.hpp"
 #include "scicpp/signal/spectral.hpp"
 
+#include <cstdint>
 #include <sciplot/sciplot.hpp>
 #include <string>
 #include <utility>
