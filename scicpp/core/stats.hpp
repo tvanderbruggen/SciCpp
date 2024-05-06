@@ -393,8 +393,8 @@ constexpr auto covariance(InputIt1 first1,
                    std::distance(first2, last2));
 
     if (unlikely(std::distance(first1, last1) == 0)) {
-        return std::make_tuple(std::numeric_limits<prod_t>::quiet_NaN(),
-                               signed_size_t(0));
+        return std::tuple{std::numeric_limits<prod_t>::quiet_NaN(),
+                          signed_size_t(0)};
     }
 
     // Pairwise recursive implementation of covariance summation
@@ -421,7 +421,7 @@ constexpr auto covariance(InputIt1 first1,
                 }
             }
 
-            return std::make_tuple(m1, m2, res, cnt);
+            return std::tuple{m1, m2, res, cnt};
         },
         [&](const auto res1, const auto res2) {
             // Combine covariances
@@ -441,14 +441,13 @@ constexpr auto covariance(InputIt1 first1,
                 (raw_t(static_cast<int>(n1)) * raw_t(static_cast<int>(n2)) /
                  raw_t(static_cast<int>(n_c))) *
                     conj(m12 - m22) * (m11 - m21);
-            return std::make_tuple(m1_c, m2_c, covar_c, n_c);
+            return std::tuple{m1_c, m2_c, covar_c, n_c};
         });
 
     if (unlikely(c_ - ddof <= 0)) {
-        return std::make_tuple(std::numeric_limits<decltype(cov_)>::infinity(),
-                               c_);
+        return std::tuple{std::numeric_limits<decltype(cov_)>::infinity(), c_};
     } else {
-        return std::make_tuple(cov_ / raw_t(static_cast<int>(c_) - ddof), c_);
+        return std::tuple{cov_ / raw_t(static_cast<int>(c_) - ddof), c_};
     }
 }
 
@@ -480,9 +479,9 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
 
     if constexpr (meta::is_complex_v<T>) {
         // The variance is always a nonnegative real number
-        return std::make_tuple(std::real(v), n);
+        return std::tuple{std::real(v), n};
     } else {
-        return std::make_tuple(v, n);
+        return std::tuple{v, n};
     }
 }
 

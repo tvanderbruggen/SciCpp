@@ -365,7 +365,7 @@ filter_reduce_associative(InputIt first,
             [&](const auto res1, const auto res2) {
                 const auto [x1, n1] = res1;
                 const auto [x2, n2] = res2;
-                return std::make_tuple(op(x1, x2), n1 + n2);
+                return std::tuple{op(x1, x2), n1 + n2};
             });
     }
 }
