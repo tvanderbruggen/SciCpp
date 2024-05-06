@@ -13,4 +13,4 @@ if __name__ == "__main__":
     zeros = np.polynomial.polynomial.polyroots(P)
 
     print("Zeros: Expect 0, pi, 2 pi")
-    print zeros
+    print(zeros)
