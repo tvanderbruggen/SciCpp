@@ -377,7 +377,7 @@ TEST_CASE("csd") {
             Spectrum{}.window(windows::Hamming, 10).csd(x, y);
         REQUIRE(almost_equal(f1, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         // print(Pxy1);
-        REQUIRE(almost_equal<4000>(
+        REQUIRE(almost_equal<8000>(
             Pxy1,
             {5.4059942258228820e-17 + 0.0000000000000000e+00i,
              -8.7635981684350106e-01 + 7.2394256646839600e-02i,

@@ -26,6 +26,15 @@ TEST_CASE("Forward complex FFT") {
         REQUIRE(almost_equal(fft(full(1, 1. + 1.i), std::move(y)), {1. + 1.i}));
     }
 
+    SECTION("Complex input array") {
+        std::array x{1. + 3.i, 2. + 2.i, 3. + 1.i};
+        REQUIRE(almost_equal<2>(fft(x),
+                                {6. + 6.i,
+                                 -0.6339745962155614 + 2.3660254037844388i,
+                                 -2.3660254037844388 + 0.6339745962155614i}));
+        REQUIRE(almost_equal(fft(full<1>(1. + 1.i)), {1. + 1.i}));
+    }
+
     SECTION("Real input vector") {
         std::vector x{1., 2., 3.};
         REQUIRE(almost_equal<2>(fft(x),
@@ -41,10 +50,18 @@ TEST_CASE("Forward complex FFT") {
                                  -1.5 + 0.8660254037844386i,
                                  -1.5 - 0.8660254037844386i}));
     }
+
+    SECTION("Real input array") {
+        std::array x{1., 2., 3.};
+        REQUIRE(almost_equal<2>(fft(x),
+                                {6. + 0.i,
+                                 -1.5 + 0.8660254037844386i,
+                                 -1.5 - 0.8660254037844386i}));
+    }
 }
 
 TEST_CASE("Forward real FFT") {
-    SECTION("Odd length") {
+    SECTION("Odd length vector") {
         std::vector x{1., 2., 3.};
         REQUIRE(
             almost_equal<2>(rfft(x), {6. + 0.i, -1.5 + 0.8660254037844386i}));
@@ -56,8 +73,31 @@ TEST_CASE("Forward real FFT") {
                                 {6. + 0.i, -1.5 + 0.8660254037844386i}));
     }
 
-    SECTION("Even length") {
+    SECTION("Odd length array") {
+        std::array x{1., 2., 3.};
+        REQUIRE(
+            almost_equal<2>(rfft(x), {6. + 0.i, -1.5 + 0.8660254037844386i}));
+    }
+
+    SECTION("Even length vector") {
         auto x = zeros<double>(16);
+        x[0] = 1.0;
+        x[8] = 1.0;
+        // print(rfft(x));
+        REQUIRE(almost_equal(rfft(x),
+                             {2. + 0.i,
+                              0. + 0.i,
+                              2. - 0.i,
+                              0. + 0.i,
+                              2. + 0.i,
+                              0. + 0.i,
+                              2. + 0.i,
+                              0. + 0.i,
+                              2. + 0.i}));
+    }
+
+    SECTION("Even length array") {
+        auto x = zeros<16, double>();
         x[0] = 1.0;
         x[8] = 1.0;
         // print(rfft(x));
