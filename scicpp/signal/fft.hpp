@@ -187,6 +187,15 @@ auto zero_padding(std::vector<T> &&v, std::size_t new_size) {
 //---------------------------------------------------------------------------------
 
 template <typename T>
+void fft_inplace(const std::vector<std::complex<T>> &x,
+                 std::vector<std::complex<T>> &dst) {
+    scicpp_require(!x.empty());
+
+    Eigen::FFT<T> fft_engine;
+    fft_engine.fwd(dst, x);
+}
+
+template <typename T>
 auto fft(const std::vector<std::complex<T>> &x,
          std::vector<std::complex<T>> &&dst) {
     scicpp_require(!x.empty());
@@ -195,8 +204,7 @@ auto fft(const std::vector<std::complex<T>> &x,
         return std::vector{x[0]};
     }
 
-    Eigen::FFT<T> fft_engine;
-    fft_engine.fwd(dst, x);
+    fft_inplace(x, dst);
     return std::move(dst);
 }
 
@@ -207,6 +215,14 @@ auto fft(const std::vector<std::complex<T>> &x) {
 }
 
 template <typename T>
+void fft_inplace(const std::vector<T> &x, std::vector<std::complex<T>> &dst) {
+    scicpp_require(!x.empty());
+
+    Eigen::FFT<T> fft_engine;
+    fft_engine.fwd(dst, x);
+}
+
+template <typename T>
 auto fft(const std::vector<T> &x, std::vector<std::complex<T>> &&dst) {
     scicpp_require(!x.empty());
 
@@ -214,8 +230,7 @@ auto fft(const std::vector<T> &x, std::vector<std::complex<T>> &&dst) {
         return std::vector{std::complex(x[0])};
     }
 
-    Eigen::FFT<T> fft_engine;
-    fft_engine.fwd(dst, x);
+    fft_inplace(x, dst);
     return std::move(dst);
 }
 
@@ -226,6 +241,15 @@ auto fft(const std::vector<T> &x) {
 }
 
 template <typename T>
+void rfft_inplace(const std::vector<T> &x, std::vector<std::complex<T>> &dst) {
+    scicpp_require(!x.empty());
+
+    Eigen::FFT<T> fft_engine;
+    fft_engine.SetFlag(Eigen::FFT<T>::HalfSpectrum);
+    fft_engine.fwd(dst, x);
+}
+
+template <typename T>
 auto rfft(const std::vector<T> &x, std::vector<std::complex<T>> &&dst) {
     scicpp_require(!x.empty());
 
@@ -233,9 +257,7 @@ auto rfft(const std::vector<T> &x, std::vector<std::complex<T>> &&dst) {
         return std::vector{std::complex(x[0])};
     }
 
-    Eigen::FFT<T> fft_engine;
-    fft_engine.SetFlag(Eigen::FFT<T>::HalfSpectrum);
-    fft_engine.fwd(dst, x);
+    rfft_inplace(x, dst);
     return std::move(dst);
 }
 

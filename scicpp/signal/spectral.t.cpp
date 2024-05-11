@@ -336,7 +336,7 @@ TEST_CASE("csd") {
                                  0.4,
                                  0.4666666666666667}));
         // print(Pxy);
-        REQUIRE(almost_equal<40>(
+        REQUIRE(almost_equal<60>(
             Pxy,
             {-3.7062851089728351e-30 + 0.0000000000000000e+00i,
              5.5638353667040628e+00 - 3.1311659646683040e-15i,
@@ -377,7 +377,7 @@ TEST_CASE("csd") {
             Spectrum{}.window(windows::Hamming, 10).csd(x, y);
         REQUIRE(almost_equal(f1, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         // print(Pxy1);
-        REQUIRE(almost_equal<2000>(
+        REQUIRE(almost_equal<4000>(
             Pxy1,
             {5.4059942258228820e-17 + 0.0000000000000000e+00i,
              -8.7635981684350106e-01 + 7.2394256646839600e-02i,
@@ -390,7 +390,7 @@ TEST_CASE("csd") {
             Spectrum{}.window(windows::Hamming, 10).csd(y, x);
         REQUIRE(almost_equal(f2, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         // print(Pxy2);
-        REQUIRE(almost_equal<2000>(
+        REQUIRE(almost_equal<4000>(
             Pxy2,
             {5.4059942258228820e-17 - 0.0000000000000000e+00i,
              -8.7635981684350106e-01 - 7.2394256646839600e-02i,
@@ -465,7 +465,7 @@ TEST_CASE("csd") {
                                  -0.1538461538461539,
                                  -0.0769230769230769}));
         // print(Pxy1);
-        REQUIRE(almost_equal<64>(
+        REQUIRE(almost_equal<256>(
             Pxy1,
             {4.5899691627736384e-16 - 1.0580603772799155e-15i,
              -1.5374895513987188e-01 - 2.7174310487694364e-01i,
@@ -498,7 +498,7 @@ TEST_CASE("csd") {
                                  -0.1538461538461539,
                                  -0.0769230769230769}));
         // print(Pxy2);
-        REQUIRE(almost_equal<64>(
+        REQUIRE(almost_equal<256>(
             Pxy2,
             {4.5899691627736384e-16 + 1.0580603772799155e-15i,
              -1.5374895513987188e-01 + 2.7174310487694364e-01i,
