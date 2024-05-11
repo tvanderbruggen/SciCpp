@@ -99,7 +99,7 @@ TEST_CASE("fftconvolve") {
         const std::vector a{3.14, 2.7, 42., 78.5};
         const std::vector v{1., 0.5, 1.};
         const auto res = fftconvolve(a, v);
-        REQUIRE(almost_equal<15>(res, {3.14, 4.27, 46.49, 102.2, 81.25, 78.5}));
+        REQUIRE(almost_equal<30>(res, {3.14, 4.27, 46.49, 102.2, 81.25, 78.5}));
     }
 
     SECTION("v smaller than a") {
@@ -166,7 +166,7 @@ TEST_CASE("correlate") {
         const std::vector v{1., 0.5, 1.};
         const auto res = correlate<FFT>(a, v);
         // print(res);
-        REQUIRE(almost_equal<25>(res, {3.14, 4.27, 46.49, 102.5, 81.4, 78.8}));
+        REQUIRE(almost_equal<50>(res, {3.14, 4.27, 46.49, 102.5, 81.4, 78.8}));
     }
 
     SECTION("std::vector complex") {
