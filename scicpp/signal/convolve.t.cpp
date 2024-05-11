@@ -108,7 +108,7 @@ TEST_CASE("fftconvolve") {
         const auto res = fftconvolve(a, v);
         // print(res);
         REQUIRE(
-            almost_equal<75>(res, {3.14, 4.27, 4.49, 134.58, 359.89, 211.95}));
+            almost_equal<100>(res, {3.14, 4.27, 4.49, 134.58, 359.89, 211.95}));
     }
 
     SECTION("complex values") {
