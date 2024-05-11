@@ -187,7 +187,8 @@ auto zero_padding(std::vector<T> &&v, std::size_t new_size) {
 //---------------------------------------------------------------------------------
 
 template <typename T>
-auto fft(const std::vector<std::complex<T>> &x) {
+auto fft(const std::vector<std::complex<T>> &x,
+         std::vector<std::complex<T>> &&dst) {
     scicpp_require(!x.empty());
 
     if (x.size() == 1) {
@@ -195,13 +196,18 @@ auto fft(const std::vector<std::complex<T>> &x) {
     }
 
     Eigen::FFT<T> fft_engine;
-    std::vector<std::complex<T>> y;
-    fft_engine.fwd(y, x);
-    return y;
+    fft_engine.fwd(dst, x);
+    return std::move(dst);
 }
 
 template <typename T>
-auto fft(const std::vector<T> &x) {
+auto fft(const std::vector<std::complex<T>> &x) {
+    std::vector<std::complex<T>> y;
+    return fft(x, std::move(y));
+}
+
+template <typename T>
+auto fft(const std::vector<T> &x, std::vector<std::complex<T>> &&dst) {
     scicpp_require(!x.empty());
 
     if (x.size() == 1) {
@@ -209,13 +215,18 @@ auto fft(const std::vector<T> &x) {
     }
 
     Eigen::FFT<T> fft_engine;
-    std::vector<std::complex<T>> y;
-    fft_engine.fwd(y, x);
-    return y;
+    fft_engine.fwd(dst, x);
+    return std::move(dst);
 }
 
 template <typename T>
-auto rfft(const std::vector<T> &x) {
+auto fft(const std::vector<T> &x) {
+    std::vector<std::complex<T>> y;
+    return fft(x, std::move(y));
+}
+
+template <typename T>
+auto rfft(const std::vector<T> &x, std::vector<std::complex<T>> &&dst) {
     scicpp_require(!x.empty());
 
     if (x.size() == 1) {
@@ -224,9 +235,14 @@ auto rfft(const std::vector<T> &x) {
 
     Eigen::FFT<T> fft_engine;
     fft_engine.SetFlag(Eigen::FFT<T>::HalfSpectrum);
+    fft_engine.fwd(dst, x);
+    return std::move(dst);
+}
+
+template <typename T>
+auto rfft(const std::vector<T> &x) {
     std::vector<std::complex<T>> y;
-    fft_engine.fwd(y, x);
-    return y;
+    return rfft(x, std::move(y));
 }
 
 template <typename T>

@@ -21,6 +21,9 @@ TEST_CASE("Forward complex FFT") {
                                  -0.6339745962155614 + 2.3660254037844388i,
                                  -2.3660254037844388 + 0.6339745962155614i}));
         REQUIRE(almost_equal(fft(full(1, 1. + 1.i)), {1. + 1.i}));
+        // Using provided destination buffer
+        std::vector<std::complex<double>> y{};
+        REQUIRE(almost_equal(fft(full(1, 1. + 1.i), std::move(y)), {1. + 1.i}));
     }
 
     SECTION("Real input vector") {
@@ -31,6 +34,12 @@ TEST_CASE("Forward complex FFT") {
                                  -1.5 - 0.8660254037844386i}));
         REQUIRE(almost_equal(fft(ones<double>(1)), {1. + 0.i}));
         REQUIRE(almost_equal(fft(zeros<double>(1)), {0. + 0.i}));
+        // Using provided destination buffer
+        std::vector<std::complex<double>> y{};
+        REQUIRE(almost_equal<2>(fft(x, std::move(y)),
+                                {6. + 0.i,
+                                 -1.5 + 0.8660254037844386i,
+                                 -1.5 - 0.8660254037844386i}));
     }
 }
 
@@ -41,6 +50,10 @@ TEST_CASE("Forward real FFT") {
             almost_equal<2>(rfft(x), {6. + 0.i, -1.5 + 0.8660254037844386i}));
         REQUIRE(almost_equal(rfft(ones<double>(1)), {1. + 0.i}));
         REQUIRE(almost_equal(rfft(zeros<double>(1)), {0. + 0.i}));
+        // Using provided destination buffer
+        std::vector<std::complex<double>> y{};
+        REQUIRE(almost_equal<2>(rfft(x, std::move(y)),
+                                {6. + 0.i, -1.5 + 0.8660254037844386i}));
     }
 
     SECTION("Even length") {

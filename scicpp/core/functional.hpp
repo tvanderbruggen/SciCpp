@@ -149,7 +149,7 @@ template <class Array1, class Array2, class BinaryOp>
 // => Using raw loop:
 //    https://godbolt.org/z/HUzgjH
 //
-// Both codes generate a single call to new, so vectorize don't produce
+// Both codes generate a single call to new, so vectorize doesn't produce
 // unecessary temporaries.
 // For the vectorized version first the sin loop is called, then the cos one.
 // For the raw loop version a single loop call sin and cos.
