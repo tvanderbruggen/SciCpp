@@ -104,6 +104,14 @@ class Spectrum {
         static_assert(std::is_same_v<EltTp, T> ||
                       std::is_same_v<EltTp, std::complex<T>>);
 
+        if (x.empty()) {
+            if constexpr (return_freqs) {
+                return std::tuple{empty<T>(), empty<T>()};
+            } else {
+                return empty<T>();
+            }
+        }
+
         std::vector<T> psd;
 
         if constexpr (meta::is_complex_v<EltTp>) {
@@ -115,17 +123,9 @@ class Spectrum {
         }
 
         if constexpr (return_freqs) {
-            if (x.empty()) {
-                return std::tuple{empty<T>(), empty<T>()};
-            } else {
-                return std::tuple{get_freqs<EltTp>(), psd};
-            }
+            return std::tuple{get_freqs<EltTp>(), psd};
         } else {
-            if (x.empty()) {
-                return empty<T>();
-            } else {
-                return psd;
-            }
+            return psd;
         }
     }
 
