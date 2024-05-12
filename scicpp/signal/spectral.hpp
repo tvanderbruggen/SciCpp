@@ -52,7 +52,7 @@ class Spectrum {
 
     auto noverlap(signed_size_t noverlap) {
         scicpp_require(noverlap <= m_nperseg);
-        m_use_dflt_overlpap = false;
+        m_use_dflt_overlap = false;
         m_noverlap = noverlap;
         return *this;
     }
@@ -225,7 +225,7 @@ class Spectrum {
     T m_s1 = windows::s1(m_window);
     T m_s2 = windows::s2(m_window);
     signed_size_t m_nperseg = get_nperseg();
-    bool m_use_dflt_overlpap = true;
+    bool m_use_dflt_overlap = true;
     signed_size_t m_noverlap = m_nperseg / 2;
     std::size_t m_nthreads = 0;
 
@@ -236,7 +236,7 @@ class Spectrum {
         m_s2 = windows::s2(m_window);
         m_nperseg = get_nperseg();
 
-        if (m_use_dflt_overlpap) {
+        if (m_use_dflt_overlap) {
             m_noverlap = m_nperseg / 2;
         }
 
