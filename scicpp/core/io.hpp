@@ -492,6 +492,27 @@ class TxtLoader {
         }
     }
 
+    // Return all data in a single std::vector
+    auto load_vector(const std::filesystem::path &fname) const {
+        // First data type
+        using T = std::tuple_element_t<0, std::tuple<DataTypes...>>;
+
+        const auto [data, num_cols] = detail::loadtxt_to_vector<T>(fname,
+                                                                   m_comments,
+                                                                   m_delimiter,
+                                                                   m_skiprows,
+                                                                   m_usecols,
+                                                                   m_converters,
+                                                                   m_filters,
+                                                                   m_max_rows);
+
+        if constexpr (Ntypes > 1) {
+            return std::tuple{data, num_cols};
+        } else {
+            return data;
+        }
+    }
+
   private:
     char m_delimiter = ' ';
     signed_size_t m_skiprows = 0;

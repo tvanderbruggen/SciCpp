@@ -6,6 +6,7 @@
 
 #include "plots/boxplot.hpp"
 #include "plots/hist.hpp"
+#include "plots/plot.hpp"
 #include "plots/spectrum.hpp"
 #include "plots/utils.hpp"
 
