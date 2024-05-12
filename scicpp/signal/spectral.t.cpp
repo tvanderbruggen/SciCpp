@@ -621,4 +621,62 @@ TEST_CASE("welch parallel") {
     }
 }
 
+TEST_CASE("csd parallel") {
+    SECTION("Different data real same size") {
+        const auto x = linspace(1.0, 10.0, 100);
+        const auto y = linspace(10.0, 100.0, 100);
+        const auto [f, Pxy] =
+            Spectrum{}.window(windows::Hamming, 15).nthreads(2).csd(x, y);
+
+        // print(f);
+        REQUIRE(almost_equal<4>(f,
+                                {0.,
+                                 0.0666666666666667,
+                                 0.1333333333333333,
+                                 0.2,
+                                 0.2666666666666667,
+                                 0.3333333333333333,
+                                 0.4,
+                                 0.4666666666666667}));
+        // print(Pxy);
+        REQUIRE(almost_equal<60>(
+            Pxy,
+            {-3.7062851089728351e-30 + 0.0000000000000000e+00i,
+             5.5638353667040628e+00 - 3.1311659646683040e-15i,
+             1.3896361537945315e-01 + 2.8720474849532764e-16i,
+             1.9363830151308823e-03 + 7.8567939380376008e-18i,
+             9.1683760095253690e-03 + 3.2446435506274200e-17i,
+             1.0622173917597896e-02 + 5.6852044063349557e-17i,
+             1.0516902037792620e-02 - 8.7090083435688860e-17i,
+             1.0293880420302366e-02 + 2.1149639898068783e-17i}));
+    }
+
+    SECTION("Different data complex different sizes") {
+        auto x = ones<std::complex<double>>(32);
+        x[0] = 1.0 + 2.0i;
+        x[8] = 1.0 + 2.0i;
+
+        auto y = ones<std::complex<double>>(16);
+        y[0] = 3.0 - 4.0i;
+        y[8] = 1.0 + 2.0i;
+
+        const auto [f1, Pxy1] =
+            Spectrum{}.window(windows::Bartlett, 13).nthreads(2).csd(y, x);
+        REQUIRE(almost_equal<4>(f1,
+                                {0.,
+                                 0.0769230769230769,
+                                 0.1538461538461539,
+                                 0.2307692307692308,
+                                 0.3076923076923077,
+                                 0.3846153846153846,
+                                 0.4615384615384616,
+                                 -0.4615384615384616,
+                                 -0.3846153846153846,
+                                 -0.3076923076923077,
+                                 -0.2307692307692308,
+                                 -0.1538461538461539,
+                                 -0.0769230769230769}));
+    }
+}
+
 } // namespace scicpp::signal
