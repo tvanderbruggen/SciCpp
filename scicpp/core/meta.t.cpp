@@ -94,4 +94,19 @@ TEST_CASE("is_string") {
     static_assert(!is_string_v<float *>);
 }
 
+TEST_CASE("is_movable") {
+    static_assert(is_movable_v<int>);
+    static_assert(is_movable_v<std::string>);
+    static_assert(is_movable_v<std::vector<double>>);
+
+    // https://en.cppreference.com/w/cpp/types/is_move_constructible
+    struct NoMove {
+        // Not move-constructible since the lvalue reference
+        // can't bind to the rvalue argument
+        NoMove(NoMove &) {}
+    };
+
+    static_assert(!is_movable_v<NoMove>);
+}
+
 } // namespace scicpp::meta

@@ -311,7 +311,7 @@ class Spectrum {
         return compute_spectrum<T>(nfft, nseg, [&](auto i) {
             using namespace scicpp::operators;
 
-            auto seg = utils::subvector(a, std::size_t(m_nperseg), i * nstep);
+            auto seg = utils::subvector(a, m_nperseg, i * nstep);
             scicpp_require(seg.size() == m_window.size());
             return norm(fftfunc(detrend(std::move(seg)) * m_window));
         });
@@ -332,9 +332,9 @@ class Spectrum {
         return compute_spectrum<std::complex<T>>(nfft, nseg, [&](auto i) {
             using namespace scicpp::operators;
 
-            auto seg_x = utils::subvector(x, std::size_t(m_nperseg), i * nstep);
+            auto seg_x = utils::subvector(x, m_nperseg, i * nstep);
             scicpp_require(seg_x.size() == m_window.size());
-            auto seg_y = utils::subvector(y, std::size_t(m_nperseg), i * nstep);
+            auto seg_y = utils::subvector(y, m_nperseg, i * nstep);
             scicpp_require(seg_y.size() == m_window.size());
             return conj(fftfunc(detrend(std::move(seg_x)) * m_window)) *
                    fftfunc(detrend(std::move(seg_y)) * m_window);

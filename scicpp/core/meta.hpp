@@ -230,11 +230,20 @@ constexpr bool is_predicate =
 // is_string
 //---------------------------------------------------------------------------------
 
-template <class T>
+template <class T, typename Tdecay = typename std::decay_t<T>>
 constexpr bool is_string_v =
-    std::is_same_v<const char *, typename std::decay_t<T>> ||
-    std::is_same_v<char *, typename std::decay_t<T>> ||
-    std::is_same_v<std::string, typename std::decay_t<T>>;
+    std::is_same_v<const char *, Tdecay> || std::is_same_v<char *, Tdecay> ||
+    std::is_same_v<std::string, Tdecay>;
+
+//---------------------------------------------------------------------------------
+// is_movable
+// https://en.cppreference.com/w/cpp/concepts/movable
+//---------------------------------------------------------------------------------
+
+template <class T>
+constexpr bool is_movable_v =
+    std::is_object_v<T> && std::is_move_constructible_v<T> &&
+    std::is_assignable_v<T &, T> && std::is_swappable_v<T>;
 
 } // namespace scicpp::meta
 
