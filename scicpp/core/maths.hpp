@@ -160,7 +160,7 @@ constexpr auto pow(T1 &&x, T2 &&y) {
 }
 
 template <intmax_t n, typename T, meta::enable_if_iterable<T> = 0>
-constexpr auto pow(T a) {
+constexpr auto pow(T &&a) {
     return map([](auto x) { return units::pow<n>(x); }, std::forward<T>(a));
 }
 

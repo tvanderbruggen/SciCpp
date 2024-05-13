@@ -196,6 +196,11 @@ TEST_CASE("Multiply by constant") {
     REQUIRE(almost_equal<2>(10 * 3.14_degF, 31.4_degF));
 }
 
+TEST_CASE("value") {
+    REQUIRE(almost_equal(value(1_m), 1.0));
+    REQUIRE(almost_equal(value(1.0), 1.0));
+}
+
 TEST_CASE("Quantity complex") {
     const auto z1 = std::complex(1_m, 2_m);
     const auto z2 = std::complex(1_m, 1_m);

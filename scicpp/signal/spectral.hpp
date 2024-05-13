@@ -98,13 +98,17 @@ class Spectrum {
               typename Array>
     auto welch(const Array &x) {
         using namespace scicpp::operators;
-        using EltTp = typename Array::value_type;
+
+        using ArrTp = typename Array::value_type;
+        using EltTp = std::conditional_t<units::is_quantity_v<ArrTp>,
+                                         units::representation_t<ArrTp>,
+                                         ArrTp>;
 
         static_assert(meta::is_iterable_v<Array>);
         static_assert(std::is_same_v<EltTp, T> ||
                       std::is_same_v<EltTp, std::complex<T>>);
 
-        if (x.empty()) {
+        if (unlikely(x.empty())) {
             if constexpr (return_freqs) {
                 return std::tuple{empty<T>(), empty<T>()};
             } else {
@@ -135,8 +139,15 @@ class Spectrum {
               typename Array2>
     auto csd(const Array1 &x, const Array2 &y) {
         using namespace scicpp::operators;
-        using EltTp1 = typename Array1::value_type;
-        using EltTp2 = typename Array2::value_type;
+
+        using ArrTp1 = typename Array1::value_type;
+        using ArrTp2 = typename Array2::value_type;
+        using EltTp1 = std::conditional_t<units::is_quantity_v<ArrTp1>,
+                                          units::representation_t<ArrTp1>,
+                                          ArrTp1>;
+        using EltTp2 = std::conditional_t<units::is_quantity_v<ArrTp2>,
+                                          units::representation_t<ArrTp2>,
+                                          ArrTp2>;
 
         static_assert(meta::is_iterable_v<Array1>);
         static_assert(meta::is_iterable_v<Array2>);
@@ -150,7 +161,7 @@ class Spectrum {
                                          std::complex<T>,
                                          T>;
 
-        if (x.empty() || y.empty()) {
+        if (unlikely(x.empty() || y.empty())) {
             if constexpr (return_freqs) {
                 return std::tuple{empty<T>(), empty<std::complex<T>>()};
             } else {
@@ -313,7 +324,7 @@ class Spectrum {
 
             auto seg = utils::subvector(a, m_nperseg, i * nstep);
             scicpp_require(seg.size() == m_window.size());
-            return norm(fftfunc(detrend(std::move(seg)) * m_window));
+            return norm(fftfunc(detrend(value(std::move(seg))) * m_window));
         });
     }
 
@@ -336,11 +347,13 @@ class Spectrum {
             scicpp_require(seg_x.size() == m_window.size());
             auto seg_y = utils::subvector(y, m_nperseg, i * nstep);
             scicpp_require(seg_y.size() == m_window.size());
-            return conj(fftfunc(detrend(std::move(seg_x)) * m_window)) *
-                   fftfunc(detrend(std::move(seg_y)) * m_window);
+            return conj(fftfunc(detrend(value(std::move(seg_x))) * m_window)) *
+                   fftfunc(detrend(value(std::move(seg_y))) * m_window);
         });
     }
 
+    // TODO Normalize should return proper quantity if input data is a physical quantity
+    // Need to store fs unit
     template <SpectrumScaling scaling, SpectrumSides sides, typename SpecTp>
     auto normalize(std::vector<SpecTp> &&v) {
         using namespace scicpp::operators;
@@ -362,6 +375,19 @@ class Spectrum {
             return std::move(v) / m_s1;
         } else { // scaling == NONE
             return std::move(v);
+        }
+    }
+
+    // Convert vector of quantity to values
+    template <typename Array, meta::enable_if_iterable<Array> = 0>
+    constexpr auto value(Array &&x) {
+        using Tp = typename Array::value_type;
+
+        if constexpr (units::is_quantity_v<Tp>) {
+            return map([&](auto a) { return a.value(); },
+                       std::forward<Array>(x));
+        } else {
+            return std::forward<Array>(x);
         }
     }
 }; // class Spectrum

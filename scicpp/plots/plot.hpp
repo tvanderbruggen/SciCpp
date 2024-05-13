@@ -4,6 +4,7 @@
 #ifndef SCICPP_PLOTS_PLOT
 #define SCICPP_PLOTS_PLOT
 
+#include "scicpp/core/macros.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
 #include <sciplot/sciplot.hpp>
@@ -15,8 +16,18 @@ namespace detail {
 
 template <typename XArray, typename YArray>
 struct plot : sciplot::Plot2D {
+    using XTp = typename XArray::value_type;
+    using YTp = typename XArray::value_type;
+    using XRepTp = units::representation_t<XTp>;
+    using YRepTp = units::representation_t<YTp>;
+
   public:
-    explicit plot(const XArray &x, const YArray &y) : m_x(x), m_y(y) {
+    plot(const XArray &x, const YArray &y)
+        : m_x(sciplot::Vec(reinterpret_cast<const XRepTp *>(x.data()),
+                           x.size())),
+          m_y(sciplot::Vec(reinterpret_cast<const YRepTp *>(y.data()),
+                           y.size())) {
+        scicpp_require(m_x.size() == m_y.size());
         redraw();
     }
 
@@ -38,7 +49,7 @@ struct plot : sciplot::Plot2D {
         return canvas;
     }
 
-    auto label(std::string label) {
+    auto label(const std::string &label) {
         m_label = label;
         redraw();
         return *this;
@@ -54,26 +65,16 @@ struct plot : sciplot::Plot2D {
     std::string m_color = "blue";
     std::string m_label = "";
     bool m_display_grid = true;
-    XArray m_x;
-    YArray m_y;
+    sciplot::Vec m_x;
+    sciplot::Vec m_y;
 
     void redraw() {
         clear();
 
-        using XTp = typename XArray::value_type;
-        using YTp = typename XArray::value_type;
-        using XRepTp = units::representation_t<XTp>;
-        using YRepTp = units::representation_t<YTp>;
-
-        const auto xvec = sciplot::Vec(
-            reinterpret_cast<const XRepTp *>(m_x.data()), m_x.size());
-        const auto yvec = sciplot::Vec(
-            reinterpret_cast<const YRepTp *>(m_y.data()), m_y.size());
-
         if (m_label.empty()) {
-            drawCurve(xvec, yvec).lineColor(m_color).labelNone();
+            drawCurve(m_x, m_y).lineColor(m_color).labelNone();
         } else {
-            drawCurve(xvec, yvec).lineColor(m_color).label(m_label);
+            drawCurve(m_x, m_y).lineColor(m_color).label(m_label);
         }
 
         if (m_display_grid) {
