@@ -199,6 +199,7 @@ TEST_CASE("Multiply by constant") {
 TEST_CASE("value") {
     REQUIRE(almost_equal(value(1_m), 1.0));
     REQUIRE(almost_equal(value(1.0), 1.0));
+    static_assert(value(volt<int>(10)) == 10);
 }
 
 TEST_CASE("Quantity complex") {

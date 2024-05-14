@@ -7,6 +7,7 @@
 #include "scicpp/core/random.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
+#include "scicpp/core/units/units.hpp"
 #include "scicpp/signal/windows.hpp"
 
 #include <cmath>
@@ -267,6 +268,35 @@ TEST_CASE("periodogram") {
                                 0.0882007605538029,
                                 0.083080663310764,
                                 0.0218936985942652}));
+}
+
+TEST_CASE("periodogram physical quantities") {
+    using namespace units::literals;
+
+    // auto x = zeros<std::complex<units::volt<double>>>(16);
+    // x[0] = std::complex(1_V, 2_V);
+    // x[8] = std::complex(1_V, 2_V);
+    // auto spec = Spectrum{}.window(windows::hann<double>(16)).fs(10.0);
+    // const auto [f, p] = spec.periodogram(x);
+    // // print(f);
+    // // print(p);
+    // REQUIRE(almost_equal(f,
+    //                      {0.,
+    //                       0.625,
+    //                       1.25,
+    //                       1.875,
+    //                       2.5,
+    //                       3.125,
+    //                       3.75,
+    //                       4.375,
+    //                       -5.,
+    //                       -4.375,
+    //                       -3.75,
+    //                       -3.125,
+    //                       -2.5,
+    //                       -1.875,
+    //                       -1.25,
+    //                       -0.625}));
 }
 
 TEST_CASE("csd") {

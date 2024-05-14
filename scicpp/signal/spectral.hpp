@@ -29,6 +29,22 @@ enum SpectrumScaling : int { NONE, DENSITY, SPECTRUM };
 
 enum SpectrumSides : int { ONESIDED, TWOSIDED };
 
+namespace detail {
+
+// Array dimensionless element type
+template <class Array>
+struct element_type {
+    using ArrTp = units::representation_t<typename Array::value_type>;
+    using ArrValTp = meta::value_type_t<ArrTp>;
+    using type = std::
+        conditional_t<meta::is_complex_v<ArrTp>, std::complex<ArrValTp>, ArrTp>;
+};
+
+template <class Array>
+using element_type_t = typename element_type<Array>::type;
+
+} // namespace detail
+
 template <typename T = double>
 class Spectrum {
   public:
@@ -99,10 +115,7 @@ class Spectrum {
     auto welch(const Array &x) {
         using namespace scicpp::operators;
 
-        using ArrTp = typename Array::value_type;
-        using EltTp = std::conditional_t<units::is_quantity_v<ArrTp>,
-                                         units::representation_t<ArrTp>,
-                                         ArrTp>;
+        using EltTp = detail::element_type_t<Array>;
 
         static_assert(meta::is_iterable_v<Array>);
         static_assert(std::is_same_v<EltTp, T> ||
@@ -140,14 +153,8 @@ class Spectrum {
     auto csd(const Array1 &x, const Array2 &y) {
         using namespace scicpp::operators;
 
-        using ArrTp1 = typename Array1::value_type;
-        using ArrTp2 = typename Array2::value_type;
-        using EltTp1 = std::conditional_t<units::is_quantity_v<ArrTp1>,
-                                          units::representation_t<ArrTp1>,
-                                          ArrTp1>;
-        using EltTp2 = std::conditional_t<units::is_quantity_v<ArrTp2>,
-                                          units::representation_t<ArrTp2>,
-                                          ArrTp2>;
+        using EltTp1 = detail::element_type_t<Array1>;
+        using EltTp2 = detail::element_type_t<Array2>;
 
         static_assert(meta::is_iterable_v<Array1>);
         static_assert(meta::is_iterable_v<Array2>);

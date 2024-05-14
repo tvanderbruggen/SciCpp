@@ -245,6 +245,28 @@ constexpr bool is_movable_v =
     std::is_object_v<T> && std::is_move_constructible_v<T> &&
     std::is_assignable_v<T &, T> && std::is_swappable_v<T>;
 
+//---------------------------------------------------------------------------------
+// value_type
+// https://stackoverflow.com/questions/62203496/type-trait-to-receive-tvalue-type-if-present-t-otherwise
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class T, class = void>
+struct value_type {
+    using type = T;
+};
+
+template <class T>
+struct value_type<T, std::void_t<typename T::value_type>> {
+    using type = typename T::value_type;
+};
+
+} // namespace detail
+
+template <class T>
+using value_type_t = typename detail::value_type<T>::type;
+
 } // namespace scicpp::meta
 
 #endif // SCICPP_CORE_META
