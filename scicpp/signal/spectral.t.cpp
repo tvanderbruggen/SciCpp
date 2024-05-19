@@ -270,33 +270,98 @@ TEST_CASE("periodogram") {
                                 0.0218936985942652}));
 }
 
+TEST_CASE("value for iterables") {
+    using namespace units::literals;
+
+    SECTION("vector complex units") {
+        auto x = zeros<std::complex<units::volt<double>>>(4);
+        x[0] = std::complex(1_V, 2_V);
+        x[3] = std::complex(1_V, 2_V);
+        REQUIRE(almost_equal(detail::value(x), {1. + 2.i, 0., 0., 1. + 2.i}));
+    }
+
+    SECTION("array complex units") {
+        auto x = zeros<4, std::complex<units::volt<double>>>();
+        x[0] = std::complex(1_V, 2_V);
+        x[3] = std::complex(1_V, 2_V);
+        REQUIRE(almost_equal(detail::value(x), {1. + 2.i, 0., 0., 1. + 2.i}));
+    }
+
+    SECTION("array units") {
+        auto x = ones<4, units::volt<double>>();
+        x[0] = 0_V;
+        x[3] = 2_V;
+        REQUIRE(almost_equal(detail::value(x), {0., 1., 1., 2.}));
+    }
+
+    SECTION("vector complex doubles") {
+        auto x = zeros<std::complex<double>>(4);
+        x[0] = 1. + 2.i;
+        x[3] = 1. + 2.i;
+        REQUIRE(almost_equal(detail::value(x), {1. + 2.i, 0., 0., 1. + 2.i}));
+    }
+}
+
+TEST_CASE("detail::element_type_t") {
+    static_assert(
+        std::is_same_v<detail::element_type_t<std::vector<double>>, double>);
+    static_assert(std::is_same_v<
+                  detail::element_type_t<std::vector<std::complex<double>>>,
+                  std::complex<double>>);
+    static_assert(
+        std::is_same_v<detail::element_type_t<std::vector<units::volt<double>>>,
+                       double>);
+    static_assert(
+        std::is_same_v<detail::element_type_t<
+                           std::vector<std::complex<units::volt<double>>>>,
+                       std::complex<double>>);
+}
+
 TEST_CASE("periodogram physical quantities") {
     using namespace units::literals;
 
-    // auto x = zeros<std::complex<units::volt<double>>>(16);
-    // x[0] = std::complex(1_V, 2_V);
-    // x[8] = std::complex(1_V, 2_V);
-    // auto spec = Spectrum{}.window(windows::hann<double>(16)).fs(10.0);
-    // const auto [f, p] = spec.periodogram(x);
-    // // print(f);
-    // // print(p);
-    // REQUIRE(almost_equal(f,
-    //                      {0.,
-    //                       0.625,
-    //                       1.25,
-    //                       1.875,
-    //                       2.5,
-    //                       3.125,
-    //                       3.75,
-    //                       4.375,
-    //                       -5.,
-    //                       -4.375,
-    //                       -3.75,
-    //                       -3.125,
-    //                       -2.5,
-    //                       -1.875,
-    //                       -1.25,
-    //                       -0.625}));
+    auto x = zeros<std::complex<units::volt<double>>>(16);
+    x[0] = std::complex(1_V, 2_V);
+    x[8] = std::complex(1_V, 2_V);
+    auto spec = Spectrum{}.window(windows::hann<double>(16)).fs(10.0);
+    const auto [f, p] = spec.periodogram(x);
+    // print(f);
+    // print(p);
+    // TODO return proper PSD units
+    REQUIRE(almost_equal(f,
+                         {0.,
+                          0.625,
+                          1.25,
+                          1.875,
+                          2.5,
+                          3.125,
+                          3.75,
+                          4.375,
+                          -5.,
+                          -4.375,
+                          -3.75,
+                          -3.125,
+                          -2.5,
+                          -1.875,
+                          -1.25,
+                          -0.625}));
+    REQUIRE(almost_equal<1500>(p,
+                               {0.0002364317230476,
+                                0.0218936985942652,
+                                0.0830806633107641,
+                                0.0882007605538029,
+                                0.0864386074072716,
+                                0.0871837823196038,
+                                0.0868713552374593,
+                                0.0869767748617318,
+                                0.0869570651175314,
+                                0.0869767748617318,
+                                0.0868713552374593,
+                                0.0871837823196038,
+                                0.0864386074072716,
+                                0.0882007605538029,
+                                0.083080663310764,
+                                0.0218936985942652}));
 }
 
 TEST_CASE("csd") {

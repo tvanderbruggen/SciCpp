@@ -4,12 +4,14 @@
 #include "meta.hpp"
 
 #include "scicpp/core/equal.hpp"
+#include "scicpp/core/units/units.hpp"
 
 namespace scicpp::meta {
 
 TEST_CASE("is_complex") {
     static_assert(!is_complex_v<double>);
     static_assert(is_complex_v<std::complex<double>>);
+    static_assert(is_complex_v<std::complex<units::volt<double>>>);
 }
 
 TEST_CASE("is_iterable") {
@@ -107,6 +109,19 @@ TEST_CASE("is_movable") {
     };
 
     static_assert(!is_movable_v<NoMove>);
+}
+
+TEST_CASE("value_type_t") {
+    static_assert(std::is_same_v<value_type_t<double>, double>);
+    static_assert(std::is_same_v<value_type_t<std::complex<double>>, double>);
+    static_assert(std::is_same_v<value_type_t<std::array<double, 1>>, double>);
+    static_assert(std::is_same_v<value_type_t<std::vector<double>>, double>);
+    static_assert(
+        std::is_same_v<value_type_t<std::vector<std::complex<double>>>,
+                       std::complex<double>>);
+    static_assert(
+        std::is_same_v<value_type_t<std::vector<units::meter<double>>>,
+                       units::meter<double>>);
 }
 
 } // namespace scicpp::meta

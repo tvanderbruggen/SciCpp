@@ -9,6 +9,7 @@
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
+#include "scicpp/core/units/quantity.hpp"
 #include "scicpp/core/units/units.hpp"
 #include "scicpp/core/utils.hpp"
 #include "scicpp/signal/fft.hpp"
@@ -34,7 +35,7 @@ namespace detail {
 // Array dimensionless element type
 template <class Array>
 struct element_type {
-    using ArrTp = units::representation_t<typename Array::value_type>;
+    using ArrTp = units::representation_t<meta::value_type_t<Array>>;
     using ArrValTp = meta::value_type_t<ArrTp>;
     using type = std::
         conditional_t<meta::is_complex_v<ArrTp>, std::complex<ArrValTp>, ArrTp>;
@@ -42,6 +43,12 @@ struct element_type {
 
 template <class Array>
 using element_type_t = typename element_type<Array>::type;
+
+// Convert vector of quantity to values
+template <typename Array, meta::enable_if_iterable<Array> = 0>
+constexpr auto value(Array &&x) {
+    return map([&](auto a) { return units::value(a); }, std::forward<Array>(x));
+}
 
 } // namespace detail
 
@@ -331,7 +338,8 @@ class Spectrum {
 
             auto seg = utils::subvector(a, m_nperseg, i * nstep);
             scicpp_require(seg.size() == m_window.size());
-            return norm(fftfunc(detrend(value(std::move(seg))) * m_window));
+            return norm(
+                fftfunc(detrend(detail::value(std::move(seg))) * m_window));
         });
     }
 
@@ -354,8 +362,9 @@ class Spectrum {
             scicpp_require(seg_x.size() == m_window.size());
             auto seg_y = utils::subvector(y, m_nperseg, i * nstep);
             scicpp_require(seg_y.size() == m_window.size());
-            return conj(fftfunc(detrend(value(std::move(seg_x))) * m_window)) *
-                   fftfunc(detrend(value(std::move(seg_y))) * m_window);
+            return conj(fftfunc(detrend(detail::value(std::move(seg_x))) *
+                                m_window)) *
+                   fftfunc(detrend(detail::value(std::move(seg_y))) * m_window);
         });
     }
 
@@ -382,19 +391,6 @@ class Spectrum {
             return std::move(v) / m_s1;
         } else { // scaling == NONE
             return std::move(v);
-        }
-    }
-
-    // Convert vector of quantity to values
-    template <typename Array, meta::enable_if_iterable<Array> = 0>
-    constexpr auto value(Array &&x) {
-        using Tp = typename Array::value_type;
-
-        if constexpr (units::is_quantity_v<Tp>) {
-            return map([&](auto a) { return a.value(); },
-                       std::forward<Array>(x));
-        } else {
-            return std::forward<Array>(x);
         }
     }
 }; // class Spectrum
