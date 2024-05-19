@@ -50,6 +50,12 @@ constexpr auto value(Array &&x) {
     return map([&](auto a) { return units::value(a); }, std::forward<Array>(x));
 }
 
+// Convert vector of values to quantities
+template <typename Qty, typename Array, meta::enable_if_iterable<Array> = 0>
+constexpr auto to_quantity(Array &&x) {
+    return map([&](auto a) { return Qty(a); }, std::forward<Array>(x));
+}
+
 } // namespace detail
 
 template <typename T = double>
@@ -128,22 +134,39 @@ class Spectrum {
         static_assert(std::is_same_v<EltTp, T> ||
                       std::is_same_v<EltTp, std::complex<T>>);
 
+        // Return type
+        // If x is an array of quantities, let say V then
+        // scaling = DENSITY: V^2 / Hz
+        // scaling = SPECTRUM or NONE: V^2
+        using ArrayValueTp = meta::value_type_t<Array>;
+        using ArrayTp = std::conditional_t<meta::is_complex_v<ArrayValueTp>,
+                                           meta::value_type_t<ArrayValueTp>,
+                                           ArrayValueTp>;
+        using RetTp = std::conditional_t<
+            units::is_quantity_v<ArrayTp>,
+            std::conditional_t<scaling == DENSITY,
+                               units::quantity_divide<
+                                   units::quantity_multiply<ArrayTp, ArrayTp>,
+                                   units::frequency<T>>,
+                               units::quantity_multiply<ArrayTp, ArrayTp>>,
+            T>;
+
         if (unlikely(x.empty())) {
             if constexpr (return_freqs) {
-                return std::tuple{empty<T>(), empty<T>()};
+                return std::tuple{empty<T>(), empty<RetTp>()};
             } else {
-                return empty<T>();
+                return empty<RetTp>();
             }
         }
 
-        std::vector<T> psd;
+        std::vector<RetTp> psd;
 
         if constexpr (meta::is_complex_v<EltTp>) {
-            psd = normalize<scaling, TWOSIDED>(
-                welch_impl(std::size_t(m_nperseg), x, fft_func));
+            psd = detail::to_quantity<RetTp>(normalize<scaling, TWOSIDED>(
+                welch_impl(std::size_t(m_nperseg), x, fft_func)));
         } else {
-            psd = normalize<scaling, ONESIDED>(
-                welch_impl(std::size_t(m_nperseg) / 2 + 1, x, rfft_func));
+            psd = detail::to_quantity<RetTp>(normalize<scaling, ONESIDED>(
+                welch_impl(std::size_t(m_nperseg) / 2 + 1, x, rfft_func)));
         }
 
         if constexpr (return_freqs) {

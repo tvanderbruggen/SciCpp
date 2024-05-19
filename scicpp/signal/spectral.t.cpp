@@ -38,6 +38,44 @@ TEST_CASE("welch") {
         REQUIRE(p3.empty());
     }
 
+    SECTION("Empty physical quantity") {
+        using namespace units::literals;
+        const auto x = empty<units::volt<double>>();
+
+        const auto [f1, p1] =
+            Spectrum{}.window(windows::hann<double>(20)).welch(x);
+        static_assert(units::is_same_dimension<std::decay_t<decltype(p1[0])>,
+                                               decltype(1_V * 1_V / 1_Hz)>);
+        REQUIRE(f1.empty());
+        REQUIRE(p1.empty());
+
+        const auto [f2, p2] =
+            Spectrum{}.window(windows::hann<double>(20)).welch<SPECTRUM>(x);
+        static_assert(units::is_same_dimension<std::decay_t<decltype(p2[0])>,
+                                               decltype(1_V * 1_V)>);
+        REQUIRE(f2.empty());
+        REQUIRE(p2.empty());
+    }
+
+    SECTION("Empty physical quantity complex") {
+        using namespace units::literals;
+        const auto x = empty<std::complex<units::volt<double>>>();
+
+        const auto [f1, p1] =
+            Spectrum{}.window(windows::hann<double>(20)).welch(x);
+        static_assert(units::is_same_dimension<std::decay_t<decltype(p1[0])>,
+                                               decltype(1_V * 1_V / 1_Hz)>);
+        REQUIRE(f1.empty());
+        REQUIRE(p1.empty());
+
+        const auto [f2, p2] =
+            Spectrum{}.window(windows::hann<double>(20)).welch<SPECTRUM>(x);
+        static_assert(units::is_same_dimension<std::decay_t<decltype(p2[0])>,
+                                               decltype(1_V * 1_V)>);
+        REQUIRE(f2.empty());
+        REQUIRE(p2.empty());
+    }
+
     SECTION("Even size") {
         // >>> x = np.linspace(1,10,100)
         // >>> sp.signal.welch(x, window=sp.signal.windows.hann(20))
@@ -327,7 +365,8 @@ TEST_CASE("periodogram physical quantities") {
     const auto [f, p] = spec.periodogram(x);
     // print(f);
     // print(p);
-    // TODO return proper PSD units
+    static_assert(units::is_same_dimension<std::decay_t<decltype(p[0])>,
+                                           decltype(1_V * 1_V / 1_Hz)>);
     REQUIRE(almost_equal(f,
                          {0.,
                           0.625,
@@ -345,7 +384,7 @@ TEST_CASE("periodogram physical quantities") {
                           -1.875,
                           -1.25,
                           -0.625}));
-    REQUIRE(almost_equal<1500>(p,
+    REQUIRE(almost_equal<1500>(detail::value(p),
                                {0.0002364317230476,
                                 0.0218936985942652,
                                 0.0830806633107641,
