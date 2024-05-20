@@ -17,7 +17,7 @@ namespace detail {
 template <typename XArray, typename YArray>
 struct plot : sciplot::Plot2D {
     using XTp = typename XArray::value_type;
-    using YTp = typename XArray::value_type;
+    using YTp = typename YArray::value_type;
     using XRepTp = units::representation_t<XTp>;
     using YRepTp = units::representation_t<YTp>;
 

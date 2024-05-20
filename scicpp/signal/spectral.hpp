@@ -198,6 +198,8 @@ class Spectrum {
                                          std::complex<T>,
                                          T>;
 
+        // TODO Return type
+
         if (unlikely(x.empty() || y.empty())) {
             if constexpr (return_freqs) {
                 return std::tuple{empty<T>(), empty<std::complex<T>>()};

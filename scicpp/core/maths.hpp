@@ -97,7 +97,7 @@ const auto rint = vectorize([](auto x) { return units::rint(x); });
 const auto real = vectorize([](auto z) { return std::real(z); });
 const auto imag = vectorize([](auto z) { return std::imag(z); });
 const auto angle = vectorize([](auto z) { return std::arg(z); });
-const auto norm = vectorize([](auto z) { return std::norm(z); });
+const auto norm = vectorize([](auto z) { return units::norm(z); });
 
 const auto conj = vectorize([](auto z) {
     if constexpr (meta::is_complex_v<decltype(z)>) {
