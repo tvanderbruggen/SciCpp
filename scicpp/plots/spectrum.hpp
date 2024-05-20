@@ -79,10 +79,10 @@ struct csdplot : sciplot::Plot2D {
 
 } // namespace detail
 
-enum SpectrumPlotScale : int { LINEAR, LOG };
+enum SpectrumPlotScale : int { LINEAR, DECIBEL };
 
 template <signal::SpectrumScaling scaling = signal::DENSITY,
-          SpectrumPlotScale plot_scale = LOG,
+          SpectrumPlotScale plot_scale = DECIBEL,
           typename Array1,
           typename Array2,
           typename T = double>
@@ -92,7 +92,7 @@ auto csd(signal::Spectrum<T> spec, const Array1 &x, const Array2 &y) {
 
     if constexpr (plot_scale == LINEAR) {
         return detail::csdplot(std::move(f), norm(std::move(Pxy)));
-    } else { // plot_scale == LOG
+    } else { // plot_scale == DECIBEL
         using PxyTp = typename decltype(Pxy)::value_type;
         return detail::csdplot(std::move(f),
                                T{10} * log10(norm(std::move(Pxy) / PxyTp(1))));
@@ -100,7 +100,7 @@ auto csd(signal::Spectrum<T> spec, const Array1 &x, const Array2 &y) {
 }
 
 template <signal::SpectrumScaling scaling = signal::DENSITY,
-          SpectrumPlotScale plot_scale = LOG,
+          SpectrumPlotScale plot_scale = DECIBEL,
           typename Array,
           typename T = double>
 auto psd(signal::Spectrum<T> spec, const Array &x) {
@@ -110,7 +110,7 @@ auto psd(signal::Spectrum<T> spec, const Array &x) {
 
     if constexpr (plot_scale == LINEAR) {
         return detail::csdplot(std::move(f), std::move(Pxx));
-    } else {
+    } else { // plot_scale == DECIBEL
         using PxxTp = typename decltype(Pxx)::value_type;
         return detail::csdplot(std::move(f),
                                T{10} * log10(std::move(Pxx) / PxxTp(1)));
