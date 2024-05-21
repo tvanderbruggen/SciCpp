@@ -9,6 +9,12 @@ This is only required to use the plots module, not other scicpp modules.
 
 Extends Sciplot with some specialized plots available in Matplotlib (hist, psd, cohere, csd)
 
+Basic
+----------------
+
+:ref:`plot <plots_plot>`
+    Basic plot.
+
 Statistics
 ----------------
 

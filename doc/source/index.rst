@@ -57,6 +57,8 @@ Examples
 
 :ref:`Wave statistics <examples_wave_stats>`
 
+:ref:`EEG signal <examples_eeg>`
+
 Plots
 ------
 
@@ -64,6 +66,11 @@ Even though Scicpp is not a plotting library,
 some plotting functions are implemented based on the `Sciplot library <https://sciplot.github.io/>`_.
 
 Those are not only useful for development and debugging but are also great examples of Scicpp library capabilities.
+
+:ref:`EEG signal <examples_eeg>`
+
+.. image:: _static/eeg_signal.png
+   :width: 800
 
 :ref:`Histogram <plots_hist>`
 
