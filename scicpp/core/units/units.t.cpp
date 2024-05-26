@@ -8,6 +8,7 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
 
+#include <complex>
 #include <cstdio>
 #include <type_traits>
 
@@ -17,11 +18,14 @@ using namespace literals;
 
 TEST_CASE("Dimensionless") {
     static_assert(is_dimensionless<quantity_divide<length<int>, length<int>>>);
+    static_assert(is_dimensionless<
+                  quantity_divide<std::complex<length<int>>, length<int>>>);
 }
 
 TEST_CASE("Length") {
     static_assert(is_length<meter<>>);
     static_assert(is_length<kilometer<>>);
+    static_assert(is_length<std::complex<kilometer<>>>);
 
     static_assert(meter<int>(2000) == kilometer<int>(2));
     REQUIRE(almost_equal(meter<>(12), 12_m));

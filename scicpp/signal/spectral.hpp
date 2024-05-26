@@ -198,25 +198,47 @@ class Spectrum {
                                          std::complex<T>,
                                          T>;
 
-        // TODO Return type
+        // Return type
+        // If x and y is an array of quantities, let say V1 and V2 then
+        // scaling = DENSITY: V1 * V2 / Hz
+        // scaling = SPECTRUM or NONE: V1 * V2
+        using Array1ValueTp = meta::value_type_t<Array1>;
+        using Array2ValueTp = meta::value_type_t<Array2>;
+        using Array1Tp = std::conditional_t<meta::is_complex_v<Array1ValueTp>,
+                                            meta::value_type_t<Array1ValueTp>,
+                                            Array1ValueTp>;
+        using Array2Tp = std::conditional_t<meta::is_complex_v<Array2ValueTp>,
+                                            meta::value_type_t<Array2ValueTp>,
+                                            Array2ValueTp>;
+
+        using RetTp = std::conditional_t<
+            units::is_quantity_v<Array1Tp> || units::is_quantity_v<Array2Tp>,
+            std::conditional_t<scaling == DENSITY,
+                               units::quantity_divide<
+                                   units::quantity_multiply<Array1Tp, Array2Tp>,
+                                   units::frequency<T>>,
+                               units::quantity_multiply<Array1Tp, Array2Tp>>,
+            T>;
 
         if (unlikely(x.empty() || y.empty())) {
             if constexpr (return_freqs) {
-                return std::tuple{empty<T>(), empty<std::complex<T>>()};
+                return std::tuple{empty<T>(), empty<std::complex<RetTp>>()};
             } else {
-                return empty<std::complex<T>>();
+                return empty<std::complex<RetTp>>();
             }
         }
 
         if (x.size() == y.size()) {
-            std::vector<std::complex<T>> csd;
+            std::vector<std::complex<RetTp>> csd;
 
             if constexpr (meta::is_complex_v<EltTp>) {
-                csd = normalize<scaling, TWOSIDED>(
-                    welch2_impl(std::size_t(m_nperseg), x, y, fft_func));
+                csd = detail::to_quantity<std::complex<RetTp>>(
+                    normalize<scaling, TWOSIDED>(
+                        welch2_impl(std::size_t(m_nperseg), x, y, fft_func)));
             } else {
-                csd = normalize<scaling, ONESIDED>(welch2_impl(
-                    std::size_t(m_nperseg) / 2 + 1, x, y, rfft_func));
+                csd = detail::to_quantity<std::complex<RetTp>>(
+                    normalize<scaling, ONESIDED>(welch2_impl(
+                        std::size_t(m_nperseg) / 2 + 1, x, y, rfft_func)));
             }
 
             if constexpr (return_freqs) {
@@ -393,8 +415,6 @@ class Spectrum {
         });
     }
 
-    // TODO Normalize should return proper quantity if input data is a physical quantity
-    // Need to store fs unit
     template <SpectrumScaling scaling, SpectrumSides sides, typename SpecTp>
     auto normalize(std::vector<SpecTp> &&v) {
         using namespace scicpp::operators;

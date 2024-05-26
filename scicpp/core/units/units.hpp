@@ -115,12 +115,16 @@ using data_rate = quantity_divide<data_quantity<T, Scale>, time<T>>;
     template <class T>                                                         \
     constexpr bool is_##qty##_impl() {                                         \
         using Tp = std::decay_t<T>;                                            \
-        if constexpr (is_quantity_v<Tp>) {                                     \
-            return is_same_dimension<                                          \
-                Tp,                                                            \
-                qty<typename Tp::value_type, typename Tp::scal>>;              \
+        if constexpr (scicpp::meta::is_complex_v<Tp>) {                        \
+            return is_##qty##_impl<typename Tp::value_type>();                 \
         } else {                                                               \
-            return false;                                                      \
+            if constexpr (is_quantity_v<Tp>) {                                 \
+                return is_same_dimension<                                      \
+                    Tp,                                                        \
+                    qty<typename Tp::value_type, typename Tp::scal>>;          \
+            } else {                                                           \
+                return false;                                                  \
+            }                                                                  \
         }                                                                      \
     }                                                                          \
                                                                                \

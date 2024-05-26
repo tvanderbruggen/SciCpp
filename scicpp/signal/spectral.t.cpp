@@ -650,6 +650,79 @@ TEST_CASE("csd") {
     }
 }
 
+TEST_CASE("csd physical quantities") {
+    using namespace units::literals;
+
+    SECTION("Empty") {
+        const auto [f1, p1] = Spectrum{}
+                                  .window(windows::hann<double>(20))
+                                  .csd(empty<units::volt<double>>(),
+                                       empty<units::ampere<double>>());
+        static_assert(units::is_power<decltype(p1[0] * 1_Hz)>);
+        REQUIRE(f1.empty());
+        REQUIRE(p1.empty());
+
+        const auto [f2, p2] =
+            Spectrum{}
+                .window(windows::hann<double>(20))
+                .csd(empty<units::volt<double>>(), empty<double>());
+        static_assert(units::is_electric_potential<decltype(p2[0] * 1_Hz)>);
+        REQUIRE(f2.empty());
+        REQUIRE(p2.empty());
+
+        const auto [f3, p3] =
+            Spectrum{}
+                .window(windows::hann<double>(20))
+                .csd(empty<std::complex<units::volt<double>>>(),
+                     empty<std::complex<units::ampere<double>>>());
+        static_assert(units::is_power<decltype(p3[0] * 1_Hz)>);
+        REQUIRE(f3.empty());
+        REQUIRE(p3.empty());
+
+        // Don't return frequencies
+        const auto p4 = Spectrum{}
+                            .window(windows::hann<double>(20))
+                            .csd<SPECTRUM, false>(
+                                empty<std::complex<units::volt<double>>>(),
+                                empty<std::complex<units::ampere<double>>>());
+        static_assert(units::is_power<decltype(p4[0])>);
+        REQUIRE(p4.empty());
+    }
+
+    SECTION("Different data real different sizes") {
+        const auto x = linspace(1_V, 10_V, 100);
+        const auto y = linspace(10_A, 100_A, 50);
+
+        const auto [f1, Pxy1] =
+            Spectrum{}.window(windows::Hamming, 10).csd(x, y);
+        REQUIRE(almost_equal(f1, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
+        static_assert(units::is_power<decltype(Pxy1[0] * 1_Hz)>);
+        // print(Pxy1);
+        REQUIRE(almost_equal<8000>(
+            detail::value(Pxy1),
+            {5.4059942258228820e-17 + 0.0000000000000000e+00i,
+             -8.7635981684350106e-01 + 7.2394256646839600e-02i,
+             -2.6259506889322487e-01 + 6.7953763655904959e-03i,
+             -3.3190773877356888e-02 + 3.0108962423992173e-04i,
+             5.2777898636230183e-02 - 1.3624248523929803e-04i,
+             -2.4445158559955788e-02 + 0.0000000000000000e+00i}));
+
+        const auto [f2, Pxy2] =
+            Spectrum{}.window(windows::Hamming, 10).csd(y, x);
+        static_assert(units::is_power<decltype(Pxy2[0] * 1_Hz)>);
+        REQUIRE(almost_equal(f2, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
+        // print(Pxy2);
+        REQUIRE(almost_equal<4000>(
+            detail::value(Pxy2),
+            {5.4059942258228820e-17 - 0.0000000000000000e+00i,
+             -8.7635981684350106e-01 - 7.2394256646839600e-02i,
+             -2.6259506889322487e-01 - 6.7953763655904959e-03i,
+             -3.3190773877356888e-02 - 3.0108962423992173e-04i,
+             5.2777898636230183e-02 + 1.3624248523929803e-04i,
+             -2.4445158559955788e-02 - 0.0000000000000000e+00i}));
+    }
+}
+
 TEST_CASE("coherence") {
     SECTION("empty") {
         const auto x = empty<double>();

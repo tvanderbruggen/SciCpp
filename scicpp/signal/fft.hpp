@@ -6,6 +6,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/range.hpp"
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
@@ -169,7 +170,7 @@ auto zero_padding(const Array &v, std::size_t new_size) {
     static_assert(meta::is_iterable_v<Array>);
 
     using T = typename Array::value_type;
-    std::vector<T> res(new_size, T{0});
+    auto res = zeros<T>(new_size);
     std::copy(v.cbegin(),
               v.cbegin() + signed_size_t(std::min(new_size, v.size())),
               res.begin());
