@@ -5,8 +5,10 @@
 #define SCICPP_PLOTS_PLOT
 
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/range.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
+#include <array>
 #include <sciplot/sciplot.hpp>
 #include <string>
 
@@ -14,20 +16,18 @@ namespace scicpp::plots {
 
 namespace detail {
 
-template <typename XArray, typename YArray>
+template <typename XArray, typename YArray0, typename... YArrays>
 struct plot : sciplot::Plot2D {
     using XTp = typename XArray::value_type;
-    using YTp = typename YArray::value_type;
     using XRepTp = units::representation_t<XTp>;
-    using YRepTp = units::representation_t<YTp>;
 
   public:
-    plot(const XArray &x, const YArray &y)
+    plot(const XArray &x, const std::tuple<YArray0, YArrays...> &y)
         : m_x(sciplot::Vec(reinterpret_cast<const XRepTp *>(x.data()),
                            x.size())),
-          m_y(sciplot::Vec(reinterpret_cast<const YRepTp *>(y.data()),
-                           y.size())) {
-        scicpp_require(m_x.size() == m_y.size());
+          m_y(y) {
+        scicpp_require(m_x.size() == std::get<0>(m_y).size());
+
         redraw();
     }
 
@@ -66,16 +66,26 @@ struct plot : sciplot::Plot2D {
     std::string m_label = "";
     bool m_display_grid = true;
     sciplot::Vec m_x;
-    sciplot::Vec m_y;
+    std::tuple<YArray0, YArrays...> m_y;
+
+    template <typename YArray>
+    void draw_curve(const YArray &y) {
+        using YTp = typename YArray::value_type;
+        using YRepTp = units::representation_t<YTp>;
+
+        const auto y_vec =
+            sciplot::Vec(reinterpret_cast<const YRepTp *>(y.data()), y.size());
+
+        if (m_label.empty()) {
+            drawCurve(m_x, y_vec).lineColor(m_color).labelNone();
+        } else {
+            drawCurve(m_x, y_vec).lineColor(m_color).label(m_label);
+        }
+    }
 
     void redraw() {
         clear();
-
-        if (m_label.empty()) {
-            drawCurve(m_x, m_y).lineColor(m_color).labelNone();
-        } else {
-            drawCurve(m_x, m_y).lineColor(m_color).label(m_label);
-        }
+        std::apply([&](const auto &...x) { (draw_curve(x), ...); }, m_y);
 
         if (m_display_grid) {
             grid().lineType(-1).lineWidth(2).show();
@@ -90,9 +100,19 @@ struct plot : sciplot::Plot2D {
 
 } // namespace detail
 
-template <typename XArray, typename YArray>
-auto plot(const XArray &x, const YArray &y) {
+template <typename XArray, typename... YArrays>
+auto plot(const XArray &x, const std::tuple<YArrays...> &y) {
     return detail::plot(x, y);
+}
+
+template <typename XArray, typename... YArrays>
+auto plot(const XArray &x, const YArrays &...y) {
+    if constexpr (sizeof...(YArrays) == 0) {
+        const auto t = arange(signed_size_t(0), signed_size_t(x.size()));
+        return plot(t, x);
+    } else {
+        return detail::plot(x, std::tuple{y...});
+    }
 }
 
 } // namespace scicpp::plots
