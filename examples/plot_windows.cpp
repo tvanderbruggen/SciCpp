@@ -5,22 +5,17 @@ namespace sci = scicpp;
 namespace sig = sci::signal;
 namespace plt = sci::plots;
 
+using namespace sci::operators;
+
 template <int n_extend, typename Array>
 auto window_spectrum_db(const Array &win) {
-    using namespace sci::operators;
-
-    // TODO concatenate
-    auto win_extended = sci::zeros<double>(win.size() + n_extend);
-    std::copy(win.cbegin(),
-              win.cbegin() + sci::signed_size_t(win.size()),
-              win_extended.begin() + sci::signed_size_t(n_extend / 2));
-    auto spec = sci::norm(sig::rfft(win_extended));
+    // Add zero padding on both sides of the window before computing the FFT
+    const auto padding = sci::zeros<n_extend / 2, double>();
+    auto spec = sci::norm(sig::rfft(padding | win | padding));
     return 10.0 * sci::log10(std::move(spec) / spec[0]);
 }
 
 int main() {
-    using namespace sci::operators;
-
     constexpr auto N = 100;
 
     const auto x = sci::linspace<N>(-1.0, 1.0);

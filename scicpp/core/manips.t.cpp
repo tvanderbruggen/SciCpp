@@ -33,6 +33,13 @@ TEST_CASE("concatenate") {
         REQUIRE(almost_equal(res, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}));
     }
 
+    SECTION("std::vector / std::array") {
+        const auto a1 = std::vector{1.0, 2.0, 3.0};
+        const auto a2 = std::array{4, 5, 6, 7, 8};
+        const auto res = concatenate(a1, a2);
+        REQUIRE(almost_equal(res, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}));
+    }
+
     SECTION("std::vector / std::vector") {
         const auto a1 = std::vector{1.0, 2.0, 3.0};
         const auto a2 = std::vector{4, 5, 6, 7, 8};

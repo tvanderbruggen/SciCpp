@@ -11,7 +11,6 @@
 #include "scicpp/core/range.hpp"
 
 #include <array>
-#include <tuple>
 #include <type_traits>
 #include <vector>
 
@@ -40,9 +39,13 @@ auto concatenate(const std::array<T1, N1> &a1, const std::array<T2, N2> &a2) {
     return res;
 }
 
-template <typename Array, typename T2, meta::enable_if_iterable<Array> = 0>
-auto concatenate(const Array &a1, const std::vector<T2> &a2) {
-    using T1 = typename Array::value_type;
+template <typename Array1,
+          typename Array2,
+          meta::enable_if_iterable<Array1> = 0,
+          meta::enable_if_iterable<Array2> = 0>
+auto concatenate(const Array1 &a1, const Array2 &a2) {
+    using T1 = typename Array1::value_type;
+    using T2 = typename Array2::value_type;
     using T = std::common_type_t<T1, T2>;
 
     std::vector<T> res(a1.size() + a2.size());
@@ -73,6 +76,8 @@ auto concatenate(const Array &a1, std::vector<T> &&a2) {
 
 namespace operators {
 
+// Define a concatenation operator |
+
 template <class ArrayLhs,
           class ArrayRhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
@@ -83,15 +88,11 @@ auto operator|(ArrayLhs &&a, ArrayRhs &&b) {
 
 } // namespace operators
 
-template <typename Array0, typename... Arrays>
-auto concatenate(const std::tuple<Array0, Arrays...> &tup) {
-    using namespace operators;
-    return std::apply([=](const auto &...a) { return (a | ...); }, tup);
-}
-
 template <typename... Arrays>
-auto concatenate(const Arrays &...a) {
-    return concatenate(std::tuple{a...});
+auto concatenate(Arrays &&...a) {
+    static_assert((meta::is_iterable_v<Arrays> && ...));
+    using namespace operators;
+    return (std::forward<Arrays>(a) | ...);
 }
 
 } // namespace scicpp
