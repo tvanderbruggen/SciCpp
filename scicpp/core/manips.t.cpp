@@ -47,18 +47,35 @@ TEST_CASE("concatenate") {
         REQUIRE(almost_equal(res, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}));
     }
 
-    SECTION("std::vector&& / std::vector") {
+    SECTION("std::vector&& / std::array same type") {
+        auto a1 = std::vector{1.0, 2.0, 3.0};
+        const auto a2 = std::array{4.0, 5.0, 6.0, 7.0, 8.0};
+        const auto res = concatenate(std::move(a1), a2);
+        REQUIRE(almost_equal(res, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}));
+    }
+
+    SECTION("std::vector&& / std::vector convertible types") {
         auto a1 = std::vector{1.0, 2.0, 3.0};
         const auto a2 = std::vector{4, 5, 6, 7, 8};
         const auto res = concatenate(std::move(a1), a2);
         REQUIRE(almost_equal(res, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}));
     }
 
-    SECTION("std::vector / std::vector&&") {
+    SECTION("std::vector / std::vector&& same type") {
         const auto a1 = std::vector{1, 2, 3};
         auto a2 = std::vector{4, 5, 6, 7, 8};
         const auto res = concatenate(a1, std::move(a2));
         // print(res);
+        // print(res.size());
+        REQUIRE(array_equal(res, {1, 2, 3, 4, 5, 6, 7, 8}));
+    }
+
+    SECTION("std::vector / std::vector&& convertible types") {
+        const auto a1 = std::vector{1.0, 2.0, 3.0};
+        auto a2 = std::vector{4, 5, 6, 7, 8};
+        const auto res = concatenate(a1, std::move(a2));
+        // print(res);
+        // print(res.size());
         REQUIRE(array_equal(res, {1, 2, 3, 4, 5, 6, 7, 8}));
     }
 

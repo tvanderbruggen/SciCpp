@@ -11,6 +11,7 @@
 #include "scicpp/core/range.hpp"
 
 #include <array>
+#include <iterator>
 #include <type_traits>
 #include <vector>
 
@@ -55,22 +56,38 @@ auto concatenate(const Array1 &a1, const Array2 &a2) {
 
 template <typename Array, typename T, meta::enable_if_iterable<Array> = 0>
 auto concatenate(std::vector<T> &&a1, const Array &a2) {
-    static_assert(std::is_convertible_v<T, typename Array::value_type>);
+    using Tarray = typename Array::value_type;
 
     const auto N1 = a1.size();
     a1.resize(N1 + a2.size());
-    std::transform(a2.cbegin(),
-                   a2.cend(),
-                   a1.begin() + signed_size_t(N1),
-                   [](auto x) { return static_cast<T>(x); });
+
+    if constexpr (std::is_same_v<T, Tarray>) {
+        std::copy(a2.cbegin(), a2.cend(), a1.begin() + signed_size_t(N1));
+    } else if constexpr (std::is_convertible_v<T, Tarray>) {
+        std::transform(a2.cbegin(),
+                       a2.cend(),
+                       a1.begin() + signed_size_t(N1),
+                       [](auto x) { return static_cast<T>(x); });
+    }
+
     return std::move(a1);
 }
 
 template <typename Array, typename T, meta::enable_if_iterable<Array> = 0>
 auto concatenate(const Array &a1, std::vector<T> &&a2) {
-    static_assert(std::is_convertible_v<T, typename Array::value_type>);
+    using Tarray = typename Array::value_type;
 
-    a2.insert(a2.begin(), a1.cbegin(), a1.cend());
+    a2.reserve(a1.size() + a2.size());
+
+    if constexpr (std::is_same_v<T, Tarray>) {
+        a2.insert(a2.begin(), a1.cbegin(), a1.cend());
+    } else if constexpr (std::is_convertible_v<T, Tarray>) {
+        std::transform(a1.cbegin(),
+                       a1.cend(),
+                       std::inserter(a2, a2.begin()),
+                       [](auto x) { return static_cast<T>(x); });
+    }
+
     return std::move(a2);
 }
 
