@@ -19,6 +19,13 @@ constexpr T pi = T(3.1415926535897932384626433832795029);
 template <typename T>
 constexpr T e = T(2.7182818284590452353602874713526625);
 
+template <typename T>
+constexpr T euler_gamma = T(0.5772156649015328606065120900824024310421);
+
+// Apéry's constant zeta(3)
+template <typename T>
+constexpr T apery_cst = T(1.20205690315959428539);
+
 //---------------------------------------------------------------------------------
 // Physical constants
 //

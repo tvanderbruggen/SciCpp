@@ -74,6 +74,17 @@ Ones and zeros
 :ref:`full <core_full>`
     Return a new array of given shape and type, filled with fill_value.
 
+Array manipulations
+-------------
+
+Operator :code:`|` is used for array concatenation.
+
+:ref:`concatenate <core_concatenate>`
+    Join a sequence of arrays.
+
+:ref:`flip <core_flip>`
+    Reverse the order of elements in an array.
+
 Ranges
 -------------
 

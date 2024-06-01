@@ -10,7 +10,9 @@
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/units/quantity.hpp"
+#include "scicpp/core/utils.hpp"
 
+#include <algorithm>
 #include <array>
 #include <iterator>
 #include <type_traits>
@@ -140,6 +142,28 @@ auto concatenate(Arrays &&...a) {
     static_assert((meta::is_iterable_v<Arrays> && ...));
     using namespace operators;
     return (std::forward<Arrays>(a) | ...);
+}
+
+//-----------------------------------------------------------------------------
+// flip
+//-----------------------------------------------------------------------------
+
+template <typename Array>
+auto flip_inplace(Array &a) {
+    std::reverse(a.begin(), a.end());
+}
+
+template <typename Array>
+auto flip(Array &&a) {
+    flip_inplace(a);
+    return std::forward<Array>(a);
+}
+
+template <typename Array>
+auto flip(const Array &a) {
+    auto res = utils::set_array(a);
+    std::reverse_copy(a.cbegin(), a.cend(), res.begin());
+    return res;
 }
 
 } // namespace scicpp

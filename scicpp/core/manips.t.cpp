@@ -125,4 +125,25 @@ TEST_CASE("concatenate") {
     }
 }
 
+TEST_CASE("flip") {
+    SECTION("empty") {
+        REQUIRE(flip(empty<float>()).empty());
+    }
+
+    SECTION("const std::array") {
+        const auto a = std::array{1, 2, 3};
+        REQUIRE(array_equal(flip(a), {3, 2, 1}));
+    }
+
+    SECTION("std::array&&") {
+        auto a = std::array{1, 2, 3};
+        REQUIRE(array_equal(flip(std::move(a)), {3, 2, 1}));
+    }
+
+    SECTION("std::vector&&") {
+        auto v = std::vector{1, 2, 3};
+        REQUIRE(array_equal(flip(std::move(v)), {3, 2, 1}));
+    }
+}
+
 } // namespace scicpp
