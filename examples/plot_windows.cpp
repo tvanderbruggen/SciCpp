@@ -19,13 +19,19 @@ auto window_spectrum_db(const Array &window) {
 int main() {
     constexpr auto N = 100;
 
+    const std::array<std::string, 5> labels{
+        "cosine", "bohman", "hann", "flattop", "blackmanharris"};
+
     const auto x = sci::linspace<N>(-1.0, 1.0);
     const auto y_cosine = win::cosine<double, N>();
     const auto y_bohman = win::bohman<double, N>();
     const auto y_hann = win::hann<double, N>();
     const auto y_flattop = win::flattop<double, N>();
+    const auto y_blackmanharris = win::blackmanharris<double, N>();
 
-    auto plot = plt::plot(x, y_cosine, y_bohman, y_hann, y_flattop);
+    auto plot =
+        plt::plot(x, y_cosine, y_bohman, y_hann, y_flattop, y_blackmanharris);
+    plot.labels(labels);
     plot.show();
 
     // ------------------------------------------------------
@@ -38,7 +44,11 @@ int main() {
     const auto fft_bohman = window_spectrum_db<Npad>(y_bohman);
     const auto fft_hann = window_spectrum_db<Npad>(y_hann);
     const auto fft_flattop = window_spectrum_db<Npad>(y_flattop);
+    const auto fft_blackmanharris = window_spectrum_db<Npad>(y_blackmanharris);
 
-    auto fft_plot = plt::plot(f, fft_cosine, fft_bohman, fft_hann, fft_flattop);
+    auto fft_plot = plt::plot(
+        f, fft_cosine, fft_bohman, fft_hann, fft_flattop, fft_blackmanharris);
+    fft_plot.labels(labels);
+    fft_plot.yrange(-200.0, 3.0);
     fft_plot.show();
 }

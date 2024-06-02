@@ -21,6 +21,8 @@ struct plot : sciplot::Plot2D {
     using XTp = typename XArray::value_type;
     using XRepTp = units::representation_t<XTp>;
 
+    static constexpr auto Ncurves = 1 + sizeof...(YArrays);
+
   public:
     plot(const XArray &x, const std::tuple<YArray0, YArrays...> &y)
         : m_x(sciplot::Vec(reinterpret_cast<const XRepTp *>(x.data()),
@@ -32,7 +34,7 @@ struct plot : sciplot::Plot2D {
     }
 
     auto color(const std::string &color) {
-        m_color = color;
+        m_color.fill(color);
         redraw();
         return *this;
     }
@@ -49,8 +51,20 @@ struct plot : sciplot::Plot2D {
         return canvas;
     }
 
+    auto labels(const std::array<std::string, Ncurves> &labels) {
+        m_labels = labels;
+        redraw();
+        return *this;
+    }
+
+    auto labels(std::array<std::string, Ncurves> &&labels) {
+        m_labels = std::move(labels);
+        redraw();
+        return *this;
+    }
+
     auto label(const std::string &label) {
-        m_label = label;
+        m_labels.fill(label);
         redraw();
         return *this;
     }
@@ -62,11 +76,16 @@ struct plot : sciplot::Plot2D {
     }
 
   private:
-    std::string m_color = "blue";
-    std::string m_label = "";
+    std::array<std::string, 8> m_color = {
+        "blue", "green", "red", "cyan", "magenta", "yellow", "black", "white"};
+    std::size_t m_color_idx = 0;
+
     bool m_display_grid = true;
     sciplot::Vec m_x;
     std::tuple<YArray0, YArrays...> m_y;
+
+    std::array<std::string, Ncurves> m_labels{};
+    std::size_t m_label_idx = 0;
 
     template <typename YArray>
     void draw_curve(const YArray &y) {
@@ -76,15 +95,23 @@ struct plot : sciplot::Plot2D {
         const auto y_vec =
             sciplot::Vec(reinterpret_cast<const YRepTp *>(y.data()), y.size());
 
-        if (m_label.empty()) {
-            drawCurve(m_x, y_vec).lineColor(m_color).labelNone();
+        const auto color = m_color[m_color_idx % m_color.size()];
+        ++m_color_idx;
+
+        const auto label = m_labels[m_label_idx];
+        ++m_label_idx;
+
+        if (label.empty()) {
+            drawCurve(m_x, y_vec).lineColor(color).labelNone();
         } else {
-            drawCurve(m_x, y_vec).lineColor(m_color).label(m_label);
+            drawCurve(m_x, y_vec).lineColor(color).label(label);
         }
     }
 
     void redraw() {
         clear();
+        m_color_idx = 0;
+        m_label_idx = 0;
         std::apply([&](const auto &...x) { (draw_curve(x), ...); }, m_y);
 
         if (m_display_grid) {
