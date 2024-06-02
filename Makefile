@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-MAJOR = 0
-MINOR = 4
-PATCH = 0
 
 SCICPP_SRC=scicpp
 
@@ -124,7 +121,17 @@ clean_benchmark:
 # Release
 # -------------------------------------------------------------------------------------
 
-RELEASE_ZIP = $(TMP)/scicpp-$(MAJOR).$(MINOR).$(PATCH).zip
+MAJOR = $(shell grep SCICPP_MAJOR_VERSION $(SCICPP_SRC)/version.hpp | cut -d " " -f3)
+MINOR = $(shell grep SCICPP_MINOR_VERSION $(SCICPP_SRC)/version.hpp | cut -d " " -f3)
+PATCH = $(shell grep SCICPP_PATCH_VERSION $(SCICPP_SRC)/version.hpp | cut -d " " -f3)
+
+VERSION = $(MAJOR).$(MINOR).$(PATCH)
+
+.PHONY: version
+version:
+	@echo $(VERSION)
+
+RELEASE_ZIP = $(TMP)/scicpp-$(VERSION).zip
 
 $(RELEASE_ZIP):
 	zip -r $@ $(SCICPP_SRC) -x *.cpp
