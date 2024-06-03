@@ -29,11 +29,6 @@ namespace scicpp {
 
 // Unary operations
 
-// Using map for unary operation:
-// https://godbolt.org/z/hsRapR
-// Generates quasi-identical assembly as raw loop
-// https://godbolt.org/z/jFnoA2
-
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, Array &&a) {
     using InputType = typename std::remove_reference_t<Array>::value_type;
@@ -43,14 +38,6 @@ template <class Array, class UnaryOp>
         std::transform(a.cbegin(), a.cend(), a.begin(), op);
         return std::move(a);
     } else {
-
-        // If InputType and ReturnType are different,
-        // we cannot move and we need to create an array
-        // of ReturnType elements to store the results.
-
-        // Maybe if sizeof(InputType) > sizeof(OutputType)
-        // we can steal the input memory ? Is that safe ?
-
         auto res = utils::set_array<ReturnType>(a);
         std::transform(a.cbegin(), a.cend(), res.begin(), op);
         return res;
@@ -143,11 +130,19 @@ template <class Array1, class Array2, class BinaryOp>
 // vectorize
 //---------------------------------------------------------------------------------
 
+// Ex. compute sqrt(x), where x is a vector:
+// => Using vectorized functions
+// https://godbolt.org/z/K81qGjPPr
+// => Using raw loop:
+// https://godbolt.org/z/aMh5zhT4G
+//
+// Generate almost the same assembly with both GCC and CLANG.
+
 // Ex. compute cos(sin(x)), where x is a vector:
 // => Using vectorized functions
-//    https://godbolt.org/z/HE8A12
+// https://godbolt.org/z/4c3M7zfP6
 // => Using raw loop:
-//    https://godbolt.org/z/HUzgjH
+// https://godbolt.org/z/Eqcc3ce3W
 //
 // Both codes generate a single call to new, so vectorize doesn't produce
 // unecessary temporaries.

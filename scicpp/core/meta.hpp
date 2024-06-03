@@ -267,6 +267,27 @@ struct value_type<T, std::void_t<typename T::value_type>> {
 template <class T>
 using value_type_t = typename detail::value_type<T>::type;
 
+//---------------------------------------------------------------------------------
+// is_implicitly_convertible
+// https://en.cppreference.com/w/cpp/types/is_convertible
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class From, class To>
+auto test_implicitly_convertible(int)
+    -> decltype(void(std::declval<void (&)(To)>()(std::declval<From>())),
+                std::true_type{});
+
+template <class, class>
+auto test_implicitly_convertible(...) -> std::false_type;
+
+} // namespace detail
+
+template <class From, class To>
+constexpr bool is_implicitly_convertible_v =
+    decltype(detail::test_implicitly_convertible<From, To>(0))::value;
+
 } // namespace scicpp::meta
 
 #endif // SCICPP_CORE_META

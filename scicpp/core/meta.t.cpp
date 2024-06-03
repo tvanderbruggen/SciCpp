@@ -125,4 +125,13 @@ TEST_CASE("value_type_t") {
     static_assert(std::is_same_v<value_type_t<units::volt<double>>, double>);
 }
 
+TEST_CASE("is_implicitly_convertible_v") {
+    static_assert(is_implicitly_convertible_v<int, int>);
+    static_assert(is_implicitly_convertible_v<int, double>);
+    static_assert(is_implicitly_convertible_v<double, std::complex<double>>);
+    static_assert(!is_implicitly_convertible_v<std::complex<double>, double>);
+    static_assert(is_implicitly_convertible_v<const char*, std::string>);
+    static_assert(!is_implicitly_convertible_v<std::string, const char*>);
+}
+
 } // namespace scicpp::meta
