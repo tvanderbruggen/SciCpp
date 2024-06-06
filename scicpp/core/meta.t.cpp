@@ -130,8 +130,8 @@ TEST_CASE("is_implicitly_convertible_v") {
     static_assert(is_implicitly_convertible_v<int, double>);
     static_assert(is_implicitly_convertible_v<double, std::complex<double>>);
     static_assert(!is_implicitly_convertible_v<std::complex<double>, double>);
-    static_assert(is_implicitly_convertible_v<const char*, std::string>);
-    static_assert(!is_implicitly_convertible_v<std::string, const char*>);
+    static_assert(is_implicitly_convertible_v<const char *, std::string>);
+    static_assert(!is_implicitly_convertible_v<std::string, const char *>);
 }
 
 } // namespace scicpp::meta

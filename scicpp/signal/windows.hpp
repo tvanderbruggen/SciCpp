@@ -391,7 +391,8 @@ enum Window : std::size_t {
     Blackman,
     Nuttall,
     Blackmanharris,
-    Flattop
+    Flattop,
+    Bohman
 };
 
 template <Window win, std::size_t N, typename T = double>
@@ -415,6 +416,8 @@ auto get_window() {
         return blackmanharris<T, N>();
     case Flattop:
         return flattop<T, N>();
+    case Bohman:
+        return bohman<T, N>();
     default:
         scicpp_unreachable;
     }
@@ -441,6 +444,8 @@ auto get_window(Window win, std::size_t N) {
         return blackmanharris<T>(N);
     case Flattop:
         return flattop<T>(N);
+    case Bohman:
+        return bohman<T>(N);
     default:
         scicpp_unreachable;
     }

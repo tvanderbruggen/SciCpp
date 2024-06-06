@@ -9,5 +9,6 @@
 #include "plots/plot.hpp"
 #include "plots/spectrum.hpp"
 #include "plots/utils.hpp"
+#include "plots/winvis.hpp"
 
 #endif // SCICPP_PLOTS_HEADER
