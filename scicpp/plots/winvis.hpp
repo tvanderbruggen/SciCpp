@@ -6,13 +6,16 @@
 
 #include "scicpp/core/manips.hpp"
 #include "scicpp/core/maths.hpp"
+#include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
+#include "scicpp/plots/plot.hpp"
 #include "scicpp/signal/fft.hpp"
 #include "scicpp/signal/windows.hpp"
 
 #include <sciplot/sciplot.hpp>
 #include <string>
+#include <tuple>
 #include <utility>
 
 namespace scicpp::plots {
@@ -31,37 +34,62 @@ auto window_spectrum_db(const Array &window) {
 }
 
 // Mainlobe width at 3 dB
-template <typename Array>
-auto mainlobe_width(const Array &winfft) {
+template <typename Freq, typename Array>
+auto mainlobe_width(const Freq &f, const Array &winfft) {
     using T = typename Array::value_type;
     using namespace operators;
-    return std::size_t(argmin(winfft + T(3), [](auto x) { return x >= T(0); }));
+
+    const auto idx =
+        std::size_t(argmin(winfft + T(3), [](auto x) { return x >= T(0); }));
+    return T(4) * f[idx]; // Factor 4 to match Matlab wvtool result
 }
 
 } // namespace detail
 
-template <typename Array>
-void winvis(const Array &window) {
-    using T = typename Array::value_type;
+template <typename Array0,
+          typename... Arrays,
+          meta::enable_if_iterable<Array0> = 0>
+void winvis(const std::tuple<Array0, Arrays...> &windows) {
+    using T = typename Array0::value_type;
 
-    const auto x = linspace(T(0), T(window.size()), window.size());
-    sciplot::Plot2D plot_win;
-    plot_win.drawCurve(x, window).lineWidth(2).labelNone();
-    plot_win.grid().lineType(-1).lineWidth(2).show();
+    // TODO assert all windows have the same size
+    const auto winsize = std::get<0>(windows).size();
+    const auto x = linspace(T(0), T(winsize), winsize);
+
+    auto plot_win = plot(x, windows);
+    plot_win.xrange(T(0), T(winsize));
     plot_win.xlabel("Samples");
     plot_win.ylabel("Amplitude");
 
-    const auto f = signal::rfftfreq<T>(11 * window.size());
-    const auto win_fft = detail::window_spectrum_db(window);
+    const auto f = signal::rfftfreq<T>(11 * winsize);
+    const auto win_ffts = std::apply(
+        [](const auto &...wins) {
+            return std::tuple{detail::window_spectrum_db(wins)...};
+        },
+        windows);
 
-    const auto idx = detail::mainlobe_width(win_fft);
-    const auto width = f[idx];
-    const auto width_str = std::string("Mainlobe width (3 dB): ") + std::to_string(width);
-    // print(width);
+    const auto widths = std::apply(
+        [&](const auto &...winffts) {
+            return std::tuple{detail::mainlobe_width(f, winffts)...};
+        },
+        win_ffts);
 
-    sciplot::Plot2D plot_fft;
-    plot_fft.drawCurve(f, win_fft).lineWidth(2).labelNone();
-    plot_fft.grid().lineType(-1).lineWidth(2).show();
+    std::string width_str("Mainlobe width (3 dB): ");
+
+    std::apply(
+        [&](auto arg0, auto... args) {
+            auto append_width = [&](auto width) {
+                width_str += ", " + std::to_string(width);
+            };
+
+            width_str += "[" + std::to_string(arg0);
+            (append_width(args), ...);
+            width_str += "]";
+        },
+        widths);
+
+    auto plot_fft = plot(f, win_ffts);
+    plot_fft.xrange(f[0], f.back());
     plot_fft.yrange(-200.0, 3.0);
     plot_fft.xlabel("Nyquist frequency");
     plot_fft.ylabel("Magnitude (dB)");
@@ -73,8 +101,19 @@ void winvis(const Array &window) {
     canvas.show();
 }
 
-void winvis(signal::windows::Window win, std::size_t N = 128) {
-    winvis(signal::windows::get_window<double>(win, N));
+template <std::size_t N = 128, std::size_t Nwins>
+void winvis(std::array<signal::windows::Window, Nwins> wins) {
+    winvis(std::apply(
+        [=](auto... windows) {
+            return std::tuple{
+                signal::windows::get_window<double>(windows, N)...};
+        },
+        wins));
+}
+
+template <std::size_t N = 128, typename... Windows>
+void winvis(Windows... wins) {
+    winvis<N>(std::array{wins...});
 }
 
 } // namespace scicpp::plots
