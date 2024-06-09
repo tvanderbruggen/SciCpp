@@ -54,8 +54,10 @@ void winvis(const std::tuple<Arrays...> &windows) {
     using Array0 = std::tuple_element_t<0, std::tuple<Arrays...>>;
     using T = typename Array0::value_type;
 
-    // TODO assert all windows have the same size
     const auto winsize = std::get<0>(windows).size();
+    scicpp_require(std::apply(
+        [=](auto... w) { return ((w.size() == winsize) && ...); }, windows));
+
     const auto x = linspace(T(0), T(winsize), winsize);
 
     auto plot_win = plot(x, windows);
