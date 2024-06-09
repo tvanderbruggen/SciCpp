@@ -180,6 +180,11 @@ constexpr auto not_zero = [](auto v) {
     return std::fpclassify(units::value(v)) != FP_ZERO;
 };
 
+constexpr auto strictly_positive = [](auto v) { return v > 0; };
+constexpr auto positive = [](auto v) { return v >= 0; };
+constexpr auto strictly_negative = [](auto v) { return v < 0; };
+constexpr auto negative = [](auto v) { return v <= 0; };
+
 template <typename T>
 struct Trim {
     constexpr Trim(const std::array<T, 2> &limits_,

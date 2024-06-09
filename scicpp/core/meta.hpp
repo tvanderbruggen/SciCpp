@@ -73,11 +73,11 @@ using is_iterable = decltype(detail::is_iterable_impl<T>(0));
 template <typename T>
 constexpr bool is_iterable_v = detail::is_iterable<T>::value;
 
-template <typename T>
-using enable_if_iterable = std::enable_if_t<is_iterable_v<T>, int>;
+template <typename... T>
+using disable_if_iterable = std::enable_if_t<(!is_iterable_v<T> || ...), int>;
 
-template <typename T>
-using disable_if_iterable = std::enable_if_t<!is_iterable_v<T>, int>;
+template <typename... T>
+using enable_if_iterable = std::enable_if_t<(is_iterable_v<T> && ...), int>;
 
 //---------------------------------------------------------------------------------
 // std::vector traits

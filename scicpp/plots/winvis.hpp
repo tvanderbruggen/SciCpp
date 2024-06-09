@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2024 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
+// Window visualization tool
+// See: https://fr.mathworks.com/matlabcentral/answers/84002-from-where-can-i-read-about-the-functioning-of-the-wvtool
+
 #ifndef SCICPP_PLOTS_WINVIS
 #define SCICPP_PLOTS_WINVIS
 
+#include "scicpp/core/functional.hpp"
 #include "scicpp/core/manips.hpp"
 #include "scicpp/core/maths.hpp"
 #include "scicpp/core/meta.hpp"
@@ -39,17 +43,15 @@ auto mainlobe_width(const Freq &f, const Array &winfft) {
     using T = typename Array::value_type;
     using namespace operators;
 
-    const auto idx =
-        std::size_t(argmin(winfft + T(3), [](auto x) { return x >= T(0); }));
+    const auto idx = std::size_t(argmin(winfft + T(3), filters::positive));
     return T(4) * f[idx]; // Factor 4 to match Matlab wvtool result
 }
 
 } // namespace detail
 
-template <typename Array0,
-          typename... Arrays,
-          meta::enable_if_iterable<Array0> = 0>
-void winvis(const std::tuple<Array0, Arrays...> &windows) {
+template <typename... Arrays, meta::enable_if_iterable<Arrays...> = 0>
+void winvis(const std::tuple<Arrays...> &windows) {
+    using Array0 = std::tuple_element_t<0, std::tuple<Arrays...>>;
     using T = typename Array0::value_type;
 
     // TODO assert all windows have the same size
