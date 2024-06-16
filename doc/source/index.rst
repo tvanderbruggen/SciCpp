@@ -87,7 +87,7 @@ Those are not only useful for development and debugging but are also great examp
 .. image:: _static/psd.png
    :width: 600
 
-:ref:`Window functions <examples_plot_windows>`
+:ref:`Window functions <plots_winvis>`
 
 .. image:: _static/windows_fft.png
-   :width: 600
+   :width: 800

@@ -33,3 +33,6 @@ Spectrum
 
 :ref:`cohere <plots_cohere>`
     Plot the coherence between two signals.
+
+:ref:`winvis <plots_winvis>`
+    Window function plotting utility.
