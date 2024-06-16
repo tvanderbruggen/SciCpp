@@ -379,6 +379,47 @@ auto kaiser(std::size_t M, T beta) {
 }
 
 //---------------------------------------------------------------------------------
+// Parzen
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+void parzen_filler(Array &w) {
+    const auto N = signed_size_t(w.size());
+
+    symmetric_filler(w, [=](std::size_t i) {
+        const auto n = signed_size_t(i) - (N - 1) / 2;
+        const auto nabs = (n >= 0) ? n : -n;
+
+        const T shift = (N % 2 == 0) ? T{0.5} : T{0};
+        const T i0 = T(N / 2) - shift;
+        const T A = T(2) * T(abs(T(i) - i0)) / T(N);
+        const T B = T(1) - A;
+
+        if (nabs <= N / 4) {
+            return T(1) - T(6) * A * A * B;
+        } else {
+            return T(2) * B * B * B;
+        }
+    });
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, Symmetry sym = Symmetric>
+auto parzen() {
+    return detail::build_window_array<T, M, sym>(
+        [&](auto &w) { detail::parzen_filler(w); });
+}
+
+template <typename T, Symmetry sym = Symmetric>
+auto parzen(std::size_t M) {
+    return detail::build_window_vector<T, sym>(
+        M, [&](auto &w) { detail::parzen_filler(w); });
+}
+
+//---------------------------------------------------------------------------------
 // get_window
 //---------------------------------------------------------------------------------
 
@@ -392,7 +433,8 @@ enum Window : std::size_t {
     Nuttall,
     Blackmanharris,
     Flattop,
-    Bohman
+    Bohman,
+    Parzen
 };
 
 template <Window win, std::size_t N, typename T = double>
@@ -418,6 +460,8 @@ auto get_window() {
         return flattop<T, N>();
     case Bohman:
         return bohman<T, N>();
+    case Parzen:
+        return parzen<T, N>();
     default:
         scicpp_unreachable;
     }
@@ -446,6 +490,8 @@ auto get_window(Window win, std::size_t N) {
         return flattop<T>(N);
     case Bohman:
         return bohman<T>(N);
+    case Parzen:
+        return parzen<T>(N);
     default:
         scicpp_unreachable;
     }
