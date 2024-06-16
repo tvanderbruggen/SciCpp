@@ -6,8 +6,6 @@
 
 #include "scicpp/core/macros.hpp"
 
-#include <unordered_map>
-
 namespace scicpp::plots {
 
 //---------------------------------------------------------------------------------

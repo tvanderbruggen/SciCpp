@@ -65,6 +65,8 @@ const auto arctan2 =
     vectorize([](auto x, auto y) { return units::atan2(x, y); });
 const auto hypot = vectorize([](auto x, auto y) { return units::hypot(x, y); });
 
+const auto sinc = vectorize([](auto x) { return units::sinc(x); });
+
 // Hyperbolic functions
 
 const auto sinh = vectorize([](auto x) { return std::sinh(x); });
