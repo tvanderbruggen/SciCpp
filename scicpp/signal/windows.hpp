@@ -7,6 +7,7 @@
 #include "scicpp/core/constants.hpp"
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/maths.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
 
@@ -420,6 +421,33 @@ auto parzen(std::size_t M) {
 }
 
 //---------------------------------------------------------------------------------
+// Lanczos
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+void lanczos_filler(Array &w) {
+    symmetric_filler(w, [=](std::size_t i) {
+        return sinc(T(1) - T(2 * i) / T(w.size() - 1));
+    });
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, Symmetry sym = Symmetric>
+auto lanczos() {
+    return detail::build_window_array<T, M, sym>(
+        [&](auto &w) { detail::lanczos_filler(w); });
+}
+
+template <typename T, Symmetry sym = Symmetric>
+auto lanczos(std::size_t M) {
+    return detail::build_window_vector<T, sym>(
+        M, [&](auto &w) { detail::lanczos_filler(w); });
+}
+
+//---------------------------------------------------------------------------------
 // get_window
 //---------------------------------------------------------------------------------
 
@@ -434,7 +462,8 @@ enum Window : std::size_t {
     Blackmanharris,
     Flattop,
     Bohman,
-    Parzen
+    Parzen,
+    Lanczos
 };
 
 template <Window win, std::size_t N, typename T = double>
@@ -462,6 +491,8 @@ auto get_window() {
         return bohman<T, N>();
     case Parzen:
         return parzen<T, N>();
+    case Lanczos:
+        return lanczos<T, N>();
     default:
         scicpp_unreachable;
     }
@@ -492,6 +523,8 @@ auto get_window(Window win, std::size_t N) {
         return bohman<T>(N);
     case Parzen:
         return parzen<T>(N);
+    case Lanczos:
+        return lanczos<T>(N);
     default:
         scicpp_unreachable;
     }

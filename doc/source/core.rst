@@ -18,7 +18,7 @@ which sometimes differs from the C++ definitions (ex. *arcsin* vs *asin*).
 Trigonometric functions
 ^^^^^^^^^^^^^^^^
 
-:code:`sin`, :code:`cos`, :code:`tan`, :code:`arcsin`, :code:`arccos`, :code:`arctan`, :code:`arctan2`, :code:`hypot`.
+:code:`sin`, :code:`cos`, :code:`tan`, :code:`arcsin`, :code:`arccos`, :code:`arctan`, :code:`arctan2`, :code:`hypot`, :code:`sinc`.
 
 Hyperbolic functions
 ^^^^^^^^^^^^^^^^

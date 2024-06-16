@@ -18,7 +18,8 @@ Return a window with kind defined by the enum::
         Blackmanharris,
         Flattop,
         Bohman,
-        Parzen
+        Parzen,
+        Lanczos
     };
 
 --------------------------------------

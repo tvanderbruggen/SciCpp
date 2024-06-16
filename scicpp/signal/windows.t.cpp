@@ -432,7 +432,6 @@ TEST_CASE("parzen") {
     SECTION("Odd size") {
         // print(parzen<double>(5));
         // print(parzen<double, 5, Periodic>());
-
         REQUIRE(almost_equal<10>(parzen<double>(5),
                                  {0.016, 0.424, 1., 0.424, 0.016}));
         REQUIRE(almost_equal<50>(parzen<double, 5, Periodic>(),
@@ -450,7 +449,6 @@ TEST_CASE("parzen") {
 
         // print(parzen<double>(8));
         // print(parzen<double, 8, Periodic>());
-
         REQUIRE(almost_equal<10>(parzen<double>(8),
                                  {0.00390625,
                                   0.10546875,
@@ -469,6 +467,49 @@ TEST_CASE("parzen") {
                                   0.7695473251028806,
                                   0.3415637860082303,
                                   0.0740740740740741}));
+    }
+}
+
+//---------------------------------------------------------------------------------
+// lanczos
+//---------------------------------------------------------------------------------
+
+TEST_CASE("lanczos") {
+    SECTION("lanczos") {
+        REQUIRE(lanczos<double>(0).empty());
+        REQUIRE(lanczos<double, 0>().empty());
+    }
+
+    SECTION("Odd size") {
+        // print(lanczos<double>(5));
+        // print(lanczos<double, 5, Periodic>());
+        REQUIRE(almost_equal<10>(lanczos<double>(5),
+                                 {3.8981718325193755e-17,
+                                  6.3661977236758138e-01,
+                                  1.0,
+                                  6.3661977236758138e-01,
+                                  3.8981718325193755e-17}));
+        REQUIRE(almost_equal<10>(lanczos<double, 5, Periodic>(),
+                                 {3.8981718325193755e-17,
+                                  5.0455115242710458e-01,
+                                  9.3548928378863905e-01,
+                                  9.3548928378863905e-01,
+                                  5.0455115242710458e-01}));
+    }
+
+    SECTION("Even size") {
+        // print(lanczos<double>(4));
+        // print(lanczos<double, 4, Periodic>());
+        REQUIRE(almost_equal<10>(lanczos<double>(4),
+                                 {3.8981718325193755e-17,
+                                  8.2699334313268824e-01,
+                                  8.2699334313268824e-01,
+                                  3.8981718325193755e-17}));
+        REQUIRE(almost_equal<10>(lanczos<double, 4, Periodic>(),
+                                 {3.8981718325193755e-17,
+                                  6.3661977236758138e-01,
+                                  1.0,
+                                  6.3661977236758138e-01}));
     }
 }
 

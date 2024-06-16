@@ -105,6 +105,9 @@ Window Functions
 :ref:`windows::parzen <signal_windows_parzen>`
     Return a Parzen (de la Vallée Poussin) window.
 
+:ref:`windows::lanczos <signal_windows_lanczos>`
+    Return a Lanczos (sinc) window.
+
 :ref:`windows::enbw <signal_windows_enbw>`
     Return the equivalent noise bandwidth of a window.
 
