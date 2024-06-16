@@ -36,3 +36,4 @@ make COMPILER=$compiler EXAMPLE=plot_cohere example_build
 make COMPILER=$compiler EXAMPLE=boxplot example_build
 make COMPILER=$compiler EXAMPLE=basic_plot example_build
 make COMPILER=$compiler EXAMPLE=eeg example_build
+make COMPILER=$compiler EXAMPLE=winvis example_build
