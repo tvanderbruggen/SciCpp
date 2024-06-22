@@ -448,6 +448,64 @@ auto lanczos(std::size_t M) {
 }
 
 //---------------------------------------------------------------------------------
+// Tukey
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+void tukey_filler(Array &w, T alpha) {
+    const auto N = signed_size_t(w.size());
+    auto width = signed_size_t((T(1) - alpha) * T(N / 2));
+
+    if ((N % 2 == 0) && (width == 0)) {
+        width = 1;
+    }
+
+    symmetric_filler(w, [=](std::size_t i) {
+        const auto n = signed_size_t(i) - (N - 1) / 2;
+
+        if (n <= width) {
+            return T(1);
+        } else {
+            const auto A = T(2) / alpha;
+            return T(0.5) *
+                   (T(1) + std::cos(pi<T> * (T(1) - A + A * T(i) / T(N - 1))));
+        }
+    });
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, Symmetry sym = Symmetric>
+auto tukey(T alpha = 0.5) {
+    if (alpha <= T(0)) {
+        return boxcar<T, M>();
+    }
+
+    if (alpha >= T(1)) {
+        return hann<T, M>();
+    }
+
+    return detail::build_window_array<T, M, sym>(
+        [&](auto &w) { detail::tukey_filler(w, alpha); });
+}
+
+template <typename T, Symmetry sym = Symmetric>
+auto tukey(std::size_t M, T alpha = 0.5) {
+    if (alpha <= T(0)) {
+        return boxcar<T>(M);
+    }
+
+    if (alpha >= T(1)) {
+        return hann<T>(M);
+    }
+
+    return detail::build_window_vector<T, sym>(
+        M, [&](auto &w) { detail::tukey_filler(w, alpha); });
+}
+
+//---------------------------------------------------------------------------------
 // get_window
 //---------------------------------------------------------------------------------
 

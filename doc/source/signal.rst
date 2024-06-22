@@ -108,6 +108,9 @@ Window Functions
 :ref:`windows::lanczos <signal_windows_lanczos>`
     Return a Lanczos (sinc) window.
 
+:ref:`windows::tukey <signal_windows_tukey>`
+    Return a Tukey window.
+
 :ref:`windows::enbw <signal_windows_enbw>`
     Return the equivalent noise bandwidth of a window.
 
