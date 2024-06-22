@@ -5,6 +5,7 @@
 #define SCICPP_MACROS
 
 #include <cassert>
+#include <cstdlib>
 #include <type_traits>
 #include <utility>
 

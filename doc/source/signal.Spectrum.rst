@@ -44,6 +44,13 @@ Set the window. Hann window of length 256 by default.
 
 --------------------------------------
 
+.. function:: nthreads(std::size_t nthreads)
+
+Number of threads to be used for parallel computing of FFTs
+when using Welch's method.
+
+--------------------------------------
+
 Estimators
 -------------------------
 

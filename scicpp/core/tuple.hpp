@@ -6,11 +6,11 @@
 #ifndef SCICPP_CORE_TUPLE
 #define SCICPP_CORE_TUPLE
 
-#include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <tuple>
 #include <utility>
 #include <vector>

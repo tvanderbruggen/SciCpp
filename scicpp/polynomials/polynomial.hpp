@@ -18,12 +18,12 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <complex>
+#include <cstdlib>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
-#include <limits>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -201,9 +201,9 @@ constexpr auto polydiv(const std::array<T, M> &u, const std::array<T, N> &v) {
 
     if constexpr (N == 1) {
         using namespace scicpp::operators;
-        return std::make_tuple(u / v[0], std::array<T, 1>{});
+        return std::tuple{u / v[0], std::array<T, 1>{}};
     } else if constexpr (M < N) {
-        return std::make_tuple(std::array<T, 1>{}, u);
+        return std::tuple{std::array<T, 1>{}, u};
     } else {
         const auto tmp = detail::polydiv_impl(u, v);
 
@@ -211,7 +211,7 @@ constexpr auto polydiv(const std::array<T, M> &u, const std::array<T, N> &v) {
         std::array<T, N - 1> r{};
         std::move(tmp.begin(), tmp.begin() + r.size(), r.begin());
         std::move(tmp.begin() + r.size(), tmp.end(), q.begin());
-        return std::make_tuple(q, r);
+        return std::tuple{q, r};
     }
 }
 
@@ -222,21 +222,21 @@ auto polydiv(const std::vector<T> &u, const std::vector<T> &v) {
 
     if (v.size() == 1) {
         using namespace scicpp::operators;
-        return std::make_tuple(u / v[0], std::vector<T>(1, T{0}));
+        return std::tuple{u / v[0], std::vector<T>(1, T{0})};
     }
 
     if (u.size() < v.size()) {
-        return std::make_tuple(std::vector<T>(1, T{0}), u);
+        return std::tuple{std::vector<T>(1, T{0}), u};
     }
 
     const auto tmp = detail::polydiv_impl(u, v);
     const auto len = signed_size_t(v.size()) - 1;
 
-    return std::make_tuple(
+    return std::tuple{
         std::vector<T>(std::make_move_iterator(tmp.begin() + len),
                        std::make_move_iterator(tmp.end())),
         std::vector<T>(std::make_move_iterator(tmp.begin()),
-                       std::make_move_iterator(tmp.begin() + len)));
+                       std::make_move_iterator(tmp.begin() + len))};
 }
 
 //---------------------------------------------------------------------------------
@@ -339,7 +339,7 @@ constexpr auto polyder_once(const std::array<T, N> &P) {
 
 template <typename T>
 void polyder_once(std::vector<T> &P) {
-    scicpp_require(P.size() >= 1);
+    scicpp_require(!P.empty());
     const auto N = P.size();
 
     for (std::size_t i = 0; i < (N - 1); ++i) {
@@ -440,7 +440,7 @@ constexpr auto polyint(const std::array<T, N> &P) {
 
 template <typename T>
 auto polyint(const std::vector<T> &P, signed_size_t m = 1) {
-    scicpp_require(P.size() > 0);
+    scicpp_require(!P.empty());
     scicpp_require(m >= 0);
 
     if (m == 0) {

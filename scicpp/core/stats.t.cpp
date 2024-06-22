@@ -621,8 +621,13 @@ TEST_CASE("covariance complex") {
                              584169.9776307966 + 5420.055142687268i));
     REQUIRE(almost_equal<30>(covariance<1>(b, a),
                              584169.9776307966 - 5420.055142687268i));
-    REQUIRE(almost_equal<25>(covariance<1>(a, a), 56198.29353076693 + 0.i));
-    REQUIRE(almost_equal<25>(covariance<1>(b, b), 6072852.364744352 + 0.i));
+    REQUIRE(almost_equal<25>(covariance<1>(a, a).real(), 56198.29353076693));
+    REQUIRE(almost_equal<25>(covariance<1>(b, b).real(), 6072852.364744352));
+    // Because imaginary part is zero compare relative imaginary part with respect to real part
+    REQUIRE(almost_equal<1>(
+        covariance<1>(a, a).imag() / covariance<1>(a, a).real(), 0.0));
+    REQUIRE(almost_equal<1>(
+        covariance<1>(b, b).imag() / covariance<1>(b, b).real(), 0.0));
 }
 
 TEST_CASE("covariance physical units") {

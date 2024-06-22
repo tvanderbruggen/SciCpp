@@ -3,7 +3,7 @@
 Fixed vs variable size arrays
 ====================================
 
-Arrays come in two flavor: either their size is known at compile-time (``std::array``) or not (``std::vector``).
+Arrays come in two flavors: either their size is known at compile-time (``std::array``) or not (``std::vector``).
 
 Some SciCpp function calls may differ whether you use one type of array or the other.
 Here we present some examples.

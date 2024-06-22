@@ -6,12 +6,14 @@
 
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/units/quantity.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstdint>
+#include <cstdlib>
 #include <numeric>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -48,12 +50,22 @@ auto full(std::size_t N, T fill_value) {
 
 template <std::size_t N, typename T>
 auto zeros() {
-    return full<N, T>(T{0});
+    if constexpr (meta::is_complex_v<T>) {
+        using Tp = typename T::value_type;
+        return full<N>(std::complex(Tp{0}, Tp{0}));
+    } else {
+        return full<N>(T{0});
+    }
 }
 
 template <typename T>
 auto zeros(std::size_t N) {
-    return full<T>(N, T{0});
+    if constexpr (meta::is_complex_v<T>) {
+        using Tp = typename T::value_type;
+        return full(N, std::complex(Tp{0}, Tp{0}));
+    } else {
+        return full(N, T{0});
+    }
 }
 
 //---------------------------------------------------------------------------------
@@ -62,12 +74,22 @@ auto zeros(std::size_t N) {
 
 template <std::size_t N, typename T>
 auto ones() {
-    return full<N, T>(T{1});
+    if constexpr (meta::is_complex_v<T>) {
+        using Tp = typename T::value_type;
+        return full<N>(std::complex(Tp{1}, Tp{0}));
+    } else {
+        return full<N>(T{1});
+    }
 }
 
 template <typename T>
 auto ones(std::size_t N) {
-    return full<T>(N, T{1});
+    if constexpr (meta::is_complex_v<T>) {
+        using Tp = typename T::value_type;
+        return full(N, std::complex(Tp{1}, Tp{0}));
+    } else {
+        return full(N, T{1});
+    }
 }
 
 //---------------------------------------------------------------------------------

@@ -12,10 +12,14 @@
 #include <Eigen/Dense>
 #include <algorithm>
 #include <any>
+#include <array>
+#include <complex>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <limits>
 #include <map>
 #include <optional>
 #include <sstream>
@@ -483,6 +487,27 @@ class TxtLoader {
         if constexpr (!pack && (Ntypes > 1)) {
             // By default tuple output data are unpacked
             return scicpp::unpack(data);
+        } else {
+            return data;
+        }
+    }
+
+    // Return all data in a single std::vector
+    auto load_vector(const std::filesystem::path &fname) const {
+        // First data type
+        using T = std::tuple_element_t<0, std::tuple<DataTypes...>>;
+
+        const auto [data, num_cols] = detail::loadtxt_to_vector<T>(fname,
+                                                                   m_comments,
+                                                                   m_delimiter,
+                                                                   m_skiprows,
+                                                                   m_usecols,
+                                                                   m_converters,
+                                                                   m_filters,
+                                                                   m_max_rows);
+
+        if constexpr (Ntypes > 1) {
+            return std::tuple{data, num_cols};
         } else {
             return data;
         }

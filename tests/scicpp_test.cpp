@@ -13,6 +13,7 @@ using namespace std::literals;
 #include "scicpp/core/histogram.t.cpp"
 #include "scicpp/core/interpolate.t.cpp"
 #include "scicpp/core/io.t.cpp"
+#include "scicpp/core/manips.t.cpp"
 #include "scicpp/core/maths.t.cpp"
 #include "scicpp/core/meta.t.cpp"
 #include "scicpp/core/numeric.t.cpp"

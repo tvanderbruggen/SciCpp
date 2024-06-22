@@ -7,6 +7,7 @@
 #include "scicpp/core/histogram.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
+#include <cstdlib>
 #include <sciplot/sciplot.hpp>
 #include <string>
 #include <utility>

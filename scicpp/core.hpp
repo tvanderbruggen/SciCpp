@@ -11,6 +11,7 @@
 #include "core/interpolate.hpp"
 #include "core/io.hpp"
 #include "core/macros.hpp"
+#include "core/manips.hpp"
 #include "core/maths.hpp"
 #include "core/meta.hpp"
 #include "core/numeric.hpp"

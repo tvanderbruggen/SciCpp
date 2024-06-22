@@ -141,6 +141,15 @@ TEST_CASE("atan2") {
     REQUIRE(almost_equal(atan2(1_m, 1_m), 45_deg));
 }
 
+TEST_CASE("sinc") {
+    REQUIRE(almost_equal(sinc(0.), 1.));
+    REQUIRE(almost_equal(sinc(-0.), 1.));
+    REQUIRE(almost_equal(sinc(1.), 0.));
+    REQUIRE(almost_equal(sinc(-1.), 0.));
+    REQUIRE(almost_equal(sinc(1_m / 1_m), 0.));
+    REQUIRE(almost_equal(sinc(1E-5), 0.9999999998355066));
+}
+
 TEST_CASE("numeric_limits") {
     REQUIRE(isnan(std::numeric_limits<meter<>>::quiet_NaN()));
     REQUIRE(isinf(std::numeric_limits<meter<>>::infinity()));

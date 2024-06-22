@@ -11,6 +11,7 @@
 #include "scicpp/core/utils.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <functional>
 #include <iterator>
@@ -28,11 +29,6 @@ namespace scicpp {
 
 // Unary operations
 
-// Using map for unary operation:
-// https://godbolt.org/z/hsRapR
-// Generates quasi-identical assembly as raw loop
-// https://godbolt.org/z/jFnoA2
-
 template <class Array, class UnaryOp>
 [[nodiscard]] auto map(UnaryOp op, Array &&a) {
     using InputType = typename std::remove_reference_t<Array>::value_type;
@@ -42,14 +38,6 @@ template <class Array, class UnaryOp>
         std::transform(a.cbegin(), a.cend(), a.begin(), op);
         return std::move(a);
     } else {
-
-        // If InputType and ReturnType are different,
-        // we cannot move and we need to create an array
-        // of ReturnType elements to store the results.
-
-        // Maybe if sizeof(InputType) > sizeof(OutputType)
-        // we can steal the input memory ? Is that safe ?
-
         auto res = utils::set_array<ReturnType>(a);
         std::transform(a.cbegin(), a.cend(), res.begin(), op);
         return res;
@@ -142,13 +130,21 @@ template <class Array1, class Array2, class BinaryOp>
 // vectorize
 //---------------------------------------------------------------------------------
 
+// Ex. compute sqrt(x), where x is a vector:
+// => Using vectorized functions
+// https://godbolt.org/z/K81qGjPPr
+// => Using raw loop:
+// https://godbolt.org/z/aMh5zhT4G
+//
+// Generate almost the same assembly with both GCC and CLANG.
+
 // Ex. compute cos(sin(x)), where x is a vector:
 // => Using vectorized functions
-//    https://godbolt.org/z/HE8A12
+// https://godbolt.org/z/4c3M7zfP6
 // => Using raw loop:
-//    https://godbolt.org/z/HUzgjH
+// https://godbolt.org/z/Eqcc3ce3W
 //
-// Both codes generate a single call to new, so vectorize don't produce
+// Both codes generate a single call to new, so vectorize doesn't produce
 // unecessary temporaries.
 // For the vectorized version first the sin loop is called, then the cos one.
 // For the raw loop version a single loop call sin and cos.
@@ -183,6 +179,11 @@ constexpr auto not_nan = [](auto v) { return !units::isnan(v); };
 constexpr auto not_zero = [](auto v) {
     return std::fpclassify(units::value(v)) != FP_ZERO;
 };
+
+constexpr auto strictly_positive = [](auto v) { return v > 0; };
+constexpr auto positive = [](auto v) { return v >= 0; };
+constexpr auto strictly_negative = [](auto v) { return v < 0; };
+constexpr auto negative = [](auto v) { return v <= 0; };
 
 template <typename T>
 struct Trim {
@@ -241,7 +242,7 @@ template <class InputIt, class UnaryPredicate, class BinaryOp, typename T>
         }
     }
 
-    return std::make_tuple(init, cnt);
+    return std::tuple{init, cnt};
 }
 
 template <class Array, class UnaryPredicate, class BinaryOp, typename T2>
@@ -364,7 +365,7 @@ filter_reduce_associative(InputIt first,
             [&](const auto res1, const auto res2) {
                 const auto [x1, n1] = res1;
                 const auto [x2, n2] = res2;
-                return std::make_tuple(op(x1, x2), n1 + n2);
+                return std::tuple{op(x1, x2), n1 + n2};
             });
     }
 }

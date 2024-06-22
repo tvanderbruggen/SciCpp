@@ -11,7 +11,16 @@ Return a :expr:`sciplot::Plot2D` object.
 
 --------------------------------------
 
-.. function:: template <signal::SpectrumScaling scaling = signal::DENSITY, typename Array1, typename Array2, typename T = double> \
+Plot scale options::
+
+    enum SpectrumPlotScale : int {
+        LINEAR,  // Linear scale
+        DECIBEL  // Logarithm scale (dB)
+    };
+
+--------------------------------------
+
+.. function:: template <signal::SpectrumScaling scaling = signal::DENSITY, SpectrumPlotScale plot_scale = DECIBEL, typename Array1, typename Array2, typename T = double> \
               auto csd(signal::Spectrum<T> spec, const Array1 &x, const Array2 &y)
 
 Plot the cross-spectral density between arrays :expr:`x` and :expr:`y`
@@ -19,7 +28,7 @@ using a given :ref:`Spectrum <signal_Spectrum>` analyzer :expr:`spec`.
 
 --------------------------------------
 
-.. function:: template <signal::SpectrumScaling scaling = signal::DENSITY, typename Array, typename T = double> \
+.. function:: template <signal::SpectrumScaling scaling = signal::DENSITY, SpectrumPlotScale plot_scale = DECIBEL, typename Array, typename T = double> \
               auto psd(signal::Spectrum<T> spec, const Array &x)
 
 Plot the power spectral density of array :expr:`x`
