@@ -6,12 +6,13 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/range.hpp"
 #include "scicpp/core/utils.hpp"
-#include "scicpp/signal/windows.hpp"
 
 #include <algorithm>
 #include <array>
 #include <complex>
+#include <cstdlib>
 #include <unsupported/Eigen/FFT>
 #include <utility>
 #include <vector>
@@ -169,7 +170,7 @@ auto zero_padding(const Array &v, std::size_t new_size) {
     static_assert(meta::is_iterable_v<Array>);
 
     using T = typename Array::value_type;
-    std::vector<T> res(new_size, T{0});
+    auto res = zeros<T>(new_size);
     std::copy(v.cbegin(),
               v.cbegin() + signed_size_t(std::min(new_size, v.size())),
               res.begin());
@@ -186,48 +187,91 @@ auto zero_padding(std::vector<T> &&v, std::size_t new_size) {
 // FFTs
 //---------------------------------------------------------------------------------
 
-template <typename T>
-auto fft(const std::vector<std::complex<T>> &x) {
-    scicpp_require(!x.empty());
+template <class InputIt, class CplxVector>
+void fft_inplace(InputIt first, InputIt last, CplxVector &dst) {
+    using T = typename CplxVector::value_type::value_type;
 
-    if (x.size() == 1) {
-        return std::vector{x[0]};
-    }
+    const auto src_size = std::distance(first, last);
+    scicpp_require(src_size != 0);
 
+    dst.resize(std::size_t(src_size));
     Eigen::FFT<T> fft_engine;
-    std::vector<std::complex<T>> y;
-    fft_engine.fwd(y, x);
-    return y;
+    fft_engine.fwd(dst.data(), &*first, src_size);
 }
 
-template <typename T>
-auto fft(const std::vector<T> &x) {
-    scicpp_require(!x.empty());
-
-    if (x.size() == 1) {
-        return std::vector{std::complex(x[0])};
-    }
-
-    Eigen::FFT<T> fft_engine;
-    std::vector<std::complex<T>> y;
-    fft_engine.fwd(y, x);
-    return y;
+template <class Array, class CplxVector>
+void fft_inplace(const Array &x, CplxVector &dst) {
+    fft_inplace(x.cbegin(), x.cend(), dst);
 }
 
-template <typename T>
-auto rfft(const std::vector<T> &x) {
+template <class Array, class CplxVector>
+auto fft(const Array &x, CplxVector &&dst) {
     scicpp_require(!x.empty());
 
     if (x.size() == 1) {
-        return std::vector{std::complex(x[0])};
+        dst.resize(1);
+        dst[0] = x[0];
+    } else {
+        fft_inplace(x, dst);
     }
 
+    return std::move(dst);
+}
+
+template <class Array>
+auto fft(const Array &x) {
+    using Tarr = typename Array::value_type;
+
+    if constexpr (meta::is_complex_v<Tarr>) {
+        using T = typename Tarr::value_type;
+        std::vector<std::complex<T>> y;
+        return fft(x, std::move(y));
+    } else {
+        std::vector<std::complex<Tarr>> y;
+        return fft(x, std::move(y));
+    }
+}
+
+template <class InputIt, class CplxVector>
+void rfft_inplace(InputIt first, InputIt last, CplxVector &dst) {
+    using T = typename CplxVector::value_type::value_type;
+
+    const auto src_size = std::distance(first, last);
+    scicpp_require(src_size != 0);
+
+    dst.resize(std::size_t(src_size) / 2 + 1);
     Eigen::FFT<T> fft_engine;
     fft_engine.SetFlag(Eigen::FFT<T>::HalfSpectrum);
-    std::vector<std::complex<T>> y;
-    fft_engine.fwd(y, x);
-    return y;
+    fft_engine.fwd(dst.data(), &*first, src_size);
 }
+
+template <class Array, class CplxVector>
+void rfft_inplace(const Array &x, CplxVector &dst) {
+    rfft_inplace(x.cbegin(), x.cend(), dst);
+}
+
+template <class Array, class CplxVector>
+auto rfft(const Array &x, CplxVector &&dst) {
+    scicpp_require(!x.empty());
+
+    if (x.size() == 1) {
+        dst.resize(1);
+        dst[0] = x[0];
+    } else {
+        rfft_inplace(x, dst);
+    }
+
+    return std::move(dst);
+}
+
+template <class Array>
+auto rfft(const Array &x) {
+    using T = typename Array::value_type;
+    std::vector<std::complex<T>> y;
+    return rfft(x, std::move(y));
+}
+
+// TODO Iterators interface for ifft
 
 template <typename T>
 auto ifft(const std::vector<std::complex<T>> &y, int n = -1) {

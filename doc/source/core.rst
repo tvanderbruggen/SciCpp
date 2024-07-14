@@ -18,7 +18,7 @@ which sometimes differs from the C++ definitions (ex. *arcsin* vs *asin*).
 Trigonometric functions
 ^^^^^^^^^^^^^^^^
 
-:code:`sin`, :code:`cos`, :code:`tan`, :code:`arcsin`, :code:`arccos`, :code:`arctan`, :code:`arctan2`, :code:`hypot`.
+:code:`sin`, :code:`cos`, :code:`tan`, :code:`arcsin`, :code:`arccos`, :code:`arctan`, :code:`arctan2`, :code:`hypot`, :code:`sinc`.
 
 Hyperbolic functions
 ^^^^^^^^^^^^^^^^
@@ -73,6 +73,17 @@ Ones and zeros
 
 :ref:`full <core_full>`
     Return a new array of given shape and type, filled with fill_value.
+
+Array manipulations
+-------------
+
+Operator :code:`|` is used for array concatenation.
+
+:ref:`concatenate <core_concatenate>`
+    Join a sequence of arrays.
+
+:ref:`flip <core_flip>`
+    Reverse the order of elements in an array.
 
 Ranges
 -------------

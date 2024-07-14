@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2019-2021 Thomas Vanderbruggen <th.vanderbruggen@gmail.com>
 
-MAJOR = 0
-MINOR = 4
-PATCH = 0
 
 SCICPP_SRC=scicpp
 
@@ -25,8 +22,8 @@ WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
 
 ifeq ($(COMPILER),gcc)
-  CC = $(CROSS_COMPILE)gcc-8
-  CCXX = $(CROSS_COMPILE)g++-8
+  CC = $(CROSS_COMPILE)gcc-9
+  CCXX = $(CROSS_COMPILE)g++-9
 
   WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond -Wsuggest-attribute=pure -Wsuggest-attribute=const
 else
@@ -124,7 +121,17 @@ clean_benchmark:
 # Release
 # -------------------------------------------------------------------------------------
 
-RELEASE_ZIP = $(TMP)/scicpp-$(MAJOR).$(MINOR).$(PATCH).zip
+MAJOR = $(shell grep SCICPP_MAJOR_VERSION $(SCICPP_SRC)/version.hpp | cut -d " " -f3)
+MINOR = $(shell grep SCICPP_MINOR_VERSION $(SCICPP_SRC)/version.hpp | cut -d " " -f3)
+PATCH = $(shell grep SCICPP_PATCH_VERSION $(SCICPP_SRC)/version.hpp | cut -d " " -f3)
+
+VERSION = $(MAJOR).$(MINOR).$(PATCH)
+
+.PHONY: version
+version:
+	@echo $(VERSION)
+
+RELEASE_ZIP = $(TMP)/scicpp-$(VERSION).zip
 
 $(RELEASE_ZIP):
 	zip -r $@ $(SCICPP_SRC) -x *.cpp
@@ -174,7 +181,7 @@ example_build: $(EXAMPLE_TARGET)
 
 .PHONY: example_py
 example_py:
-	python $(EXAMPLE_PY)
+	python3 $(EXAMPLE_PY)
 
 .PHONY: clean_examples
 clean_examples:

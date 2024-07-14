@@ -6,14 +6,17 @@
 
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/functional.hpp"
+#include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/units/units.hpp"
 
 #include <array>
 #include <cmath>
 #include <complex>
+#include <cstdlib>
 #include <limits>
 #include <numeric>
+#include <type_traits>
 #include <vector>
 
 namespace scicpp {
@@ -62,6 +65,8 @@ const auto arctan2 =
     vectorize([](auto x, auto y) { return units::atan2(x, y); });
 const auto hypot = vectorize([](auto x, auto y) { return units::hypot(x, y); });
 
+const auto sinc = vectorize([](auto x) { return units::sinc(x); });
+
 // Hyperbolic functions
 
 const auto sinh = vectorize([](auto x) { return std::sinh(x); });
@@ -94,7 +99,7 @@ const auto rint = vectorize([](auto x) { return units::rint(x); });
 const auto real = vectorize([](auto z) { return std::real(z); });
 const auto imag = vectorize([](auto z) { return std::imag(z); });
 const auto angle = vectorize([](auto z) { return std::arg(z); });
-const auto norm = vectorize([](auto z) { return std::norm(z); });
+const auto norm = vectorize([](auto z) { return units::norm(z); });
 
 const auto conj = vectorize([](auto z) {
     if constexpr (meta::is_complex_v<decltype(z)>) {
@@ -157,7 +162,7 @@ constexpr auto pow(T1 &&x, T2 &&y) {
 }
 
 template <intmax_t n, typename T, meta::enable_if_iterable<T> = 0>
-constexpr auto pow(T a) {
+constexpr auto pow(T &&a) {
     return map([](auto x) { return units::pow<n>(x); }, std::forward<T>(a));
 }
 

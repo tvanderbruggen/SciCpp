@@ -7,6 +7,8 @@
 #include <Eigen/Dense>
 #include <array>
 #include <complex>
+#include <cstdint>
+#include <cstdlib>
 #include <ratio>
 #include <string>
 #include <tuple>
@@ -71,11 +73,11 @@ using is_iterable = decltype(detail::is_iterable_impl<T>(0));
 template <typename T>
 constexpr bool is_iterable_v = detail::is_iterable<T>::value;
 
-template <typename T>
-using enable_if_iterable = std::enable_if_t<is_iterable_v<T>, int>;
+template <typename... T>
+using disable_if_iterable = std::enable_if_t<(!is_iterable_v<T> || ...), int>;
 
-template <typename T>
-using disable_if_iterable = std::enable_if_t<!is_iterable_v<T>, int>;
+template <typename... T>
+using enable_if_iterable = std::enable_if_t<(is_iterable_v<T> && ...), int>;
 
 //---------------------------------------------------------------------------------
 // std::vector traits
@@ -228,11 +230,63 @@ constexpr bool is_predicate =
 // is_string
 //---------------------------------------------------------------------------------
 
-template <class T>
+template <class T, typename Tdecay = typename std::decay_t<T>>
 constexpr bool is_string_v =
-    std::is_same_v<const char *, typename std::decay_t<T>> ||
-    std::is_same_v<char *, typename std::decay_t<T>> ||
-    std::is_same_v<std::string, typename std::decay_t<T>>;
+    std::is_same_v<const char *, Tdecay> || std::is_same_v<char *, Tdecay> ||
+    std::is_same_v<std::string, Tdecay>;
+
+//---------------------------------------------------------------------------------
+// is_movable
+// https://en.cppreference.com/w/cpp/concepts/movable
+//---------------------------------------------------------------------------------
+
+template <class T>
+constexpr bool is_movable_v =
+    std::is_object_v<T> && std::is_move_constructible_v<T> &&
+    std::is_assignable_v<T &, T> && std::is_swappable_v<T>;
+
+//---------------------------------------------------------------------------------
+// value_type
+// https://stackoverflow.com/questions/62203496/type-trait-to-receive-tvalue-type-if-present-t-otherwise
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class T, class = void>
+struct value_type {
+    using type = T;
+};
+
+template <class T>
+struct value_type<T, std::void_t<typename T::value_type>> {
+    using type = typename T::value_type;
+};
+
+} // namespace detail
+
+template <class T>
+using value_type_t = typename detail::value_type<T>::type;
+
+//---------------------------------------------------------------------------------
+// is_implicitly_convertible
+// https://en.cppreference.com/w/cpp/types/is_convertible
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class From, class To>
+auto test_implicitly_convertible(int)
+    -> decltype(void(std::declval<void (&)(To)>()(std::declval<From>())),
+                std::true_type{});
+
+template <class, class>
+auto test_implicitly_convertible(...) -> std::false_type;
+
+} // namespace detail
+
+template <class From, class To>
+constexpr bool is_implicitly_convertible_v =
+    decltype(detail::test_implicitly_convertible<From, To>(0))::value;
 
 } // namespace scicpp::meta
 

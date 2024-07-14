@@ -7,12 +7,14 @@
 #include "scicpp/core/constants.hpp"
 #include "scicpp/core/functional.hpp"
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/maths.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstdlib>
 #include <numeric>
 #include <vector>
 
@@ -378,6 +380,132 @@ auto kaiser(std::size_t M, T beta) {
 }
 
 //---------------------------------------------------------------------------------
+// Parzen
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+void parzen_filler(Array &w) {
+    const auto N = signed_size_t(w.size());
+
+    symmetric_filler(w, [=](std::size_t i) {
+        const auto n = signed_size_t(i) - (N - 1) / 2;
+        const auto nabs = (n >= 0) ? n : -n;
+
+        const T shift = (N % 2 == 0) ? T{0.5} : T{0};
+        const T i0 = T(N / 2) - shift;
+        const T A = T(2) * T(abs(T(i) - i0)) / T(N);
+        const T B = T(1) - A;
+
+        if (nabs <= N / 4) {
+            return T(1) - T(6) * A * A * B;
+        } else {
+            return T(2) * B * B * B;
+        }
+    });
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, Symmetry sym = Symmetric>
+auto parzen() {
+    return detail::build_window_array<T, M, sym>(
+        [&](auto &w) { detail::parzen_filler(w); });
+}
+
+template <typename T, Symmetry sym = Symmetric>
+auto parzen(std::size_t M) {
+    return detail::build_window_vector<T, sym>(
+        M, [&](auto &w) { detail::parzen_filler(w); });
+}
+
+//---------------------------------------------------------------------------------
+// Lanczos
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+void lanczos_filler(Array &w) {
+    symmetric_filler(w, [=](std::size_t i) {
+        return sinc(T(1) - T(2 * i) / T(w.size() - 1));
+    });
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, Symmetry sym = Symmetric>
+auto lanczos() {
+    return detail::build_window_array<T, M, sym>(
+        [&](auto &w) { detail::lanczos_filler(w); });
+}
+
+template <typename T, Symmetry sym = Symmetric>
+auto lanczos(std::size_t M) {
+    return detail::build_window_vector<T, sym>(
+        M, [&](auto &w) { detail::lanczos_filler(w); });
+}
+
+//---------------------------------------------------------------------------------
+// Tukey
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class Array, typename T = typename Array::value_type>
+void tukey_filler(Array &w, T alpha) {
+    const auto N = signed_size_t(w.size());
+    auto width = signed_size_t((T(1) - alpha) * T(N / 2));
+
+    if ((N % 2 == 0) && (width == 0)) {
+        width = 1;
+    }
+
+    symmetric_filler(w, [=](std::size_t i) {
+        const auto n = signed_size_t(i) - (N - 1) / 2;
+
+        if (n <= width) {
+            return T(1);
+        } else {
+            const auto A = T(2) / alpha;
+            return T(0.5) *
+                   (T(1) + std::cos(pi<T> * (T(1) - A + A * T(i) / T(N - 1))));
+        }
+    });
+}
+
+} // namespace detail
+
+template <typename T, std::size_t M, Symmetry sym = Symmetric>
+auto tukey(T alpha = 0.5) {
+    if (alpha <= T(0)) {
+        return boxcar<T, M>();
+    }
+
+    if (alpha >= T(1)) {
+        return hann<T, M>();
+    }
+
+    return detail::build_window_array<T, M, sym>(
+        [&](auto &w) { detail::tukey_filler(w, alpha); });
+}
+
+template <typename T, Symmetry sym = Symmetric>
+auto tukey(std::size_t M, T alpha = 0.5) {
+    if (alpha <= T(0)) {
+        return boxcar<T>(M);
+    }
+
+    if (alpha >= T(1)) {
+        return hann<T>(M);
+    }
+
+    return detail::build_window_vector<T, sym>(
+        M, [&](auto &w) { detail::tukey_filler(w, alpha); });
+}
+
+//---------------------------------------------------------------------------------
 // get_window
 //---------------------------------------------------------------------------------
 
@@ -390,7 +518,10 @@ enum Window : std::size_t {
     Blackman,
     Nuttall,
     Blackmanharris,
-    Flattop
+    Flattop,
+    Bohman,
+    Parzen,
+    Lanczos
 };
 
 template <Window win, std::size_t N, typename T = double>
@@ -414,6 +545,12 @@ auto get_window() {
         return blackmanharris<T, N>();
     case Flattop:
         return flattop<T, N>();
+    case Bohman:
+        return bohman<T, N>();
+    case Parzen:
+        return parzen<T, N>();
+    case Lanczos:
+        return lanczos<T, N>();
     default:
         scicpp_unreachable;
     }
@@ -440,6 +577,12 @@ auto get_window(Window win, std::size_t N) {
         return blackmanharris<T>(N);
     case Flattop:
         return flattop<T>(N);
+    case Bohman:
+        return bohman<T>(N);
+    case Parzen:
+        return parzen<T>(N);
+    case Lanczos:
+        return lanczos<T>(N);
     default:
         scicpp_unreachable;
     }

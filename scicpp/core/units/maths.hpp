@@ -4,6 +4,7 @@
 #ifndef SCICPP_CORE_UNITS_MATHS
 #define SCICPP_CORE_UNITS_MATHS
 
+#include "scicpp/core/constants.hpp"
 #include "scicpp/core/units/quantity.hpp"
 #include "scicpp/core/units/units.hpp"
 
@@ -213,6 +214,21 @@ auto atan(T x) {
 template <typename T>
 auto atan2(T x, T y) {
     return radian<representation_t<T>>(std::atan2(value(x), value(y)));
+}
+
+// Cardinal sine
+// Digital signal processing variant sin(pi x) / (pi x)
+template <typename T>
+auto sinc(T x) {
+    static_assert(detail::is_dimensionless_like<T>,
+                  "sinc requires a dimensionless argument");
+
+    if (std::fpclassify(value(x)) == FP_ZERO) {
+        return representation_t<T>(1);
+    }
+
+    return std::sin(pi<representation_t<T>> * value(x)) /
+           (pi<representation_t<T>> * value(x));
 }
 
 // Nearest integer floating point operations

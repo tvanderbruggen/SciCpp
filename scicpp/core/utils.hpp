@@ -7,6 +7,7 @@
 #include "scicpp/core/meta.hpp"
 
 #include <array>
+#include <cstdlib>
 #include <iterator>
 #include <vector>
 
@@ -33,26 +34,24 @@ auto set_array(const Array &a) {
 
 //---------------------------------------------------------------------------------
 // subvector
+//
+// C++20 span
 //---------------------------------------------------------------------------------
 
-template <typename T,
-          typename DiffTp = typename std::vector<T>::difference_type>
-auto subvector(std::vector<T> &&v, std::size_t len, DiffTp offset = 0) {
-    return std::vector<T>(
-        std::make_move_iterator(v.begin() + offset),
-        std::make_move_iterator(v.begin() + offset +
-                                int(std::min(len, v.size()))));
-}
-
 template <typename Array, typename DiffTp = typename Array::difference_type>
-auto subvector(const Array &v, std::size_t len, DiffTp offset = 0) {
+auto subvector(const Array &v, signed_size_t len, DiffTp offset = 0) {
     using T = typename Array::value_type;
     static_assert(meta::is_iterable_v<Array>);
 
-    return std::vector<T>(
-        std::make_move_iterator(v.begin() + offset),
-        std::make_move_iterator(v.begin() + offset +
-                                int(std::min(len, v.size()))));
+    const auto length = std::min(len, signed_size_t(v.size()));
+
+    if constexpr (meta::is_movable_v<T>) {
+        return std::vector<T>(
+            std::make_move_iterator(v.begin() + offset),
+            std::make_move_iterator(v.begin() + offset + length));
+    } else {
+        return std::vector<T>(v.begin() + offset, v.begin() + offset + length);
+    }
 }
 
 //---------------------------------------------------------------------------------
