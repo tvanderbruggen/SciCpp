@@ -87,6 +87,15 @@ TEST_CASE("concatenate") {
         REQUIRE(array_equal(res, {1, 2, 3, 4, 5, 6, 7, 8}));
     }
 
+    SECTION("std::vector&& / std::vector&& same type") {
+        const auto a1 = std::vector{1, 2, 3};
+        auto a2 = std::vector{4, 5, 6, 7, 8};
+        const auto res = concatenate(std::move(a1), std::move(a2));
+        // print(res);
+        // print(res.size());
+        REQUIRE(array_equal(res, {1, 2, 3, 4, 5, 6, 7, 8}));
+    }
+
     SECTION("std::vector / std::vector&& convertible types") {
         const auto a1 = std::vector{1.0, 2.0, 3.0};
         auto a2 = std::vector{4, 5, 6, 7, 8};
@@ -112,8 +121,11 @@ TEST_CASE("concatenate") {
         const auto a1 = std::vector{1, 2, 3};
         const auto a2 = std::vector{4, 5};
         const auto a3 = std::vector{6, 7, 8};
-        const auto res = a1 | a2 | a3;
-        REQUIRE(array_equal(res, {1, 2, 3, 4, 5, 6, 7, 8}));
+        const auto res1 = a1 | a2 | a3;
+        REQUIRE(array_equal(res1, {1, 2, 3, 4, 5, 6, 7, 8}));
+
+        const auto res2 = (a1 - a3) | a2 | (a1 + a3);
+        REQUIRE(array_equal(res2, {-5, -5, -5, 4, 5, 7, 9, 11}));
     }
 
     SECTION("Many std::vectors") {

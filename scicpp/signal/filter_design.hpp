@@ -86,7 +86,7 @@ auto unique_roots(const Array &p, T tol = 1E-3) {
     auto perm = detail::sort_permutation(uniq);
     auto sorted_mult = detail::apply_permutation(mult, perm);
     std::sort(uniq.begin(), uniq.end());
-    return std::make_tuple(std::move(uniq), std::move(sorted_mult));
+    return std::tuple{std::move(uniq), std::move(sorted_mult)};
 }
 
 } // namespace scicpp::signal

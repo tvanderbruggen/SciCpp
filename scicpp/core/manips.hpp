@@ -98,7 +98,10 @@ auto concatenate(std::vector<T> &&a1, const Array &a2) {
     return std::move(a1);
 }
 
-template <typename Array, typename T, meta::enable_if_iterable<Array> = 0>
+template <typename Array,
+          typename T,
+          meta::enable_if_iterable<Array> = 0,
+          std::enable_if_t<std::is_lvalue_reference_v<Array>, int> = 0>
 auto concatenate(const Array &a1, std::vector<T> &&a2) {
     using Tarray = typename Array::value_type;
 
