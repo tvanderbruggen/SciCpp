@@ -4,16 +4,17 @@
 #ifndef SCICPP_CORE_PRINT
 #define SCICPP_CORE_PRINT
 
-#include "scicpp/core/equal.hpp"
 #include "scicpp/core/functional.hpp"
+#include "scicpp/core/macros.hpp"
 #include "scicpp/core/maths.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/stats.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
 #include <array>
+#include <cmath>
 #include <complex>
-#include <fstream>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -129,7 +130,7 @@ struct ElementFormater {
         }
     }
 
-    auto remove_trailling_zeros(std::string &str) const {
+    auto static remove_trailling_zeros(std::string &str) {
         if (str != "0") {
             const auto first = str.find_last_not_of('0') + 1;
             str.replace(first, str.size(), str.size() - first, ' ');

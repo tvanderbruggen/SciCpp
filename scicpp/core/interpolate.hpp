@@ -10,6 +10,7 @@
 #include "scicpp/linalg/utils.hpp"
 
 #include <Eigen/Core>
+#include <algorithm>
 #include <unsupported/Eigen/Splines>
 #include <utility>
 

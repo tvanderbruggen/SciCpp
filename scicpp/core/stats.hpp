@@ -13,10 +13,14 @@
 
 #include <Eigen/Dense>
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstdint>
+#include <iterator>
 #include <limits>
-#include <numeric>
 #include <tuple>
+#include <type_traits>
+#include <vector>
 
 namespace scicpp::stats {
 
@@ -181,7 +185,8 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
         return RetTp(*first);
     }
 
-    const auto h0 = quantile_interp_index<interpolation>(q * (size - 1));
+    const auto h0 =
+        quantile_interp_index<interpolation>(q * static_cast<T>(size - 1));
 
     if (almost_equal(std::nearbyint(h0), h0)) { // h0 is an integer
         const auto n0 = std::min(first + signed_size_t(h0), last);
@@ -193,7 +198,7 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
         std::nth_element(first, n_high, last);
         const auto x_low = *std::max_element(first, n_high);
         const auto x_high = *n_high;
-        return lerp(x_low, x_high, h0 - h_low);
+        return lerp(x_low, x_high, h0 - std::floor(h_low));
     }
 }
 
@@ -309,7 +314,7 @@ constexpr auto mean(InputIt first, InputIt last, Predicate filter) {
     }
 
     const auto [res, cnt] = sum(first, last, filter);
-    return res / units::representation_t<T>(cnt);
+    return res / units::representation_t<T>(static_cast<int>(cnt));
 }
 
 template <class Array, class Predicate>
@@ -388,8 +393,8 @@ constexpr auto covariance(InputIt1 first1,
                    std::distance(first2, last2));
 
     if (unlikely(std::distance(first1, last1) == 0)) {
-        return std::make_tuple(std::numeric_limits<prod_t>::quiet_NaN(),
-                               signed_size_t(0));
+        return std::tuple{std::numeric_limits<prod_t>::quiet_NaN(),
+                          signed_size_t(0)};
     }
 
     // Pairwise recursive implementation of covariance summation
@@ -416,7 +421,7 @@ constexpr auto covariance(InputIt1 first1,
                 }
             }
 
-            return std::make_tuple(m1, m2, res, cnt);
+            return std::tuple{m1, m2, res, cnt};
         },
         [&](const auto res1, const auto res2) {
             // Combine covariances
@@ -425,21 +430,24 @@ constexpr auto covariance(InputIt1 first1,
             const auto [m21, m22, covar2, n2] = res2;
 
             const auto n_c = n1 + n2;
-            const auto m1_c = (raw_t1{1} / raw_t1(n_c)) *
-                              (raw_t1(n1) * m11 + raw_t1(n2) * m21);
-            const auto m2_c = (raw_t2{1} / raw_t2(n_c)) *
-                              (raw_t2(n1) * m12 + raw_t2(n2) * m22);
-            const auto covar_c = covar1 + covar2 +
-                                 (raw_t(n1) * raw_t(n2) / raw_t(n_c)) *
-                                     conj(m12 - m22) * (m11 - m21);
-            return std::make_tuple(m1_c, m2_c, covar_c, n_c);
+            const auto m1_c = (raw_t1{1} / raw_t1(static_cast<int>(n_c))) *
+                              (raw_t1(static_cast<int>(n1)) * m11 +
+                               raw_t1(static_cast<int>(n2)) * m21);
+            const auto m2_c = (raw_t2{1} / raw_t2(static_cast<int>(n_c))) *
+                              (raw_t2(static_cast<int>(n1)) * m12 +
+                               raw_t2(static_cast<int>(n2)) * m22);
+            const auto covar_c =
+                covar1 + covar2 +
+                (raw_t(static_cast<int>(n1)) * raw_t(static_cast<int>(n2)) /
+                 raw_t(static_cast<int>(n_c))) *
+                    conj(m12 - m22) * (m11 - m21);
+            return std::tuple{m1_c, m2_c, covar_c, n_c};
         });
 
     if (unlikely(c_ - ddof <= 0)) {
-        return std::make_tuple(std::numeric_limits<decltype(cov_)>::infinity(),
-                               c_);
+        return std::tuple{std::numeric_limits<decltype(cov_)>::infinity(), c_};
     } else {
-        return std::make_tuple(cov_ / raw_t(c_ - ddof), c_);
+        return std::tuple{cov_ / raw_t(static_cast<int>(c_) - ddof), c_};
     }
 }
 
@@ -471,9 +479,9 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
 
     if constexpr (meta::is_complex_v<T>) {
         // The variance is always a nonnegative real number
-        return std::make_tuple(std::real(v), n);
+        return std::tuple{std::real(v), n};
     } else {
-        return std::make_tuple(v, n);
+        return std::tuple{v, n};
     }
 }
 

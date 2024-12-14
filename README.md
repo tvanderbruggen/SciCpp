@@ -49,7 +49,7 @@ sudo bash scripts/install_sciplot.sh
 ### Setup your development environment
 
 After cloning the repository, you can follow the [circleci configuration file](.circleci/config.yml) to setup your
-development environment. Only tested on Ubuntu 18.04 for now.
+development environment. Using Ubuntu 22.04 at the moment.
 
 ### Running the test suite
 

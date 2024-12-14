@@ -10,9 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <complex>
 #include <limits>
-#include <numeric>
 #include <string_view>
 
 namespace scicpp {

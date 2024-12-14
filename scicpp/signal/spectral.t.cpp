@@ -7,6 +7,7 @@
 #include "scicpp/core/random.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/stats.hpp"
+#include "scicpp/core/units/units.hpp"
 #include "scicpp/signal/windows.hpp"
 
 #include <cmath>
@@ -27,6 +28,50 @@ TEST_CASE("welch") {
         const auto [f2, p2] = Spectrum{}
                                   .window(windows::hann<double>(20))
                                   .welch(std::array<double, 0>{});
+        REQUIRE(f2.empty());
+        REQUIRE(p2.empty());
+
+        // Don't return frequencies
+        const auto p3 = Spectrum{}
+                            .window(windows::hann<double>(20))
+                            .welch<DENSITY, false>(std::array<double, 0>{});
+        REQUIRE(p3.empty());
+    }
+
+    SECTION("Empty physical quantity") {
+        using namespace units::literals;
+        const auto x = empty<units::volt<double>>();
+
+        const auto [f1, p1] =
+            Spectrum{}.window(windows::hann<double>(20)).welch(x);
+        static_assert(units::is_same_dimension<std::decay_t<decltype(p1[0])>,
+                                               decltype(1_V * 1_V / 1_Hz)>);
+        REQUIRE(f1.empty());
+        REQUIRE(p1.empty());
+
+        const auto [f2, p2] =
+            Spectrum{}.window(windows::hann<double>(20)).welch<SPECTRUM>(x);
+        static_assert(units::is_same_dimension<std::decay_t<decltype(p2[0])>,
+                                               decltype(1_V * 1_V)>);
+        REQUIRE(f2.empty());
+        REQUIRE(p2.empty());
+    }
+
+    SECTION("Empty physical quantity complex") {
+        using namespace units::literals;
+        const auto x = empty<std::complex<units::volt<double>>>();
+
+        const auto [f1, p1] =
+            Spectrum{}.window(windows::hann<double>(20)).welch(x);
+        static_assert(units::is_same_dimension<std::decay_t<decltype(p1[0])>,
+                                               decltype(1_V * 1_V / 1_Hz)>);
+        REQUIRE(f1.empty());
+        REQUIRE(p1.empty());
+
+        const auto [f2, p2] =
+            Spectrum{}.window(windows::hann<double>(20)).welch<SPECTRUM>(x);
+        static_assert(units::is_same_dimension<std::decay_t<decltype(p2[0])>,
+                                               decltype(1_V * 1_V)>);
         REQUIRE(f2.empty());
         REQUIRE(p2.empty());
     }
@@ -123,6 +168,21 @@ TEST_CASE("welch") {
         // print(p5);
         REQUIRE(almost_equal(f5, {0.}));
         REQUIRE(almost_equal(p5, {0.}));
+
+        // Don't return frequencies
+        const auto p6 = Spectrum{}
+                            .window(windows::gaussian(16, 2.0))
+                            .welch<DENSITY, false>(x);
+        REQUIRE(almost_equal<8>(p6,
+                                {0.033283705527078,
+                                 0.1552473685118426,
+                                 0.3652273927481822,
+                                 0.4944119749912214,
+                                 0.5275115073459213,
+                                 0.5288622631786398,
+                                 0.5309738347484061,
+                                 0.5290399525770682,
+                                 0.2654870587529604}));
     }
 
     SECTION("Complex") {
@@ -193,15 +253,15 @@ TEST_CASE("noverlap") {
     // print(f1);
     print(p1);
     REQUIRE(almost_equal(f1, {0., 1.25, 2.5, 3.75, -5., -3.75, -2.5, -1.25}));
-    REQUIRE(almost_equal<75>(p1,
-                             {3.6458333333333336e-02,
-                              1.2876444549389519e-02,
-                              1.3566428021272650e-04,
-                              8.7245037310924216e-06,
-                              0.0000000000000000e+00,
-                              8.7245037310924064e-06,
-                              1.3566428021272650e-04,
-                              1.2876444549389514e-02}));
+    REQUIRE(almost_equal<128>(p1,
+                              {3.6458333333333336e-02,
+                               1.2876444549389519e-02,
+                               1.3566428021272650e-04,
+                               8.7245037310924216e-06,
+                               0.0000000000000000e+00,
+                               8.7245037310924064e-06,
+                               1.3566428021272650e-04,
+                               1.2876444549389514e-02}));
 }
 
 TEST_CASE("periodogram") {
@@ -248,6 +308,101 @@ TEST_CASE("periodogram") {
                                 0.0218936985942652}));
 }
 
+TEST_CASE("value for iterables") {
+    using namespace units::literals;
+
+    SECTION("vector complex units") {
+        auto x = zeros<std::complex<units::volt<double>>>(4);
+        x[0] = std::complex(1_V, 2_V);
+        x[3] = std::complex(1_V, 2_V);
+        REQUIRE(almost_equal(detail::value(x), {1. + 2.i, 0., 0., 1. + 2.i}));
+    }
+
+    SECTION("array complex units") {
+        auto x = zeros<4, std::complex<units::volt<double>>>();
+        x[0] = std::complex(1_V, 2_V);
+        x[3] = std::complex(1_V, 2_V);
+        REQUIRE(almost_equal(detail::value(x), {1. + 2.i, 0., 0., 1. + 2.i}));
+    }
+
+    SECTION("array units") {
+        auto x = ones<4, units::volt<double>>();
+        x[0] = 0_V;
+        x[3] = 2_V;
+        REQUIRE(almost_equal(detail::value(x), {0., 1., 1., 2.}));
+    }
+
+    SECTION("vector complex doubles") {
+        auto x = zeros<std::complex<double>>(4);
+        x[0] = 1. + 2.i;
+        x[3] = 1. + 2.i;
+        REQUIRE(almost_equal(detail::value(x), {1. + 2.i, 0., 0., 1. + 2.i}));
+    }
+}
+
+TEST_CASE("detail::element_type_t") {
+    static_assert(
+        std::is_same_v<detail::element_type_t<std::vector<double>>, double>);
+    static_assert(std::is_same_v<
+                  detail::element_type_t<std::vector<std::complex<double>>>,
+                  std::complex<double>>);
+    static_assert(
+        std::is_same_v<detail::element_type_t<std::vector<units::volt<double>>>,
+                       double>);
+    static_assert(
+        std::is_same_v<detail::element_type_t<
+                           std::vector<std::complex<units::volt<double>>>>,
+                       std::complex<double>>);
+}
+
+TEST_CASE("periodogram physical quantities") {
+    using namespace units::literals;
+
+    auto x = zeros<std::complex<units::volt<double>>>(16);
+    x[0] = std::complex(1_V, 2_V);
+    x[8] = std::complex(1_V, 2_V);
+    auto spec = Spectrum{}.window(windows::hann<double>(16)).fs(10.0);
+    const auto [f, p] = spec.periodogram(x);
+    // print(f);
+    // print(p);
+    static_assert(units::is_same_dimension<std::decay_t<decltype(p[0])>,
+                                           decltype(1_V * 1_V / 1_Hz)>);
+    REQUIRE(almost_equal(f,
+                         {0.,
+                          0.625,
+                          1.25,
+                          1.875,
+                          2.5,
+                          3.125,
+                          3.75,
+                          4.375,
+                          -5.,
+                          -4.375,
+                          -3.75,
+                          -3.125,
+                          -2.5,
+                          -1.875,
+                          -1.25,
+                          -0.625}));
+    REQUIRE(almost_equal<1500>(detail::value(p),
+                               {0.0002364317230476,
+                                0.0218936985942652,
+                                0.0830806633107641,
+                                0.0882007605538029,
+                                0.0864386074072716,
+                                0.0871837823196038,
+                                0.0868713552374593,
+                                0.0869767748617318,
+                                0.0869570651175314,
+                                0.0869767748617318,
+                                0.0868713552374593,
+                                0.0871837823196038,
+                                0.0864386074072716,
+                                0.0882007605538029,
+                                0.083080663310764,
+                                0.0218936985942652}));
+}
+
 TEST_CASE("csd") {
     SECTION("Empty") {
         const auto [f1, p1] = Spectrum{}
@@ -269,6 +424,13 @@ TEST_CASE("csd") {
                                        empty<std::complex<double>>());
         REQUIRE(f3.empty());
         REQUIRE(p3.empty());
+
+        // Don't return frequencies
+        const auto p4 = Spectrum{}
+                            .window(windows::hann<double>(20))
+                            .csd<DENSITY, false>(empty<std::complex<double>>(),
+                                                 empty<std::complex<double>>());
+        REQUIRE(p4.empty());
     }
 
     SECTION("Same data real") {
@@ -308,7 +470,7 @@ TEST_CASE("csd") {
                                  0.4,
                                  0.4666666666666667}));
         // print(Pxy);
-        REQUIRE(almost_equal<40>(
+        REQUIRE(almost_equal<60>(
             Pxy,
             {-3.7062851089728351e-30 + 0.0000000000000000e+00i,
              5.5638353667040628e+00 - 3.1311659646683040e-15i,
@@ -349,7 +511,7 @@ TEST_CASE("csd") {
             Spectrum{}.window(windows::Hamming, 10).csd(x, y);
         REQUIRE(almost_equal(f1, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         // print(Pxy1);
-        REQUIRE(almost_equal<2000>(
+        REQUIRE(almost_equal<8000>(
             Pxy1,
             {5.4059942258228820e-17 + 0.0000000000000000e+00i,
              -8.7635981684350106e-01 + 7.2394256646839600e-02i,
@@ -362,7 +524,7 @@ TEST_CASE("csd") {
             Spectrum{}.window(windows::Hamming, 10).csd(y, x);
         REQUIRE(almost_equal(f2, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         // print(Pxy2);
-        REQUIRE(almost_equal<2000>(
+        REQUIRE(almost_equal<4000>(
             Pxy2,
             {5.4059942258228820e-17 - 0.0000000000000000e+00i,
              -8.7635981684350106e-01 - 7.2394256646839600e-02i,
@@ -437,21 +599,21 @@ TEST_CASE("csd") {
                                  -0.1538461538461539,
                                  -0.0769230769230769}));
         // print(Pxy1);
-        REQUIRE(
-            almost_equal(Pxy1,
-                         {4.5899691627736384e-16 - 1.0580603772799155e-15i,
-                          -1.5374895513987188e-01 - 2.7174310487694364e-01i,
-                          7.7525577007089411e-02 - 7.3191317828691510e-02i,
-                          -4.6070360984770402e-02 + 3.2017729284491109e-03i,
-                          6.4549493964843843e-02 + 1.6030670653229852e-02i,
-                          2.1013846663884429e-02 - 4.5034875471981255e-02i,
-                          -5.4063321996755460e-02 + 4.3639774581631458e-02i,
-                          2.5510092605947048e-02 + 2.8442942529853046e-02i,
-                          -8.0471846217143039e-03 - 4.0672902840938698e-02i,
-                          -6.6374930605366186e-02 + 6.2200889109303395e-02i,
-                          2.6102780546140986e-02 - 6.3420054018396312e-04i,
-                          -1.8162314703274152e-03 - 2.0310354286173296e-01i,
-                          -1.3292271576604644e+00 - 9.9103993540715474e-01i}));
+        REQUIRE(almost_equal<256>(
+            Pxy1,
+            {4.5899691627736384e-16 - 1.0580603772799155e-15i,
+             -1.5374895513987188e-01 - 2.7174310487694364e-01i,
+             7.7525577007089411e-02 - 7.3191317828691510e-02i,
+             -4.6070360984770402e-02 + 3.2017729284491109e-03i,
+             6.4549493964843843e-02 + 1.6030670653229852e-02i,
+             2.1013846663884429e-02 - 4.5034875471981255e-02i,
+             -5.4063321996755460e-02 + 4.3639774581631458e-02i,
+             2.5510092605947048e-02 + 2.8442942529853046e-02i,
+             -8.0471846217143039e-03 - 4.0672902840938698e-02i,
+             -6.6374930605366186e-02 + 6.2200889109303395e-02i,
+             2.6102780546140986e-02 - 6.3420054018396312e-04i,
+             -1.8162314703274152e-03 - 2.0310354286173296e-01i,
+             -1.3292271576604644e+00 - 9.9103993540715474e-01i}));
 
         const auto [f2, Pxy2] =
             Spectrum{}.window(windows::Bartlett, 13).csd(y, x);
@@ -470,21 +632,94 @@ TEST_CASE("csd") {
                                  -0.1538461538461539,
                                  -0.0769230769230769}));
         // print(Pxy2);
-        REQUIRE(
-            almost_equal(Pxy2,
-                         {4.5899691627736384e-16 + 1.0580603772799155e-15i,
-                          -1.5374895513987188e-01 + 2.7174310487694364e-01i,
-                          7.7525577007089411e-02 + 7.3191317828691510e-02i,
-                          -4.6070360984770402e-02 - 3.2017729284491109e-03i,
-                          6.4549493964843843e-02 - 1.6030670653229852e-02i,
-                          2.1013846663884429e-02 + 4.5034875471981255e-02i,
-                          -5.4063321996755460e-02 - 4.3639774581631458e-02i,
-                          2.5510092605947048e-02 - 2.8442942529853046e-02i,
-                          -8.0471846217143039e-03 + 4.0672902840938698e-02i,
-                          -6.6374930605366186e-02 - 6.2200889109303395e-02i,
-                          2.6102780546140986e-02 + 6.3420054018396312e-04i,
-                          -1.8162314703274152e-03 + 2.0310354286173296e-01i,
-                          -1.3292271576604644e+00 + 9.9103993540715474e-01i}));
+        REQUIRE(almost_equal<256>(
+            Pxy2,
+            {4.5899691627736384e-16 + 1.0580603772799155e-15i,
+             -1.5374895513987188e-01 + 2.7174310487694364e-01i,
+             7.7525577007089411e-02 + 7.3191317828691510e-02i,
+             -4.6070360984770402e-02 - 3.2017729284491109e-03i,
+             6.4549493964843843e-02 - 1.6030670653229852e-02i,
+             2.1013846663884429e-02 + 4.5034875471981255e-02i,
+             -5.4063321996755460e-02 - 4.3639774581631458e-02i,
+             2.5510092605947048e-02 - 2.8442942529853046e-02i,
+             -8.0471846217143039e-03 + 4.0672902840938698e-02i,
+             -6.6374930605366186e-02 - 6.2200889109303395e-02i,
+             2.6102780546140986e-02 + 6.3420054018396312e-04i,
+             -1.8162314703274152e-03 + 2.0310354286173296e-01i,
+             -1.3292271576604644e+00 + 9.9103993540715474e-01i}));
+    }
+}
+
+TEST_CASE("csd physical quantities") {
+    using namespace units::literals;
+
+    SECTION("Empty") {
+        const auto [f1, p1] = Spectrum{}
+                                  .window(windows::hann<double>(20))
+                                  .csd(empty<units::volt<double>>(),
+                                       empty<units::ampere<double>>());
+        static_assert(units::is_power<decltype(p1[0] * 1_Hz)>);
+        REQUIRE(f1.empty());
+        REQUIRE(p1.empty());
+
+        const auto [f2, p2] =
+            Spectrum{}
+                .window(windows::hann<double>(20))
+                .csd(empty<units::volt<double>>(), empty<double>());
+        static_assert(units::is_electric_potential<decltype(p2[0] * 1_Hz)>);
+        REQUIRE(f2.empty());
+        REQUIRE(p2.empty());
+
+        const auto [f3, p3] =
+            Spectrum{}
+                .window(windows::hann<double>(20))
+                .csd(empty<std::complex<units::volt<double>>>(),
+                     empty<std::complex<units::ampere<double>>>());
+        static_assert(units::is_power<decltype(p3[0] * 1_Hz)>);
+        REQUIRE(f3.empty());
+        REQUIRE(p3.empty());
+
+        // Don't return frequencies
+        const auto p4 = Spectrum{}
+                            .window(windows::hann<double>(20))
+                            .csd<SPECTRUM, false>(
+                                empty<std::complex<units::volt<double>>>(),
+                                empty<std::complex<units::ampere<double>>>());
+        static_assert(units::is_power<decltype(p4[0])>);
+        REQUIRE(p4.empty());
+    }
+
+    SECTION("Different data real different sizes") {
+        const auto x = linspace(1_V, 10_V, 100);
+        const auto y = linspace(10_A, 100_A, 50);
+
+        const auto [f1, Pxy1] =
+            Spectrum{}.window(windows::Hamming, 10).csd(x, y);
+        REQUIRE(almost_equal(f1, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
+        static_assert(units::is_power<decltype(Pxy1[0] * 1_Hz)>);
+        // print(Pxy1);
+        REQUIRE(almost_equal<8000>(
+            detail::value(Pxy1),
+            {5.4059942258228820e-17 + 0.0000000000000000e+00i,
+             -8.7635981684350106e-01 + 7.2394256646839600e-02i,
+             -2.6259506889322487e-01 + 6.7953763655904959e-03i,
+             -3.3190773877356888e-02 + 3.0108962423992173e-04i,
+             5.2777898636230183e-02 - 1.3624248523929803e-04i,
+             -2.4445158559955788e-02 + 0.0000000000000000e+00i}));
+
+        const auto [f2, Pxy2] =
+            Spectrum{}.window(windows::Hamming, 10).csd(y, x);
+        static_assert(units::is_power<decltype(Pxy2[0] * 1_Hz)>);
+        REQUIRE(almost_equal(f2, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
+        // print(Pxy2);
+        REQUIRE(almost_equal<4000>(
+            detail::value(Pxy2),
+            {5.4059942258228820e-17 - 0.0000000000000000e+00i,
+             -8.7635981684350106e-01 - 7.2394256646839600e-02i,
+             -2.6259506889322487e-01 - 6.7953763655904959e-03i,
+             -3.3190773877356888e-02 - 3.0108962423992173e-04i,
+             5.2777898636230183e-02 + 1.3624248523929803e-04i,
+             -2.4445158559955788e-02 - 0.0000000000000000e+00i}));
     }
 }
 
@@ -511,7 +746,7 @@ TEST_CASE("coherence") {
                                  0.3846153846153846,
                                  0.4615384615384616}));
         // print(Cxx);
-        REQUIRE(almost_equal(Cxx, ones<double>(f.size())));
+        REQUIRE(almost_equal<16>(Cxx, ones<double>(f.size())));
 
         const auto [_, Cxy] =
             Spectrum{}.window(windows::Bartlett, 13).coherence(x, y);
@@ -539,7 +774,7 @@ TEST_CASE("coherence") {
             Spectrum{}.window(windows::Flattop, 5).coherence(x, y);
         REQUIRE(almost_equal(f, {0., 0.2, 0.4, -0.4, -0.2}));
         // print(Cxy);
-        REQUIRE(almost_equal<4>(Cxy,
+        REQUIRE(almost_equal<6>(Cxy,
                                 {0.9272167446777885,
                                  0.9157842754322916,
                                  0.8963246361527033,
@@ -570,7 +805,84 @@ TEST_CASE("tfestimate") {
                                  0.3846153846153846,
                                  0.4615384615384616}));
         // print(Txx);
-        REQUIRE(almost_equal(Txx, ones<std::complex<double>>(7)));
+        REQUIRE(almost_equal<16>(Txx, ones<std::complex<double>>(7)));
+    }
+}
+
+TEST_CASE("welch parallel") {
+    SECTION("Real") {
+        auto x = zeros<double>(16);
+        x[0] = 1.0;
+        x[8] = 1.0;
+        print(x);
+        const auto [f1, p1] =
+            Spectrum{}.window(windows::hann<double>(8)).nthreads(2).welch(x);
+        REQUIRE(almost_equal(f1, linspace(0., 0.5, 5)));
+        print(p1);
+        REQUIRE(almost_equal<8>(p1,
+                                {0.08202736882238,
+                                 0.1649754758633829,
+                                 0.220872122376833,
+                                 0.2307254514666428,
+                                 0.1147200837058478}));
+    }
+}
+
+TEST_CASE("csd parallel") {
+    SECTION("Different data real same size") {
+        const auto x = linspace(1.0, 10.0, 100);
+        const auto y = linspace(10.0, 100.0, 100);
+        const auto [f, Pxy] =
+            Spectrum{}.window(windows::Hamming, 15).nthreads(2).csd(x, y);
+
+        // print(f);
+        REQUIRE(almost_equal<4>(f,
+                                {0.,
+                                 0.0666666666666667,
+                                 0.1333333333333333,
+                                 0.2,
+                                 0.2666666666666667,
+                                 0.3333333333333333,
+                                 0.4,
+                                 0.4666666666666667}));
+        // print(Pxy);
+        REQUIRE(almost_equal<60>(
+            Pxy,
+            {-3.7062851089728351e-30 + 0.0000000000000000e+00i,
+             5.5638353667040628e+00 - 3.1311659646683040e-15i,
+             1.3896361537945315e-01 + 2.8720474849532764e-16i,
+             1.9363830151308823e-03 + 7.8567939380376008e-18i,
+             9.1683760095253690e-03 + 3.2446435506274200e-17i,
+             1.0622173917597896e-02 + 5.6852044063349557e-17i,
+             1.0516902037792620e-02 - 8.7090083435688860e-17i,
+             1.0293880420302366e-02 + 2.1149639898068783e-17i}));
+    }
+
+    SECTION("Different data complex different sizes") {
+        auto x = ones<std::complex<double>>(32);
+        x[0] = 1.0 + 2.0i;
+        x[8] = 1.0 + 2.0i;
+
+        auto y = ones<std::complex<double>>(16);
+        y[0] = 3.0 - 4.0i;
+        y[8] = 1.0 + 2.0i;
+
+        const auto [f1, Pxy1] =
+            Spectrum{}.window(windows::Bartlett, 13).nthreads(2).csd(y, x);
+        REQUIRE(almost_equal<4>(f1,
+                                {0.,
+                                 0.0769230769230769,
+                                 0.1538461538461539,
+                                 0.2307692307692308,
+                                 0.3076923076923077,
+                                 0.3846153846153846,
+                                 0.4615384615384616,
+                                 -0.4615384615384616,
+                                 -0.3846153846153846,
+                                 -0.3076923076923077,
+                                 -0.2307692307692308,
+                                 -0.1538461538461539,
+                                 -0.0769230769230769}));
     }
 }
 

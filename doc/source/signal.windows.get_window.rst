@@ -16,7 +16,10 @@ Return a window with kind defined by the enum::
         Blackman,
         Nuttall,
         Blackmanharris,
-        Flattop
+        Flattop,
+        Bohman,
+        Parzen,
+        Lanczos
     };
 
 --------------------------------------

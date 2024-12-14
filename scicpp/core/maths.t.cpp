@@ -68,6 +68,9 @@ TEST_CASE("Trigonometric functions") {
         {units::hypot(1_m, 3_m),
          units::hypot(2_m, 2_m),
          units::hypot(3_m, 1_m)}));
+
+    REQUIRE(almost_equal(sinc(std::array{-1., 0., 1., 2.}),
+                         {0., 1., 0., units::sinc(2.)}));
 }
 
 TEST_CASE("Hyperbolic functions") {

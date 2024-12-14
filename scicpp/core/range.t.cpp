@@ -18,15 +18,27 @@ TEST_CASE("empty") {
 
 TEST_CASE("full") {
     SECTION("std::array") {
-        REQUIRE(full<0, double>(2.).empty());
-        REQUIRE(almost_equal(full<1, double>(2.), {2.}));
-        REQUIRE(almost_equal(full<5, double>(2.), {2., 2., 2., 2., 2.}));
+        REQUIRE(full<0>(2.).empty());
+        REQUIRE(almost_equal(full<1>(2.), {2.}));
+        REQUIRE(almost_equal(full<5>(2.), {2., 2., 2., 2., 2.}));
+
+        using namespace units::literals;
+        REQUIRE(almost_equal(full<5>(2._m), {2._m, 2._m, 2._m, 2._m, 2._m}));
+        REQUIRE(
+            almost_equal(full<2>(std::complex(2._m, 1._m)),
+                         {std::complex(2._m, 1._m), std::complex(2._m, 1._m)}));
     }
 
     SECTION("std::vector") {
-        REQUIRE(full<double>(0, 2.).empty());
-        REQUIRE(almost_equal(full<double>(1, 2.), {2.}));
-        REQUIRE(almost_equal(full<double>(5, 2.), {2., 2., 2., 2., 2.}));
+        REQUIRE(full(0, 2.).empty());
+        REQUIRE(almost_equal(full(1, 2.), {2.}));
+        REQUIRE(almost_equal(full(5, 2.), {2., 2., 2., 2., 2.}));
+
+        using namespace units::literals;
+        REQUIRE(almost_equal(full(5, 2._m), {2._m, 2._m, 2._m, 2._m, 2._m}));
+        REQUIRE(
+            almost_equal(full(2, std::complex(2._m, 1._m)),
+                         {std::complex(2._m, 1._m), std::complex(2._m, 1._m)}));
     }
 }
 
@@ -36,12 +48,30 @@ TEST_CASE("zeros") {
         REQUIRE(almost_equal(zeros<1, double>(), {0.}));
         REQUIRE(almost_equal(zeros<5, double>(), {0., 0., 0., 0., 0.}));
         REQUIRE(almost_equal(zeros<1, std::complex<double>>(), {0. + 0.i}));
+
+        using namespace units::literals;
+        REQUIRE(almost_equal(zeros<1, units::pascal<double>>(), {0_Pa}));
+        REQUIRE(almost_equal(zeros<1, std::complex<units::pascal<double>>>(),
+                             {std::complex(0_Pa, 0_Pa)}));
+        REQUIRE(almost_equal(zeros<3, std::complex<units::kilogram<double>>>(),
+                             {std::complex(0_kg, 0_kg),
+                              std::complex(0_kg, 0_kg),
+                              std::complex(0_kg, 0_kg)}));
     }
 
     SECTION("std::vector") {
         REQUIRE(zeros<double>(0).empty());
         REQUIRE(almost_equal(zeros<double>(1), {0.}));
         REQUIRE(almost_equal(zeros<double>(5), {0., 0., 0., 0., 0.}));
+
+        using namespace units::literals;
+        REQUIRE(almost_equal(zeros<units::pascal<double>>(1), {0_Pa}));
+        REQUIRE(almost_equal(zeros<std::complex<units::pascal<double>>>(1),
+                             {std::complex(0_Pa, 0_Pa)}));
+        REQUIRE(almost_equal(zeros<std::complex<units::kilogram<double>>>(3),
+                             {std::complex(0_kg, 0_kg),
+                              std::complex(0_kg, 0_kg),
+                              std::complex(0_kg, 0_kg)}));
     }
 }
 
@@ -51,12 +81,30 @@ TEST_CASE("ones") {
         REQUIRE(almost_equal(ones<1, double>(), {1.}));
         REQUIRE(almost_equal(ones<5, double>(), {1., 1., 1., 1., 1.}));
         REQUIRE(almost_equal(ones<1, std::complex<double>>(), {1. + 0.i}));
+
+        using namespace units::literals;
+        REQUIRE(almost_equal(ones<1, units::pascal<double>>(), {1_Pa}));
+        REQUIRE(almost_equal(ones<1, std::complex<units::pascal<double>>>(),
+                             {std::complex(1_Pa, 0_Pa)}));
+        REQUIRE(almost_equal(ones<3, std::complex<units::kilogram<double>>>(),
+                             {std::complex(1_kg, 0_kg),
+                              std::complex(1_kg, 0_kg),
+                              std::complex(1_kg, 0_kg)}));
     }
 
     SECTION("std::vector") {
         REQUIRE(ones<double>(0).empty());
         REQUIRE(almost_equal(ones<double>(1), {1.}));
         REQUIRE(almost_equal(ones<double>(5), {1., 1., 1., 1., 1.}));
+
+        using namespace units::literals;
+        REQUIRE(almost_equal(ones<units::pascal<double>>(1), {1_Pa}));
+        REQUIRE(almost_equal(ones<std::complex<units::pascal<double>>>(1),
+                             {std::complex(1_Pa, 0_Pa)}));
+        REQUIRE(almost_equal(ones<std::complex<units::kilogram<double>>>(3),
+                             {std::complex(1_kg, 0_kg),
+                              std::complex(1_kg, 0_kg),
+                              std::complex(1_kg, 0_kg)}));
     }
 }
 

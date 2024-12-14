@@ -4,12 +4,14 @@
 #include "meta.hpp"
 
 #include "scicpp/core/equal.hpp"
+#include "scicpp/core/units/units.hpp"
 
 namespace scicpp::meta {
 
 TEST_CASE("is_complex") {
     static_assert(!is_complex_v<double>);
     static_assert(is_complex_v<std::complex<double>>);
+    static_assert(is_complex_v<std::complex<units::volt<double>>>);
 }
 
 TEST_CASE("is_iterable") {
@@ -92,6 +94,44 @@ TEST_CASE("is_string") {
     static_assert(is_string_v<char *>);
     static_assert(is_string_v<std::string>);
     static_assert(!is_string_v<float *>);
+}
+
+TEST_CASE("is_movable") {
+    static_assert(is_movable_v<int>);
+    static_assert(is_movable_v<std::string>);
+    static_assert(is_movable_v<std::vector<double>>);
+
+    // https://en.cppreference.com/w/cpp/types/is_move_constructible
+    struct NoMove {
+        // Not move-constructible since the lvalue reference
+        // can't bind to the rvalue argument
+        NoMove(NoMove &) {}
+    };
+
+    static_assert(!is_movable_v<NoMove>);
+}
+
+TEST_CASE("value_type_t") {
+    static_assert(std::is_same_v<value_type_t<double>, double>);
+    static_assert(std::is_same_v<value_type_t<std::complex<double>>, double>);
+    static_assert(std::is_same_v<value_type_t<std::array<double, 1>>, double>);
+    static_assert(std::is_same_v<value_type_t<std::vector<double>>, double>);
+    static_assert(
+        std::is_same_v<value_type_t<std::vector<std::complex<double>>>,
+                       std::complex<double>>);
+    static_assert(
+        std::is_same_v<value_type_t<std::vector<units::meter<double>>>,
+                       units::meter<double>>);
+    static_assert(std::is_same_v<value_type_t<units::volt<double>>, double>);
+}
+
+TEST_CASE("is_implicitly_convertible_v") {
+    static_assert(is_implicitly_convertible_v<int, int>);
+    static_assert(is_implicitly_convertible_v<int, double>);
+    static_assert(is_implicitly_convertible_v<double, std::complex<double>>);
+    static_assert(!is_implicitly_convertible_v<std::complex<double>, double>);
+    static_assert(is_implicitly_convertible_v<const char *, std::string>);
+    static_assert(!is_implicitly_convertible_v<std::string, const char *>);
 }
 
 } // namespace scicpp::meta

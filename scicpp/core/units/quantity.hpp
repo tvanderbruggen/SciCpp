@@ -457,7 +457,7 @@ struct representation_type_impl<quantity<T, Dim, Scale, Offset>> {
 
 template <typename T, typename Dim, typename Scale, typename Offset>
 struct representation_type_impl<std::complex<quantity<T, Dim, Scale, Offset>>> {
-    using type = T;
+    using type = std::complex<T>;
 };
 
 } // namespace detail
