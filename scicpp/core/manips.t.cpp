@@ -158,4 +158,33 @@ TEST_CASE("flip") {
     }
 }
 
+TEST_CASE("slice_array") {
+    SECTION("std::vector") {
+        std::vector arr{1, 2, 3, 4, 5, 6, 7};
+        REQUIRE(array_equal(slice_array(arr, -2, -50, -1), {6, 5, 4, 3, 2, 1}));
+        REQUIRE(array_equal(slice_array(arr, -2, -5, -2), {6, 4}));
+        REQUIRE(slice_array(arr, -2, -5).empty());
+        REQUIRE(array_equal(slice_array(arr, -4, 5), {4, 5}));
+        REQUIRE(array_equal(slice_array(arr, 0, int(arr.size())), arr));
+        REQUIRE(array_equal(slice_array(arr, -2, -5, -1), {6, 5, 4}));
+        REQUIRE(array_equal(slice_array(arr, 2, -2), {3, 4, 5}));
+        REQUIRE(slice_array(std::vector<int>{}, 2, -2).empty());
+    }
+
+    SECTION("std::array") {
+        std::array arr{1, 2, 3, 4, 5, 6, 7};
+        REQUIRE(array_equal(slice_array(arr, -2, -50, -1), {6, 5, 4, 3, 2, 1}));
+        REQUIRE(array_equal(slice_array(arr, -2, -5, -2), {6, 4}));
+        REQUIRE(slice_array(arr, -2, -5).empty());
+        REQUIRE(array_equal(slice_array(arr, 2, 5), {3, 4, 5}));
+        REQUIRE(array_equal(slice_array(arr, -5, -2), {3, 4, 5}));
+        REQUIRE(array_equal(slice_array(arr, -4, 5), {4, 5}));
+        REQUIRE(array_equal(slice_array(arr, 0, int(arr.size())),
+                            std::vector(arr.begin(), arr.end())));
+        REQUIRE(array_equal(slice_array(arr, -2, -5, -1), {6, 5, 4}));
+        REQUIRE(array_equal(slice_array(arr, 2, -2), {3, 4, 5}));
+        REQUIRE(slice_array(std::array<int, 0>{}, 2, -2).empty());
+    }
+}
+
 } // namespace scicpp

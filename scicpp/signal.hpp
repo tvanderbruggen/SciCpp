@@ -4,6 +4,7 @@
 #ifndef SCICPP_SIGNAL_HEADER
 #define SCICPP_SIGNAL_HEADER
 
+#include "signal/arraytools.hpp"
 #include "signal/convolve.hpp"
 #include "signal/fft.hpp"
 #include "signal/filter_design.hpp"

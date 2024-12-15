@@ -7,46 +7,8 @@
 #include <vector>
 
 namespace scicpp::signal {
-using namespace std;
+
 namespace detail {
-
-template <typename T>
-auto slice(const std::vector<T> &arr,
-           signed_size_t start,
-           signed_size_t stop,
-           signed_size_t step = 1) {
-    std::vector<T> res;
-    const auto n = static_cast<signed_size_t>(arr.size());
-
-    start = start < 0 ? n + start : start;
-    stop = stop < 0 ? n + stop : stop;
-
-    auto left = std::min(start, stop);
-    auto right = std::max(start, stop);
-
-    if (left < 0) {
-        left = -1;
-    }
-
-    if (right > n) {
-        right = n;
-    }
-
-    while (right > left) {
-        if ((step < 0) && (stop < start)) {
-            res.push_back(arr[static_cast<std::size_t>(right)]);
-            right += step;
-        } else if ((step > 0) && (stop > start)) {
-            res.push_back(arr[static_cast<std::size_t>(left)]);
-            left += step;
-        } else {
-            break;
-        }
-    }
-
-    return res;
-}
-
 
 // template <typename T>
 // auto eye(size_t N, size_t M = 0, int k = 0) {
@@ -68,7 +30,7 @@ auto axis_slice(const std::vector<T> &arr,
                 signed_size_t start,
                 signed_size_t stop,
                 signed_size_t step = 1) {
-    return detail::slice(arr, start, stop, step);
+    return slice_array(arr, start, stop, step);
 }
 
 template <typename T>

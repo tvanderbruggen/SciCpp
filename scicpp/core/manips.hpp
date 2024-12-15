@@ -169,6 +169,46 @@ auto flip(const Array &a) {
     return res;
 }
 
+//-----------------------------------------------------------------------------
+// slice_array
+//
+// return the result of a[slice(start, stop, step)]
+//-----------------------------------------------------------------------------
+
+template <typename Array, typename DiffTp = typename Array::difference_type>
+auto slice_array(const Array &a, DiffTp start, DiffTp stop, DiffTp step = 1) {
+    using T = typename Array::value_type;
+    scicpp_require(step != 0);
+
+    const auto n = DiffTp(a.size());
+    start = start < 0 ? n + start : start;
+    stop = stop < 0 ? n + stop : stop;
+
+    auto left = std::min(start, stop);
+    left = left < 0 ? -1 : left;
+
+    auto right = std::max(start, stop);
+    right = right > n ? n : right;
+
+    std::vector<T> res;
+
+    if ((step < 0) && (stop < start)) {
+        res.reserve(std::size_t((stop - start) / step));
+
+        for (; right > left; right += step) {
+            res.push_back(a[std::size_t(right)]);
+        }
+    } else if ((step > 0) && (stop > start)) {
+        res.reserve(std::size_t((stop - start) / step));
+
+        for (; right > left; left += step) {
+            res.push_back(a[std::size_t(left)]);
+        }
+    }
+
+    return res;
+}
+
 } // namespace scicpp
 
 #endif // SCICPP_CORE_MANIPS

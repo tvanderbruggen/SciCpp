@@ -4,57 +4,10 @@
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
 
+#include <array>
+#include <vector>
+
 namespace scicpp::signal {
-
-TEST_CASE("Slice") {
-    std::vector arr{1, 2, 3, 4, 5, 6, 7};
-
-    SECTION("Slice 0") {
-        const auto result = detail::slice(arr, -2, -50, -1);
-        REQUIRE(array_equal(result, {6, 5, 4, 3, 2, 1}));
-    }
-
-    SECTION("Slice 1") {
-        const auto result = detail::slice(arr, -2, -5, -2);
-        REQUIRE(array_equal(result, {6, 4}));
-    }
-
-    SECTION("Slice 2") {
-        const auto result = detail::slice(arr, -2, -5, 1);
-        REQUIRE(array_equal(result, {}));
-    }
-
-    SECTION("Slice 3") {
-        const auto result = detail::slice(arr, 2, 5, 1);
-        REQUIRE(array_equal(result, {3, 4, 5}));
-    }
-
-    SECTION("Slice 4") {
-        const auto result = detail::slice(arr, -5, -2, 1);
-        REQUIRE(array_equal(result, {3, 4, 5}));
-    }
-
-    SECTION("Slice 5") {
-        const auto result = detail::slice(arr, -4, 5, 1);
-        REQUIRE(array_equal(result, {4, 5}));
-    }
-
-    SECTION("Slice 6") {
-        const auto result =
-            detail::slice(arr, 0, static_cast<int>(arr.size()), 1);
-        REQUIRE(array_equal(result, arr));
-    }
-
-    SECTION("Slice 7") {
-        const auto result = detail::slice(arr, -2, -5, -1);
-        REQUIRE(array_equal(result, {6, 5, 4}));
-    }
-
-    SECTION("Slice 8") {
-        const auto result = detail::slice(arr, 2, -2, 1);
-        REQUIRE(array_equal(result, {3, 4, 5}));
-    }
-}
 
 TEST_CASE("Eye") {
     // SECTION("Eye 0") {
@@ -95,8 +48,8 @@ TEST_CASE("odd_ext") {
 
     SECTION("Odd Ext 3") {
         const auto result = odd_ext<int>(arr, 3);
-        REQUIRE(array_equal(result,
-                                {-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
+        REQUIRE(
+            array_equal(result, {-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
     }
 
     // SECTION("Axis Slice") {
