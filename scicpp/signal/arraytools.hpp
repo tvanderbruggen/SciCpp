@@ -3,6 +3,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/manips.hpp"
+#include "scicpp/core/units/quantity.hpp"
 
 #include <vector>
 
@@ -25,30 +26,42 @@ namespace detail {
 // }
 } // namespace detail
 
-template <typename T>
-auto axis_slice(const std::vector<T> &arr,
-                signed_size_t start,
-                signed_size_t stop,
-                signed_size_t step = 1) {
-    return slice_array(arr, start, stop, step);
-}
+// ----------------------------------------------------------------------------
+// Boundary extension functions
+// ----------------------------------------------------------------------------
 
-template <typename T>
-auto odd_ext(const std::vector<T> &x, signed_size_t n) {
+template <typename Array, typename DiffTp = typename Array::difference_type>
+auto odd_ext(const Array &x, DiffTp n) {
+    using T = typename Array::value_type;
+    using raw_t = units::representation_t<T>;
     using namespace scicpp::operators;
 
-    scicpp_require(n <= signed_size_t(x.size() - 1));
+    const auto size = DiffTp(x.size());
+    scicpp_require(n <= size - 1);
 
     if (n < 1) {
-        return x;
+        return std::vector(x.cbegin(), x.cend());
     }
 
-    auto left_end = axis_slice(x, 0, 1)[0] * 2;
-    auto left_ext = axis_slice(x, n, 0, -1);
-    auto right_end = axis_slice(x, -1, signed_size_t(x.size()))[0] * 2;
-    auto right_ext = axis_slice(x, -2, -(n + 2), -1);
+    auto left_end = slice_array(x, 0, 1)[0] * raw_t(2);
+    auto left_ext = slice_array(x, n, 0, -1);
+    auto right_end = slice_array(x, -1, size)[0] * raw_t(2);
+    auto right_ext = slice_array(x, -2, -(n + 2), -1);
 
     return (left_end - left_ext) | x | (right_end - right_ext);
+}
+
+template <typename Array, typename DiffTp = typename Array::difference_type>
+auto even_ext(const Array &x, DiffTp n) {
+    using namespace scicpp::operators;
+
+    scicpp_require(n <= DiffTp(x.size()) - 1);
+
+    if (n < 1) {
+        return std::vector(x.cbegin(), x.cend());
+    }
+
+    return slice_array(x, n, 0, -1) | x | slice_array(x, -2, -(n + 2), -1);
 }
 
 } // namespace scicpp::signal

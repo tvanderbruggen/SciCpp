@@ -171,6 +171,15 @@ TEST_CASE("slice_array") {
         REQUIRE(slice_array(std::vector<int>{}, 2, -2).empty());
     }
 
+    SECTION("std::vector units") {
+        using namespace units::literals;
+        std::vector arr{1_kg, 2_kg, 3_kg, 4_kg, 5_kg, 6_kg, 7_kg};
+        REQUIRE(almost_equal(slice_array(arr, -2, -50, -1),
+                             {6_kg, 5_kg, 4_kg, 3_kg, 2_kg, 1_kg}));
+        REQUIRE(almost_equal(slice_array(arr, -2, -5, -2), {6_kg, 4_kg}));
+        REQUIRE(slice_array(arr, -2, -5).empty());
+    }
+
     SECTION("std::array") {
         std::array arr{1, 2, 3, 4, 5, 6, 7};
         REQUIRE(array_equal(slice_array(arr, -2, -50, -1), {6, 5, 4, 3, 2, 1}));
