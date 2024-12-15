@@ -58,28 +58,62 @@ TEST_CASE("odd_ext") {
     }
 }
 
-
 TEST_CASE("even_ext") {
     SECTION("std::vector") {
         std::vector arr{1, 2, 3, 4, 5, 6, 7};
         REQUIRE(array_equal(even_ext(arr, 0), arr));
         REQUIRE(array_equal(even_ext(arr, 1), {2, 1, 2, 3, 4, 5, 6, 7, 6}));
-        REQUIRE(array_equal(even_ext(arr, 2), {3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5}));
+        REQUIRE(
+            array_equal(even_ext(arr, 2), {3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5}));
     }
 
     SECTION("std::vector units") {
         using namespace units::literals;
         std::vector arr{1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J};
         REQUIRE(almost_equal(even_ext(arr, 0), arr));
-        REQUIRE(almost_equal(even_ext(arr, 1), {2_J, 1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J, 6_J}));
-        REQUIRE(almost_equal(even_ext(arr, 2), {3_J, 2_J, 1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J, 6_J, 5_J}));
+        REQUIRE(almost_equal(even_ext(arr, 1),
+                             {2_J, 1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J, 6_J}));
+        REQUIRE(almost_equal(
+            even_ext(arr, 2),
+            {3_J, 2_J, 1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J, 6_J, 5_J}));
     }
 
     SECTION("std::array") {
         std::array arr{1, 2, 3, 4, 5, 6, 7};
         REQUIRE(array_equal(even_ext(arr, 0), {1, 2, 3, 4, 5, 6, 7}));
         REQUIRE(array_equal(even_ext(arr, 1), {2, 1, 2, 3, 4, 5, 6, 7, 6}));
-        REQUIRE(array_equal(even_ext(arr, 2), {3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5}));
+        REQUIRE(
+            array_equal(even_ext(arr, 2), {3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5}));
+    }
+}
+
+TEST_CASE("const_ext") {
+    SECTION("std::vector") {
+        std::vector arr{1, 2, 3, 4, 5, 6, 7};
+        REQUIRE(array_equal(const_ext(arr, 0), {1, 2, 3, 4, 5, 6, 7}));
+        REQUIRE(array_equal(const_ext(arr, 1), {1, 1, 2, 3, 4, 5, 6, 7, 7}));
+        REQUIRE(
+            array_equal(const_ext(arr, 2), {1, 1, 1, 2, 3, 4, 5, 6, 7, 7, 7}));
+    }
+
+    SECTION("std::vector units") {
+        using namespace units::literals;
+        std::vector arr{1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J};
+        REQUIRE(almost_equal(const_ext(arr, 0),
+                             {1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J}));
+        REQUIRE(almost_equal(const_ext(arr, 1),
+                             {1_J, 1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J, 7_J}));
+        REQUIRE(almost_equal(
+            const_ext(arr, 2),
+            {1_J, 1_J, 1_J, 2_J, 3_J, 4_J, 5_J, 6_J, 7_J, 7_J, 7_J}));
+    }
+
+    SECTION("std::array") {
+        std::array arr{1, 2, 3, 4, 5, 6, 7};
+        REQUIRE(array_equal(const_ext(arr, 0), {1, 2, 3, 4, 5, 6, 7}));
+        REQUIRE(array_equal(const_ext(arr, 1), {1, 1, 2, 3, 4, 5, 6, 7, 7}));
+        REQUIRE(
+            array_equal(const_ext(arr, 2), {1, 1, 1, 2, 3, 4, 5, 6, 7, 7, 7}));
     }
 }
 
