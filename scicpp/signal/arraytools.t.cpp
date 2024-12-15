@@ -117,4 +117,32 @@ TEST_CASE("const_ext") {
     }
 }
 
+TEST_CASE("zero_ext") {
+    SECTION("std::vector") {
+        std::vector arr{1, 2, 3, 4, 5, 6, 7};
+        REQUIRE(array_equal(zero_ext(arr, 0), {1, 2, 3, 4, 5, 6, 7}));
+        REQUIRE(array_equal(zero_ext(arr, 1), {0, 1, 2, 3, 4, 5, 6, 7, 0}));
+        REQUIRE(
+            array_equal(zero_ext(arr, 2), {0, 0, 1, 2, 3, 4, 5, 6, 7, 0, 0}));
+        REQUIRE(array_equal(zero_ext(empty<int>(), 2), {0, 0, 0, 0}));
+    }
+
+    SECTION("std::vector units") {
+        using namespace units::literals;
+        std::vector arr{1_m, 2_m, 3_m, 4_m, 5_m, 6_m, 7_m};
+        REQUIRE(almost_equal(zero_ext(arr, 0), {1_m, 2_m, 3_m, 4_m, 5_m, 6_m, 7_m}));
+        REQUIRE(almost_equal(zero_ext(arr, 1), {0_m, 1_m, 2_m, 3_m, 4_m, 5_m, 6_m, 7_m, 0_m}));
+        REQUIRE(
+            almost_equal(zero_ext(arr, 2), {0_m, 0_m, 1_m, 2_m, 3_m, 4_m, 5_m, 6_m, 7_m, 0_m, 0_m}));
+    }
+
+    SECTION("std::array") {
+        std::array arr{1, 2, 3, 4, 5, 6, 7};
+        REQUIRE(array_equal(zero_ext(arr, 0), {1, 2, 3, 4, 5, 6, 7}));
+        REQUIRE(array_equal(zero_ext(arr, 1), {0, 1, 2, 3, 4, 5, 6, 7, 0}));
+        REQUIRE(
+            array_equal(zero_ext(arr, 2), {0, 0, 1, 2, 3, 4, 5, 6, 7, 0, 0}));
+    }
+}
+
 } // namespace scicpp::signal

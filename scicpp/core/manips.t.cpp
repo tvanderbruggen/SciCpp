@@ -168,7 +168,7 @@ TEST_CASE("slice_array") {
         REQUIRE(array_equal(slice_array(arr, 0, int(arr.size())), arr));
         REQUIRE(array_equal(slice_array(arr, -2, -5, -1), {6, 5, 4}));
         REQUIRE(array_equal(slice_array(arr, 2, -2), {3, 4, 5}));
-        REQUIRE(slice_array(std::vector<int>{}, 2, -2).empty());
+        REQUIRE(slice_array(empty<int>(), 2, -2).empty());
     }
 
     SECTION("std::vector units") {

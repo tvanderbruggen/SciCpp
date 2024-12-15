@@ -81,6 +81,18 @@ auto const_ext(const Array &x, DiffTp n) {
            (ones<raw_t>(std::size_t(n)) * x.back());
 }
 
+template <typename Array, typename DiffTp = typename Array::difference_type>
+auto zero_ext(const Array &x, DiffTp n) {
+    using T = typename Array::value_type;
+    using namespace scicpp::operators;
+
+    if (n < 1) {
+        return std::vector(x.cbegin(), x.cend());
+    }
+
+    return zeros<T>(std::size_t(n)) | x | zeros<T>(std::size_t(n));
+}
+
 } // namespace scicpp::signal
 
 #endif
