@@ -10,23 +10,6 @@
 
 namespace scicpp::signal {
 
-namespace detail {
-
-// template <typename T>
-// auto eye(size_t N, size_t M = 0, int k = 0) {
-//     if (M == 0)
-//         M = N;
-//     std::vector<std::vector<T>> result;
-//     for (size_t i = 0; i < N; ++i) {
-//         std::vector<T> row = zeros<T>(M);
-//         if ((i + k >= 0) && (i + k < N))
-//             row[i + k] = 1;
-//         result.push_back(row);
-//     }
-//     return result;
-// }
-} // namespace detail
-
 // ----------------------------------------------------------------------------
 // Boundary extension functions
 // ----------------------------------------------------------------------------
@@ -77,8 +60,10 @@ auto const_ext(const Array &x, DiffTp n) {
         return std::vector(x.cbegin(), x.cend());
     }
 
-    return (ones<raw_t>(std::size_t(n)) * x[0]) | x |
-           (ones<raw_t>(std::size_t(n)) * x.back());
+    const auto padding = std::size_t(n);
+
+    return (ones<raw_t>(padding) * x[0]) | x |
+           (ones<raw_t>(padding) * x.back());
 }
 
 template <typename Array, typename DiffTp = typename Array::difference_type>
@@ -90,7 +75,13 @@ auto zero_ext(const Array &x, DiffTp n) {
         return std::vector(x.cbegin(), x.cend());
     }
 
-    return zeros<T>(std::size_t(n)) | x | zeros<T>(std::size_t(n));
+    const auto padding = std::size_t(n);
+
+    if (x.empty()) {
+        return zeros<T>(2 * padding);
+    }
+
+    return zeros<T>(padding) | x | zeros<T>(padding);
 }
 
 } // namespace scicpp::signal
