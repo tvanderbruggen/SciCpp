@@ -473,7 +473,7 @@ auto polycompanion(const std::array<T, N> &P) {
 template <typename T>
 auto polycompanion(const std::vector<T> &P) {
     const int deg = int(P.size()) - 1;
-    auto res = linalg::eye<T>(deg, -1);
+    auto res = linalg::eye<T>(std::size_t(deg), -1);
     res.col(deg - 1) = -linalg::to_eigen_matrix(P, deg) / P[std::size_t(deg)];
     return res;
 }
