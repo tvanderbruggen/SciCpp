@@ -9,6 +9,7 @@
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/linalg/matrices.hpp"
 #include "scicpp/linalg/solve.hpp"
 #include "scicpp/linalg/utils.hpp"
 #include "scicpp/signal/convolve.hpp"
@@ -464,9 +465,7 @@ auto polyint(const std::vector<T> &P, signed_size_t m = 1) {
 template <typename T, std::size_t N>
 auto polycompanion(const std::array<T, N> &P) {
     constexpr int deg = N - 1;
-    Eigen::Matrix<T, deg, deg> res{};
-    res.setZero();
-    res.diagonal(-1).setOnes();
+    auto res = linalg::eye<T, deg>(-1);
     res.col(deg - 1) = -linalg::to_eigen_array<deg>(P) / P[deg];
     return res;
 }
@@ -474,9 +473,7 @@ auto polycompanion(const std::array<T, N> &P) {
 template <typename T>
 auto polycompanion(const std::vector<T> &P) {
     const int deg = int(P.size()) - 1;
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> res(deg, deg);
-    res.setZero();
-    res.diagonal(-1).setOnes();
+    auto res = linalg::eye<T>(deg, -1);
     res.col(deg - 1) = -linalg::to_eigen_matrix(P, deg) / P[std::size_t(deg)];
     return res;
 }

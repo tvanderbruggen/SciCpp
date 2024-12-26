@@ -1,18 +1,21 @@
 #ifndef SCICPP_SIGNAL_SIGNALTOOLS
 #define SCICPP_SIGNAL_SIGNALTOOLS
 
-#include "scicpp/core/constants.hpp"
+// #include "scicpp/core/constants.hpp"
 #include "scicpp/core/macros.hpp"
-#include "scicpp/core/maths.hpp"
+// #include "scicpp/core/maths.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
-#include "scicpp/core/range.hpp"
-#include "scicpp/core/utils.hpp"
+// #include "scicpp/core/range.hpp"
+#include "scicpp/core/equal.hpp"
 #include "scicpp/linalg/solve.hpp"
-#include "scicpp/polynomials/polynomial.hpp"
+// #include "scicpp/polynomials/polynomial.hpp"
 #include "scicpp/signal/arraytools.hpp"
-#include "scicpp/signal/convolve.hpp"
+// #include "scicpp/signal/convolve.hpp"
 
+#include "scicpp/core/print.hpp"
+
+#include <Eigen/Dense>
 #include <complex>
 #include <tuple>
 #include <vector>
@@ -28,6 +31,8 @@ template <PadType padtype,
           typename Array,
           typename DiffTp = typename Array::difference_type>
 auto validate_pad(const Array &x, DiffTp ntaps, DiffTp padlen = -1) {
+    static_assert(meta::is_iterable_v<Array>);
+
     if constexpr (padtype == PadType::NONE) {
         return std::tuple{std::vector(x.cbegin(), x.cend()), 0};
     } else {
@@ -47,15 +52,6 @@ auto validate_pad(const Array &x, DiffTp ntaps, DiffTp padlen = -1) {
         }
     }
 }
-
-// cf.polynomial::polycompanion
-// template <typename T> // tentative
-// auto companion(const std::vector<T> &a) {
-//     auto result = detail::eye<T>(a.size() - 1, 0, -1);
-//     auto sliced_a = detail::slice(a, 1, a.size());
-//     result.at(0) = -sliced_a / a[0];
-//     return result;
-// }
 
 // template <typename T>
 // void filt(std::vector<T> &b,
@@ -140,57 +136,48 @@ auto validate_pad(const Array &x, DiffTp ntaps, DiffTp padlen = -1) {
 //     return _raw_filter(b, a, x, Vi);
 // }
 } // namespace detail
-// template <typename T>
-// auto lfilter_zi(std::vector<T> b, std::vector<T> a) {
 
-//     using namespace scicpp::linalg;
-//     using namespace scicpp::operators;
-//     using namespace scicpp::polynomial;
+// ----------------------------------------------------------------------------
+// lfilter_zi
+// ----------------------------------------------------------------------------
 
-//     while ((a.size() > 1) && (a[0] == 0.0)) {
-//         a = axis_slice<T>(
-//             a, 1, a.size()); // we know BA only contains vector<double>'s
-//     }
-//     if (a.size() < 1)
-//         throw std::invalid_argument(
-//             "There must be at least one nonzero `a` coefficient.");
-//     if (a[0] != 1.0) {
-//         b = b / a[0];
-//         a = a / a[0];
-//     }
-//     std::size_t n = std::max(a.size(), b.size());
+template <typename Array1, typename Array2>
+auto lfilter_zi(const Array1 &b, const Array2 &a) {
+    using T = typename Array1::value_type;
+    static_assert(std::is_same_v<T, typename Array2::value_type>);
+    using namespace scicpp::operators;
 
-//     if (a.size() < n)
-//         a = detail::concatenate<T>(a, zeros<double>(n - a.size()));
-//     else if (b.size() < n)
-//         b = detail::concatenate<T>(b, zeros<double>(n - b.size()));
+    std::size_t k = 0;
+    while (k < a.size() && a[k] == 0.0) {
+        ++k;
+    }
 
-//     auto comp_a = detail::companion(a);
+    scicpp_require(
+        k < (a.size() - 1) &&
+        "lfilter_zi: There must be at least one nonzero `a` coefficient.");
 
-//     // transpose comp_a in place
-//     for (int i = 0; i < comp_a.size(); i++)
-//         for (int j = i + 1; j < comp_a.size(); j++)
-//             std::swap(comp_a[i][j], comp_a[j][i]);
+    std::vector<T> a_(a.cbegin() + signed_size_t(k), a.cend());
+    std::vector<T> b_(b.cbegin(), b.cend());
 
-//     auto eye_n = detail::eye<T>(n - 1);
-//     std::vector<std::vector<T>> IminusA;
+    if (!almost_equal(a_[0], T(1))) {
+        b_ = std::move(b_) / a_[0];
+        a_ = std::move(a_) / a_[0];
+    }
 
-//     for (int i = 0; i < comp_a.size(); i++)
-//         IminusA.push_back(eye_n[i] - comp_a[i]);
+    const auto n = std::max(a_.size(), b_.size());
 
-//     Eigen::MatrixXd emi(IminusA.size(), IminusA.size());
-//     for (int i = 0; i < IminusA.size(); i++)
-//         for (int j = 0; j < IminusA.size(); j++)
-//             emi(i, j) = IminusA[i][j];
+    if (a_.size() < n) {
+        a_.resize(n);
+    } else if (b.size() < n) {
+        b_.resize(n);
+    }
 
-//     auto B = detail::slice<T>(b, 1, b.size()) -
-//              (detail::slice(a, 1, a.size()) * b[0]);
+    auto A = linalg::companion(a_);
+    auto B = slice_array(b_ - std::move(a_) * b_[0], 1L, signed_size_t(n));
+    // Solve zi = A zi + B => (Id - A) zi = B
+    return linalg::lstsq(linalg::eye<T>(n - 1) - A.transpose(), B);
+}
 
-//     // Solve zi = A*zi + B
-//     auto zi = lstsq(emi, B);
-
-//     return zi;
-// }
 // template <typename T>
 // auto lfilter(std::vector<T> &b,
 //              std::vector<T> &a,
@@ -247,4 +234,4 @@ auto validate_pad(const Array &x, DiffTp ntaps, DiffTp padlen = -1) {
 
 } // namespace scicpp::signal
 
-#endif
+#endif // SCICPP_SIGNAL_SIGNALTOOLS

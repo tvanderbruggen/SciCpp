@@ -3,6 +3,7 @@
 
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/manips.hpp"
+#include "scicpp/core/meta.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
@@ -16,6 +17,7 @@ namespace scicpp::signal {
 
 template <typename Array, typename DiffTp = typename Array::difference_type>
 auto odd_ext(const Array &x, DiffTp n) {
+    static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
     using raw_t = units::representation_t<T>;
     using namespace scicpp::operators;
@@ -37,6 +39,7 @@ auto odd_ext(const Array &x, DiffTp n) {
 
 template <typename Array, typename DiffTp = typename Array::difference_type>
 auto even_ext(const Array &x, DiffTp n) {
+    static_assert(meta::is_iterable_v<Array>);
     using namespace scicpp::operators;
 
     scicpp_require(n <= DiffTp(x.size()) - 1);
@@ -50,6 +53,7 @@ auto even_ext(const Array &x, DiffTp n) {
 
 template <typename Array, typename DiffTp = typename Array::difference_type>
 auto const_ext(const Array &x, DiffTp n) {
+    static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
     using raw_t = units::representation_t<T>;
     using namespace scicpp::operators;
@@ -68,6 +72,7 @@ auto const_ext(const Array &x, DiffTp n) {
 
 template <typename Array, typename DiffTp = typename Array::difference_type>
 auto zero_ext(const Array &x, DiffTp n) {
+    static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
     using namespace scicpp::operators;
 
@@ -86,4 +91,4 @@ auto zero_ext(const Array &x, DiffTp n) {
 
 } // namespace scicpp::signal
 
-#endif
+#endif // SCICPP_SIGNAL_ARRAYTOOLS

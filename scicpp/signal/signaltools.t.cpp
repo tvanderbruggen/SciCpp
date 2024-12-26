@@ -7,7 +7,7 @@
 
 namespace scicpp::signal {
 
-TEST_CASE("Validate Pad") {
+TEST_CASE("detail::validate_pad") {
     SECTION("std::vector") {
         const auto x = std::vector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
         const auto [ext, edge] = detail::validate_pad<PadType::ODD>(x, 3);
@@ -34,6 +34,50 @@ TEST_CASE("Validate Pad") {
     }
 }
 
+TEST_CASE("lfilter_zi") {
+    SECTION("std::vector 1") {
+        const auto a = std::vector{1., 2., 3.};
+        const auto b = std::vector{4., 5., 6.};
+        const auto zi = lfilter_zi(b, a);
+        print(zi);
+        REQUIRE(almost_equal<10>(zi, {-1.5, -1.5}));
+    }
+
+    SECTION("std::vector 2") {
+        const auto a = std::vector{0., 0., 0., 1., 2., 3.};
+        const auto b = std::vector{4., 5., 6.};
+        const auto zi = lfilter_zi(b, a);
+        print(zi);
+        REQUIRE(almost_equal<10>(zi, {-1.5, -1.5}));
+    }
+
+    SECTION("std::vector 3") {
+        const auto a = std::vector{1., 10.};
+        const auto b = std::vector{10., 20., 30.};
+        const auto zi = lfilter_zi(b, a);
+        print(zi);
+        REQUIRE(almost_equal<1>(zi, {-4.545454545454545454545454, 30.}));
+    }
+
+    SECTION("std::vector 4") {
+        const auto a = std::vector{0., 1., 10., 100., 1000.};
+        const auto b = std::vector{10., 20., 30.};
+        const auto zi = lfilter_zi(b, a);
+        print(zi);
+        REQUIRE(almost_equal<10>(
+            zi, {-9.945994599459945, -29.40594059405941, -54.005400540054005}));
+    }
+
+    SECTION("std::array") {
+        const auto a = std::array{1., 10., 100., 1000.};
+        const auto b = std::array{10., 20., 30.};
+        const auto zi = lfilter_zi(b, a);
+        print(zi);
+        REQUIRE(almost_equal<10>(
+            zi, {-9.945994599459945, -29.40594059405941, -54.005400540054005}));
+    }
+}
+
 // TEST_CASE("Signal Tools") {
 //     using namespace std::complex_literals;
 
@@ -41,16 +85,6 @@ TEST_CASE("Validate Pad") {
 //     const double Wn = 0.5;
 //     const std::vector<int> x = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
-//     SECTION("Validate Pad") {
-
-//         const int ntaps = 3;
-//         const auto [ext, edge] =
-//             detail::_validate_pad<PADTYPE::ODD>(x, -1, ntaps);
-//         REQUIRE(almost_equal<1>(ext, {-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
-//                                       1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
-//                                       11, 12, 13, 14, 15, 16, 17, 18, 19, 20}));
-//         REQUIRE(almost_equal<1>(edge, 9));
-//     }
 // SECTION("Companion") {
 //     const std::vector<double> a = {1., 2., 3., 4., 5.};
 //     const auto result = detail::companion(a);
