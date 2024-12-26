@@ -30,7 +30,9 @@ namespace detail {
 template <PadType padtype,
           typename Array,
           typename DiffTp = typename Array::difference_type>
-auto validate_pad(const Array &x, DiffTp ntaps, DiffTp padlen = -1) {
+auto validate_pad(const Array &x,
+                  [[maybe_unused]] DiffTp ntaps,
+                  [[maybe_unused]] DiffTp padlen = -1) {
     static_assert(meta::is_iterable_v<Array>);
 
     if constexpr (padtype == PadType::NONE) {
@@ -148,7 +150,7 @@ auto lfilter_zi(const Array1 &b, const Array2 &a) {
     using namespace scicpp::operators;
 
     std::size_t k = 0;
-    while (k < a.size() && a[k] == 0.0) {
+    while (k < a.size() && almost_equal(a[k], T(0))) {
         ++k;
     }
 

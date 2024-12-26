@@ -19,7 +19,7 @@ namespace scicpp::linalg {
 // ----------------------------------------------------------------------------
 
 template <typename T, std::size_t N>
-auto eye(signed_size_t k = 0) {
+auto scicpp_pure eye(signed_size_t k = 0) {
     Eigen::Matrix<T, N, N> res{};
     res.setZero();
     res.diagonal(k).setOnes();

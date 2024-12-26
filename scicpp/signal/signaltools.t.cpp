@@ -85,15 +85,6 @@ TEST_CASE("lfilter_zi") {
 //     const double Wn = 0.5;
 //     const std::vector<int> x = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
-// SECTION("Companion") {
-//     const std::vector<double> a = {1., 2., 3., 4., 5.};
-//     const auto result = detail::companion(a);
-//     REQUIRE(almost_equal<1>(result,
-//                             {{-2., -3., -4., -5.},
-//                              {1., 0., 0., 0.},
-//                              {0., 1., 0., 0.},
-//                              {0., 0., 1., 0.}}));
-// }
 // SECTION("LFilter ZI") {
 
 //     auto ba = butter<BTYPE::LOWPASS, FOUTPUT::BA, double>(2, 0.5);
