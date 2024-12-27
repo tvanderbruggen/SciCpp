@@ -4,8 +4,8 @@
 #include "utils.hpp"
 
 #include "scicpp/core/equal.hpp"
-#include "scicpp/core/numeric.hpp"
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/numeric.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
 namespace scicpp::linalg {

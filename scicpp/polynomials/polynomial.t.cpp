@@ -388,7 +388,8 @@ TEST_CASE("polypow") {
     }
 
     SECTION("std::vector FFT") {
-        const auto P = polypow<signal::ConvMethod::FFT>(std::vector{4., 5., 8.}, 3);
+        const auto P =
+            polypow<signal::ConvMethod::FFT>(std::vector{4., 5., 8.}, 3);
         REQUIRE(
             almost_equal<8>(P, {64., 240., 684., 1085., 1368., 960., 512.}));
     }

@@ -34,7 +34,8 @@ TEST_CASE("welch") {
         // Don't return frequencies
         const auto p3 = Spectrum{}
                             .window(windows::hann<double>(20))
-                            .welch<SpectrumScaling::DENSITY, false>(std::array<double, 0>{});
+                            .welch<SpectrumScaling::DENSITY, false>(
+                                std::array<double, 0>{});
         REQUIRE(p3.empty());
     }
 
@@ -496,7 +497,8 @@ TEST_CASE("csd") {
         y[0] = 3.0 - 4.0i;
         y[8] = 1.0 + 2.0i;
 
-        const auto [f, Pxy] = Spectrum{}.window(windows::Window::Hamming, 5).csd(x, y);
+        const auto [f, Pxy] =
+            Spectrum{}.window(windows::Window::Hamming, 5).csd(x, y);
 
         REQUIRE(almost_equal(f, {0., 0.2, 0.4, -0.4, -0.2}));
         // print(Pxy);

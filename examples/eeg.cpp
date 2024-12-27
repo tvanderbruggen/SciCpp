@@ -36,10 +36,11 @@ int main() {
 
     // ---- Welch's periodogram
     // Configure the spectrum analyzer
-    auto spec =
-        sig::Spectrum{}.fs(fs).window(sig::windows::Boxcar, time.size() / 6);
-
-    auto plot2 = plt::psd<sig::DENSITY, plt::LINEAR>(spec, eeg_signal);
+    auto spec = sig::Spectrum{}.fs(fs).window(sig::windows::Window::Boxcar,
+                                              time.size() / 6);
+    auto plot2 =
+        plt::psd<sig::SpectrumScaling::DENSITY, plt::SpectrumPlotScale::LINEAR>(
+            spec, eeg_signal);
     plot2.size(1000, 500);
     plot2.xlabel("FREQUENCY (Hz)");
     plot2.ylabel("PSD (uV^2 / Hz)");

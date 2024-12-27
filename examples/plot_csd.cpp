@@ -29,7 +29,8 @@ int main() {
     const auto y = 0.01 * sci::sin(omega0 * t) + cnse2;
 
     // Configure the spectrum analyzer
-    auto spec = sig::Spectrum{}.fs(fs).window(sig::windows::Hamming, t.size());
+    auto spec =
+        sig::Spectrum{}.fs(fs).window(sig::windows::Window::Hamming, t.size());
 
     // Plot csd
     auto plot1 = plt::csd(spec, x, y);
