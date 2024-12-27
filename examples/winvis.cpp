@@ -5,6 +5,9 @@ namespace plt = scicpp::plots;
 namespace win = scicpp::signal::windows;
 
 int main() {
-    plt::winvis(win::Hann, win::Bohman, win::Flattop, win::Parzen);
-    plt::winvis(win::Hann, win::Lanczos);
+    plt::winvis(win::Window::Hann,
+                win::Window::Bohman,
+                win::Window::Flattop,
+                win::Window::Parzen);
+    plt::winvis(win::Window::Hann, win::Window::Lanczos);
 }

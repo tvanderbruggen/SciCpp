@@ -27,8 +27,8 @@ int main() {
     const auto s2 = sci::sin(omega0 * t) + nse2;
 
     // Configure the spectrum analyzer
-    auto spec =
-        sci::signal::Spectrum{}.fs(fs).window(sci::signal::windows::Hann, 256);
+    auto spec = sci::signal::Spectrum{}.fs(fs).window(
+        sci::signal::windows::Window::Hann, 256);
 
     auto plot = plt::cohere(spec, s1, s2);
 

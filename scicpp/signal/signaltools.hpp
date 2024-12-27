@@ -1,15 +1,14 @@
 #ifndef SCICPP_SIGNAL_SIGNALTOOLS
 #define SCICPP_SIGNAL_SIGNALTOOLS
 
-// #include "scicpp/core/constants.hpp"
 #include "scicpp/core/macros.hpp"
 // #include "scicpp/core/maths.hpp"
+#include "scicpp/core/equal.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
-// #include "scicpp/core/range.hpp"
-#include "scicpp/core/equal.hpp"
+#include "scicpp/core/range.hpp"
+#include "scicpp/linalg/matrices.hpp"
 #include "scicpp/linalg/solve.hpp"
-// #include "scicpp/polynomials/polynomial.hpp"
 #include "scicpp/signal/arraytools.hpp"
 // #include "scicpp/signal/convolve.hpp"
 

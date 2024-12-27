@@ -20,7 +20,7 @@ int main() {
     const auto y = sci::signal::sawtooth(omega0.value() * t) + 5.0i * noise;
 
     auto spec = sci::signal::Spectrum{}.fs(fs).window(
-        sci::signal::windows::Hamming, t.size());
+        sci::signal::windows::Window::Hamming, t.size());
 
     const auto [f1, Pxx] = spec.welch(x);
     sci::print(Pxx);
