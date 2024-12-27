@@ -34,7 +34,7 @@ TEST_CASE("welch") {
         // Don't return frequencies
         const auto p3 = Spectrum{}
                             .window(windows::hann<double>(20))
-                            .welch<DENSITY, false>(std::array<double, 0>{});
+                            .welch<SpectrumScaling::DENSITY, false>(std::array<double, 0>{});
         REQUIRE(p3.empty());
     }
 
@@ -49,8 +49,9 @@ TEST_CASE("welch") {
         REQUIRE(f1.empty());
         REQUIRE(p1.empty());
 
-        const auto [f2, p2] =
-            Spectrum{}.window(windows::hann<double>(20)).welch<SPECTRUM>(x);
+        const auto [f2, p2] = Spectrum{}
+                                  .window(windows::hann<double>(20))
+                                  .welch<SpectrumScaling::SPECTRUM>(x);
         static_assert(units::is_same_dimension<std::decay_t<decltype(p2[0])>,
                                                decltype(1_V * 1_V)>);
         REQUIRE(f2.empty());
@@ -68,8 +69,9 @@ TEST_CASE("welch") {
         REQUIRE(f1.empty());
         REQUIRE(p1.empty());
 
-        const auto [f2, p2] =
-            Spectrum{}.window(windows::hann<double>(20)).welch<SPECTRUM>(x);
+        const auto [f2, p2] = Spectrum{}
+                                  .window(windows::hann<double>(20))
+                                  .welch<SpectrumScaling::SPECTRUM>(x);
         static_assert(units::is_same_dimension<std::decay_t<decltype(p2[0])>,
                                                decltype(1_V * 1_V)>);
         REQUIRE(f2.empty());
@@ -172,7 +174,7 @@ TEST_CASE("welch") {
         // Don't return frequencies
         const auto p6 = Spectrum{}
                             .window(windows::gaussian(16, 2.0))
-                            .welch<DENSITY, false>(x);
+                            .welch<SpectrumScaling::DENSITY, false>(x);
         REQUIRE(almost_equal<8>(p6,
                                 {0.033283705527078,
                                  0.1552473685118426,
@@ -428,14 +430,16 @@ TEST_CASE("csd") {
         // Don't return frequencies
         const auto p4 = Spectrum{}
                             .window(windows::hann<double>(20))
-                            .csd<DENSITY, false>(empty<std::complex<double>>(),
-                                                 empty<std::complex<double>>());
+                            .csd<SpectrumScaling::DENSITY, false>(
+                                empty<std::complex<double>>(),
+                                empty<std::complex<double>>());
         REQUIRE(p4.empty());
     }
 
     SECTION("Same data real") {
         const auto x = linspace(1.0, 10.0, 100);
-        const auto [f, Pxx] = Spectrum{}.window(windows::Hann, 20).csd(x, x);
+        const auto [f, Pxx] =
+            Spectrum{}.window(windows::Window::Hann, 20).csd(x, x);
 
         REQUIRE(almost_equal(
             f, {0., 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5}));
@@ -457,7 +461,8 @@ TEST_CASE("csd") {
     SECTION("Different data real same size") {
         const auto x = linspace(1.0, 10.0, 100);
         const auto y = linspace(10.0, 100.0, 100);
-        const auto [f, Pxy] = Spectrum{}.window(windows::Hamming, 15).csd(x, y);
+        const auto [f, Pxy] =
+            Spectrum{}.window(windows::Window::Hamming, 15).csd(x, y);
 
         // print(f);
         REQUIRE(almost_equal<4>(f,
@@ -491,7 +496,7 @@ TEST_CASE("csd") {
         y[0] = 3.0 - 4.0i;
         y[8] = 1.0 + 2.0i;
 
-        const auto [f, Pxy] = Spectrum{}.window(windows::Hamming, 5).csd(x, y);
+        const auto [f, Pxy] = Spectrum{}.window(windows::Window::Hamming, 5).csd(x, y);
 
         REQUIRE(almost_equal(f, {0., 0.2, 0.4, -0.4, -0.2}));
         // print(Pxy);
@@ -508,7 +513,7 @@ TEST_CASE("csd") {
         const auto y = linspace(10.0, 100.0, 50);
 
         const auto [f1, Pxy1] =
-            Spectrum{}.window(windows::Hamming, 10).csd(x, y);
+            Spectrum{}.window(windows::Window::Hamming, 10).csd(x, y);
         REQUIRE(almost_equal(f1, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         // print(Pxy1);
         REQUIRE(almost_equal<8000>(
@@ -521,7 +526,7 @@ TEST_CASE("csd") {
              -2.4445158559955788e-02 + 0.0000000000000000e+00i}));
 
         const auto [f2, Pxy2] =
-            Spectrum{}.window(windows::Hamming, 10).csd(y, x);
+            Spectrum{}.window(windows::Window::Hamming, 10).csd(y, x);
         REQUIRE(almost_equal(f2, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         // print(Pxy2);
         REQUIRE(almost_equal<4000>(
@@ -544,7 +549,7 @@ TEST_CASE("csd") {
         y[8] = 1.0 + 2.0i;
 
         const auto [f1, Pxy1] =
-            Spectrum{}.window(windows::Bartlett, 13).csd(y, x);
+            Spectrum{}.window(windows::Window::Bartlett, 13).csd(y, x);
         REQUIRE(almost_equal<4>(f1,
                                 {0.,
                                  0.0769230769230769,
@@ -583,7 +588,7 @@ TEST_CASE("csd") {
         const auto y = linspace(10.0, 100.0, 50);
 
         const auto [f1, Pxy1] =
-            Spectrum{}.window(windows::Bartlett, 13).csd(x, y);
+            Spectrum{}.window(windows::Window::Bartlett, 13).csd(x, y);
         REQUIRE(almost_equal<4>(f1,
                                 {0.,
                                  0.0769230769230769,
@@ -616,7 +621,7 @@ TEST_CASE("csd") {
              -1.3292271576604644e+00 - 9.9103993540715474e-01i}));
 
         const auto [f2, Pxy2] =
-            Spectrum{}.window(windows::Bartlett, 13).csd(y, x);
+            Spectrum{}.window(windows::Window::Bartlett, 13).csd(y, x);
         REQUIRE(almost_equal<4>(f2,
                                 {0.,
                                  0.0769230769230769,
@@ -682,7 +687,7 @@ TEST_CASE("csd physical quantities") {
         // Don't return frequencies
         const auto p4 = Spectrum{}
                             .window(windows::hann<double>(20))
-                            .csd<SPECTRUM, false>(
+                            .csd<SpectrumScaling::SPECTRUM, false>(
                                 empty<std::complex<units::volt<double>>>(),
                                 empty<std::complex<units::ampere<double>>>());
         static_assert(units::is_power<decltype(p4[0])>);
@@ -694,7 +699,7 @@ TEST_CASE("csd physical quantities") {
         const auto y = linspace(10_A, 100_A, 50);
 
         const auto [f1, Pxy1] =
-            Spectrum{}.window(windows::Hamming, 10).csd(x, y);
+            Spectrum{}.window(windows::Window::Hamming, 10).csd(x, y);
         REQUIRE(almost_equal(f1, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         static_assert(units::is_power<decltype(Pxy1[0] * 1_Hz)>);
         // print(Pxy1);
@@ -708,7 +713,7 @@ TEST_CASE("csd physical quantities") {
              -2.4445158559955788e-02 + 0.0000000000000000e+00i}));
 
         const auto [f2, Pxy2] =
-            Spectrum{}.window(windows::Hamming, 10).csd(y, x);
+            Spectrum{}.window(windows::Window::Hamming, 10).csd(y, x);
         static_assert(units::is_power<decltype(Pxy2[0] * 1_Hz)>);
         REQUIRE(almost_equal(f2, {0., 0.1, 0.2, 0.3, 0.4, 0.5}));
         // print(Pxy2);
@@ -736,7 +741,7 @@ TEST_CASE("coherence") {
         const auto y = linspace(10.0, 100.0, 50);
 
         const auto [f, Cxx] =
-            Spectrum{}.window(windows::Bartlett, 13).coherence(x, x);
+            Spectrum{}.window(windows::Window::Bartlett, 13).coherence(x, x);
         REQUIRE(almost_equal<4>(f,
                                 {0.,
                                  0.0769230769230769,
@@ -749,7 +754,7 @@ TEST_CASE("coherence") {
         REQUIRE(almost_equal<16>(Cxx, ones<double>(f.size())));
 
         const auto [_, Cxy] =
-            Spectrum{}.window(windows::Bartlett, 13).coherence(x, y);
+            Spectrum{}.window(windows::Window::Bartlett, 13).coherence(x, y);
         // print(Cxy);
         REQUIRE(almost_equal<12>(Cxy,
                                  {0.0249133674714442,
@@ -771,7 +776,7 @@ TEST_CASE("coherence") {
         y[8] = 1.0 + 2.0i;
 
         const auto [f, Cxy] =
-            Spectrum{}.window(windows::Flattop, 5).coherence(x, y);
+            Spectrum{}.window(windows::Window::Flattop, 5).coherence(x, y);
         REQUIRE(almost_equal(f, {0., 0.2, 0.4, -0.4, -0.2}));
         // print(Cxy);
         REQUIRE(almost_equal<6>(Cxy,
@@ -794,7 +799,7 @@ TEST_CASE("tfestimate") {
     SECTION("real signals") {
         const auto x = linspace(1.0, 10.0, 50);
         const auto [f, Txx] =
-            Spectrum{}.window(windows::Bartlett, 13).tfestimate(x, x);
+            Spectrum{}.window(windows::Window::Bartlett, 13).tfestimate(x, x);
         // print(f);
         REQUIRE(almost_equal<4>(f,
                                 {0.,
@@ -832,8 +837,10 @@ TEST_CASE("csd parallel") {
     SECTION("Different data real same size") {
         const auto x = linspace(1.0, 10.0, 100);
         const auto y = linspace(10.0, 100.0, 100);
-        const auto [f, Pxy] =
-            Spectrum{}.window(windows::Hamming, 15).nthreads(2).csd(x, y);
+        const auto [f, Pxy] = Spectrum{}
+                                  .window(windows::Window::Hamming, 15)
+                                  .nthreads(2)
+                                  .csd(x, y);
 
         // print(f);
         REQUIRE(almost_equal<4>(f,
@@ -867,8 +874,10 @@ TEST_CASE("csd parallel") {
         y[0] = 3.0 - 4.0i;
         y[8] = 1.0 + 2.0i;
 
-        const auto [f1, Pxy1] =
-            Spectrum{}.window(windows::Bartlett, 13).nthreads(2).csd(y, x);
+        const auto [f1, Pxy1] = Spectrum{}
+                                    .window(windows::Window::Bartlett, 13)
+                                    .nthreads(2)
+                                    .csd(y, x);
         REQUIRE(almost_equal<4>(f1,
                                 {0.,
                                  0.0769230769230769,

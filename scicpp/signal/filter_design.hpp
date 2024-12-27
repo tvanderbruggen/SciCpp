@@ -20,7 +20,7 @@ namespace scicpp::signal {
 // unique_roots
 //---------------------------------------------------------------------------------
 
-enum UniqueRootsRtype : int { MAX, MIN, AVG };
+enum class Rtype : int { MAX, MIN, AVG };
 
 namespace detail {
 
@@ -48,7 +48,7 @@ auto apply_permutation(const std::vector<T> &vec,
 
 } // namespace detail
 
-template <UniqueRootsRtype rtype, typename Array, typename T>
+template <Rtype rtype, typename Array, typename T>
 auto unique_roots(const Array &p, T tol = 1E-3) {
     static_assert(meta::is_iterable_v<Array>);
 
@@ -71,11 +71,11 @@ auto unique_roots(const Array &p, T tol = 1E-3) {
         }
 
         if (!tmp.empty()) {
-            if constexpr (rtype == MAX) {
+            if constexpr (rtype == Rtype::MAX) {
                 uniq.push_back(stats::amax(tmp));
-            } else if constexpr (rtype == MIN) {
+            } else if constexpr (rtype == Rtype::MIN) {
                 uniq.push_back(stats::amin(tmp));
-            } else if constexpr (rtype == AVG) {
+            } else if constexpr (rtype == Rtype::AVG) {
                 uniq.push_back(stats::mean(tmp));
             }
 

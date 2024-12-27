@@ -16,8 +16,10 @@ namespace scicpp::signal::windows {
 TEST_CASE("Boxcar") {
     REQUIRE(almost_equal(boxcar<double>(4), {1., 1., 1., 1.}));
     REQUIRE(almost_equal(boxcar<double, 4>(), {1., 1., 1., 1.}));
-    REQUIRE(almost_equal(boxcar<double, Periodic>(4), {1., 1., 1., 1.}));
-    REQUIRE(almost_equal(boxcar<double, 4, Periodic>(), {1., 1., 1., 1.}));
+    REQUIRE(
+        almost_equal(boxcar<double, Symmetry::Periodic>(4), {1., 1., 1., 1.}));
+    REQUIRE(almost_equal(boxcar<double, 4, Symmetry::Periodic>(),
+                         {1., 1., 1., 1.}));
 }
 
 TEST_CASE("Bartlett") {
@@ -29,9 +31,9 @@ TEST_CASE("Bartlett") {
     SECTION("Odd size") {
         REQUIRE(almost_equal<2>(bartlett<double>(5), {0., 0.5, 1., 0.5, 0.}));
         REQUIRE(almost_equal<2>(bartlett<double, 5>(), {0., 0.5, 1., 0.5, 0.}));
-        REQUIRE(almost_equal<4>(bartlett<double, Periodic>(5),
+        REQUIRE(almost_equal<4>(bartlett<double, Symmetry::Periodic>(5),
                                 {0., 0.4, 0.8, 0.8, 0.4}));
-        REQUIRE(almost_equal<4>(bartlett<double, 5, Periodic>(),
+        REQUIRE(almost_equal<4>(bartlett<double, 5, Symmetry::Periodic>(),
                                 {0., 0.4, 0.8, 0.8, 0.4}));
     }
 
@@ -40,8 +42,8 @@ TEST_CASE("Bartlett") {
             almost_equal<2>(bartlett<double>(4), {0., 2. / 3., 2. / 3., 0.}));
         REQUIRE(
             almost_equal<2>(bartlett<double, 4>(), {0., 2. / 3., 2. / 3., 0.}));
-        print(bartlett<double, 4, Periodic>());
-        REQUIRE(almost_equal<4>(bartlett<double, 4, Periodic>(),
+        print(bartlett<double, 4, Symmetry::Periodic>());
+        REQUIRE(almost_equal<4>(bartlett<double, 4, Symmetry::Periodic>(),
                                 {0., 0.5, 1., 0.5}));
     }
 }
@@ -69,13 +71,13 @@ TEST_CASE("Cosine") {
                                  1.,
                                  0.8090169943749475,
                                  0.3090169943749474}));
-        REQUIRE(almost_equal<16>(cosine<double, Periodic>(5),
+        REQUIRE(almost_equal<16>(cosine<double, Symmetry::Periodic>(5),
                                  {0.2588190451025207,
                                   0.7071067811865475,
                                   0.9659258262890682,
                                   0.9659258262890683,
                                   0.7071067811865476}));
-        REQUIRE(almost_equal<16>(cosine<double, 5, Periodic>(),
+        REQUIRE(almost_equal<16>(cosine<double, 5, Symmetry::Periodic>(),
                                  {0.2588190451025207,
                                   0.7071067811865475,
                                   0.9659258262890682,
@@ -95,10 +97,10 @@ TEST_CASE("Cosine") {
                                  0.9238795325112867,
                                  0.3826834323650898}));
         REQUIRE(almost_equal<16>(
-            cosine<double, Periodic>(4),
+            cosine<double, Symmetry::Periodic>(4),
             {0.3090169943749474, 0.8090169943749475, 1., 0.8090169943749475}));
         REQUIRE(almost_equal<16>(
-            cosine<double, 4, Periodic>(),
+            cosine<double, 4, Symmetry::Periodic>(),
             {0.3090169943749474, 0.8090169943749475, 1., 0.8090169943749475}));
     }
 }
@@ -115,7 +117,7 @@ TEST_CASE("bohman") {
             bohman<double>(5),
             {0., 0.3183098861837907, 1., 0.3183098861837907, 0.}));
         // print(bohman<double, Periodic>(7));
-        REQUIRE(almost_equal<16>(bohman<double, Periodic>(7),
+        REQUIRE(almost_equal<16>(bohman<double, Symmetry::Periodic>(7),
                                  {0.,
                                   0.0707247468110934,
                                   0.4374840121676052,
@@ -132,7 +134,7 @@ TEST_CASE("bohman") {
                             {0., 0.6089977810442293, 0.6089977810442295, 0.}));
         // print(bohman<double, 4, Periodic>());
         REQUIRE(
-            almost_equal<8>(bohman<double, 4, Periodic>(),
+            almost_equal<8>(bohman<double, 4, Symmetry::Periodic>(),
                             {0., 0.3183098861837907, 1., 0.3183098861837907}));
     }
 }
@@ -146,15 +148,17 @@ TEST_CASE("Hann") {
     REQUIRE(hann<double, 0>().empty());
     REQUIRE(almost_equal<4>(hann<double>(4), {0., 0.75, 0.75, 0.}));
     REQUIRE(almost_equal<4>(hann<double, 4>(), {0., 0.75, 0.75, 0.}));
-    REQUIRE(almost_equal<4>(hann<double, Periodic>(4), {0., 0.5, 1., 0.5}));
-    REQUIRE(almost_equal<4>(hann<double, 4, Periodic>(), {0., 0.5, 1., 0.5}));
-    REQUIRE(almost_equal<4>(hann<double, 5, Periodic>(),
+    REQUIRE(almost_equal<4>(hann<double, Symmetry::Periodic>(4),
+                            {0., 0.5, 1., 0.5}));
+    REQUIRE(almost_equal<4>(hann<double, 4, Symmetry::Periodic>(),
+                            {0., 0.5, 1., 0.5}));
+    REQUIRE(almost_equal<4>(hann<double, 5, Symmetry::Periodic>(),
                             {0.,
                              0.3454915028125263,
                              0.9045084971874737,
                              0.9045084971874737,
                              0.3454915028125263}));
-    REQUIRE(almost_equal<4>(hann<double, Periodic>(5),
+    REQUIRE(almost_equal<4>(hann<double, Symmetry::Periodic>(5),
                             {0.,
                              0.3454915028125263,
                              0.9045084971874737,
@@ -167,11 +171,11 @@ TEST_CASE("Hamming") {
     REQUIRE(hamming<double, 0>().empty());
     REQUIRE(almost_equal<8>(hamming<double>(4), {0.08, 0.77, 0.77, 0.08}));
     REQUIRE(almost_equal<8>(hamming<double, 4>(), {0.08, 0.77, 0.77, 0.08}));
-    REQUIRE(almost_equal<8>(hamming<double, 4, Periodic>(),
+    REQUIRE(almost_equal<8>(hamming<double, 4, Symmetry::Periodic>(),
                             {0.08, 0.54, 1., 0.54}));
-    REQUIRE(
-        almost_equal<8>(hamming<double, Periodic>(4), {0.08, 0.54, 1., 0.54}));
-    REQUIRE(almost_equal<8>(hamming<double, Periodic>(5),
+    REQUIRE(almost_equal<8>(hamming<double, Symmetry::Periodic>(4),
+                            {0.08, 0.54, 1., 0.54}));
+    REQUIRE(almost_equal<8>(hamming<double, Symmetry::Periodic>(5),
                             {0.08,
                              0.3978521825875243,
                              0.9121478174124759,
@@ -184,17 +188,17 @@ TEST_CASE("Blackman") {
     REQUIRE(blackman<double, 0>().empty());
     REQUIRE(almost_equal<4>(blackman<double>(4), {0., 0.63, 0.63, 0.}));
     REQUIRE(almost_equal<4>(blackman<double, 4>(), {0., 0.63, 0.63, 0.}));
-    REQUIRE(almost_equal<4>(blackman<double, 4, Periodic>(),
+    REQUIRE(almost_equal<4>(blackman<double, 4, Symmetry::Periodic>(),
                             {-1.3877787807814457e-17,
                              3.4000000000000002e-01,
                              9.9999999999999989e-01,
                              3.4000000000000002e-01}));
-    REQUIRE(almost_equal<4>(blackman<double, Periodic>(4),
+    REQUIRE(almost_equal<4>(blackman<double, Symmetry::Periodic>(4),
                             {-1.3877787807814457e-17,
                              3.4000000000000002e-01,
                              9.9999999999999989e-01,
                              3.4000000000000002e-01}));
-    REQUIRE(almost_equal<4>(blackman<double, 5, Periodic>(),
+    REQUIRE(almost_equal<4>(blackman<double, 5, Symmetry::Periodic>(),
                             {-1.3877787807814457e-17,
                              2.0077014326253051e-01,
                              8.4922985673746942e-01,
@@ -215,17 +219,17 @@ TEST_CASE("Nuttall") {
                              0.5292298000000004166,
                              0.5292298000000004166,
                              0.0003628000000000381}));
-    REQUIRE(almost_equal<4>(nuttall<double, 4, Periodic>(),
+    REQUIRE(almost_equal<4>(nuttall<double, 4, Symmetry::Periodic>(),
                             {3.6280000000003809e-04,
                              2.2698240000000006e-01,
                              1.0000000000000000e+00,
                              2.2698240000000006e-01}));
-    REQUIRE(almost_equal<4>(nuttall<double, Periodic>(4),
+    REQUIRE(almost_equal<4>(nuttall<double, Symmetry::Periodic>(4),
                             {3.6280000000003809e-04,
                              2.2698240000000006e-01,
                              1.0000000000000000e+00,
                              2.2698240000000006e-01}));
-    REQUIRE(almost_equal<4>(nuttall<double, 5, Periodic>(),
+    REQUIRE(almost_equal<4>(nuttall<double, 5, Symmetry::Periodic>(),
                             {3.6280000000003809e-04,
                              1.1051525304987181e-01,
                              7.9825809695012828e-01,
@@ -246,7 +250,7 @@ TEST_CASE("Blackman-Harris") {
                              0.5205750000000002320,
                              0.5205750000000002320,
                              6.0000000000001025E-5}));
-    REQUIRE(almost_equal<4>(blackmanharris<double, 5, Periodic>(),
+    REQUIRE(almost_equal<4>(blackmanharris<double, 5, Symmetry::Periodic>(),
                             {6.0000000000001025e-05,
                              1.0301148934566379e-01,
                              7.9383351065433627e-01,
@@ -262,7 +266,7 @@ TEST_CASE("Flat-top") {
                           0.1982105300000003567,
                           0.1982105300000003567,
                           -0.0004210510000000013}));
-    REQUIRE(almost_equal<4>(flattop<double, 5, Periodic>(),
+    REQUIRE(almost_equal<4>(flattop<double, 5, Symmetry::Periodic>(),
                             {-4.210510000000013e-04,
                              -6.771425207621193e-02,
                              6.068721525762120e-01,
@@ -295,7 +299,7 @@ TEST_CASE("Gaussian") {
                               0.8824969025845955,
                               0.6065306597126334}));
 
-        REQUIRE(almost_equal<4>(gaussian<double, 5, Periodic>(2.),
+        REQUIRE(almost_equal<4>(gaussian<double, 5, Symmetry::Periodic>(2.),
                                 {0.4578333617716143,
                                  0.7548396019890073,
                                  0.9692332344763441,
@@ -342,12 +346,13 @@ TEST_CASE("General Gaussian") {
                               1.,
                               0.96491594437237,
                               0.9310627797040227}));
-        REQUIRE(almost_equal(general_gaussian<double, 5, Periodic>(0.5, 14.0),
-                             {0.9145842264619389,
-                              0.9478382358546584,
-                              0.9823013510997377,
-                              0.9823013510997377,
-                              0.9478382358546584}));
+        REQUIRE(almost_equal(
+            general_gaussian<double, 5, Symmetry::Periodic>(0.5, 14.0),
+            {0.9145842264619389,
+             0.9478382358546584,
+             0.9823013510997377,
+             0.9823013510997377,
+             0.9478382358546584}));
     }
 
     SECTION("Even size") {
@@ -356,13 +361,14 @@ TEST_CASE("General Gaussian") {
                               0.9823013510997377,
                               0.9823013510997377,
                               0.9478382358546584}));
-        REQUIRE(almost_equal(general_gaussian<double, 6, Periodic>(0.5, 14.0),
-                             {0.898397321348071,
-                              0.9310627797040227,
-                              0.96491594437237,
-                              1.,
-                              0.96491594437237,
-                              0.9310627797040227}));
+        REQUIRE(almost_equal(
+            general_gaussian<double, 6, Symmetry::Periodic>(0.5, 14.0),
+            {0.898397321348071,
+             0.9310627797040227,
+             0.96491594437237,
+             1.,
+             0.96491594437237,
+             0.9310627797040227}));
     }
 }
 
@@ -390,7 +396,7 @@ TEST_CASE("Kaiser") {
                                   1.0000000000000000e+00,
                                   1.6493218754795197e-01,
                                   7.7268668352703676e-06}));
-        REQUIRE(almost_equal<16>(kaiser<double, 5, Periodic>(14.0),
+        REQUIRE(almost_equal<16>(kaiser<double, 5, Symmetry::Periodic>(14.0),
                                  {7.726866835270368e-06,
                                   6.815374319396057e-02,
                                   7.615093990873935e-01,
@@ -431,10 +437,10 @@ TEST_CASE("parzen") {
 
     SECTION("Odd size") {
         // print(parzen<double>(5));
-        // print(parzen<double, 5, Periodic>());
+        // print(parzen<double, 5, Symmetry::Periodic>());
         REQUIRE(almost_equal<10>(parzen<double>(5),
                                  {0.016, 0.424, 1., 0.424, 0.016}));
-        REQUIRE(almost_equal<50>(parzen<double, 5, Periodic>(),
+        REQUIRE(almost_equal<50>(parzen<double, 5, Symmetry::Periodic>(),
                                  {0.0092592592592593,
                                   0.25,
                                   0.8611111111111111,
@@ -458,7 +464,7 @@ TEST_CASE("parzen") {
                                   0.47265625,
                                   0.10546875,
                                   0.00390625}));
-        REQUIRE(almost_equal<50>(parzen<double, 8, Periodic>(),
+        REQUIRE(almost_equal<50>(parzen<double, 8, Symmetry::Periodic>(),
                                  {0.0027434842249657,
                                   0.0740740740740741,
                                   0.3415637860082303,
@@ -489,7 +495,7 @@ TEST_CASE("lanczos") {
                                   1.0,
                                   6.3661977236758138e-01,
                                   3.8981718325193755e-17}));
-        REQUIRE(almost_equal<10>(lanczos<double, 5, Periodic>(),
+        REQUIRE(almost_equal<10>(lanczos<double, 5, Symmetry::Periodic>(),
                                  {3.8981718325193755e-17,
                                   5.0455115242710458e-01,
                                   9.3548928378863905e-01,
@@ -499,13 +505,13 @@ TEST_CASE("lanczos") {
 
     SECTION("Even size") {
         // print(lanczos<double>(4));
-        // print(lanczos<double, 4, Periodic>());
+        // print(lanczos<double, 4, Symmetry::Periodic>());
         REQUIRE(almost_equal<10>(lanczos<double>(4),
                                  {3.8981718325193755e-17,
                                   8.2699334313268824e-01,
                                   8.2699334313268824e-01,
                                   3.8981718325193755e-17}));
-        REQUIRE(almost_equal<10>(lanczos<double, 4, Periodic>(),
+        REQUIRE(almost_equal<10>(lanczos<double, 4, Symmetry::Periodic>(),
                                  {3.8981718325193755e-17,
                                   6.3661977236758138e-01,
                                   1.0,
@@ -524,12 +530,12 @@ TEST_CASE("tukey") {
     }
 
     SECTION("Odd size") {
-        // print(tukey<double, Periodic>(21, 0.05));
-        // print(tukey<double, 5, Periodic>());
+        // print(tukey<double, Symmetry::Periodic>(21, 0.05));
+        // print(tukey<double, 5, Symmetry::Periodic>());
 
         REQUIRE(almost_equal(tukey<double>(5), {0., 1., 1., 1., 0.}));
         REQUIRE(almost_equal<20>(
-            tukey<double, 5, Periodic>(),
+            tukey<double, 5, Symmetry::Periodic>(),
             {0., 0.9045084971874737, 1., 1., 0.9045084971874735}));
 
         REQUIRE(almost_equal<20>(tukey<double>(15),
@@ -558,7 +564,7 @@ TEST_CASE("tukey") {
                                   0.9330127018922193,
                                   0.3705904774487395,
                                   0.}));
-        REQUIRE(almost_equal<20>(tukey<double, Periodic>(7, 0.8),
+        REQUIRE(almost_equal<20>(tukey<double, Symmetry::Periodic>(7, 0.8),
                                  {0.,
                                   0.283058130441221,
                                   0.8117449009293668,
@@ -567,7 +573,7 @@ TEST_CASE("tukey") {
                                   0.8117449009293667,
                                   0.283058130441221}));
 
-        REQUIRE(almost_equal<100>(tukey<double, Periodic>(21, 0.95),
+        REQUIRE(almost_equal<100>(tukey<double, Symmetry::Periodic>(21, 0.95),
                                   {0.,
                                    0.0245935440677855,
                                    0.0959548066318853,
@@ -590,7 +596,7 @@ TEST_CASE("tukey") {
                                    0.0959548066318853,
                                    0.0245935440677852}));
 
-        REQUIRE(almost_equal(tukey<double, Periodic>(21, 0.05),
+        REQUIRE(almost_equal(tukey<double, Symmetry::Periodic>(21, 0.05),
                              {0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
                               1., 1., 1., 1., 1., 1., 1., 1., 1., 1.}));
     }
@@ -600,7 +606,8 @@ TEST_CASE("tukey") {
         // print(tukey<double>(12, 0.9));
 
         REQUIRE(almost_equal(tukey<double>(4), {0., 1., 1., 0.}));
-        REQUIRE(almost_equal(tukey<double, Periodic>(4), {0., 1., 1., 1.}));
+        REQUIRE(almost_equal(tukey<double, Symmetry::Periodic>(4),
+                             {0., 1., 1., 1.}));
         REQUIRE(almost_equal<50>(tukey<double>(12, 0.9),
                                  {0.,
                                   0.0973648712344707,
@@ -615,7 +622,7 @@ TEST_CASE("tukey") {
                                   0.0973648712344707,
                                   0.}));
 
-        REQUIRE(almost_equal<50>(tukey<double, Periodic>(12, 0.9),
+        REQUIRE(almost_equal<50>(tukey<double, Symmetry::Periodic>(12, 0.9),
                                  {0.,
                                   0.0822560942935319,
                                   0.3019601169804218,
@@ -630,7 +637,7 @@ TEST_CASE("tukey") {
                                   0.0822560942935321}));
         REQUIRE(almost_equal(tukey<double, 8>(0.2),
                              {0., 1., 1., 1., 1., 1., 1., 0.}));
-        REQUIRE(almost_equal(tukey<double, 8, Periodic>(0.2),
+        REQUIRE(almost_equal(tukey<double, 8, Symmetry::Periodic>(0.2),
                              {0., 1., 1., 1., 1., 1., 1., 1.}));
     }
 }
@@ -641,8 +648,9 @@ TEST_CASE("tukey") {
 
 TEST_CASE("get_window") {
     SECTION("std::array") {
-        REQUIRE(almost_equal<4>(get_window<Hann, 4>(), {0., 0.75, 0.75, 0.}));
-        REQUIRE(almost_equal(get_window<Nuttall, 4>(),
+        REQUIRE(almost_equal<4>(get_window<Window::Hann, 4>(),
+                                {0., 0.75, 0.75, 0.}));
+        REQUIRE(almost_equal(get_window<Window::Nuttall, 4>(),
                              {0.0003628000000000381,
                               0.5292298000000004166,
                               0.5292298000000004166,
@@ -650,8 +658,9 @@ TEST_CASE("get_window") {
     }
 
     SECTION("std::vector") {
-        REQUIRE(almost_equal<4>(get_window(Hann, 4), {0., 0.75, 0.75, 0.}));
-        REQUIRE(almost_equal(get_window(Nuttall, 4),
+        REQUIRE(
+            almost_equal<4>(get_window(Window::Hann, 4), {0., 0.75, 0.75, 0.}));
+        REQUIRE(almost_equal(get_window(Window::Nuttall, 4),
                              {0.0003628000000000381,
                               0.5292298000000004166,
                               0.5292298000000004166,

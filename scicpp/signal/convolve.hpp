@@ -20,7 +20,7 @@
 
 namespace scicpp::signal {
 
-enum ConvMethod : int { DIRECT, FFT };
+enum class ConvMethod : int { DIRECT, FFT };
 
 //---------------------------------------------------------------------------------
 // direct_convolve
@@ -115,7 +115,7 @@ constexpr auto convolve(const U &a, const V &v) {
     static_assert(
         std::is_same_v<typename U::value_type, typename V::value_type>);
 
-    if constexpr (method == DIRECT) {
+    if constexpr (method == ConvMethod::DIRECT) {
         return detail::direct_convolve(a, v);
     } else {
         return fftconvolve(a, v);
@@ -124,7 +124,7 @@ constexpr auto convolve(const U &a, const V &v) {
 
 template <class U, class V>
 constexpr auto convolve(const U &a, const V &v) {
-    return convolve<DIRECT>(a, v);
+    return convolve<ConvMethod::DIRECT>(a, v);
 }
 
 //---------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ constexpr auto correlate(const U &a, const V &v) {
 
 template <class U, class V>
 constexpr auto correlate(const U &a, const V &v) {
-    return correlate<DIRECT>(a, v);
+    return correlate<ConvMethod::DIRECT>(a, v);
 }
 
 } // namespace scicpp::signal

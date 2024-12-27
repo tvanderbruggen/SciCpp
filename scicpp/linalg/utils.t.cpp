@@ -5,6 +5,7 @@
 
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/macros.hpp"
 #include "scicpp/core/units/quantity.hpp"
 
 namespace scicpp::linalg {
@@ -13,7 +14,7 @@ TEST_CASE("std::vector to Eigen::Matrix") {
     SECTION("Full size") {
         const std::vector v{1., 2., 3.};
         const auto m = to_eigen_matrix(v);
-        REQUIRE(m.size() == v.size());
+        REQUIRE(m.size() == signed_size_t(v.size()));
         Eigen::Matrix<double, Eigen::Dynamic, 1> m_(3);
         m_(0) = 1.;
         m_(1) = 2.;

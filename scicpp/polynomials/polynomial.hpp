@@ -160,7 +160,7 @@ auto polymul(const U &P1, const V &P2) {
 // Specialization for the default convolution method
 template <class U, class V>
 auto polymul(const U &P1, const V &P2) {
-    return polymul<signal::DIRECT>(P1, P2);
+    return polymul<signal::ConvMethod::DIRECT>(P1, P2);
 }
 
 //---------------------------------------------------------------------------------
@@ -317,7 +317,7 @@ auto polypow(const std::vector<T> &P, std::size_t pow) {
 // Specialization for the default convolution method (DIRECT)
 template <typename T>
 auto polypow(const std::vector<T> &P, std::size_t pow) {
-    return polypow<signal::DIRECT>(P, pow);
+    return polypow<signal::ConvMethod::DIRECT>(P, pow);
 }
 
 //---------------------------------------------------------------------------------

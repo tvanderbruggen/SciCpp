@@ -22,8 +22,8 @@
 
 namespace scicpp::signal {
 
-enum PadType : int { EVEN, ODD, CONSTANT, NONE };
-// enum METHOD : int { PAD, GUST };
+enum class PadType : int { EVEN, ODD, CONSTANT, NONE };
+// enum class METHOD : int { PAD, GUST };
 
 namespace detail {
 

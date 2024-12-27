@@ -79,7 +79,7 @@ struct csdplot : sciplot::Plot2D {
 
 } // namespace detail
 
-enum SpectrumPlotScale : int { LINEAR, DECIBEL };
+enum class SpectrumPlotScale : int { LINEAR, DECIBEL };
 
 template <signal::SpectrumScaling scaling = signal::DENSITY,
           SpectrumPlotScale plot_scale = DECIBEL,

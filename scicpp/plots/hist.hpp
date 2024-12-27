@@ -15,7 +15,7 @@
 
 namespace scicpp::plots {
 
-enum HistType : int { BAR, BARSTACKED, STEP, STEPFILLED };
+enum class HistType : int { BAR, BARSTACKED, STEP, STEPFILLED };
 
 namespace detail {
 
