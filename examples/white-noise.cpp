@@ -15,7 +15,7 @@ int main() {
            sci::stats::std(noise));
 
     const auto [f, psd] = sci::signal::Spectrum{}
-                              .window(sci::signal::windows::Flattop, 2000)
+                              .window(sci::signal::windows::Window::Flattop, 2000)
                               .welch(noise);
 
     // The expected PSD for a white noise is 2 * sigma ^ 2
