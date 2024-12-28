@@ -53,6 +53,19 @@ auto validate_pad(const Array &x,
     }
 }
 
+template <typename Array1, typename Array2>
+auto zfill(Array1 &b, Array2 &a) {
+    const auto n = std::max(a.size(), b.size());
+
+    if (a.size() < n) {
+        a.resize(n);
+    } else if (b.size() < n) {
+        b.resize(n);
+    }
+
+    return n;
+}
+
 } // namespace detail
 
 // ----------------------------------------------------------------------------
@@ -110,13 +123,7 @@ auto lfilter_zi(const Array1 &b, const Array2 &a) {
         a_ = std::move(a_) / a_[0];
     }
 
-    const auto n = std::max(a_.size(), b_.size());
-
-    if (a_.size() < n) {
-        a_.resize(n);
-    } else if (b.size() < n) {
-        b_.resize(n);
-    }
+    const auto n = detail::zfill(a_, b_);
 
     auto A = linalg::companion(a_);
     auto B = b_ - std::move(a_) * b_[0];
@@ -129,11 +136,28 @@ auto lfilter_zi(const Array1 &b, const Array2 &a) {
 // lfilter
 // ----------------------------------------------------------------------------
 
+namespace detail {
+
+template <typename A, typename B, typename U, typename V, typename W>
+auto lfilter_impl(
+    const A &a, const B &b, const U &x, V &y, W &Z, std::size_t nfilt) {
+    for (std::size_t k = 0; k < x.size(); k++) {
+        y[k] = Z[0] + b[0] / a[0] * x[k];
+
+        for (std::size_t n = 0; n < nfilt - 2; n++) {
+            Z[n] = Z[n + 1] + x[k] * b[n + 1] / a[0] - y[k] * a[n + 1] / a[0];
+        }
+
+        Z.back() = x[k] * b[nfilt - 1] / a[0] - y[k] * a[nfilt - 1] / a[0];
+    }
+}
+
+} // namespace detail
+
 template <typename T>
 auto lfilter(const std::vector<T> &b,
              const std::vector<T> &a,
-             const std::vector<T> &x,
-             [[maybe_unused]] const std::vector<T> &zi = empty<T>()) {
+             const std::vector<T> &x) {
     using namespace operators;
     scicpp_require(!almost_equal(a[0], T(0)));
     scicpp_require(!x.empty());
@@ -145,31 +169,42 @@ auto lfilter(const std::vector<T> &b,
     } else {
         auto a_ = a;
         auto b_ = b;
-
-        const auto nfilt = std::max(a_.size(), b_.size());
-
-        if (a_.size() < nfilt) {
-            a_.resize(nfilt);
-        } else if (b.size() < nfilt) {
-            b_.resize(nfilt);
-        }
-
+        const auto nfilt = detail::zfill(a_, b_);
         auto y = zeros<T>(x.size());
         auto Z = zeros<T>(nfilt - 1);
+        detail::lfilter_impl(a_, b_, x, y, Z, nfilt);
+        return y;
+    }
+}
 
-        for (std::size_t k = 0; k < x.size(); k++) {
-            y[k] = Z[0] + b_[0] / a_[0] * x[k];
+template <typename T>
+auto lfilter(const std::vector<T> &b,
+             const std::vector<T> &a,
+             const std::vector<T> &x,
+             const std::vector<T> &zi) {
+    using namespace operators;
+    scicpp_require(!almost_equal(a[0], T(0)));
+    scicpp_require(!x.empty());
+    scicpp_require(zi.size() == std::max(a.size(), b.size()) - 1);
 
-            for (std::size_t n = 0; n < nfilt - 2; n++) {
-                Z[n] = Z[n + 1] + x[k] * b_[n + 1] / a_[0] -
-                       y[k] * a_[n + 1] / a_[0];
-            }
+    if (a.size() == 1) {
+        auto out = convolve(b / a[0], x);
+        std::vector<T> zf(out.end() - signed_size_t(b.size()) + 1, out.end());
+        out.resize(out.size() - b.size() + 1);
 
-            Z.back() =
-                x[k] * b_[nfilt - 1] / a_[0] - y[k] * a_[nfilt - 1] / a_[0];
+        for (std::size_t k = 0; k < zi.size(); ++k) {
+            out[k] += zi[k];
         }
 
-        return y;
+        return std::tuple{out, zf};
+    } else {
+        auto a_ = a;
+        auto b_ = b;
+        const auto nfilt = detail::zfill(a_, b_);
+        auto y = zeros<T>(x.size());
+        auto Z = zi;
+        detail::lfilter_impl(a_, b_, x, y, Z, nfilt);
+        return std::tuple{y, Z};
     }
 }
 

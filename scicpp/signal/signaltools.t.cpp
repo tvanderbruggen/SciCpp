@@ -85,7 +85,7 @@ TEST_CASE("lfilter") {
         const auto b = std::vector{10., 20., 30.};
         const auto x = linspace(0., 100., 20);
         const auto y = lfilter(b, a, x);
-        print(y);
+        // print(y);
         REQUIRE(almost_equal<2>(y,
                                 {0.,
                                  52.631578947368425,
@@ -114,7 +114,7 @@ TEST_CASE("lfilter") {
         const auto b = std::vector{10., 20., 30.};
         const auto x = linspace(1., 10., 5);
         const auto y = lfilter(b, a, x);
-        print(y);
+        // print(y);
         REQUIRE(almost_equal<2>(y, {1.25, 6.5625, 18.75, 35.625, 52.5}));
     }
 
@@ -123,7 +123,7 @@ TEST_CASE("lfilter") {
         const auto b = std::vector{8.};
         const auto x = linspace(1., 10., 5);
         const auto y = lfilter(b, a, x);
-        print(y);
+        // print(y);
         REQUIRE(almost_equal<2>(
             y, {8., -5.400e+01, -2.160e+02, 7.622e+03, -5.454e+04}));
     }
@@ -133,28 +133,65 @@ TEST_CASE("lfilter") {
         const auto b = std::vector{10., 20., 30.};
         const auto x = linspace(0.0, 100.0, 20);
         const auto y = lfilter(b, a, x);
-        print(y);
-        REQUIRE(almost_equal<10>(y,
-                                 {0.,
-                                  5.2631578947368425e+01,
-                                  -3.1578947368421052e+02,
-                                  -1.5789473684210541e+03,
-                                  -4.4210526315789357e+03,
-                                  5.1905263157894736e+05,
-                                  -3.1679999999999995e+06,
-                                  -1.5802421052631602e+07,
-                                  -4.4226315789473481e+07,
-                                  5.1905076842105255e+09,
-                                  -3.1680021473684204e+10,
-                                  -1.5802423484210544e+11,
-                                  -4.4226318505262958e+11,
-                                  5.1905076812105258e+13,
-                                  -3.1680021476968419e+14,
-                                  -1.5802423484567385e+15,
-                                  -4.4226318505648220e+15,
-                                  5.1905076812101120e+17,
-                                  -3.1680021476968858e+18,
-                                  -1.5802423484567446e+19}));
+        // print(y);
+        REQUIRE(almost_equal<2>(y,
+                                {0.,
+                                 5.2631578947368425e+01,
+                                 -3.1578947368421052e+02,
+                                 -1.5789473684210541e+03,
+                                 -4.4210526315789357e+03,
+                                 5.1905263157894736e+05,
+                                 -3.1679999999999995e+06,
+                                 -1.5802421052631602e+07,
+                                 -4.4226315789473481e+07,
+                                 5.1905076842105255e+09,
+                                 -3.1680021473684204e+10,
+                                 -1.5802423484210544e+11,
+                                 -4.4226318505262958e+11,
+                                 5.1905076812105258e+13,
+                                 -3.1680021476968419e+14,
+                                 -1.5802423484567385e+15,
+                                 -4.4226318505648220e+15,
+                                 5.1905076812101120e+17,
+                                 -3.1680021476968858e+18,
+                                 -1.5802423484567446e+19}));
+    }
+
+    SECTION("std::vector 3") {
+        const auto a = std::vector{1., 10., 100.};
+        const auto b = std::vector{8., 16.};
+        const auto x = linspace(1., 10., 5);
+        const auto zi = ones<double>(2);
+        const auto [y, zf] = lfilter(b, a, x, zi);
+        // print(y);
+        // print(zf);
+        REQUIRE(almost_equal<2>(
+            y, {9., -4.7000e+01, -3.3400e+02, 8.1900e+03, -4.8296e+04}));
+        REQUIRE(almost_equal<2>(zf, {-335880., 4829600.}));
+    }
+
+    SECTION("std::vector 4") {
+        const auto a = std::vector{10.};
+        const auto b = std::vector{8., 16.};
+        const auto x = linspace(1., 10., 5);
+        const auto zi = ones<double>(1);
+        const auto [y, zf] = lfilter(b, a, x, zi);
+        // print(y);
+        // print(zf);
+        REQUIRE(almost_equal<2>(y, {1.8, 4.2, 9.600000000000001, 15., 20.4}));
+        REQUIRE(almost_equal<2>(zf, {16.}));
+    }
+
+    SECTION("std::vector 5") {
+        const auto a = std::vector{10.};
+        const auto b = std::vector{8., 16., 32.};
+        const auto x = linspace(1., 10., 5);
+        const auto zi = std::vector{2., 4.};
+        const auto [y, zf] = lfilter(b, a, x, zi);
+        // print(y);
+        // print(zf);
+        REQUIRE(almost_equal<2>(y, {2.8, 8.2, 12.8, 25.400000000000002, 38.}));
+        REQUIRE(almost_equal<2>(zf, {40.8, 32.}));
     }
 }
 

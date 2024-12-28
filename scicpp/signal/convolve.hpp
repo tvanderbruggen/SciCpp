@@ -5,6 +5,7 @@
 #define SCICPP_SIGNAL_CONVOLVE
 
 #include "scicpp/core/macros.hpp"
+#include "scicpp/core/manips.hpp"
 #include "scicpp/core/maths.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
@@ -133,13 +134,10 @@ constexpr auto convolve(const U &a, const V &v) {
 
 template <ConvMethod method, class U, class V>
 constexpr auto correlate(const U &a, const V &v) {
-    auto v_rev = utils::set_array(v);
-    std::reverse_copy(v.cbegin(), v.cend(), v_rev.begin());
-
     if constexpr (meta::is_complex_v<typename U::value_type>) {
-        return convolve<method>(a, conj(std::move(v_rev)));
+        return convolve<method>(a, conj(flip(v)));
     } else {
-        return convolve<method>(a, v_rev);
+        return convolve<method>(a, flip(v));
     }
 }
 
