@@ -1,20 +1,19 @@
 #ifndef SCICPP_SIGNAL_SIGNALTOOLS
 #define SCICPP_SIGNAL_SIGNALTOOLS
 
-#include "scicpp/core/macros.hpp"
-// #include "scicpp/core/maths.hpp"
 #include "scicpp/core/equal.hpp"
+#include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
+#include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/linalg/matrices.hpp"
 #include "scicpp/linalg/solve.hpp"
 #include "scicpp/signal/arraytools.hpp"
-// #include "scicpp/signal/convolve.hpp"
-
-#include "scicpp/core/print.hpp"
+#include "scicpp/signal/convolve.hpp"
 
 #include <Eigen/Dense>
+#include <array>
 #include <complex>
 #include <tuple>
 #include <vector>
@@ -54,99 +53,45 @@ auto validate_pad(const Array &x,
     }
 }
 
-// template <typename T>
-// void filt(std::vector<T> &b,
-//           std::vector<T> &a,
-//           const std::vector<T> &x,
-//           std::vector<T> &y,
-//           std::vector<T> &Z) {
-//     using namespace scicpp::operators;
-//     size_t len_b = b.size();
-//     size_t len_x = x.size();
-
-//     // Normalize the filter coefficients
-//     T a0 = a[0];
-//     b = b / a0;
-//     a = a / a0;
-
-//     for (size_t k = 0; k < len_x; k++) {
-//         if (len_b > 1) {
-//             y[k] = Z[0] + b[0] * x[k]; // Calculate first delay (output)
-
-//             // Fill in middle delays
-//             for (size_t n = 0; n < len_b - 2; n++) {
-//                 Z[n] = Z[n + 1] + x[k] * b[n + 1] - y[k] * a[n + 1];
-//             }
-
-//             // Calculate last delay
-//             Z[len_b - 2] = x[k] * b[len_b - 1] - y[k] * a[len_b - 1];
-//         } else {
-//             y[k] = x[k] * b[0];
-//         }
-//     }
-// }
-
-// template <typename T>
-// void zfill(const std::vector<T> &src, std::vector<T> &dst, size_t n) {
-//     dst.assign(n, T(0));
-//     std::copy_n(src.begin(), std::min(src.size(), n), dst.begin());
-// }
-
-// template <typename T>
-// auto _raw_filter(std::vector<T> &b,
-//                  std::vector<T> &a,
-//                  const std::vector<T> &x,
-//                  const std::vector<T> &zi) {
-//     size_t nfilt = std::max(a.size(), b.size());
-
-//     std::vector<T> azfilled(nfilt);
-//     std::vector<T> bzfilled(nfilt);
-//     std::vector<T> y(x.size(), 0.0);
-
-//     zfill(a, azfilled, nfilt);
-//     zfill(b, bzfilled, nfilt);
-
-//     std::vector<T> zfzfilled;
-
-//     if (!zi.empty()) {
-//         zfzfilled = zi;
-//     } else {
-//         zfzfilled.assign(nfilt - 1, T(0));
-//     }
-
-//     filt(bzfilled, azfilled, x, y, zfzfilled);
-
-//     return std::make_tuple(y, zfzfilled);
-// }
-// template <typename T>
-// auto _linear_filter(const std::vector<T>& b, const std::vector<T>& a, const std::vector<T>& x,
-//     std::vector<T> Vi, int axis = 0)
-// {
-//     size_t na, nb, zi_size;
-//     int input_flag = 0;
-
-//     if (a[0] == T{0}) throw std::invalid_argument("a[0] is 0.0");
-
-//     na = a.size();
-//     nb = b.size();
-
-//     zi_size = std::max(na, nb) - 1;
-
-//     std::vector<T> Vf(zi_size);
-
-//     return _raw_filter(b, a, x, Vi);
-// }
 } // namespace detail
 
 // ----------------------------------------------------------------------------
 // lfilter_zi
 // ----------------------------------------------------------------------------
 
+// Specialization for std::array.
+// Return a std::array but require a[0] != 0 for the size to be known at compile time.
+template <typename T, std::size_t N1, std::size_t N2>
+auto lfilter_zi(const std::array<T, N1> &b, const std::array<T, N2> &a) {
+    using namespace operators;
+
+    scicpp_require(!almost_equal(std::get<0>(a), T(0)) &&
+                   "lfilter_zi: Require a[0] != 0 for std::array");
+
+    constexpr auto N = std::max(N1, N2);
+    auto a_ = zeros<N, T>();
+    auto b_ = zeros<N, T>();
+    std::copy(a.begin(), a.end(), a_.begin());
+    std::copy(b.begin(), b.end(), b_.begin());
+
+    if (!almost_equal(std::get<0>(a_), T(1))) {
+        b_ = std::move(b_) / std::get<0>(a_);
+        a_ = std::move(a_) / std::get<0>(a_);
+    }
+
+    auto A = linalg::companion(a_);
+    auto tmp = b_ - std::move(a_) * std::get<0>(b_);
+    auto B = zeros<N - 1, T>();
+    std::copy(tmp.begin() + 1, tmp.end(), B.begin());
+    // Solve zi = A zi + B => (Id - A) zi = B
+    return linalg::lstsq(linalg::eye<T, N - 1>() - A.transpose(), B);
+}
+
 template <typename Array1, typename Array2>
 auto lfilter_zi(const Array1 &b, const Array2 &a) {
     using T = typename Array1::value_type;
     static_assert(std::is_same_v<T, typename Array2::value_type>);
-    using namespace scicpp::operators;
+    using namespace operators;
 
     std::size_t k = 0;
     while (k < a.size() && almost_equal(a[k], T(0))) {
@@ -174,26 +119,60 @@ auto lfilter_zi(const Array1 &b, const Array2 &a) {
     }
 
     auto A = linalg::companion(a_);
-    auto B = slice_array(b_ - std::move(a_) * b_[0], 1L, signed_size_t(n));
+    auto B = b_ - std::move(a_) * b_[0];
+    B.erase(B.begin());
     // Solve zi = A zi + B => (Id - A) zi = B
     return linalg::lstsq(linalg::eye<T>(n - 1) - A.transpose(), B);
 }
 
-// template <typename T>
-// auto lfilter(std::vector<T> &b,
-//              std::vector<T> &a,
-//              std::vector<T> &x,
-//              std::vector<T> zi,
-//              int axis = 0) {
-//     // check a == 1
-//     // using namespace scicpp::operators;
-//     // if (a.size() == 1) {
-//     //     b = b / a[0];
-//     //     auto out_full = map([=](auto k) { return convolve(b, k); }, x);
-//     // } else {
-//     // }
-//     return detail::_raw_filter(b, a, x, zi);
-// }
+// ----------------------------------------------------------------------------
+// lfilter
+// ----------------------------------------------------------------------------
+
+template <typename T>
+auto lfilter(const std::vector<T> &b,
+             const std::vector<T> &a,
+             const std::vector<T> &x,
+             [[maybe_unused]] const std::vector<T> &zi = empty<T>()) {
+    using namespace operators;
+    scicpp_require(!almost_equal(a[0], T(0)));
+    scicpp_require(!x.empty());
+
+    if (a.size() == 1) {
+        auto out = convolve(b / a[0], x);
+        out.resize(out.size() - b.size() + 1);
+        return out;
+    } else {
+        auto a_ = a;
+        auto b_ = b;
+
+        const auto nfilt = std::max(a_.size(), b_.size());
+
+        if (a_.size() < nfilt) {
+            a_.resize(nfilt);
+        } else if (b.size() < nfilt) {
+            b_.resize(nfilt);
+        }
+
+        auto y = zeros<T>(x.size());
+        auto Z = zeros<T>(nfilt - 1);
+
+        for (std::size_t k = 0; k < x.size(); k++) {
+            y[k] = Z[0] + b_[0] / a_[0] * x[k];
+
+            for (std::size_t n = 0; n < nfilt - 2; n++) {
+                Z[n] = Z[n + 1] + x[k] * b_[n + 1] / a_[0] -
+                       y[k] * a_[n + 1] / a_[0];
+            }
+
+            Z.back() =
+                x[k] * b_[nfilt - 1] / a_[0] - y[k] * a_[nfilt - 1] / a_[0];
+        }
+
+        return y;
+    }
+}
+
 // template <typename T, PADTYPE ptype = PADTYPE::ODD, METHOD method = METHOD::PAD>
 // auto filtfilt(std::vector<T> &b,
 //               std::vector<T> &a,

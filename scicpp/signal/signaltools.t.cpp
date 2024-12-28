@@ -39,7 +39,7 @@ TEST_CASE("lfilter_zi") {
         const auto a = std::vector{1., 2., 3.};
         const auto b = std::vector{4., 5., 6.};
         const auto zi = lfilter_zi(b, a);
-        print(zi);
+        // print(zi);
         REQUIRE(almost_equal<10>(zi, {-1.5, -1.5}));
     }
 
@@ -47,7 +47,7 @@ TEST_CASE("lfilter_zi") {
         const auto a = std::vector{0., 0., 0., 1., 2., 3.};
         const auto b = std::vector{4., 5., 6.};
         const auto zi = lfilter_zi(b, a);
-        print(zi);
+        // print(zi);
         REQUIRE(almost_equal<10>(zi, {-1.5, -1.5}));
     }
 
@@ -55,7 +55,7 @@ TEST_CASE("lfilter_zi") {
         const auto a = std::vector{1., 10.};
         const auto b = std::vector{10., 20., 30.};
         const auto zi = lfilter_zi(b, a);
-        print(zi);
+        // print(zi);
         REQUIRE(almost_equal<1>(zi, {-4.545454545454545454545454, 30.}));
     }
 
@@ -63,7 +63,7 @@ TEST_CASE("lfilter_zi") {
         const auto a = std::vector{0., 1., 10., 100., 1000.};
         const auto b = std::vector{10., 20., 30.};
         const auto zi = lfilter_zi(b, a);
-        print(zi);
+        // print(zi);
         REQUIRE(almost_equal<10>(
             zi, {-9.945994599459945, -29.40594059405941, -54.005400540054005}));
     }
@@ -72,9 +72,89 @@ TEST_CASE("lfilter_zi") {
         const auto a = std::array{1., 10., 100., 1000.};
         const auto b = std::array{10., 20., 30.};
         const auto zi = lfilter_zi(b, a);
-        print(zi);
+        static_assert(zi.size() == 3);
+        // print(zi);
         REQUIRE(almost_equal<10>(
             zi, {-9.945994599459945, -29.40594059405941, -54.005400540054005}));
+    }
+}
+
+TEST_CASE("lfilter") {
+    SECTION("std::vector - len(a) == 1 (1)") {
+        const auto a = std::vector{1.};
+        const auto b = std::vector{10., 20., 30.};
+        const auto x = linspace(0., 100., 20);
+        const auto y = lfilter(b, a, x);
+        print(y);
+        REQUIRE(almost_equal<2>(y,
+                                {0.,
+                                 52.631578947368425,
+                                 210.5263157894737,
+                                 526.3157894736842,
+                                 842.1052631578948,
+                                 1157.8947368421054,
+                                 1473.6842105263158,
+                                 1789.4736842105265,
+                                 2105.263157894737,
+                                 2421.0526315789475,
+                                 2736.842105263158,
+                                 3052.6315789473683,
+                                 3368.421052631579,
+                                 3684.2105263157896,
+                                 4000.0000000000005,
+                                 4315.789473684211,
+                                 4631.578947368421,
+                                 4947.368421052632,
+                                 5263.1578947368425,
+                                 5578.947368421053}));
+    }
+
+    SECTION("std::vector - len(a) == 1 (2)") {
+        const auto a = std::vector{8.};
+        const auto b = std::vector{10., 20., 30.};
+        const auto x = linspace(1., 10., 5);
+        const auto y = lfilter(b, a, x);
+        print(y);
+        REQUIRE(almost_equal<2>(y, {1.25, 6.5625, 18.75, 35.625, 52.5}));
+    }
+
+    SECTION("std::vector 1") {
+        const auto a = std::vector{1., 10., 100.};
+        const auto b = std::vector{8.};
+        const auto x = linspace(1., 10., 5);
+        const auto y = lfilter(b, a, x);
+        print(y);
+        REQUIRE(almost_equal<2>(
+            y, {8., -5.400e+01, -2.160e+02, 7.622e+03, -5.454e+04}));
+    }
+
+    SECTION("std::vector 2") {
+        const auto a = std::vector{1., 10., 100., 1000.};
+        const auto b = std::vector{10., 20., 30.};
+        const auto x = linspace(0.0, 100.0, 20);
+        const auto y = lfilter(b, a, x);
+        print(y);
+        REQUIRE(almost_equal<10>(y,
+                                 {0.,
+                                  5.2631578947368425e+01,
+                                  -3.1578947368421052e+02,
+                                  -1.5789473684210541e+03,
+                                  -4.4210526315789357e+03,
+                                  5.1905263157894736e+05,
+                                  -3.1679999999999995e+06,
+                                  -1.5802421052631602e+07,
+                                  -4.4226315789473481e+07,
+                                  5.1905076842105255e+09,
+                                  -3.1680021473684204e+10,
+                                  -1.5802423484210544e+11,
+                                  -4.4226318505262958e+11,
+                                  5.1905076812105258e+13,
+                                  -3.1680021476968419e+14,
+                                  -1.5802423484567385e+15,
+                                  -4.4226318505648220e+15,
+                                  5.1905076812101120e+17,
+                                  -3.1680021476968858e+18,
+                                  -1.5802423484567446e+19}));
     }
 }
 
