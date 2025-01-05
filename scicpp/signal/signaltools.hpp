@@ -139,14 +139,15 @@ auto lfilter_zi(const Array1 &b, const Array2 &a) {
 namespace detail {
 
 template <typename A, typename B, typename U, typename V, typename W>
-auto lfilter_impl(
+constexpr void lfilter_impl(
     const A &a, const B &b, const U &x, V &y, W &Z, std::size_t nfilt) {
     if (a.size() < nfilt) {
         for (std::size_t k = 0; k < x.size(); ++k) {
             y[k] = Z[0] + b[0] / a[0] * x[k];
 
             for (std::size_t n = 0; n < a.size() - 1; ++n) {
-                Z[n] = Z[n + 1] + x[k] * b[n + 1] / a[0] - y[k] * a[n + 1] / a[0];
+                Z[n] =
+                    Z[n + 1] + x[k] * b[n + 1] / a[0] - y[k] * a[n + 1] / a[0];
             }
 
             for (std::size_t n = a.size() - 1; n < nfilt - 2; ++n) {
@@ -160,14 +161,15 @@ auto lfilter_impl(
             y[k] = Z[0] + b[0] / a[0] * x[k];
 
             for (std::size_t n = 0; n < b.size() - 1; ++n) {
-                Z[n] = Z[n + 1] + x[k] * b[n + 1] / a[0] - y[k] * a[n + 1] / a[0];
+                Z[n] =
+                    Z[n + 1] + x[k] * b[n + 1] / a[0] - y[k] * a[n + 1] / a[0];
             }
 
             for (std::size_t n = b.size() - 1; n < nfilt - 2; ++n) {
                 Z[n] = Z[n + 1] - y[k] * a[n + 1] / a[0];
             }
 
-            Z.back() = - y[k] * a[nfilt - 1] / a[0];
+            Z.back() = -y[k] * a[nfilt - 1] / a[0];
         }
     }
 }
@@ -176,11 +178,13 @@ auto lfilter_impl(
 
 // TODO constexpr
 template <typename T, std::size_t Nb, std::size_t Na, std::size_t Nx>
-auto lfilter(const std::array<T, Nb> &b,
-             const std::array<T, Na> &a,
-             const std::array<T, Nx> &x) {
+constexpr auto lfilter(const std::array<T, Nb> &b,
+                       const std::array<T, Na> &a,
+                       const std::array<T, Nx> &x) {
     static_assert(Nx > 0);
-    scicpp_require(!almost_equal(a[0], T(0)));
+    // scicpp_require(!almost_equal(a[0], T(0)));
+
+    scicpp_require(fabs(a[0]) > T(0));
 
     if constexpr (Na == 1) {
         using namespace operators;
@@ -196,6 +200,8 @@ auto lfilter(const std::array<T, Nb> &b,
         return y;
     }
 }
+
+// TODO std::array with zi
 
 template <typename T>
 auto lfilter(const std::vector<T> &b,
@@ -229,7 +235,7 @@ auto lfilter(const std::vector<T> &b,
 
     if (a.size() == 1) {
         using namespace operators;
-        auto out = convolve(b, x)  / a[0];
+        auto out = convolve(b, x) / a[0];
         std::vector<T> zf(out.end() - signed_size_t(b.size()) + 1, out.end());
         out.resize(out.size() - b.size() + 1);
 

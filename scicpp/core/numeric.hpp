@@ -306,14 +306,14 @@ using enable_if_scalar =
 // negate
 
 template <class Array, detail::enable_if_operator_iterable<Array> = 0>
-auto operator-(Array &&a) {
+constexpr auto operator-(Array &&a) {
     return map(std::negate<>(), std::forward<Array>(a));
 }
 
 // logical not
 
 template <class Array, detail::enable_if_operator_iterable<Array> = 0>
-auto operator!(Array &&a) {
+constexpr auto operator!(Array &&a) {
     return map(std::logical_not<>(), std::forward<Array>(a));
 }
 
@@ -322,7 +322,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator==(Array &&a, T scalar) {
+constexpr auto operator==(Array &&a, T scalar) {
     return map([=](auto v) { return v == scalar; }, std::forward<Array>(a));
 }
 
@@ -330,7 +330,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator==(T scalar, Array &&a) {
+constexpr auto operator==(T scalar, Array &&a) {
     return a == scalar;
 }
 
@@ -338,7 +338,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator!=(Array &&a, T scalar) {
+constexpr auto operator!=(Array &&a, T scalar) {
     return !(a == scalar);
 }
 
@@ -346,7 +346,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator!=(T scalar, Array &&a) {
+constexpr auto operator!=(T scalar, Array &&a) {
     return !(a == scalar);
 }
 
@@ -354,7 +354,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator<(Array &&a, T scalar) {
+constexpr auto operator<(Array &&a, T scalar) {
     return map([=](auto v) { return v < scalar; }, std::forward<Array>(a));
 }
 
@@ -362,7 +362,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator>=(Array &&a, T scalar) {
+constexpr auto operator>=(Array &&a, T scalar) {
     return !(a < scalar);
 }
 
@@ -370,7 +370,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator<(T scalar, Array &&a) {
+constexpr auto operator<(T scalar, Array &&a) {
     return map([=](auto v) { return scalar < v; }, std::forward<Array>(a));
 }
 
@@ -378,7 +378,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator>=(T scalar, Array &&a) {
+constexpr auto operator>=(T scalar, Array &&a) {
     return !(scalar < a);
 }
 
@@ -386,7 +386,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator<=(Array &&a, T scalar) {
+constexpr auto operator<=(Array &&a, T scalar) {
     return !(scalar < a);
 }
 
@@ -394,7 +394,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator<=(T scalar, Array &&a) {
+constexpr auto operator<=(T scalar, Array &&a) {
     return !(a < scalar);
 }
 
@@ -402,7 +402,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator>(Array &&a, T scalar) {
+constexpr auto operator>(Array &&a, T scalar) {
     return !(a <= scalar);
 }
 
@@ -410,7 +410,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator>(T scalar, Array &&a) {
+constexpr auto operator>(T scalar, Array &&a) {
     return !(scalar <= a);
 }
 
@@ -419,7 +419,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator*(Array &&a, T scalar) {
+constexpr auto operator*(Array &&a, T scalar) {
     return map([=](auto v) { return scalar * v; }, std::forward<Array>(a));
 }
 
@@ -427,7 +427,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator*(T scalar, Array &&a) {
+constexpr auto operator*(T scalar, Array &&a) {
     return map([=](auto v) { return scalar * v; }, std::forward<Array>(a));
 }
 
@@ -437,7 +437,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator+(Array &&a, T scalar) {
+constexpr auto operator+(Array &&a, T scalar) {
     return map([=](auto v) { return scalar + v; }, std::forward<Array>(a));
 }
 
@@ -445,7 +445,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator+(T scalar, Array &&a) {
+constexpr auto operator+(T scalar, Array &&a) {
     return map([=](auto v) { return scalar + v; }, std::forward<Array>(a));
 }
 
@@ -455,7 +455,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator-(Array &&a, T scalar) {
+constexpr auto operator-(Array &&a, T scalar) {
     return map([=](auto v) { return v - scalar; }, std::forward<Array>(a));
 }
 
@@ -463,7 +463,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator-(T scalar, Array &&a) {
+constexpr auto operator-(T scalar, Array &&a) {
     return map([=](auto v) { return scalar - v; }, std::forward<Array>(a));
 }
 
@@ -473,7 +473,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator/(Array &&a, T scalar) {
+constexpr auto operator/(Array &&a, T scalar) {
     return map([=](auto v) { return v / scalar; }, std::forward<Array>(a));
 }
 
@@ -481,7 +481,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator/(T scalar, Array &&a) {
+constexpr auto operator/(T scalar, Array &&a) {
     return map([=](auto v) { return scalar / v; }, std::forward<Array>(a));
 }
 
@@ -490,7 +490,7 @@ auto operator/(T scalar, Array &&a) {
 namespace detail {
 
 template <typename T>
-auto modulus(T x, T y) {
+constexpr auto modulus(T x, T y) {
     using raw_t = units::representation_t<T>;
 
     if constexpr (std::is_floating_point_v<raw_t>) {
@@ -506,7 +506,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator%(Array &&a, T scalar) {
+constexpr auto operator%(Array &&a, T scalar) {
     return map([=](auto v) { return detail::modulus(v, scalar); },
                std::forward<Array>(a));
 }
@@ -515,7 +515,7 @@ template <class Array,
           typename T = typename Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
-auto operator%(T scalar, Array &&a) {
+constexpr auto operator%(T scalar, Array &&a) {
     return map([=](auto v) { return detail::modulus(scalar, v); },
                std::forward<Array>(a));
 }
@@ -524,7 +524,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
           detail::enable_if_operator_iterable<ArrayRhs> = 0>
-auto operator*(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto operator*(ArrayLhs &&a, ArrayRhs &&b) {
     return map(std::multiplies<>(),
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
@@ -534,7 +534,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
           detail::enable_if_operator_iterable<ArrayRhs> = 0>
-auto operator&&(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto operator&&(ArrayLhs &&a, ArrayRhs &&b) {
     return map(std::logical_and<>(),
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
@@ -544,7 +544,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
           detail::enable_if_operator_iterable<ArrayRhs> = 0>
-auto operator||(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto operator||(ArrayLhs &&a, ArrayRhs &&b) {
     return map(std::logical_or<>(),
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
@@ -560,7 +560,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
           detail::enable_if_operator_iterable<ArrayRhs> = 0>
-auto operator+(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto operator+(ArrayLhs &&a, ArrayRhs &&b) {
     return map(
         std::plus<>(), std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
@@ -569,7 +569,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
           detail::enable_if_operator_iterable<ArrayRhs> = 0>
-auto operator-(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto operator-(ArrayLhs &&a, ArrayRhs &&b) {
     return map(
         std::minus<>(), std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
@@ -578,7 +578,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
           detail::enable_if_operator_iterable<ArrayRhs> = 0>
-auto operator/(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto operator/(ArrayLhs &&a, ArrayRhs &&b) {
     return map(
         std::divides<>(), std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
@@ -587,7 +587,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           detail::enable_if_operator_iterable<ArrayLhs> = 0,
           detail::enable_if_operator_iterable<ArrayRhs> = 0>
-auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
     return map([](auto u, auto v) { return detail::modulus(u, v); },
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
@@ -606,7 +606,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
           meta::enable_if_iterable<ArrayRhs> = 0>
-auto equal(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto equal(ArrayLhs &&a, ArrayRhs &&b) {
     return map([](auto u, auto v) { return u == v; },
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
@@ -616,7 +616,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
           meta::enable_if_iterable<ArrayRhs> = 0>
-auto not_equal(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto not_equal(ArrayLhs &&a, ArrayRhs &&b) {
     using namespace operators;
     return !equal(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
@@ -625,7 +625,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
           meta::enable_if_iterable<ArrayRhs> = 0>
-auto less(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto less(ArrayLhs &&a, ArrayRhs &&b) {
     return map([](auto u, auto v) { return u < v; },
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
@@ -635,7 +635,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
           meta::enable_if_iterable<ArrayRhs> = 0>
-auto less_equal(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto less_equal(ArrayLhs &&a, ArrayRhs &&b) {
     using namespace operators;
     return !less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
 }
@@ -644,7 +644,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
           meta::enable_if_iterable<ArrayRhs> = 0>
-auto greater_equal(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto greater_equal(ArrayLhs &&a, ArrayRhs &&b) {
     using namespace operators;
     return !less(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
@@ -653,7 +653,7 @@ template <class ArrayLhs,
           class ArrayRhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
           meta::enable_if_iterable<ArrayRhs> = 0>
-auto greater(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto greater(ArrayLhs &&a, ArrayRhs &&b) {
     return less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
 }
 

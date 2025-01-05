@@ -6,8 +6,10 @@ SCICPP_SRC=scicpp
 
 TMP=tmp
 
-COMPILER ?= clang
-# COMPILER ?= gcc
+CPP_VERSION = 20
+
+# COMPILER ?= clang
+COMPILER ?= gcc
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native
@@ -22,8 +24,8 @@ WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
 
 ifeq ($(COMPILER),gcc)
-  CC = $(CROSS_COMPILE)gcc-9
-  CCXX = $(CROSS_COMPILE)g++-9
+  CC = $(CROSS_COMPILE)gcc-10
+  CCXX = $(CROSS_COMPILE)g++-10
 
   WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond -Wsuggest-attribute=pure -Wsuggest-attribute=const
 else
@@ -34,7 +36,7 @@ else
 endif
 
 CFLAGS += -Werror $(WARNINGS) $(ARCH_FLAGS) $(OPTIM_FLAGS) $(DEBUG_FLAGS) $(INCLUDES) -MMD -MP
-CXXFLAGS = $(CFLAGS) -std=c++17 -pthread
+CXXFLAGS = $(CFLAGS) -std=c++$(CPP_VERSION) -pthread
 LD_FLAGS = -lm -lstdc++fs
 
 ifeq ($(COMPILER),clang)

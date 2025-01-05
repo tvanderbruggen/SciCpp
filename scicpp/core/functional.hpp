@@ -30,7 +30,7 @@ namespace scicpp {
 // Unary operations
 
 template <class Array, class UnaryOp>
-[[nodiscard]] auto map(UnaryOp op, Array &&a) {
+[[nodiscard]] constexpr auto map(UnaryOp op, Array &&a) {
     using InputType = typename std::remove_reference_t<Array>::value_type;
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
@@ -45,7 +45,7 @@ template <class Array, class UnaryOp>
 }
 
 template <class Array, class UnaryOp>
-[[nodiscard]] auto map(UnaryOp op, const Array &a) {
+[[nodiscard]] constexpr auto map(UnaryOp op, const Array &a) {
     using InputType = typename Array::value_type;
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
@@ -65,7 +65,7 @@ template <class Array1,
           class Array2,
           class BinaryOp,
           std::enable_if_t<!std::is_lvalue_reference_v<Array1>, int> = 0>
-[[nodiscard]] auto map(BinaryOp op, Array1 &&a1, const Array2 &a2) {
+[[nodiscard]] constexpr auto map(BinaryOp op, Array1 &&a1, const Array2 &a2) {
     using InputType1 = typename Array1::value_type;
     using InputType2 = typename Array2::value_type;
     using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
@@ -86,7 +86,7 @@ template <class Array1,
           class Array2,
           class BinaryOp,
           std::enable_if_t<!std::is_lvalue_reference_v<Array2>, int> = 0>
-[[nodiscard]] auto map(BinaryOp op, const Array1 &a1, Array2 &&a2) {
+[[nodiscard]] constexpr auto map(BinaryOp op, const Array1 &a1, Array2 &&a2) {
     using InputType1 = typename Array1::value_type;
     using InputType2 = typename Array2::value_type;
     using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
@@ -109,7 +109,7 @@ template <class Array1,
           std::enable_if_t<!std::is_lvalue_reference_v<Array1> &&
                                !std::is_lvalue_reference_v<Array2>,
                            int> = 0>
-[[nodiscard]] auto map(BinaryOp op, Array1 &&a1, Array2 &&a2) {
+[[nodiscard]] constexpr auto map(BinaryOp op, Array1 &&a1, Array2 &&a2) {
     using InputType1 = typename Array1::value_type;
     using InputType2 = typename Array2::value_type;
     using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
@@ -122,7 +122,8 @@ template <class Array1,
 }
 
 template <class Array1, class Array2, class BinaryOp>
-[[nodiscard]] auto map(BinaryOp op, const Array1 &a1, const Array2 &a2) {
+[[nodiscard]] constexpr auto
+map(BinaryOp op, const Array1 &a1, const Array2 &a2) {
     return map(op, Array1(a1), a2);
 }
 
@@ -150,7 +151,7 @@ template <class Array1, class Array2, class BinaryOp>
 // For the raw loop version a single loop call sin and cos.
 
 template <class Func>
-auto vectorize(Func &&f) {
+constexpr auto vectorize(Func &&f) {
     return [&](auto &&...arrays) {
         if constexpr ((meta::is_iterable_v<decltype(arrays)> && ...)) {
             return map(

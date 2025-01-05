@@ -126,7 +126,7 @@ class Spectrum {
               bool return_freqs = true,
               typename Array>
     auto welch(const Array &x) {
-        using namespace scicpp::operators;
+        using namespace operators;
 
         using EltTp = detail::element_type_t<Array>;
 
@@ -183,7 +183,7 @@ class Spectrum {
               typename Array1,
               typename Array2>
     auto csd(const Array1 &x, const Array2 &y) {
-        using namespace scicpp::operators;
+        using namespace operators;
 
         using EltTp1 = detail::element_type_t<Array1>;
         using EltTp2 = detail::element_type_t<Array2>;
@@ -259,7 +259,7 @@ class Spectrum {
 
     template <typename Array1, typename Array2>
     auto coherence(const Array1 &x, const Array2 &y) {
-        using namespace scicpp::operators;
+        using namespace operators;
         scicpp_require(x.size() == y.size());
 
         auto [freqs, Pxy] = csd<SpectrumScaling::NONE>(x, y);
@@ -275,7 +275,7 @@ class Spectrum {
 
     template <typename Array1, typename Array2>
     auto tfestimate(const Array1 &x, const Array2 &y) {
-        using namespace scicpp::operators;
+        using namespace operators;
         scicpp_require(x.size() == y.size());
 
         auto [freqs, Pyx] = csd<SpectrumScaling::NONE>(y, x);
@@ -290,7 +290,7 @@ class Spectrum {
 
     // detrend = "constant" => Substract mean
     static constexpr auto detrend = [](auto &&x) {
-        using namespace scicpp::operators;
+        using namespace operators;
         return std::move(x) - stats::mean(x);
     };
 
@@ -353,7 +353,7 @@ class Spectrum {
     auto compute_spectrum(std::size_t nfft,
                           signed_size_t nseg,
                           SegPsdFunc get_segment_psd) {
-        using namespace scicpp::operators;
+        using namespace operators;
 
         auto res = zeros<Tp>(nfft);
 
@@ -383,7 +383,7 @@ class Spectrum {
         const auto nseg = 1 + (asize - m_nperseg) / nstep;
 
         return compute_spectrum<T>(nfft, nseg, [&](auto i) {
-            using namespace scicpp::operators;
+            using namespace operators;
 
             auto seg = utils::subvector(a, m_nperseg, i * nstep);
             scicpp_require(seg.size() == m_window.size());
@@ -397,7 +397,7 @@ class Spectrum {
                      const Array1 &x,
                      const Array2 &y,
                      FFTFunc &&fftfunc) {
-        using namespace scicpp::operators;
+        using namespace operators;
         scicpp_require(x.size() == y.size());
 
         const auto asize = signed_size_t(x.size());
@@ -405,7 +405,7 @@ class Spectrum {
         const auto nseg = 1 + (asize - m_nperseg) / nstep;
 
         return compute_spectrum<std::complex<T>>(nfft, nseg, [&](auto i) {
-            using namespace scicpp::operators;
+            using namespace operators;
 
             auto seg_x = utils::subvector(x, m_nperseg, i * nstep);
             scicpp_require(seg_x.size() == m_window.size());
@@ -419,7 +419,7 @@ class Spectrum {
 
     template <SpectrumScaling scaling, SpectrumSides sides, typename SpecTp>
     auto normalize(std::vector<SpecTp> &&v) {
-        using namespace scicpp::operators;
+        using namespace operators;
 
         if constexpr (sides == SpectrumSides::ONESIDED) {
             v = 2.0 * std::move(v);

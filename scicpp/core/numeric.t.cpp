@@ -238,6 +238,31 @@ TEST_CASE("Logical/comparison operators") {
     REQUIRE(array_equal(b1a || b2a, {1, 1, 1}));
 }
 
+TEST_CASE("Logical/comparison operators constexpr") {
+    using namespace operators;
+
+    constexpr std::array b1a{1, 0, 1};
+    constexpr std::array b2a{1, 1, 0};
+    constexpr std::array a1{1, 2, 3};
+    constexpr std::array a2{-1, 4, 3};
+
+    static_assert(array_equal(!b1a, {0, 1, 0}));
+    static_assert(array_equal(a1 == 1, {1, 0, 0}));
+    static_assert(array_equal(1 == a1, {1, 0, 0}));
+    static_assert(array_equal(a2 != 4, {1, 0, 1}));
+    static_assert(array_equal(4 != a2, {1, 0, 1}));
+    static_assert(array_equal(a2 < 0, {1, 0, 0}));
+    static_assert(array_equal(1 < a1, {0, 1, 1}));
+    static_assert(array_equal(a2 >= 3, {0, 1, 1}));
+    static_assert(array_equal(1 >= a1, {1, 0, 0}));
+    static_assert(array_equal(a2 <= 3, {1, 0, 1}));
+    static_assert(array_equal(1 <= a1, {1, 1, 1}));
+    static_assert(array_equal(a2 > 3, {0, 1, 0}));
+    static_assert(array_equal(1 > a1, {0, 0, 0}));
+    static_assert(array_equal(b1a && b2a, {1, 0, 0}));
+    static_assert(array_equal(b1a || b2a, {1, 1, 1}));
+}
+
 TEST_CASE("Logical/Comparison") {
     const std::array b1a{1, 0, 1};
     const std::vector b1v{1, 0, 1};
@@ -265,6 +290,20 @@ TEST_CASE("Logical/Comparison") {
 
     REQUIRE(array_equal(greater(a1, a2), {1, 0, 0}));
     REQUIRE(array_equal(greater(v1, v2), {1, 0, 0}));
+}
+
+TEST_CASE("Logical/Comparison constexpr") {
+    constexpr std::array b1a{1, 0, 1};
+    constexpr std::array b2a{1, 1, 0};
+    constexpr std::array a1{1, 2, 3};
+    constexpr std::array a2{-1, 4, 3};
+
+    static_assert(array_equal(equal(b1a, b2a), {1, 0, 0}));
+    static_assert(array_equal(not_equal(b1a, b2a), {0, 1, 1}));
+    static_assert(array_equal(less(a1, a2), {0, 1, 0}));
+    static_assert(array_equal(less_equal(a1, a2), {0, 1, 1}));
+    static_assert(array_equal(greater_equal(a1, a2), {1, 0, 1}));
+    static_assert(array_equal(greater(a1, a2), {1, 0, 0}));
 }
 
 TEST_CASE("Arithmetic operators") {
@@ -406,6 +445,31 @@ TEST_CASE("Arithmetic operators physical quantity") {
 
     REQUIRE(almost_equal(a1 % a, {0_m, 0_m, 0_m}));
     REQUIRE(almost_equal(v1 % v, {0_m, 0_m, 0_m}));
+}
+
+TEST_CASE("Arithmetic operators constexpr") {
+    using namespace operators;
+
+    constexpr std::array b{1, 0, 1};
+    constexpr std::array ai{1, 2, 3};
+    constexpr std::array a1i{2, 4, 6};
+
+    static_assert(array_equal(-ai, {-1, -2, -3}));
+    static_assert(array_equal(2 * ai, {2, 4, 6}));
+    static_assert(array_equal(ai * 2, {2, 4, 6}));
+    static_assert(array_equal(2 + ai, {3, 4, 5}));
+    static_assert(array_equal(ai + 2, {3, 4, 5}));
+    static_assert(array_equal(2 - ai, {1, 0, -1}));
+    static_assert(array_equal(ai - 2, {-1, 0, 1}));
+    static_assert(array_equal(2 / ai, {2, 1, 0}));
+    static_assert(array_equal(ai / 2, {0, 1, 1}));
+    static_assert(array_equal(2 % ai, {0, 0, 2}));
+    static_assert(array_equal(ai % 2, {1, 0, 1}));
+    static_assert(array_equal(a1i * ai, {2, 8, 18}));
+    static_assert(array_equal(a1i + ai, {3, 6, 9}));
+    static_assert(array_equal(a1i - ai, {1, 2, 3}));
+    static_assert(array_equal(a1i / ai, {2, 2, 2}));
+    static_assert(array_equal(a1i % ai, {0, 0, 0}));
 }
 
 TEST_CASE("mask") {

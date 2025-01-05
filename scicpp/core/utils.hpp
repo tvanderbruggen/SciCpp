@@ -18,7 +18,7 @@ namespace scicpp::utils {
 //---------------------------------------------------------------------------------
 
 template <typename OutputType, typename T, std::size_t N>
-auto set_array(const std::array<T, N> & /* unused */) {
+constexpr auto set_array(const std::array<T, N> & /* unused */) {
     return std::array<OutputType, N>{};
 }
 
@@ -28,7 +28,7 @@ auto set_array(std::vector<T> v) {
 }
 
 template <class Array>
-auto set_array(const Array &a) {
+constexpr auto set_array(const Array &a) {
     return set_array<typename Array::value_type>(a);
 }
 

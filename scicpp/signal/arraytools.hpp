@@ -20,7 +20,7 @@ auto odd_ext(const Array &x, DiffTp n) {
     static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
     using raw_t = units::representation_t<T>;
-    using namespace scicpp::operators;
+    using namespace operators;
 
     const auto size = DiffTp(x.size());
     scicpp_require(n <= size - 1);
@@ -40,7 +40,7 @@ auto odd_ext(const Array &x, DiffTp n) {
 template <typename Array, typename DiffTp = typename Array::difference_type>
 auto even_ext(const Array &x, DiffTp n) {
     static_assert(meta::is_iterable_v<Array>);
-    using namespace scicpp::operators;
+    using namespace operators;
 
     scicpp_require(n <= DiffTp(x.size()) - 1);
 
@@ -56,7 +56,7 @@ auto const_ext(const Array &x, DiffTp n) {
     static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
     using raw_t = units::representation_t<T>;
-    using namespace scicpp::operators;
+    using namespace operators;
 
     scicpp_require(!x.empty());
 
@@ -74,7 +74,7 @@ template <typename Array, typename DiffTp = typename Array::difference_type>
 auto zero_ext(const Array &x, DiffTp n) {
     static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
-    using namespace scicpp::operators;
+    using namespace operators;
 
     if (n < 1) {
         return std::vector(x.cbegin(), x.cend());
