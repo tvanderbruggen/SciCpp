@@ -87,13 +87,13 @@ auto nanprod(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-auto cumsum(Array &&a) {
+constexpr auto cumsum(Array &&a) {
     std::partial_sum(a.cbegin(), a.cend(), a.begin());
     return std::move(a);
 }
 
 template <class Array>
-auto cumsum(const Array &a) {
+constexpr auto cumsum(const Array &a) {
     return cumsum(Array(a));
 }
 
@@ -107,13 +107,13 @@ auto nancumsum(const std::vector<T> &v) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-auto cumprod(Array &&a) {
+constexpr auto cumprod(Array &&a) {
     std::partial_sum(a.cbegin(), a.cend(), a.begin(), std::multiplies<>());
     return std::move(a);
 }
 
 template <class Array>
-auto cumprod(const Array &a) {
+constexpr auto cumprod(const Array &a) {
     return cumprod(Array(a));
 }
 
@@ -154,7 +154,7 @@ constexpr auto trapz(const Array &f, T dx) {
 namespace detail {
 
 template <typename T, std::size_t N>
-auto diff_once(const std::array<T, N> &a) {
+constexpr auto diff_once(const std::array<T, N> &a) {
     if constexpr (N <= 1) {
         return std::array<T, 0>{};
     } else {
@@ -175,7 +175,7 @@ void diff_once(std::vector<T> &res) {
 } // namespace detail
 
 template <int n, typename T, std::size_t N>
-auto diff(const std::array<T, N> &a) {
+constexpr auto diff(const std::array<T, N> &a) {
     static_assert(n >= 0);
 
     if constexpr (n == 0) {
@@ -186,7 +186,7 @@ auto diff(const std::array<T, N> &a) {
 }
 
 template <typename T, std::size_t N>
-auto diff(const std::array<T, N> &a) {
+constexpr auto diff(const std::array<T, N> &a) {
     return diff<1>(a);
 }
 

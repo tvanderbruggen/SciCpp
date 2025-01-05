@@ -34,14 +34,14 @@ TEST_CASE("sum") {
 
 TEST_CASE("sum physical quantities") {
     using namespace units::literals;
-    REQUIRE(almost_equal(sum(std::array{1._m, 2._m, 3.141_m}), 6.141_m));
+    static_assert(float_equal(sum(std::array{1._m, 2._m, 3.141_m}), 6.141_m));
     REQUIRE(almost_equal(sum(std::vector{1._kg, 2._kg, 3._kg}), 6._kg));
 }
 
 TEST_CASE("prod") {
-    REQUIRE(almost_equal(prod(std::array<double, 0>{}), 1.));
-    REQUIRE(almost_equal(prod(std::array{1., 2., 3.141}), 6.282));
-    REQUIRE(almost_equal(prod(std::array{1., 2., 3.}), 6.));
+    static_assert(float_equal(prod(std::array<double, 0>{}), 1.));
+    static_assert(float_equal(prod(std::array{1., 2., 3.141}), 6.282));
+    static_assert(float_equal(prod(std::array{1., 2., 3.}), 6.));
     REQUIRE(almost_equal(prod(std::vector{1., 2., 3.}), 6.));
     const auto [res, cnt] = nanprod(
         std::vector{1., 2., 3., std::numeric_limits<double>::quiet_NaN()});
@@ -52,7 +52,9 @@ TEST_CASE("prod") {
 }
 
 TEST_CASE("cumsum") {
-    REQUIRE(cumsum(std::array<double, 0>{}).empty());
+    static_assert(cumsum(std::array<double, 0>{}).empty());
+    static_assert(array_equal(cumsum(std::array{1, 3, 6, 10, 15, 21}),
+                              {1, 4, 10, 20, 35, 56}));
     REQUIRE(almost_equal(cumsum(std::array{1., 3., 6., 10., 15., 21.}),
                          {1., 4., 10., 20., 35., 56.}));
     REQUIRE(almost_equal(cumsum(std::vector{1., 3., 6., 10., 15., 21.}),
@@ -76,7 +78,9 @@ TEST_CASE("cumsum physical quantities") {
 }
 
 TEST_CASE("cumprod") {
-    REQUIRE(cumprod(std::array<double, 0>{}).empty());
+    static_assert(cumprod(std::array<double, 0>{}).empty());
+    static_assert(array_equal(cumprod(std::array{1, 3, 6, 10, 15, 21}),
+                              {1, 3, 18, 180, 2700, 56700}));
     REQUIRE(almost_equal(cumprod(std::array{1., 3., 6., 10., 15., 21.}),
                          {1., 3., 18., 180., 2700., 56700.}));
     REQUIRE(almost_equal(cumprod(std::vector{1., 3., 6., 10., 15., 21.}),
@@ -92,6 +96,7 @@ TEST_CASE("cumprod") {
 TEST_CASE("trapz") {
     REQUIRE(almost_equal(trapz(std::array<double, 0>{}, 1.), 0.));
     REQUIRE(almost_equal(trapz(std::array{1., 2., 3.}, 1.), 4.));
+    static_assert(float_equal(trapz(std::array{1., 2., 3.}, 1.), 4.));
     REQUIRE(almost_equal(trapz(std::vector{1., 2., 3.}, 1.), 4.));
     REQUIRE(almost_equal(trapz(std::vector{1., 2., 3.}, 1.F), 4.));
 }
@@ -107,8 +112,13 @@ TEST_CASE("trapz physical quantity") {
 }
 
 TEST_CASE("diff") {
-    REQUIRE(diff(std::array<double, 0>{}).empty());
-    REQUIRE(diff(std::array{1.}).empty());
+    static_assert(diff(std::array<double, 0>{}).empty());
+    static_assert(diff(std::array{1.}).empty());
+
+    static_assert(
+        array_equal(diff<0>(std::array{1, 2, 4, 7, 0}), {1, 2, 4, 7, 0}));
+    static_assert(array_equal(diff<2>(std::array{1, 2, 4, 7, 0}), {1, 1, -10}));
+
     REQUIRE(almost_equal(diff<0>(std::array{1., 2., 4., 7., 0.}),
                          {1., 2., 4., 7., 0.}));
     REQUIRE(
