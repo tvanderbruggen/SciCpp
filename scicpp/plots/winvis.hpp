@@ -17,6 +17,7 @@
 #include "scicpp/signal/fft.hpp"
 #include "scicpp/signal/windows.hpp"
 
+#include <array>
 #include <sciplot/sciplot.hpp>
 #include <string>
 #include <tuple>

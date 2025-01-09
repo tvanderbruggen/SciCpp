@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #ifndef SCICPP_SIGNAL_ARRAYTOOLS
 #define SCICPP_SIGNAL_ARRAYTOOLS
 

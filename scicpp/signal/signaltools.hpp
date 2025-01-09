@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #ifndef SCICPP_SIGNAL_SIGNALTOOLS
 #define SCICPP_SIGNAL_SIGNALTOOLS
 
@@ -5,7 +7,7 @@
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
-#include "scicpp/core/print.hpp"
+// #include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/linalg/matrices.hpp"
 #include "scicpp/linalg/solve.hpp"
@@ -176,22 +178,19 @@ constexpr void lfilter_impl(
 
 } // namespace detail
 
-// TODO constexpr
 template <typename T, std::size_t Nb, std::size_t Na, std::size_t Nx>
 constexpr auto lfilter(const std::array<T, Nb> &b,
                        const std::array<T, Na> &a,
                        const std::array<T, Nx> &x) {
     static_assert(Nx > 0);
-    // scicpp_require(!almost_equal(a[0], T(0)));
-
-    scicpp_require(fabs(a[0]) > T(0));
+    scicpp_require(fabs(std::get<0>(a)) > T(0));
 
     if constexpr (Na == 1) {
         using namespace operators;
         auto out = convolve(b, x);
         std::array<T, out.size() - Nb + 1> res{};
         std::copy(out.begin(), out.begin() + res.size(), res.begin());
-        return res / a[0];
+        return res / std::get<0>(a);
     } else {
         constexpr auto n = std::max(Na, Nb);
         auto y = zeros<Nx, T>();
@@ -201,7 +200,41 @@ constexpr auto lfilter(const std::array<T, Nb> &b,
     }
 }
 
-// TODO std::array with zi
+template <typename T,
+          std::size_t Nb,
+          std::size_t Na,
+          std::size_t Nx,
+          std::size_t Nzi>
+constexpr auto lfilter(const std::array<T, Nb> &b,
+                       const std::array<T, Na> &a,
+                       const std::array<T, Nx> &x,
+                       const std::array<T, Nzi> &zi) {
+    static_assert(Nx > 0);
+    scicpp_require(fabs(std::get<0>(a)) > T(0));
+
+    if constexpr (Na == 1) {
+        using namespace operators;
+        auto out = convolve(b, x) / std::get<0>(a);
+
+        std::array<T, Nb - 1> zf{};
+        std::copy(out.end() - signed_size_t(Nb) + 1, out.end(), zf.begin());
+
+        std::array<T, out.size() - Nb + 1> res{};
+        std::copy(out.begin(), out.begin() + res.size(), res.begin());
+
+        for (std::size_t k = 0; k < zi.size(); ++k) {
+            res[k] += zi[k];
+        }
+
+        return std::tuple{res, zf};
+    } else {
+        constexpr auto n = std::max(Na, Nb);
+        auto y = zeros<Nx, T>();
+        auto Z = zi;
+        detail::lfilter_impl(a, b, x, y, Z, n);
+        return std::tuple{y, Z};
+    }
+}
 
 template <typename T>
 auto lfilter(const std::vector<T> &b,

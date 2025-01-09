@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #include "signaltools.hpp"
 
 #include "scicpp/core/equal.hpp"
@@ -243,6 +245,71 @@ TEST_CASE("lfilter") {
                                   5.1905076812101120e+17,
                                   -3.1680021476968858e+18,
                                   -1.5802423484567446e+19}));
+    }
+
+    SECTION("std::array 3") {
+        constexpr auto a = std::array{1., 10., 100., 1000.};
+        constexpr auto b = std::array{10., 20., 30.};
+        constexpr auto x = linspace<20>(0.0, 100.0);
+        constexpr auto y = lfilter(b, a, x);
+        static_assert(y.size() == 20);
+        static_assert(float_equal(y[0], 0.));
+        static_assert(float_equal(y[1], 5.2631578947368425e+01));
+    }
+
+    SECTION("std::array 4") {
+        constexpr auto a = std::array{10.};
+        constexpr auto b = std::array{8., 16.};
+        constexpr auto x = linspace<5>(1., 10.);
+        constexpr auto zi = ones<1, double>();
+        constexpr auto tup = lfilter(b, a, x, zi);
+        constexpr auto y = std::get<0>(tup);
+        constexpr auto zf = std::get<1>(tup);
+        // print(y);
+        // print(zf);
+        static_assert(zf.size() == 1);
+        static_assert(float_equal(zf[0], 16.));
+        static_assert(y.size() == 5);
+        static_assert(float_equal(y[0], 1.8));
+        static_assert(float_equal(y[1], 4.2));
+        static_assert(float_equal(y[2], 9.600000000000001));
+        static_assert(float_equal(y[3], 15.));
+        static_assert(float_equal(y[4], 20.4));
+    }
+
+    SECTION("std::array 5") {
+        constexpr auto a = std::array{10.};
+        constexpr auto b = std::array{8., 16., 32.};
+        constexpr auto x = linspace<5>(1., 10.);
+        constexpr auto zi = std::array{2., 4.};
+        constexpr auto tup = lfilter(b, a, x, zi);
+        constexpr auto y = std::get<0>(tup);
+        constexpr auto zf = std::get<1>(tup);
+        // print(y);
+        // print(zf);
+        REQUIRE(almost_equal<2>(y, {2.8, 8.2, 12.8, 25.400000000000002, 38.}));
+        REQUIRE(almost_equal<2>(zf, {40.8, 32.}));
+    }
+
+    SECTION("std::array 6") {
+        constexpr auto a = std::array{1., 10., 100.};
+        constexpr auto b = std::array{8., 16.};
+        constexpr auto x = linspace<5>(1., 10.);
+        constexpr auto zi = ones<2, double>();
+        constexpr auto tup = lfilter(b, a, x, zi);
+        constexpr auto y = std::get<0>(tup);
+        constexpr auto zf = std::get<1>(tup);
+        // print(y);
+        // print(zf);
+        static_assert(y.size() == 5);
+        static_assert(float_equal(y[0], 9.));
+        static_assert(float_equal(y[1], -4.7000e+01));
+        static_assert(float_equal(y[2], -3.3400e+02));
+        static_assert(float_equal(y[3], 8.1900e+03));
+        static_assert(float_equal(y[4], -4.8296e+04));
+        static_assert(zf.size() == 2);
+        static_assert(float_equal(zf[0], -335880.));
+        static_assert(float_equal(zf[1], 4829600.));
     }
 }
 
