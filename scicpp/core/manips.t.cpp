@@ -15,6 +15,19 @@ TEST_CASE("concatenate") {
         REQUIRE(almost_equal(res, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0}));
     }
 
+    SECTION("std::array / std::array constexpr") {
+        constexpr auto a1 = std::array{1.0, 2.0, 3.0};
+        constexpr auto a2 = std::array{4, 5, 6};
+        constexpr auto res = concatenate(a1, a2);
+        static_assert(res.size() == 6);
+        static_assert(float_equal(res[0], 1.0));
+        static_assert(float_equal(res[1], 2.0));
+        static_assert(float_equal(res[2], 3.0));
+        static_assert(float_equal(res[3], 4.0));
+        static_assert(float_equal(res[4], 5.0));
+        static_assert(float_equal(res[5], 6.0));
+    }
+
     SECTION("std::array<quantity> / std::array<quantity>") {
         using namespace units::literals;
         const auto a1 = std::array{1_m, 2_m, 3_m};
@@ -22,6 +35,17 @@ TEST_CASE("concatenate") {
         const auto res = concatenate(a1, a2);
         // print(res);
         REQUIRE(almost_equal(res, {1_m, 2_m, 3_m, 4_mm, 5_mm, 6_mm}));
+    }
+
+    SECTION("std::array<quantity> / std::array<quantity> constexpr") {
+        using namespace units::literals;
+        constexpr auto a1 = std::array{1_m, 2_m, 3_m};
+        constexpr auto a2 = std::array{4_mm, 5_mm, 6_mm};
+        constexpr auto res = concatenate(a1, a2);
+        static_assert(res.size() == 6);
+        static_assert(float_equal(res[0], 1_m));
+        static_assert(float_equal(res[1], 2_m));
+        static_assert(float_equal(res[2], 3_m));
     }
 
     SECTION("std::array / std::vector") {
@@ -145,6 +169,11 @@ TEST_CASE("flip") {
     SECTION("const std::array") {
         const auto a = std::array{1, 2, 3};
         REQUIRE(array_equal(flip(a), {3, 2, 1}));
+    }
+
+    SECTION("constexpr std::array") {
+        constexpr auto a = std::array{1, 2, 3};
+        static_assert(array_equal(flip(a), {3, 2, 1}));
     }
 
     SECTION("std::array&&") {

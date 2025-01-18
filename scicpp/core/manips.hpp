@@ -25,7 +25,8 @@ namespace scicpp {
 //-----------------------------------------------------------------------------
 
 template <typename T1, std::size_t N1, typename T2, std::size_t N2>
-auto concatenate(const std::array<T1, N1> &a1, const std::array<T2, N2> &a2) {
+constexpr auto concatenate(const std::array<T1, N1> &a1,
+                           const std::array<T2, N2> &a2) {
     if constexpr (units::is_quantity_v<T1>) {
         static_assert(units::is_same_dimension<T1, T2>);
 
@@ -152,18 +153,18 @@ auto concatenate(Arrays &&...a) {
 //-----------------------------------------------------------------------------
 
 template <typename Array>
-auto flip_inplace(Array &a) {
+constexpr auto flip_inplace(Array &a) {
     std::reverse(a.begin(), a.end());
 }
 
 template <typename Array>
-auto flip(Array &&a) {
+constexpr auto flip(Array &&a) {
     flip_inplace(a);
     return std::forward<Array>(a);
 }
 
 template <typename Array>
-auto flip(const Array &a) {
+constexpr auto flip(const Array &a) {
     auto res = utils::set_array(a);
     std::reverse_copy(a.cbegin(), a.cend(), res.begin());
     return res;
