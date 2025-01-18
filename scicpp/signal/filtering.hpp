@@ -333,6 +333,10 @@ auto filtfilt(const Array1 &b,
     }
 }
 
+// ----------------------------------------------------------------------------
+// deconvolve
+// ----------------------------------------------------------------------------
+
 // TODO
 // deconvolve https://github.com/scipy/scipy/blob/df134eab5a500c2146ed4552c8674a78d8154ee9/scipy/signal/_signaltools.py#L2258
 

@@ -35,7 +35,7 @@ using namespace std::literals;
 #include "scicpp/signal/convolve.t.cpp"
 #include "scicpp/signal/fft.t.cpp"
 #include "scicpp/signal/filter_design.t.cpp"
-#include "scicpp/signal/signaltools.t.cpp"
+#include "scicpp/signal/filtering.t.cpp"
 #include "scicpp/signal/spectral.t.cpp"
 #include "scicpp/signal/waveforms.t.cpp"
 #include "scicpp/signal/windows.t.cpp"

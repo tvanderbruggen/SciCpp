@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-#include "signaltools.hpp"
+#include "filtering.hpp"
 
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
