@@ -295,36 +295,6 @@ TEST_CASE("lfilter") {
     }
 }
 
-TEST_CASE("detail::validate_pad") {
-    SECTION("std::vector") {
-        const auto x = std::vector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        const auto [ext, edge] =
-            detail::validate_pad<FiltfiltPadType::ODD>(x, 3);
-        REQUIRE(array_equal(ext, {-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
-                                  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
-                                  11, 12, 13, 14, 15, 16, 17, 18, 19, 20}));
-        REQUIRE(edge == 9);
-    }
-
-    SECTION("std::array") {
-        const auto x = std::array{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        const auto [ext, edge] =
-            detail::validate_pad<FiltfiltPadType::ODD>(x, 3);
-        REQUIRE(array_equal(ext, {-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
-                                  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
-                                  11, 12, 13, 14, 15, 16, 17, 18, 19, 20}));
-        REQUIRE(edge == 9);
-    }
-
-    SECTION("FiltfiltPadType::NONE") {
-        const auto x = std::vector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        const auto [ext, edge] =
-            detail::validate_pad<FiltfiltPadType::NONE>(x, 3);
-        REQUIRE(array_equal(ext, x));
-        REQUIRE(edge == 0);
-    }
-}
-
 TEST_CASE("filtfilt") {
     SECTION("std::vector - len(a) == 1") {
         const auto a = std::vector{1.};

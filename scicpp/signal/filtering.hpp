@@ -6,6 +6,7 @@
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/macros.hpp"
 #include "scicpp/core/manips.hpp"
+#include "scicpp/core/meta.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/linalg/matrices.hpp"
@@ -273,29 +274,51 @@ enum class FiltfiltMethod : int { PAD, GUST }; // Only PAD implemented for now
 namespace detail {
 
 template <FiltfiltPadType padtype,
-          typename Array,
-          typename DiffTp = typename Array::difference_type>
-auto validate_pad(const Array &x,
-                  [[maybe_unused]] DiffTp ntaps,
-                  [[maybe_unused]] DiffTp padlen = -1) {
-    static_assert(meta::is_iterable_v<Array>);
-
+          typename Array1,
+          typename Array2,
+          typename Array3,
+          typename Array4,
+          typename DiffTp = typename Array1::difference_type>
+auto fwd_filter(const Array1 &b,
+                const Array2 &a,
+                const Array3 &x,
+                const Array4 &zi,
+                [[maybe_unused]] DiffTp ntaps,
+                [[maybe_unused]] DiffTp padlen = -1) {
     if constexpr (padtype == FiltfiltPadType::NONE) {
-        return std::tuple{std::vector(x.cbegin(), x.cend()), 0};
+        auto [y, zf] = lfilter(b, a, x, zi * x[0]);
+
+        if constexpr (meta::is_std_vector_v<decltype(y)>) {
+            return std::tuple{y, 0};
+        } else {
+            return std::tuple{std::vector(y.begin(), y.end()), 0};
+        }
     } else {
         const auto edge = (padlen == -1) ? 3 * ntaps : padlen;
         scicpp_require(x.size() > std::size_t(edge));
 
         if (edge > 0) {
             if constexpr (padtype == FiltfiltPadType::EVEN) {
-                return std::tuple{even_ext(x, edge), edge};
+                auto ext = even_ext(x, edge);
+                auto [y, zf] = lfilter(b, a, ext, zi * ext[0]);
+                return std::tuple{y, edge};
             } else if constexpr (padtype == FiltfiltPadType::ODD) {
-                return std::tuple{odd_ext(x, edge), edge};
+                auto ext = odd_ext(x, edge);
+                auto [y, zf] = lfilter(b, a, ext, zi * ext[0]);
+                return std::tuple{y, edge};
             } else {
-                return std::tuple{const_ext(x, edge), edge};
+                auto ext = const_ext(x, edge);
+                auto [y, zf] = lfilter(b, a, ext, zi * ext[0]);
+                return std::tuple{y, edge};
             }
         } else {
-            return std::tuple{std::vector(x.cbegin(), x.cend()), edge};
+            auto [y, zf] = lfilter(b, a, x, zi * x[0]);
+
+            if constexpr (meta::is_std_vector_v<decltype(y)>) {
+                return std::tuple{y, edge};
+            } else {
+                return std::tuple{std::vector(y.begin(), y.end()), edge};
+            }
         }
     }
 }
@@ -312,14 +335,14 @@ auto filtfilt(const Array1 &b,
               const Array2 &a,
               const Array3 &x,
               DiffTp padlen = -1) {
+    using T = typename Array1::value_type;
+    static_assert(std::is_same_v<T, typename Array2::value_type>);
+    static_assert(std::is_same_v<T, typename Array3::value_type>);
     using namespace scicpp::operators;
 
-    const auto len = DiffTp(std::max(a.size(), b.size()));
-    auto [ext, edge] = detail::validate_pad<padtype>(x, len, padlen);
     const auto zi = lfilter_zi(b, a);
-
-    // Forward filter
-    auto [y, zf] = lfilter(b, a, ext, zi * ext[0]);
+    const auto ntaps = DiffTp(std::max(a.size(), b.size()));
+    auto [y, edge] = detail::fwd_filter<padtype>(b, a, x, zi, ntaps, padlen);
 
     // Backward filter
     const auto y_last = y.back();
