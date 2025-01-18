@@ -152,12 +152,33 @@ TEST_CASE("concatenate") {
         REQUIRE(array_equal(res2, {-5, -5, -5, 4, 5, 7, 9, 11}));
     }
 
+    SECTION("constexpr Operator |") {
+        using namespace operators;
+
+        constexpr auto a1 = std::array{1, 2, 3};
+        constexpr auto a2 = std::array{4, 5};
+        constexpr auto a3 = std::array{6, 7, 8};
+        constexpr auto res1 = a1 | a2 | a3;
+        static_assert(array_equal(res1, {1, 2, 3, 4, 5, 6, 7, 8}));
+
+        constexpr auto res2 = (a1 - a3) | a2 | (a1 + a3);
+        static_assert(array_equal(res2, {-5, -5, -5, 4, 5, 7, 9, 11}));
+    }
+
     SECTION("Many std::vectors") {
         const auto a1 = std::vector{1, 2, 3};
         const auto a2 = std::vector{4, 5};
         const auto a3 = std::vector{6, 7, 8};
         const auto res = concatenate(a1, a2, a3);
         REQUIRE(array_equal(res, {1, 2, 3, 4, 5, 6, 7, 8}));
+    }
+
+    SECTION("Many std::array") {
+        constexpr auto a1 = std::array{1, 2, 3};
+        constexpr auto a2 = std::array{4, 5};
+        constexpr auto a3 = std::array{6, 7, 8};
+        constexpr auto res = concatenate(a1, a2, a3);
+        static_assert(array_equal(res, {1, 2, 3, 4, 5, 6, 7, 8}));
     }
 }
 

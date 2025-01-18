@@ -135,14 +135,14 @@ template <class ArrayLhs,
           class ArrayRhs,
           meta::enable_if_iterable<ArrayLhs> = 0,
           meta::enable_if_iterable<ArrayRhs> = 0>
-auto operator|(ArrayLhs &&a, ArrayRhs &&b) {
+constexpr auto operator|(ArrayLhs &&a, ArrayRhs &&b) {
     return concatenate(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
 
 } // namespace operators
 
 template <typename... Arrays>
-auto concatenate(Arrays &&...a) {
+constexpr auto concatenate(Arrays &&...a) {
     static_assert((meta::is_iterable_v<Arrays> && ...));
     using namespace operators;
     return (std::forward<Arrays>(a) | ...);
