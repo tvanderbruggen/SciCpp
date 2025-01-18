@@ -23,6 +23,10 @@
 
 namespace scicpp::signal {
 
+// ----------------------------------------------------------------------------
+// lfilter_zi
+// ----------------------------------------------------------------------------
+
 namespace detail {
 
 template <typename Array1, typename Array2>
@@ -39,10 +43,6 @@ auto zfill(Array1 &b, Array2 &a) {
 }
 
 } // namespace detail
-
-// ----------------------------------------------------------------------------
-// lfilter_zi
-// ----------------------------------------------------------------------------
 
 // Specialization for std::array.
 // Return a std::array but require a[0] != 0 for the size to be known at compile time.
@@ -206,10 +206,12 @@ constexpr auto lfilter(const std::array<T, Nb> &b,
     }
 }
 
-template <typename T>
-auto lfilter(const std::vector<T> &b,
-             const std::vector<T> &a,
-             const std::vector<T> &x) {
+template <typename Array1, typename Array2, typename Array3>
+auto lfilter(const Array1 &b, const Array2 &a, const Array3 &x) {
+    using T = typename Array1::value_type;
+    static_assert(std::is_same_v<T, typename Array2::value_type>);
+    static_assert(std::is_same_v<T, typename Array3::value_type>);
+
     scicpp_require(!almost_equal(a[0], T(0)));
     scicpp_require(!x.empty());
 
@@ -227,11 +229,16 @@ auto lfilter(const std::vector<T> &b,
     }
 }
 
-template <typename T>
-auto lfilter(const std::vector<T> &b,
-             const std::vector<T> &a,
-             const std::vector<T> &x,
-             const std::vector<T> &zi) {
+template <typename Array1, typename Array2, typename Array3, typename Array4>
+auto lfilter(const Array1 &b,
+             const Array2 &a,
+             const Array3 &x,
+             const Array4 &zi) {
+    using T = typename Array1::value_type;
+    static_assert(std::is_same_v<T, typename Array2::value_type>);
+    static_assert(std::is_same_v<T, typename Array3::value_type>);
+    static_assert(std::is_same_v<T, typename Array4::value_type>);
+
     scicpp_require(!almost_equal(a[0], T(0)));
     scicpp_require(!x.empty());
     scicpp_require(zi.size() == std::max(a.size(), b.size()) - 1);
@@ -250,7 +257,7 @@ auto lfilter(const std::vector<T> &b,
     } else {
         const auto nfilt = std::max(a.size(), b.size());
         auto y = zeros<T>(x.size());
-        auto Z = zi;
+        auto Z = std::vector(zi.cbegin(), zi.cend());
         detail::lfilter_impl(a, b, x, y, Z, nfilt);
         return std::tuple{y, Z};
     }
@@ -297,11 +304,13 @@ auto validate_pad(const Array &x,
 
 template <FiltfiltPadType padtype = FiltfiltPadType::ODD,
           FiltfiltMethod method = FiltfiltMethod::PAD,
-          typename T,
-          typename DiffTp = typename std::vector<T>::difference_type>
-auto filtfilt(const std::vector<T> &b,
-              const std::vector<T> &a,
-              const std::vector<T> &x,
+          typename Array1,
+          typename Array2,
+          typename Array3,
+          typename DiffTp = Array1::difference_type>
+auto filtfilt(const Array1 &b,
+              const Array2 &a,
+              const Array3 &x,
               DiffTp padlen = -1) {
     using namespace scicpp::operators;
 
@@ -318,10 +327,10 @@ auto filtfilt(const std::vector<T> &b,
     flip_inplace(y_new);
 
     if (edge > 0) {
-        y_new = slice_array(y_new, edge, -edge);
+        return slice_array(y_new, edge, -edge);
+    } else {
+        return y_new;
     }
-
-    return y_new;
 }
 
 // TODO

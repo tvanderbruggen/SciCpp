@@ -178,6 +178,15 @@ TEST_CASE("lfilter") {
         REQUIRE(almost_equal<2>(y, {1.25, 6.5625, 18.75, 35.625, 52.5}));
     }
 
+    SECTION("std::array / std::vector") {
+        const auto a = std::vector{8.};
+        const auto b = std::vector{10., 20., 30.};
+        const auto x = linspace<5>(1., 10.);
+        const auto y = lfilter(b, a, x);
+        // print(y);
+        REQUIRE(almost_equal<2>(y, {1.25, 6.5625, 18.75, 35.625, 52.5}));
+    }
+
     SECTION("std::array - len(a) == 1 (constexpr)") {
         constexpr auto a = std::array{8.};
         constexpr auto b = std::array{10., 20., 30.};
@@ -317,12 +326,12 @@ TEST_CASE("detail::validate_pad") {
 }
 
 TEST_CASE("filtfilt") {
-    SECTION("std::vector - len(a) == 1 (1)") {
+    SECTION("std::vector - len(a) == 1") {
         const auto a = std::vector{1.};
         const auto b = std::vector{10., 20., 30.};
         const auto x = linspace(10., 100., 20);
         const auto y = filtfilt(b, a, x);
-        print(y);
+        // print(y);
         REQUIRE(almost_equal<10>(y, {35999.99999999999,  53052.63157894737,
                                      70105.26315789473,  87157.8947368421,
                                      104210.52631578948, 121263.15789473683,
@@ -333,6 +342,44 @@ TEST_CASE("filtfilt") {
                                      274736.84210526315, 291789.47368421056,
                                      308842.10526315786, 325894.7368421053,
                                      342947.3684210526,  360000.}));
+    }
+
+    SECTION("std::vector") {
+        const auto a = std::vector{1., 10., 100.};
+        const auto b = std::vector{8., 16.};
+        const auto x = linspace(1., 10., 10);
+        const auto y = filtfilt(b, a, x);
+        print(y);
+        REQUIRE(almost_equal<400>(y,
+                                  {-4.9970352380871936e+43,
+                                   -1.1715611423427560e+43,
+                                   1.6712646661514752e+42,
+                                   -4.9970352380871911e+40,
+                                   -1.1715611423427561e+40,
+                                   1.6712646661514751e+39,
+                                   -4.9970352380871903e+37,
+                                   -1.1715611423427564e+37,
+                                   1.6712646661514754e+36,
+                                   -4.9970352380871888e+34}));
+    }
+
+    SECTION("std::array") {
+        const auto a = std::array{1., 10., 100.};
+        const auto b = std::array{8., 16.};
+        const auto x = linspace<10>(1., 10.);
+        const auto y = filtfilt(b, a, x);
+        print(y);
+        REQUIRE(almost_equal<400>(y,
+                                  {-4.9970352380871936e+43,
+                                   -1.1715611423427560e+43,
+                                   1.6712646661514752e+42,
+                                   -4.9970352380871911e+40,
+                                   -1.1715611423427561e+40,
+                                   1.6712646661514751e+39,
+                                   -4.9970352380871903e+37,
+                                   -1.1715611423427564e+37,
+                                   1.6712646661514754e+36,
+                                   -4.9970352380871888e+34}));
     }
 }
 

@@ -66,8 +66,11 @@ constexpr auto direct_convolve(const std::array<T, N> &a,
     return res;
 }
 
-template <typename T>
-auto direct_convolve(const std::vector<T> &a, const std::vector<T> &v) {
+template <typename Array1, typename Array2>
+auto direct_convolve(const Array1 &a, const Array2 &v) {
+    using T = typename Array1::value_type;
+    static_assert(std::is_same_v<T, typename Array2::value_type>);
+
     std::vector<T> res(a.size() + v.size() - 1);
 
     // Same behavior as numpy:
