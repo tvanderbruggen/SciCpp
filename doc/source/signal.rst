@@ -146,3 +146,16 @@ Waveforms
 
 :ref:`sweep_poly <signal_sweep_poly>`
     Frequency-swept cosine generator, with a time-dependent frequency.
+
+Filtering
+-----------
+
+:ref:`lfilter_zi <signal_lfilter_zi>`
+    Construct initial conditions for lfilter for step response steady-state.
+
+:ref:`lfilter <signal_lfilter>`
+    Filter data along one-dimension with an IIR or FIR filter.
+
+:ref:`filtfilt <signal_filtfilt>`
+    Apply a digital filter forward and backward to a signal.
+

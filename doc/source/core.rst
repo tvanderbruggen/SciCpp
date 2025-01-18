@@ -85,6 +85,9 @@ Operator :code:`|` is used for array concatenation.
 :ref:`flip <core_flip>`
     Reverse the order of elements in an array.
 
+:ref:`slice_array <core_slice_array>`
+    Return the result of a[slice(start, stop, step)].
+
 Ranges
 -------------
 

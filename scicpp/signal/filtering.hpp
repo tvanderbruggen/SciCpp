@@ -307,7 +307,7 @@ template <FiltfiltPadType padtype = FiltfiltPadType::ODD,
           typename Array1,
           typename Array2,
           typename Array3,
-          typename DiffTp = Array1::difference_type>
+          typename DiffTp = typename Array1::difference_type>
 auto filtfilt(const Array1 &b,
               const Array2 &a,
               const Array3 &x,
