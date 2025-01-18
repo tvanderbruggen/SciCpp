@@ -32,9 +32,9 @@ auto odd_ext(const Array &x, DiffTp n) {
     }
 
     const auto left_end = x[0] * raw_t(2);
-    auto left_ext = slice_array(x, n, 0, -1);
+    auto left_ext = slice_array(x, n, DiffTp(0), DiffTp(-1));
     const auto right_end = x.back() * raw_t(2);
-    auto right_ext = slice_array(x, -2, -(n + 2), -1);
+    auto right_ext = slice_array(x, DiffTp(-2), -(n + 2), DiffTp(-1));
 
     return (left_end - left_ext) | x | (right_end - right_ext);
 }
@@ -50,7 +50,8 @@ auto even_ext(const Array &x, DiffTp n) {
         return std::vector(x.cbegin(), x.cend());
     }
 
-    return slice_array(x, n, 0, -1) | x | slice_array(x, -2, -(n + 2), -1);
+    return slice_array(x, n, DiffTp(0), DiffTp(-1)) | x |
+           slice_array(x, DiffTp(-2), -(n + 2), DiffTp(-1));
 }
 
 template <typename Array, typename DiffTp = typename Array::difference_type>

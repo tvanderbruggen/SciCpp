@@ -5,9 +5,8 @@
 
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/macros.hpp"
-#include "scicpp/core/meta.hpp"
+#include "scicpp/core/manips.hpp"
 #include "scicpp/core/numeric.hpp"
-// #include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
 #include "scicpp/linalg/matrices.hpp"
 #include "scicpp/linalg/solve.hpp"
@@ -15,45 +14,16 @@
 #include "scicpp/signal/convolve.hpp"
 
 #include <Eigen/Dense>
+#include <algorithm>
 #include <array>
 #include <complex>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 namespace scicpp::signal {
 
-enum class PadType : int { EVEN, ODD, CONSTANT, NONE };
-// enum class METHOD : int { PAD, GUST };
-
 namespace detail {
-
-template <PadType padtype,
-          typename Array,
-          typename DiffTp = typename Array::difference_type>
-auto validate_pad(const Array &x,
-                  [[maybe_unused]] DiffTp ntaps,
-                  [[maybe_unused]] DiffTp padlen = -1) {
-    static_assert(meta::is_iterable_v<Array>);
-
-    if constexpr (padtype == PadType::NONE) {
-        return std::tuple{std::vector(x.cbegin(), x.cend()), 0};
-    } else {
-        const auto edge = (padlen == -1) ? 3 * ntaps : padlen;
-        scicpp_require(x.size() > std::size_t(edge));
-
-        if (edge > 0) {
-            if constexpr (padtype == PadType::EVEN) {
-                return std::tuple{even_ext(x, edge), edge};
-            } else if constexpr (padtype == PadType::ODD) {
-                return std::tuple{odd_ext(x, edge), edge};
-            } else {
-                return std::tuple{const_ext(x, edge), edge};
-            }
-        } else {
-            return std::tuple{std::vector(x.cbegin(), x.cend()), edge};
-        }
-    }
-}
 
 template <typename Array1, typename Array2>
 auto zfill(Array1 &b, Array2 &a) {
@@ -114,7 +84,7 @@ auto lfilter_zi(const Array1 &b, const Array2 &a) {
     }
 
     scicpp_require(
-        k < (a.size() - 1) &&
+        k <= (a.size() - 1) &&
         "lfilter_zi: There must be at least one nonzero `a` coefficient.");
 
     std::vector<T> a_(a.cbegin() + signed_size_t(k), a.cend());
@@ -286,44 +256,76 @@ auto lfilter(const std::vector<T> &b,
     }
 }
 
-// template <typename T, PADTYPE ptype = PADTYPE::ODD, METHOD method = METHOD::PAD>
-// auto filtfilt(std::vector<T> &b,
-//               std::vector<T> &a,
-//               std::vector<T> &x,
-//               int axis = 0,
-//               int padlen = -1,
-//               std::optional<int> irlen = std::nullopt) {
-//     using namespace scicpp::operators;
-//     if (method == METHOD::GUST)
-//         ;
-//     auto [ext, edge] = detail::_validate_pad<T, ptype>(
-//         x, 0, std::max(a.size(), b.size()), padlen);
+// ----------------------------------------------------------------------------
+// filtfilt
+// ----------------------------------------------------------------------------
 
-//     const auto zi = lfilter_zi(b, a);
+enum class FiltfiltPadType : int { EVEN, ODD, CONSTANT, NONE };
+enum class FiltfiltMethod : int { PAD, GUST }; // Only PAD implemented for now
 
-//     T x0 = ext[0];
+namespace detail {
 
-//     // Forward filter.
-//     auto [y, zf] = lfilter(b, a, ext, zi * x0);
+template <FiltfiltPadType padtype,
+          typename Array,
+          typename DiffTp = typename Array::difference_type>
+auto validate_pad(const Array &x,
+                  [[maybe_unused]] DiffTp ntaps,
+                  [[maybe_unused]] DiffTp padlen = -1) {
+    static_assert(meta::is_iterable_v<Array>);
 
-//     // Backward filter.
-//     // Create y0 so zi*y0 broadcasts appropriately.
-//     T y0 = y[y.size() - 1];
-//     auto y_rev = utils::set_array(y);
+    if constexpr (padtype == FiltfiltPadType::NONE) {
+        return std::tuple{std::vector(x.cbegin(), x.cend()), 0};
+    } else {
+        const auto edge = (padlen == -1) ? 3 * ntaps : padlen;
+        scicpp_require(x.size() > std::size_t(edge));
 
-//     std::reverse_copy(y.begin(), y.end(), y_rev.begin());
+        if (edge > 0) {
+            if constexpr (padtype == FiltfiltPadType::EVEN) {
+                return std::tuple{even_ext(x, edge), edge};
+            } else if constexpr (padtype == FiltfiltPadType::ODD) {
+                return std::tuple{odd_ext(x, edge), edge};
+            } else {
+                return std::tuple{const_ext(x, edge), edge};
+            }
+        } else {
+            return std::tuple{std::vector(x.cbegin(), x.cend()), edge};
+        }
+    }
+}
 
-//     auto [y_new, zf_new] = lfilter(b, a, y_rev, zi * y0);
+} // namespace detail
 
-//     // Reverse y.
-//     std::reverse(y_new.begin(), y_new.end());
+template <FiltfiltPadType padtype = FiltfiltPadType::ODD,
+          FiltfiltMethod method = FiltfiltMethod::PAD,
+          typename T,
+          typename DiffTp = typename std::vector<T>::difference_type>
+auto filtfilt(const std::vector<T> &b,
+              const std::vector<T> &a,
+              const std::vector<T> &x,
+              DiffTp padlen = -1) {
+    using namespace scicpp::operators;
 
-//     if (edge > 0)
-//         // Slice the actual signal from the extended signal.
-//         y_new = axis_slice(y_new, edge, -edge);
+    const auto len = DiffTp(std::max(a.size(), b.size()));
+    auto [ext, edge] = detail::validate_pad<padtype>(x, len, padlen);
+    const auto zi = lfilter_zi(b, a);
 
-//     return y_new;
-// }
+    // Forward filter
+    auto [y, zf] = lfilter(b, a, ext, zi * ext[0]);
+
+    // Backward filter
+    const auto y_last = y.back();
+    auto [y_new, zf_new] = lfilter(b, a, flip(std::move(y)), zi * y_last);
+    flip_inplace(y_new);
+
+    if (edge > 0) {
+        y_new = slice_array(y_new, edge, -edge);
+    }
+
+    return y_new;
+}
+
+// TODO
+// deconvolve https://github.com/scipy/scipy/blob/df134eab5a500c2146ed4552c8674a78d8154ee9/scipy/signal/_signaltools.py#L2258
 
 } // namespace scicpp::signal
 

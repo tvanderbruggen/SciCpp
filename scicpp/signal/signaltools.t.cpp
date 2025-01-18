@@ -9,33 +9,6 @@
 
 namespace scicpp::signal {
 
-TEST_CASE("detail::validate_pad") {
-    SECTION("std::vector") {
-        const auto x = std::vector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        const auto [ext, edge] = detail::validate_pad<PadType::ODD>(x, 3);
-        REQUIRE(array_equal(ext, {-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
-                                  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
-                                  11, 12, 13, 14, 15, 16, 17, 18, 19, 20}));
-        REQUIRE(edge == 9);
-    }
-
-    SECTION("std::array") {
-        const auto x = std::array{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        const auto [ext, edge] = detail::validate_pad<PadType::ODD>(x, 3);
-        REQUIRE(array_equal(ext, {-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
-                                  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
-                                  11, 12, 13, 14, 15, 16, 17, 18, 19, 20}));
-        REQUIRE(edge == 9);
-    }
-
-    SECTION("PadType::NONE") {
-        const auto x = std::vector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        const auto [ext, edge] = detail::validate_pad<PadType::NONE>(x, 3);
-        REQUIRE(array_equal(ext, x));
-        REQUIRE(edge == 0);
-    }
-}
-
 TEST_CASE("lfilter_zi") {
     SECTION("std::vector 1") {
         const auto a = std::vector{1., 2., 3.};
@@ -310,6 +283,56 @@ TEST_CASE("lfilter") {
         static_assert(zf.size() == 2);
         static_assert(float_equal(zf[0], -335880.));
         static_assert(float_equal(zf[1], 4829600.));
+    }
+}
+
+TEST_CASE("detail::validate_pad") {
+    SECTION("std::vector") {
+        const auto x = std::vector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        const auto [ext, edge] =
+            detail::validate_pad<FiltfiltPadType::ODD>(x, 3);
+        REQUIRE(array_equal(ext, {-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
+                                  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
+                                  11, 12, 13, 14, 15, 16, 17, 18, 19, 20}));
+        REQUIRE(edge == 9);
+    }
+
+    SECTION("std::array") {
+        const auto x = std::array{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        const auto [ext, edge] =
+            detail::validate_pad<FiltfiltPadType::ODD>(x, 3);
+        REQUIRE(array_equal(ext, {-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
+                                  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
+                                  11, 12, 13, 14, 15, 16, 17, 18, 19, 20}));
+        REQUIRE(edge == 9);
+    }
+
+    SECTION("FiltfiltPadType::NONE") {
+        const auto x = std::vector{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        const auto [ext, edge] =
+            detail::validate_pad<FiltfiltPadType::NONE>(x, 3);
+        REQUIRE(array_equal(ext, x));
+        REQUIRE(edge == 0);
+    }
+}
+
+TEST_CASE("filtfilt") {
+    SECTION("std::vector - len(a) == 1 (1)") {
+        const auto a = std::vector{1.};
+        const auto b = std::vector{10., 20., 30.};
+        const auto x = linspace(10., 100., 20);
+        const auto y = filtfilt(b, a, x);
+        print(y);
+        REQUIRE(almost_equal<10>(y, {35999.99999999999,  53052.63157894737,
+                                     70105.26315789473,  87157.8947368421,
+                                     104210.52631578948, 121263.15789473683,
+                                     138315.7894736842,  155368.42105263157,
+                                     172421.05263157896, 189473.68421052632,
+                                     206526.3157894737,  223578.94736842104,
+                                     240631.57894736843, 257684.2105263158,
+                                     274736.84210526315, 291789.47368421056,
+                                     308842.10526315786, 325894.7368421053,
+                                     342947.3684210526,  360000.}));
     }
 }
 
