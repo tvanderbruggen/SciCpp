@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-#ifndef SCICPP_SIGNAL_SIGNALTOOLS
-#define SCICPP_SIGNAL_SIGNALTOOLS
+#ifndef SCICPP_SIGNAL_FILTERING
+#define SCICPP_SIGNAL_FILTERING
 
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/macros.hpp"
@@ -18,7 +18,9 @@
 #include <algorithm>
 #include <array>
 #include <complex>
+#include <cstddef>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -360,9 +362,43 @@ auto filtfilt(const Array1 &b,
 // deconvolve
 // ----------------------------------------------------------------------------
 
-// TODO
-// deconvolve https://github.com/scipy/scipy/blob/df134eab5a500c2146ed4552c8674a78d8154ee9/scipy/signal/_signaltools.py#L2258
+template <typename T, std::size_t N, std::size_t D>
+constexpr auto deconvolve(const std::array<T, N> &signal,
+                          const std::array<T, D> &divisor) {
+    if constexpr (D > N) {
+        return std::tuple{std::array<T, 0>{}, signal};
+    } else {
+        using namespace scicpp::operators;
+
+        auto input = zeros<N - D + 1, T>();
+        input[0] = T(1);
+        const auto quot = lfilter(signal, divisor, input);
+        const auto rem = signal - convolve(divisor, quot);
+        return std::tuple{quot, rem};
+    }
+}
+
+template <typename Array1, typename Array2>
+auto deconvolve(const Array1 &signal, const Array2 &divisor) {
+    using T = typename Array1::value_type;
+    static_assert(std::is_same_v<T, typename Array2::value_type>);
+
+    const auto N = signal.size();
+    const auto D = divisor.size();
+
+    if (D > N) {
+        return std::tuple{empty<T>(), signal};
+    } else {
+        using namespace scicpp::operators;
+
+        auto input = zeros<T>(N - D + 1);
+        input[0] = T(1);
+        const auto quot = lfilter(signal, divisor, input);
+        const auto rem = signal - convolve(divisor, quot);
+        return std::tuple{quot, rem};
+    }
+}
 
 } // namespace scicpp::signal
 
-#endif // SCICPP_SIGNAL_SIGNALTOOLS
+#endif // SCICPP_SIGNAL_FILTERING

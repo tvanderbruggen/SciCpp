@@ -5,7 +5,7 @@
 #include "scicpp/core/equal.hpp"
 #include "scicpp/core/numeric.hpp"
 #include "scicpp/core/print.hpp"
-#include "scicpp/signal/filter_design.hpp"
+#include "scicpp/signal/convolve.hpp"
 
 namespace scicpp::signal {
 
@@ -350,6 +350,62 @@ TEST_CASE("filtfilt") {
                                    -1.1715611423427564e+37,
                                    1.6712646661514754e+36,
                                    -4.9970352380871888e+34}));
+    }
+}
+
+TEST_CASE("deconvolve") {
+    SECTION("std::vector") {
+        const auto original = std::vector{0., 1., 0., 0., 1., 1., 0., 0.};
+        const auto impulse_response = std::vector{2., 1.};
+        const auto recorded = convolve(impulse_response, original);
+        REQUIRE(
+            almost_equal<1>(recorded, {0., 2., 1., 0., 2., 3., 1., 0., 0.}));
+        const auto [recovered, remainder] =
+            deconvolve(recorded, impulse_response);
+        REQUIRE(almost_equal<1>(recovered, {0., 1., 0., 0., 1., 1., 0., 0.}));
+        REQUIRE(
+            almost_equal<1>(remainder, {0., 0., 0., 0., 0., 0., 0., 0., 0.}));
+    }
+
+    SECTION("std::array") {
+        constexpr auto original = std::array{0., 1., 0., 0., 1., 1., 0., 0.};
+        constexpr auto impulse_response = std::array{2., 1.};
+        constexpr auto recorded = convolve(impulse_response, original);
+        static_assert(recorded.size() == 9);
+        static_assert(float_equal(recorded[0], 0.));
+        static_assert(float_equal(recorded[1], 2.));
+        static_assert(float_equal(recorded[2], 1.));
+        static_assert(float_equal(recorded[3], 0.));
+        static_assert(float_equal(recorded[4], 2.));
+        static_assert(float_equal(recorded[5], 3.));
+        static_assert(float_equal(recorded[6], 1.));
+        static_assert(float_equal(recorded[7], 0.));
+        static_assert(float_equal(recorded[8], 0.));
+
+        const auto res = deconvolve(recorded, impulse_response);
+        constexpr auto recovered = std::get<0>(res);
+        constexpr auto remainder = std::get<1>(res);
+
+        static_assert(recovered.size() == 8);
+        static_assert(float_equal(recovered[0], 0.));
+        static_assert(float_equal(recovered[1], 1.));
+        static_assert(float_equal(recovered[2], 0.));
+        static_assert(float_equal(recovered[3], 0.));
+        static_assert(float_equal(recovered[4], 1.));
+        static_assert(float_equal(recovered[5], 1.));
+        static_assert(float_equal(recovered[6], 0.));
+        static_assert(float_equal(recovered[7], 0.));
+
+        static_assert(remainder.size() == 9);
+        static_assert(float_equal(remainder[0], 0.));
+        static_assert(float_equal(remainder[1], 0.));
+        static_assert(float_equal(remainder[2], 0.));
+        static_assert(float_equal(remainder[3], 0.));
+        static_assert(float_equal(remainder[4], 0.));
+        static_assert(float_equal(remainder[5], 0.));
+        static_assert(float_equal(remainder[6], 0.));
+        static_assert(float_equal(remainder[7], 0.));
+        static_assert(float_equal(remainder[8], 0.));
     }
 }
 
