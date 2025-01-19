@@ -390,7 +390,7 @@ TEST_CASE("deconvolve") {
         static_assert(float_equal(recorded[7], 0.));
         static_assert(float_equal(recorded[8], 0.));
 
-        const auto res = deconvolve(recorded, impulse_response);
+        constexpr auto res = deconvolve(recorded, impulse_response);
         constexpr auto recovered = std::get<0>(res);
         constexpr auto remainder = std::get<1>(res);
 
@@ -419,7 +419,7 @@ TEST_CASE("deconvolve") {
     SECTION("std::array 2") {
         constexpr auto signal = std::array{1.};
         constexpr auto divisor = std::array{1., 2.};
-        const auto res = deconvolve(signal, divisor);
+        constexpr auto res = deconvolve(signal, divisor);
         constexpr auto recovered = std::get<0>(res);
         constexpr auto remainder = std::get<1>(res);
         static_assert(recovered.empty());
