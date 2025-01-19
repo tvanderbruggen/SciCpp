@@ -367,7 +367,15 @@ TEST_CASE("deconvolve") {
             almost_equal<1>(remainder, {0., 0., 0., 0., 0., 0., 0., 0., 0.}));
     }
 
-    SECTION("std::array") {
+    SECTION("std::vector 2") {
+        const auto signal = std::vector{1.};
+        const auto divisor = std::vector{1., 2.};
+        const auto [recovered, remainder] = deconvolve(signal, divisor);
+        REQUIRE(recovered.empty());
+        REQUIRE(almost_equal(remainder, {1.}));
+    }
+
+    SECTION("std::array 1") {
         constexpr auto original = std::array{0., 1., 0., 0., 1., 1., 0., 0.};
         constexpr auto impulse_response = std::array{2., 1.};
         constexpr auto recorded = convolve(impulse_response, original);
@@ -406,6 +414,29 @@ TEST_CASE("deconvolve") {
         static_assert(float_equal(remainder[6], 0.));
         static_assert(float_equal(remainder[7], 0.));
         static_assert(float_equal(remainder[8], 0.));
+    }
+
+    SECTION("std::array 2") {
+        constexpr auto signal = std::array{1.};
+        constexpr auto divisor = std::array{1., 2.};
+        const auto res = deconvolve(signal, divisor);
+        constexpr auto recovered = std::get<0>(res);
+        constexpr auto remainder = std::get<1>(res);
+        static_assert(recovered.empty());
+        static_assert(float_equal(remainder[0], 1.));
+    }
+
+    SECTION("std::vector / std::array") {
+        const auto original = std::vector{0., 1., 0., 0., 1., 1., 0., 0.};
+        const auto impulse_response = std::array{2., 1.};
+        const auto recorded = convolve(impulse_response, original);
+        REQUIRE(
+            almost_equal<1>(recorded, {0., 2., 1., 0., 2., 3., 1., 0., 0.}));
+        const auto [recovered, remainder] =
+            deconvolve(recorded, impulse_response);
+        REQUIRE(almost_equal<1>(recovered, {0., 1., 0., 0., 1., 1., 0., 0.}));
+        REQUIRE(
+            almost_equal<1>(remainder, {0., 0., 0., 0., 0., 0., 0., 0., 0.}));
     }
 }
 
