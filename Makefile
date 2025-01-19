@@ -8,8 +8,8 @@ TMP=tmp
 
 CPP_VERSION = 20
 
-# COMPILER ?= clang
-COMPILER ?= gcc
+COMPILER ?= clang
+# COMPILER ?= gcc
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native

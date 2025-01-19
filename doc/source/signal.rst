@@ -159,3 +159,6 @@ Filtering
 :ref:`filtfilt <signal_filtfilt>`
     Apply a digital filter forward and backward to a signal.
 
+:ref:`deconvolve <signal_deconvolve>`
+    Deconvolves ``divisor`` out of ``signal`` using inverse filtering.
+

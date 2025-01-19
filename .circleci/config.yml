@@ -13,8 +13,8 @@ jobs:
           name: Install GCC-10
           command: apt-get install -y g++-10 gcc-10 libc6-dev libc-dev make;
       - run:
-          name: Install Clang
-          command: apt-get install -y clang libc++-dev clang-format
+          name: Install Clang-19
+          command: apt-get install -y clang-19 libc++-dev clang-format
       - run:
           name: Install Eigen
           command: bash scripts/install_eigen.sh
