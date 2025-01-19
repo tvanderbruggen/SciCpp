@@ -7,9 +7,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Requirements
-          command: apt-get install lsb-release wget software-properties-common gnupg
-      - run:
           name: Install SciPy
           command: apt-get update; apt-get install -y time python3-numpy python3-scipy;
       - run:
@@ -17,7 +14,7 @@ jobs:
           command: apt-get install -y g++-10 gcc-10 libc6-dev libc-dev make;
       - run:
           name: Install Clang-19
-          command: wget -qO- https://apt.llvm.org/llvm.sh | bash -s -- 19
+          command: apt-get install -y clang-16 libc++-dev clang-format
       - run:
           name: Install Eigen
           command: bash scripts/install_eigen.sh
