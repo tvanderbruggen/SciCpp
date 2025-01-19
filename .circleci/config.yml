@@ -17,7 +17,7 @@ jobs:
           command: apt-get install -y g++-10 gcc-10 libc6-dev libc-dev make;
       - run:
           name: Install Clang-19
-          command: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 19
+          command: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 19 && ln -s clang-19 clang
       - run:
           name: Install Eigen
           command: bash scripts/install_eigen.sh
