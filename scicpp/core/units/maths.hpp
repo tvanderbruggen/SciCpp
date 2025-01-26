@@ -155,6 +155,8 @@ auto hypot(T x, T y, T z) {
 
 namespace detail {
 
+#if SCICPP_HAS_UNITS
+
 template <typename T>
 constexpr bool is_dimensionless_like =
     is_dimensionless<T> || std::is_arithmetic_v<T> || meta::is_complex_v<T>;
@@ -172,6 +174,18 @@ constexpr auto to_radian(T x) {
         return quantity_cast<rad>(x).value();
     }
 }
+
+#else // !SCICPP_HAS_UNITS
+
+template <typename T>
+constexpr bool is_dimensionless_like = true;
+
+template <typename T>
+constexpr auto to_radian(T x) {
+    return x;
+}
+
+#endif // SCICPP_HAS_UNITS
 
 } // namespace detail
 

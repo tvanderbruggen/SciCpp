@@ -72,6 +72,8 @@ bool almost_equal(T a, T b) {
     }
 }
 
+#if SCICPP_HAS_UNITS
+
 template <int rel_tol = 1,
           typename T,
           typename Dim,
@@ -83,6 +85,8 @@ auto almost_equal(const units::quantity<T, Dim, Scale1, Offset1> &q1,
                   const units::quantity<T, Dim, Scale2, Offset2> &q2) {
     return almost_equal<rel_tol>(q1.eval(), q2.eval());
 }
+
+#endif // SCICPP_HAS_UNITS
 
 template <int rel_tol = 1, class Array, meta::enable_if_iterable<Array> = 0>
 bool scicpp_pure almost_equal(const Array &f1, const Array &f2) {

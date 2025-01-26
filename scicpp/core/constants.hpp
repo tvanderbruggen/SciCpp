@@ -4,8 +4,14 @@
 #ifndef SCICPP_CORE_CONSTANTS
 #define SCICPP_CORE_CONSTANTS
 
+#include "scicpp/core/macros.hpp"
+
+#if SCICPP_HAS_UNITS
+
 #include "scicpp/core/units/quantity.hpp"
 #include "scicpp/core/units/units.hpp"
+
+#endif // SCICPP_HAS_UNITS
 
 namespace scicpp {
 
@@ -31,6 +37,8 @@ constexpr T apery_cst = T(1.20205690315959428539);
 //
 // From CODATA 2018
 //---------------------------------------------------------------------------------
+
+#if SCICPP_HAS_UNITS
 
 template <typename T>
 struct physical_constants {
@@ -96,11 +104,13 @@ struct physical_constants {
     using boltzmann_cst_qty =
         units::quantity_divide<units::energy<T>, units::temperature<T>>;
     static constexpr auto k = boltzmann_cst_qty(1.380649E-23);
-};
+}; // struct physical_constants
 
 using phys_cst_f = physical_constants<float>;
 using phys_cst = physical_constants<double>;
 using phys_cst_l = physical_constants<long double>;
+
+#endif // SCICPP_HAS_UNITS
 
 } // namespace scicpp
 
