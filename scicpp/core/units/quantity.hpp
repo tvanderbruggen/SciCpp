@@ -4,6 +4,10 @@
 #ifndef SCICPP_CORE_UNITS_QUANTITY
 #define SCICPP_CORE_UNITS_QUANTITY
 
+#include "scicpp/core/macros.hpp"
+
+#if SCICPP_HAS_UNITS
+
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/units/arithmetic.hpp"
 
@@ -762,5 +766,92 @@ operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
 }
 
 } // namespace scicpp::units
+
+#else // !SCICPP_HAS_UNITS
+
+#include "scicpp/core/meta.hpp"
+
+#include <complex>
+
+namespace scicpp::units {
+
+template <class T>
+constexpr bool is_quantity_v = false;
+
+template <class T>
+using enable_if_is_quantity = std::enable_if_t<is_quantity_v<T>, int>;
+
+template <class T>
+using disable_if_is_quantity = std::enable_if_t<!is_quantity_v<T>, int>;
+
+template <class Qty1, class Qty2>
+constexpr bool is_same_dimension = true;
+
+template <class T>
+using representation_t = T;
+
+template <class T>
+using quantity_cast = T;
+
+template <typename T>
+constexpr auto value(T x) {
+    if constexpr (meta::is_complex_v<std::decay_t<T>>) {
+        return std::complex(value(x.real()), value(x.imag()));
+    } else {
+        return x;
+    }
+}
+
+// Forward declarations
+
+template <typename Ratio, intmax_t Root = 1>
+struct dimension;
+
+template <typename Dim, intmax_t Root>
+struct dimension_root;
+
+template <typename Dim1, typename Dim2>
+struct dimension_multiply;
+
+template <typename Dim1, typename Dim2>
+struct dimension_divide;
+
+template <typename Dim, intmax_t N>
+struct dimension_power;
+
+template <typename Ratio, intmax_t Root = 1>
+struct scale;
+
+template <typename Scale, intmax_t Root>
+struct scale_root;
+
+template <typename Scale1, typename Scale2>
+struct scale_multiply;
+
+template <typename Scale1, typename Scale2>
+struct scale_divide;
+
+template <typename Scale, intmax_t N>
+struct scale_power;
+
+template <typename T, typename Dim, typename Scale, typename Offset = std::ratio<0>>
+struct quantity;
+
+template <typename Quantity1, typename Quantity2>
+struct quantity_multiply;
+
+template <typename Quantity1, typename Quantity2>
+struct quantity_divide;
+
+template <typename Quantity>
+struct quantity_invert;
+
+template <intmax_t Root, typename Quantity>
+struct quantity_root;
+
+
+} // namespace scicpp::units
+
+#endif
 
 #endif // SCICPP_CORE_UNITS_QUANTITY

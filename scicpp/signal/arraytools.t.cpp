@@ -11,25 +11,6 @@
 
 namespace scicpp::signal {
 
-TEST_CASE("Eye") {
-    // SECTION("Eye 0") {
-    //     const auto result = detail::eye<int>(3, 0, -1);
-    //     REQUIRE(almost_equal<1>(result, {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}}));
-    // }
-    // SECTION("Eye 1") {
-    //     const auto result = detail::eye<int>(3, 0, 1);
-    //     REQUIRE(almost_equal<1>(result, {{0, 1, 0}, {0, 0, 1}, {0, 0, 0}}));
-    // }
-    // SECTION("Eye 2") {
-    //     const auto result = detail::eye<int>(3, 2, 1);
-    //     REQUIRE(almost_equal<1>(result, {{0, 1}, {0, 0}, {0, 0}}));
-    // }
-    // SECTION("Eye 3") {
-    //     const auto result = detail::eye<int>(2);
-    //     REQUIRE(almost_equal<1>(result, {{1, 0}, {0, 1}}));
-    // }
-}
-
 TEST_CASE("odd_ext") {
     SECTION("std::vector") {
         std::vector arr{1, 2, 3, 4, 5, 6, 7};
