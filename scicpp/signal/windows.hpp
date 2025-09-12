@@ -602,8 +602,8 @@ auto s1(const Array &window) {
 template <typename Array>
 auto s2(const Array &window) {
     using T = typename Array::value_type;
-    return std::get<0>(
-        reduce(window, [](auto r, auto v) { return r + std::norm(v); }, T{0}));
+    return std::get<0>(reduce(
+        window, [](auto r, auto v) { return r + std::norm(v); }, T{0}));
 }
 
 // https://fr.mathworks.com/help/signal/ref/enbw.html

@@ -35,9 +35,9 @@ namespace scicpp {
 using signed_size_t = std::make_signed_t<std::size_t>;
 
 #ifdef __EMSCRIPTEN__
-    #define SCICPP_HAS_UNITS 0
+#define SCICPP_HAS_UNITS 0
 #else
-    #define SCICPP_HAS_UNITS 1
+#define SCICPP_HAS_UNITS 1
 #endif
 
 } // namespace scicpp

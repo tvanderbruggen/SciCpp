@@ -53,14 +53,13 @@ using std::begin;
 using std::end;
 
 template <typename T>
-auto is_iterable_impl(int)
-    -> decltype(begin(std::declval<T &>()) !=
-                    end(std::declval<T &>()), // begin/end and operator !=
-                void(),                       // Handle evil operator ,
-                ++std::declval<
-                    decltype(begin(std::declval<T &>())) &>(), // operator ++
-                void(*begin(std::declval<T &>())),             // operator*
-                std::true_type{});
+auto is_iterable_impl(int) -> decltype(
+    begin(std::declval<T &>()) !=
+        end(std::declval<T &>()), // begin/end and operator !=
+    void(),                       // Handle evil operator ,
+    ++std::declval<decltype(begin(std::declval<T &>())) &>(), // operator ++
+    void(*begin(std::declval<T &>())),                        // operator*
+    std::true_type{});
 
 template <typename T>
 std::false_type is_iterable_impl(...);
@@ -242,8 +241,8 @@ constexpr bool is_string_v =
 
 template <class T>
 constexpr bool is_movable_v =
-    std::is_object_v<T> && std::is_move_constructible_v<T> &&
-    std::is_assignable_v<T &, T> && std::is_swappable_v<T>;
+    std::is_object_v<T> &&std::is_move_constructible_v<T>
+        &&std::is_assignable_v<T &, T> &&std::is_swappable_v<T>;
 
 //---------------------------------------------------------------------------------
 // value_type

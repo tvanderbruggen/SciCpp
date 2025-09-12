@@ -374,11 +374,11 @@ auto nangmean(Array &&f) {
 //---------------------------------------------------------------------------------
 
 template <int ddof = 0, class InputIt1, class InputIt2, class Predicate>
-constexpr auto covariance(InputIt1 first1,
-                          InputIt1 last1,
-                          InputIt2 first2,
-                          InputIt2 last2,
-                          Predicate filter) {
+constexpr scicpp_pure auto covariance(InputIt1 first1,
+                                      InputIt1 last1,
+                                      InputIt2 first2,
+                                      InputIt2 last2,
+                                      Predicate filter) {
     using T1 = typename std::iterator_traits<InputIt1>::value_type;
     using T2 = typename std::iterator_traits<InputIt2>::value_type;
     using raw_t1 = units::representation_t<T1>;
@@ -452,7 +452,7 @@ constexpr auto covariance(InputIt1 first1,
 }
 
 template <int ddof = 0, class Array1, class Array2, class Predicate>
-constexpr auto
+constexpr scicpp_pure auto
 covariance(const Array1 &f1, const Array2 &f2, Predicate filter) {
     return std::get<0>(covariance<ddof>(
         f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend(), filter));
@@ -464,7 +464,7 @@ constexpr auto covariance(const Array1 &f1, const Array2 &f2) {
 }
 
 template <int ddof = 0, class Array1, class Array2>
-auto nancovariance(const Array1 &f1, const Array2 &f2) {
+scicpp_pure auto nancovariance(const Array1 &f1, const Array2 &f2) {
     return covariance<ddof>(f1, f2, filters::not_nan);
 }
 
@@ -486,12 +486,12 @@ constexpr auto var(InputIt first, InputIt last, Predicate filter) {
 }
 
 template <int ddof = 0, class Array, class Predicate>
-constexpr auto var(const Array &f, Predicate filter) {
+constexpr scicpp_pure auto var(const Array &f, Predicate filter) {
     return std::get<0>(var<ddof>(f.cbegin(), f.cend(), filter));
 }
 
 template <int ddof = 0, class Array>
-constexpr auto var(const Array &f) {
+constexpr scicpp_pure auto var(const Array &f) {
     return var<ddof>(f, filters::all);
 }
 
@@ -512,12 +512,12 @@ constexpr auto tvar(const Array &f,
 //---------------------------------------------------------------------------------
 
 template <int ddof = 0, class Array, class Predicate>
-auto std(const Array &a, Predicate filter) {
+scicpp_pure auto std(const Array &a, Predicate filter) {
     return units::sqrt(var<ddof>(a, filter));
 }
 
 template <int ddof = 0, class Array>
-auto std(const Array &a) {
+scicpp_pure auto std(const Array &a) {
     return units::sqrt(var<ddof>(a));
 }
 
@@ -570,7 +570,7 @@ constexpr auto tsem(const Array &f,
 //---------------------------------------------------------------------------------
 
 template <intmax_t n, class Array, class Predicate>
-auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
+scicpp_pure auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
     using namespace operators;
     using T = typename Array::value_type;
 
@@ -590,7 +590,7 @@ auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
 }
 
 template <intmax_t n, class Array>
-auto moment(const Array &f) {
+scicpp_pure auto moment(const Array &f) {
     return moment<n>(f, filters::all);
 }
 
@@ -620,12 +620,12 @@ auto kurtosis(const Array &f, Predicate filter) {
 }
 
 template <KurtosisDef def = KurtosisDef::Fisher, class Array>
-auto kurtosis(const Array &f) {
+scicpp_pure auto kurtosis(const Array &f) {
     return kurtosis<def>(f, filters::all);
 }
 
 template <KurtosisDef def = KurtosisDef::Fisher, class Array>
-auto nankurtosis(const Array &f) {
+scicpp_pure auto nankurtosis(const Array &f) {
     return kurtosis<def>(f, filters::not_nan);
 }
 
@@ -634,14 +634,14 @@ auto nankurtosis(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <class Array, class Predicate>
-auto skew(const Array &f, Predicate filter) {
+scicpp_pure auto skew(const Array &f, Predicate filter) {
     const auto m2 = moment<2>(f, filter);
     const auto m3 = moment<3>(f, filter);
     return m3 / units::sqrt(m2 * m2 * m2);
 }
 
 template <class Array>
-auto skew(const Array &f) {
+scicpp_pure auto skew(const Array &f) {
     return skew(f, filters::all);
 }
 
@@ -655,7 +655,7 @@ auto nanskew(const Array &f) {
 //---------------------------------------------------------------------------------
 
 template <int ddof = 1, class Array1, class Array2, class Predicate>
-auto cov(const Array1 &f1, const Array2 &f2, Predicate filter) {
+scicpp_pure auto cov(const Array1 &f1, const Array2 &f2, Predicate filter) {
     const auto covar = covariance<ddof>(f1, f2, filter);
     using T = std::decay_t<decltype(covar)>;
 
@@ -668,7 +668,7 @@ auto cov(const Array1 &f1, const Array2 &f2, Predicate filter) {
 }
 
 template <int ddof = 1, class Array1, class Array2>
-auto cov(const Array1 &f1, const Array2 &f2) {
+scicpp_pure auto cov(const Array1 &f1, const Array2 &f2) {
     return cov<ddof>(f1, f2, filters::all);
 }
 

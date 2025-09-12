@@ -164,8 +164,8 @@ template <typename T,
 struct quantity {
   private:
     template <typename Scale2>
-    static constexpr bool is_harmonic =
-        (std::ratio_divide<Scale2, Scale>::den == 1);
+    static constexpr bool
+        is_harmonic = (std::ratio_divide<Scale2, Scale>::den == 1);
 
     template <typename T2, typename Scale2>
     static constexpr bool is_implicitly_convertible =
@@ -834,7 +834,10 @@ struct scale_divide;
 template <typename Scale, intmax_t N>
 struct scale_power;
 
-template <typename T, typename Dim, typename Scale, typename Offset = std::ratio<0>>
+template <typename T,
+          typename Dim,
+          typename Scale,
+          typename Offset = std::ratio<0>>
 struct quantity;
 
 template <typename Quantity1, typename Quantity2>
@@ -848,7 +851,6 @@ struct quantity_invert;
 
 template <intmax_t Root, typename Quantity>
 struct quantity_root;
-
 
 } // namespace scicpp::units
 

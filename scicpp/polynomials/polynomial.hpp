@@ -462,7 +462,7 @@ auto polyint(const std::vector<T> &P, signed_size_t m = 1) {
 //---------------------------------------------------------------------------------
 
 template <typename T, std::size_t N>
-auto polycompanion(const std::array<T, N> &P) {
+scicpp_pure auto polycompanion(const std::array<T, N> &P) {
     constexpr int deg = N - 1;
     Eigen::Matrix<T, deg, deg> res{};
     res.setZero();
