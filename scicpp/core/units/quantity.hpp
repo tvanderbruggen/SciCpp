@@ -165,7 +165,7 @@ struct quantity {
   private:
     template <typename Scale2>
     static constexpr bool
-        is_harmonic = (std::ratio_divide<Scale2, Scale>::den == 1);
+        is_harmonic = (scale_divide<Scale2, Scale>::den == 1);
 
     template <typename T2, typename Scale2>
     static constexpr bool is_implicitly_convertible =
