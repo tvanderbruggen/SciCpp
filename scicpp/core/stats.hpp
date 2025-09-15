@@ -194,7 +194,7 @@ auto quantile_inplace(InputIt first, InputIt last, T q) {
         return RetTp(*n0);
     } else { // h0 not an integral index
         const auto h_low = signed_size_t(h0);
-        const auto n_high = std::min(first + h_low + 1, last);
+        const auto n_high = first + std::min(h_low + 1, size - 1);
         std::nth_element(first, n_high, last);
         const auto x_low = *std::max_element(first, n_high);
         const auto x_high = *n_high;
