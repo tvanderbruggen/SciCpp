@@ -34,7 +34,7 @@ else
 endif
 
 CFLAGS += -Werror $(WARNINGS) $(ARCH_FLAGS) $(OPTIM_FLAGS) $(DEBUG_FLAGS) $(INCLUDES) -MMD -MP
-CXXFLAGS = $(CFLAGS) -std=c++17 -pthread
+CXXFLAGS = $(CFLAGS) -std=c++20 -pthread
 LD_FLAGS = -lm -lstdc++fs
 
 ifeq ($(COMPILER),clang)
