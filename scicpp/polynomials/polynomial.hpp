@@ -463,7 +463,7 @@ auto polyint(const std::vector<T> &P, signed_size_t m = 1) {
 //---------------------------------------------------------------------------------
 
 template <typename T, std::size_t N>
-auto polycompanion(const std::array<T, N> &P) {
+scicpp_pure auto polycompanion(const std::array<T, N> &P) {
     constexpr int deg = N - 1;
     auto res = linalg::eye<T, deg>(-1);
     res.col(deg - 1) = -linalg::to_eigen_array<deg>(P) / P[deg];
