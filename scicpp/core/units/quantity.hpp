@@ -849,7 +849,6 @@ struct quantity_invert;
 template <intmax_t Root, typename Quantity>
 struct quantity_root;
 
-
 } // namespace scicpp::units
 
 #endif

@@ -135,11 +135,11 @@ constexpr auto trapz(InputIt first, InputIt last, T2 dx) {
     using dx_t = std::conditional_t<units::is_quantity_v<T2>, T2, raw_t>;
 
     if (std::distance(first, last) == 0) {
-        return ret_t(raw_t{0});
+        return ret_t(static_cast<raw_t>(0));
     }
 
-    return raw_t{0.5} * dx_t(dx) *
-           (*first + raw_t{2} * sum(first + 1, last - 1) + *(last - 1));
+    return static_cast<raw_t>(0.5) * dx_t(dx) *
+           (*first + static_cast<raw_t>(2) * sum(first + 1, last - 1) + *(last - 1));
 }
 
 template <class Array, typename T>
