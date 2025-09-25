@@ -32,23 +32,123 @@ TEST_CASE("sum") {
     REQUIRE(std::fabs(sum(v) - double(v.size()) / 10.) < 1E-10);
 }
 
+TEST_CASE("sum with std::span") {
+    SECTION("span over std::array (static extent)") {
+        constexpr std::array<double, 3> a{1., 2., 3.};
+        std::span<const double, 3> s{a};
+        REQUIRE(almost_equal(sum(s), 6.));
+    }
+
+    SECTION("span over std::vector (dynamic extent)") {
+        std::vector<double> v{1., 2., 3.};
+        std::span<const double> s{v};
+        REQUIRE(almost_equal(sum(s), 6.));
+    }
+
+    SECTION("subspan") {
+        std::array<double, 5> a{0., 1., 2., 3., 4.};
+        std::span<const double> s{a};
+        auto mid = s.subspan(1, 3); // 1,2,3
+        REQUIRE(almost_equal(sum(mid), 6.));
+    }
+
+    SECTION("empty span") {
+        std::span<const double> s{}; // size 0
+        REQUIRE(almost_equal(sum(s), 0.));
+    }
+
+    SECTION("nansum over span") {
+        std::vector<double> v{
+            1., 2., 3., std::numeric_limits<double>::quiet_NaN()};
+        std::span<const double> s{v};
+        const auto [res, cnt] = nansum(s);
+        REQUIRE(almost_equal(res, 6.));
+        REQUIRE(cnt == 3);
+    }
+
+    SECTION("large span") {
+        const auto v = std::vector(500000, 0.1);
+        std::span<const double> s{v};
+        REQUIRE(std::fabs(sum(s) - double(v.size()) / 10.) < 1E-10);
+    }
+}
+
 TEST_CASE("sum physical quantities") {
     using namespace units::literals;
     static_assert(float_equal(sum(std::array{1._m, 2._m, 3.141_m}), 6.141_m));
     REQUIRE(almost_equal(sum(std::vector{1._kg, 2._kg, 3._kg}), 6._kg));
 }
 
+TEST_CASE("sum physical quantities with std::span") {
+    using namespace units::literals;
+
+    SECTION("array -> span") {
+        std::array a{1._m, 2._m, 3._m};
+        auto s = std::span{a}; // CTAD: span<const meter_type, 3>
+        REQUIRE(almost_equal(sum(s), 6._m));
+    }
+
+    SECTION("vector -> span") {
+        std::vector v{1._kg, 2._kg, 3._kg};
+        auto s = std::span{v}; // span<const kilogram_type>
+        REQUIRE(almost_equal(sum(s), 6._kg));
+    }
+
+    SECTION("subspan with units") {
+        std::array a{0._m, 1._m, 2._m, 3._m};
+        auto s = std::span{a}.subspan(1, 2); // 1 m, 2 m
+        REQUIRE(almost_equal(sum(s), 3._m));
+    }
+}
+
 TEST_CASE("prod") {
     static_assert(float_equal(prod(std::array<double, 0>{}), 1.));
     static_assert(float_equal(prod(std::array{1., 2., 3.141}), 6.282));
     static_assert(float_equal(prod(std::array{1., 2., 3.}), 6.));
+
     REQUIRE(almost_equal(prod(std::vector{1., 2., 3.}), 6.));
+
     const auto [res, cnt] = nanprod(
         std::vector{1., 2., 3., std::numeric_limits<double>::quiet_NaN()});
     REQUIRE(almost_equal(res, 6.));
     REQUIRE(cnt == 3);
+
     const auto v = std::vector(500000, 1.);
     REQUIRE(almost_equal(prod(v), 1.));
+
+    // --- span-specific checks ---
+    SECTION("span over vector (dynamic extent)") {
+        std::vector<double> w{1., 2., 3.};
+        std::span<const double> s{w};
+        REQUIRE(almost_equal(prod(s), 6.));
+    }
+
+    SECTION("span over array (static extent)") {
+        constexpr std::array<double, 3> a{1., 2., 3.};
+        static_assert(float_equal(prod(a), 6.));
+        std::span<const double, 3> s{a};
+        REQUIRE(almost_equal(prod(s), 6.));
+    }
+
+    SECTION("subspan") {
+        std::array<double, 5> a{0., 1., 2., 3., 4.};
+        auto s = std::span{a}.subspan(1, 3); // 1*2*3
+        REQUIRE(almost_equal(prod(s), 6.));
+    }
+
+    SECTION("empty span") {
+        std::span<const double> s{};
+        REQUIRE(almost_equal(prod(s), 1.));
+    }
+
+    SECTION("nanprod over span") {
+        std::vector<double> w{
+            1., 2., 0., std::numeric_limits<double>::quiet_NaN()};
+        std::span<const double> s{w};
+        const auto [p, n] = nanprod(s);
+        REQUIRE(almost_equal(p, 0.)); // 1*2*0 = 0
+        REQUIRE(n == 3);
+    }
 }
 
 TEST_CASE("cumsum") {
@@ -65,6 +165,33 @@ TEST_CASE("cumsum") {
     REQUIRE(almost_equal(
         nancumsum(std::vector{1., 3., nan, 6., 10., 15., nan, 21.}),
         {1., 4., 10., 20., 35., 56.}));
+}
+
+TEST_CASE("cumsum with std::span") {
+    SECTION("non-const span (in-place)") {
+        std::array<double, 6> a{1., 3., 6., 10., 15., 21.};
+        auto s = std::span<double>{a};
+        auto r = cumsum(s); // r is std::span<double>
+
+        const std::array<double, 6> expected{1., 4., 10., 20., 35., 56.};
+
+        REQUIRE(almost_equal<1>(std::span<const double>(r),
+                                std::span<const double>(expected)));
+    }
+
+    SECTION("const span (returns vector copy)") {
+        const std::array<double, 6> a{1., 3., 6., 10., 15., 21.};
+        auto s = std::span<const double>{a};
+        auto v = cumsum(s); // std::vector<double>
+        REQUIRE(almost_equal(v, std::vector{1., 4., 10., 20., 35., 56.}));
+    }
+
+    SECTION("dynamic-extent span over vector") {
+        std::vector<double> v{1., 3., 6., 10., 15., 21.};
+        auto s = std::span<double>{v};
+        (void)cumsum(s);
+        REQUIRE(almost_equal(v, std::vector{1., 4., 10., 20., 35., 56.}));
+    }
 }
 
 TEST_CASE("cumsum physical quantities") {

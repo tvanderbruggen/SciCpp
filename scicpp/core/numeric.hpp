@@ -17,6 +17,8 @@
 #include <functional>
 #include <iterator>
 #include <numeric>
+#include <ranges>
+#include <span>
 #include <type_traits>
 #include <vector>
 
@@ -26,60 +28,64 @@ namespace scicpp {
 // sum
 //---------------------------------------------------------------------------------
 
-template <class InputIt, class Predicate>
-constexpr auto sum(InputIt first, InputIt last, Predicate filter) {
-    return filter_reduce_associative(first, last, std::plus<>(), filter);
+template <std::input_iterator It, std::sentinel_for<It> S, class Predicate>
+[[nodiscard]] constexpr auto sum(It first, S last, Predicate &&pred) {
+    return filter_reduce_associative(
+        first, last, std::plus<>{}, std::forward<Predicate>(pred));
 }
 
 template <class InputIt>
-constexpr auto sum(InputIt first, InputIt last) {
+[[nodiscard]] constexpr auto sum(InputIt first, InputIt last) {
     return std::get<0>(sum(first, last, filters::all));
 }
 
-template <class Array, class Predicate>
-constexpr auto sum(const Array &f, Predicate filter) {
-    return sum(f.cbegin(), f.cend(), filter);
+template <std::ranges::input_range R, class Predicate>
+[[nodiscard]] constexpr auto sum(R &&r, Predicate &&filter) {
+    return sum(std::cbegin(r), std::cend(r), std::forward<Predicate>(filter));
 }
 
-template <class Array>
-constexpr auto sum(const Array &f) {
-    return std::get<0>(sum(f, filters::all));
+template <class Range>
+[[nodiscard]] constexpr auto sum(const Range &r) {
+    return std::get<0>(sum(r, filters::all));
 }
 
-template <class Array>
-auto nansum(const Array &f) {
-    return sum(f, filters::not_nan);
+template <class Range>
+[[nodiscard]] auto nansum(const Range &r) {
+    return sum(r, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
 // prod
 //---------------------------------------------------------------------------------
 
-template <class InputIt, class Predicate>
-constexpr auto prod(InputIt first, InputIt last, Predicate filter) {
-    using T = typename std::iterator_traits<InputIt>::value_type;
-    return filter_reduce_associative(
-        first, last, std::multiplies<>(), filter, T{1});
+template <std::input_iterator It, std::sentinel_for<It> S, class Predicate>
+[[nodiscard]] constexpr auto prod(It first, S last, Predicate &&filter) {
+    using T = std::iter_value_t<It>;
+    return filter_reduce_associative(first,
+                                     last,
+                                     std::multiplies<>{},
+                                     std::forward<Predicate>(filter),
+                                     T{1});
 }
 
-template <class InputIt>
-constexpr auto prod(InputIt first, InputIt last) {
+template <std::input_iterator It, std::sentinel_for<It> S>
+[[nodiscard]] constexpr auto prod(It first, S last) {
     return std::get<0>(prod(first, last, filters::all));
 }
 
-template <class Array, class Predicate>
-constexpr auto prod(const Array &f, Predicate filter) {
-    return prod(f.cbegin(), f.cend(), filter);
+template <std::ranges::input_range R, class Predicate>
+[[nodiscard]] constexpr auto prod(R &&r, Predicate &&filter) {
+    return prod(std::cbegin(r), std::cend(r), std::forward<Predicate>(filter));
 }
 
-template <class Array>
-constexpr auto prod(const Array &f) {
-    return prod(f.cbegin(), f.cend());
+template <std::ranges::input_range R>
+[[nodiscard]] constexpr auto prod(R &&r) {
+    return std::get<0>(prod(std::forward<R>(r), filters::all));
 }
 
-template <class Array>
-auto nanprod(const Array &f) {
-    return prod(f, filters::not_nan);
+template <std::ranges::input_range R>
+[[nodiscard]] constexpr auto nanprod(R &&r) {
+    return prod(std::forward<R>(r), filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
@@ -88,7 +94,7 @@ auto nanprod(const Array &f) {
 
 template <class Array>
 constexpr auto cumsum(Array &&a) {
-    std::partial_sum(a.cbegin(), a.cend(), a.begin());
+    std::partial_sum(std::cbegin(a), std::cend(a), std::begin(a));
     return std::move(a);
 }
 
@@ -97,9 +103,22 @@ constexpr auto cumsum(const Array &a) {
     return cumsum(Array(a));
 }
 
-template <typename T>
-auto nancumsum(const std::vector<T> &v) {
-    return cumacc(v, std::plus<>(), filters::not_nan);
+template <class T, std::size_t Extent>
+constexpr auto cumsum(std::span<T, Extent> s) {
+    std::partial_sum(s.begin(), s.end(), s.begin());
+    return s;
+}
+
+template <class T, std::size_t Extent>
+auto cumsum(std::span<const T, Extent> s) {
+    std::vector<T> out(s.begin(), s.end());
+    std::partial_sum(out.begin(), out.end(), out.begin());
+    return out;
+}
+
+template <std::ranges::input_range R>
+auto nancumsum(R &&r) {
+    return cumacc(r, std::plus<>{}, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------

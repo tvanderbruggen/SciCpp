@@ -387,12 +387,12 @@ auto deconvolve(const Array1 &signal, const Array2 &divisor) {
     const auto D = divisor.size();
 
     if (D > N) {
-        // GCC Bug 113239
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Warray-bounds"
-        #pragma GCC diagnostic ignored "-Wstringop-overflow"
+// GCC Bug 113239
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
         return std::tuple{empty<T>(), Array1(signal)};
-        #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
     } else {
         using namespace scicpp::operators;
 

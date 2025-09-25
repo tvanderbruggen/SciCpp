@@ -15,7 +15,7 @@ Objective: Provide the SciPy / NumPy API for `std::array` and `std::vector`.
 Scicpp is a header only library.
 It's only dependence is the Eigen linear algebra library, also header only.
 
-SciCpp uses the C++-17 standard.
+SciCpp uses the C++-20 standard.
 It is tested with the GCC and Clang compilers under Linux.
 
 See [documentation](https://tvanderbruggen.github.io/scicpp/) for more details.

@@ -18,6 +18,7 @@
 #include <numeric>
 #include <tuple>
 #include <type_traits>
+#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -248,8 +249,9 @@ template <class InputIt, class UnaryPredicate, class BinaryOp, typename T>
 
 template <class Array, class UnaryPredicate, class BinaryOp, typename T2>
 [[nodiscard]] constexpr scicpp_pure auto
-filter_reduce(const Array &a, BinaryOp op, T2 init, UnaryPredicate filter) {
-    return filter_reduce(a.cbegin(), a.cend(), op, init, filter);
+filter_reduce(const Array &a, BinaryOp op, T2 init, UnaryPredicate &&filter) {
+    return filter_reduce(
+        a.cbegin(), a.cend(), op, init, std::forward<UnaryPredicate>(filter));
 }
 
 //---------------------------------------------------------------------------------
@@ -351,17 +353,19 @@ template <class InputIt,
 filter_reduce_associative(InputIt first,
                           InputIt last,
                           AssociativeBinaryOp op,
-                          UnaryPredicate filter,
+                          UnaryPredicate &&filter,
                           T id_elt = utils::set_zero<T>()) {
     if constexpr (std::is_integral_v<T>) {
         // No precision problem for integers, as long as you don't overflow ...
-        return filter_reduce(first, last, op, id_elt, filter);
+        return filter_reduce(
+            first, last, op, id_elt, std::forward<UnaryPredicate>(filter));
     } else {
         return pairwise_accumulate<64>(
             first,
             last,
             [&](auto f, auto l) {
-                return filter_reduce(f, l, op, id_elt, filter);
+                return filter_reduce(
+                    f, l, op, id_elt, std::forward<UnaryPredicate>(filter));
             },
             [&](const auto res1, const auto res2) {
                 const auto [x1, n1] = res1;
@@ -376,8 +380,9 @@ template <class Array,
           class AssociativeBinaryOp,
           typename T = typename Array::value_type>
 [[nodiscard]] constexpr scicpp_pure auto filter_reduce_associative(
-    const Array &a, AssociativeBinaryOp op, UnaryPredicate filter) {
-    return filter_reduce_associative(a.cbegin(), a.cend(), op, filter);
+    const Array &a, AssociativeBinaryOp op, UnaryPredicate &&filter) {
+    return filter_reduce_associative(
+        a.cbegin(), a.cend(), op, std::forward<UnaryPredicate>(filter));
 }
 
 //---------------------------------------------------------------------------------
@@ -392,7 +397,8 @@ auto cumacc(Array &&a, BinaryOp op, UnaryPredicate p) {
     static_assert(std::is_same_v<InputType, ReturnType>);
 
     auto a_filt = filter(std::forward<Array>(a), p);
-    std::partial_sum(a_filt.cbegin(), a_filt.cend(), a_filt.begin(), op);
+    std::partial_sum(
+        std::cbegin(a_filt), std::cend(a_filt), std::begin(a_filt), op);
     return a_filt;
 }
 

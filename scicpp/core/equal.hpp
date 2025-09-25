@@ -91,14 +91,17 @@ auto almost_equal(const units::quantity<T, Dim, Scale1, Offset1> &q1,
 template <int rel_tol = 1, class Array, meta::enable_if_iterable<Array> = 0>
 bool scicpp_pure almost_equal(const Array &f1, const Array &f2) {
     return std::equal(
-        f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend(), [](auto a, auto b) {
-            return almost_equal<rel_tol>(a, b);
-        });
+        std::cbegin(f1),
+        std::cend(f1),
+        std::cbegin(f2),
+        std::cend(f2),
+        [](auto a, auto b) { return almost_equal<rel_tol>(a, b); });
 }
 
 template <class Array, meta::enable_if_iterable<Array> = 0>
 constexpr bool scicpp_pure array_equal(const Array &f1, const Array &f2) {
-    return std::equal(f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend());
+    return std::equal(
+        std::cbegin(f1), std::cend(f1), std::cbegin(f2), std::cend(f2));
 }
 
 //---------------------------------------------------------------------------------
