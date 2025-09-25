@@ -139,7 +139,8 @@ constexpr auto trapz(InputIt first, InputIt last, T2 dx) {
     }
 
     return static_cast<raw_t>(0.5) * dx_t(dx) *
-           (*first + static_cast<raw_t>(2) * sum(first + 1, last - 1) + *(last - 1));
+           (*first + static_cast<raw_t>(2) * sum(first + 1, last - 1) +
+            *(last - 1));
 }
 
 template <class Array, typename T>

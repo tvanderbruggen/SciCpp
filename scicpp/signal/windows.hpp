@@ -113,8 +113,9 @@ void cosine_filler(Array &w) {
     if (!w.empty()) {
         using T = typename Array::value_type;
         const T scaling = pi<T> / T(w.size());
-        symmetric_filler(
-            w, [&](std::size_t i) { return std::sin(scaling * (T(i) + T(0.5))); });
+        symmetric_filler(w, [&](std::size_t i) {
+            return std::sin(scaling * (T(i) + T(0.5)));
+        });
     }
 }
 
@@ -602,8 +603,8 @@ auto s1(const Array &window) {
 template <typename Array>
 auto s2(const Array &window) {
     using T = typename Array::value_type;
-    return std::get<0>(reduce(
-        window, [](auto r, auto v) { return r + std::norm(v); }, T{0}));
+    return std::get<0>(
+        reduce(window, [](auto r, auto v) { return r + std::norm(v); }, T{0}));
 }
 
 // https://fr.mathworks.com/help/signal/ref/enbw.html

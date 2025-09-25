@@ -421,7 +421,7 @@ class Spectrum {
     auto normalize(std::vector<SpecTp> &&v) {
         using namespace operators;
 
-        if constexpr (sides == ONESIDED) {
+        if constexpr (sides == SpectrumSides::ONESIDED) {
             v = T(2) * std::move(v);
             // Don't find why in scipy code, but need it to match scipy result
             v.front() *= T(0.5);

@@ -152,9 +152,9 @@ constexpr void lfilter_impl(
 } // namespace detail
 
 template <typename T, std::size_t Nb, std::size_t Na, std::size_t Nx>
-constexpr auto lfilter(const std::array<T, Nb> &b,
-                       const std::array<T, Na> &a,
-                       const std::array<T, Nx> &x) {
+constexpr scicpp_pure auto lfilter(const std::array<T, Nb> &b,
+                                   const std::array<T, Na> &a,
+                                   const std::array<T, Nx> &x) {
     static_assert(Nx > 0);
     scicpp_require(fabs(std::get<0>(a)) > T(0));
 
@@ -178,10 +178,10 @@ template <typename T,
           std::size_t Na,
           std::size_t Nx,
           std::size_t Nzi>
-constexpr auto lfilter(const std::array<T, Nb> &b,
-                       const std::array<T, Na> &a,
-                       const std::array<T, Nx> &x,
-                       const std::array<T, Nzi> &zi) {
+constexpr scicpp_pure auto lfilter(const std::array<T, Nb> &b,
+                                   const std::array<T, Na> &a,
+                                   const std::array<T, Nx> &x,
+                                   const std::array<T, Nzi> &zi) {
     static_assert(Nx > 0);
     scicpp_require(fabs(std::get<0>(a)) > T(0));
 
@@ -387,15 +387,20 @@ auto deconvolve(const Array1 &signal, const Array2 &divisor) {
     const auto D = divisor.size();
 
     if (D > N) {
-        return std::tuple{empty<T>(), signal};
+        // GCC Bug 113239
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Warray-bounds"
+        #pragma GCC diagnostic ignored "-Wstringop-overflow"
+        return std::tuple{empty<T>(), Array1(signal)};
+        #pragma GCC diagnostic pop
     } else {
         using namespace scicpp::operators;
 
         auto input = zeros<T>(N - D + 1);
         input[0] = T(1);
-        const auto quot = lfilter(signal, divisor, input);
-        const auto rem = signal - convolve(divisor, quot);
-        return std::tuple{quot, rem};
+        auto quot = lfilter(signal, divisor, input);
+        auto rem = signal - convolve(divisor, quot);
+        return std::tuple{std::move(quot), std::move(rem)};
     }
 }
 

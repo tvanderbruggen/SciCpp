@@ -6,15 +6,10 @@ SCICPP_SRC=scicpp
 
 TMP=tmp
 
-<<<<<<< HEAD
 CPP_VERSION = 20
 
-COMPILER ?= clang
-# COMPILER ?= gcc
-=======
 # COMPILER ?= clang
 COMPILER ?= gcc
->>>>>>> e7089a5793661941400fb0737b599372e740ae13
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native
@@ -29,13 +24,8 @@ WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
 
 ifeq ($(COMPILER),gcc)
-<<<<<<< HEAD
-  CC = $(CROSS_COMPILE)gcc-10
-  CCXX = $(CROSS_COMPILE)g++-10
-=======
   CC = $(CROSS_COMPILE)gcc-13
   CCXX = $(CROSS_COMPILE)g++-13
->>>>>>> e7089a5793661941400fb0737b599372e740ae13
 
   WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond -Wsuggest-attribute=pure -Wsuggest-attribute=const
 else
@@ -46,11 +36,7 @@ else
 endif
 
 CFLAGS += -Werror $(WARNINGS) $(ARCH_FLAGS) $(OPTIM_FLAGS) $(DEBUG_FLAGS) $(INCLUDES) -MMD -MP
-<<<<<<< HEAD
 CXXFLAGS = $(CFLAGS) -std=c++$(CPP_VERSION) -pthread
-=======
-CXXFLAGS = $(CFLAGS) -std=c++20 -pthread
->>>>>>> e7089a5793661941400fb0737b599372e740ae13
 LD_FLAGS = -lm -lstdc++fs
 
 ifeq ($(COMPILER),clang)
