@@ -16,9 +16,9 @@
 #include <functional>
 #include <iterator>
 #include <numeric>
+#include <ranges>
 #include <tuple>
 #include <type_traits>
-#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -219,7 +219,7 @@ template <typename T, class UnaryPredicate>
 
 template <class Array, class UnaryPredicate>
 [[nodiscard]] auto filter(const Array &a, UnaryPredicate p) {
-    return filter(std::vector(a.cbegin(), a.cend()), p);
+    return filter(std::vector(std::cbegin(a), std::cend(a)), p);
 }
 
 //---------------------------------------------------------------------------------

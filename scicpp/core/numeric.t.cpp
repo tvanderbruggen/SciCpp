@@ -19,6 +19,10 @@ static_assert(float_equal(trapz(a, 1.), 4.));
 
 } // namespace numeric_constexpr_tests
 
+//---------------------------------------------------------------------------------
+// sum
+//---------------------------------------------------------------------------------
+
 TEST_CASE("sum") {
     REQUIRE(almost_equal(sum(std::array<double, 0>{}), 0.));
     REQUIRE(almost_equal(sum(std::array{1., 2., 3.141}), 6.141));
@@ -101,6 +105,10 @@ TEST_CASE("sum physical quantities with std::span") {
     }
 }
 
+//---------------------------------------------------------------------------------
+// prod
+//---------------------------------------------------------------------------------
+
 TEST_CASE("prod") {
     static_assert(float_equal(prod(std::array<double, 0>{}), 1.));
     static_assert(float_equal(prod(std::array{1., 2., 3.141}), 6.282));
@@ -150,6 +158,10 @@ TEST_CASE("prod") {
         REQUIRE(n == 3);
     }
 }
+
+//---------------------------------------------------------------------------------
+// cumsum
+//---------------------------------------------------------------------------------
 
 TEST_CASE("cumsum") {
     static_assert(cumsum(std::array<double, 0>{}).empty());
@@ -204,6 +216,10 @@ TEST_CASE("cumsum physical quantities") {
                      {1._m, 4._m, 10._m, 20._m, 35._m, 56._m}));
 }
 
+//---------------------------------------------------------------------------------
+// cumprod
+//---------------------------------------------------------------------------------
+
 TEST_CASE("cumprod") {
     static_assert(cumprod(std::array<double, 0>{}).empty());
     static_assert(array_equal(cumprod(std::array{1, 3, 6, 10, 15, 21}),
@@ -219,6 +235,95 @@ TEST_CASE("cumprod") {
         nancumprod(std::vector{1., nan, 3., 6., nan, 10., 15., nan, 21.}),
         {1., 3., 18., 180., 2700., 56700.}));
 }
+
+TEST_CASE("cumprod with std::span") {
+    SECTION("span over array (in-place)") {
+        std::array<double, 6> a{1., 3., 6., 10., 15., 21.};
+        std::span<double> s{a};
+
+        auto r = cumprod(s); // mutates 'a' through the span
+
+        const std::array<double, 6> expected{1., 3., 18., 180., 2700., 56700.};
+
+        // strict same-type comparison: span<const double> vs span<const double>
+        REQUIRE(almost_equal(std::span<const double>(r),
+                             std::span<const double>(expected)));
+
+        // and the underlying array is updated as well
+        REQUIRE(almost_equal(std::span<const double>(a),
+                             std::span<const double>(expected)));
+    }
+
+    SECTION("const span over array (returns vector copy)") {
+        const std::array<double, 6> a{1., 3., 6., 10., 15., 21.};
+        std::span<const double> s{a};
+
+        auto out = cumprod(s); // expected to be std::vector<double>
+
+        REQUIRE(
+            almost_equal(out, std::vector{1., 3., 18., 180., 2700., 56700.}));
+    }
+
+    SECTION("span over vector (in-place)") {
+        std::vector<double> v{1., 3., 6., 10., 15., 21.};
+        std::span<double> s{v};
+
+        auto r = cumprod(s);
+
+        const std::vector<double> expected{1., 3., 18., 180., 2700., 56700.};
+
+        // compare as spans for strict same-type
+        REQUIRE(almost_equal(std::span<const double>(r),
+                             std::span<const double>(expected)));
+
+        // and vector mutated accordingly
+        REQUIRE(almost_equal(v, expected));
+    }
+
+    SECTION("subspan (in-place on slice)") {
+        std::array<double, 6> a{1., 3., 6., 10., 15., 21.};
+        auto sub = std::span<double>{a}.subspan(1, 3); // {3, 6, 10}
+
+        auto r = cumprod(sub); // only the slice is cumulatively multiplied
+
+        const std::array<double, 3> sub_expected{3., 18., 180.};
+        REQUIRE(almost_equal(std::span<const double>(r),
+                             std::span<const double>(sub_expected)));
+
+        const std::array<double, 6> full_expected{1., 3., 18., 180., 15., 21.};
+        REQUIRE(almost_equal(std::span<const double>(a),
+                             std::span<const double>(full_expected)));
+    }
+
+    SECTION("empty spans") {
+        // non-const empty span (in-place): just check size
+        std::array<double, 0> a{};
+        std::span<double> s{a};
+        auto r = cumprod(s);
+        REQUIRE(r.empty());
+
+        // const empty span: result vector should be empty
+        std::span<const double> sc{};
+        auto out = cumprod(sc);
+        REQUIRE(out.empty());
+    }
+
+    SECTION("nancumprod over span<const double>") {
+        const auto nan = std::numeric_limits<double>::quiet_NaN();
+        std::vector<double> v{1., nan, 3., 6., nan, 10., 15., nan, 21.};
+        std::span<const double> s{v};
+
+        auto out = nancumprod(s); // std::vector<double>, NaNs filtered out
+        REQUIRE(
+            almost_equal(out, std::vector{1., 3., 18., 180., 2700., 56700.}));
+        // (length is number of non-NaNs)
+        REQUIRE(out.size() == 6);
+    }
+}
+
+//---------------------------------------------------------------------------------
+// trapz
+//---------------------------------------------------------------------------------
 
 TEST_CASE("trapz") {
     REQUIRE(almost_equal(trapz(std::array<double, 0>{}, 1.), 0.));
@@ -237,6 +342,86 @@ TEST_CASE("trapz physical quantity") {
     REQUIRE(almost_equal(trapz(std::array{1._m2, 2._m2, 3._m2}, 1._m), 4._m3));
     REQUIRE(almost_equal(trapz(std::vector{1._V, 2._V, 3._V}, 1._mA), 4._mW));
 }
+
+TEST_CASE("trapz with std::span") {
+    SECTION("span over array (dynamic extent)") {
+        const std::array<double, 3> a{1., 2., 3.};
+        std::span<const double> s{a};
+        REQUIRE(almost_equal(trapz(s, 1.), 4.));
+    }
+
+    SECTION("span over vector (dynamic extent)") {
+        const std::vector<double> v{1., 2., 3.};
+        std::span<const double> s{v};
+        REQUIRE(almost_equal(trapz(s, 1.), 4.));
+        REQUIRE(
+            almost_equal(trapz(s, 1.f), 4.)); // float dx → return still double
+    }
+
+    SECTION("empty span and single-element span") {
+        std::span<const double> s_empty{};
+        REQUIRE(almost_equal(trapz(s_empty, 1.), 0.));
+
+        const std::array<double, 1> a1{42.};
+        std::span<const double> s1{a1};
+        REQUIRE(almost_equal(trapz(s1, 1.), 0.)); // N < 2 → 0
+    }
+
+    SECTION("subspan") {
+        const std::array<double, 5> a{0., 1., 2., 3., 0.};
+        auto s = std::span<const double>{a}.subspan(1, 3); // {1,2,3}
+        REQUIRE(
+            almost_equal(trapz(s, 0.5), 2.0)); // 0.5 * (1 + 2*2 + 3) * 0.5 = 2
+    }
+}
+
+TEST_CASE("trapz with iterator pairs (shim)") {
+    const std::vector<double> v{1., 2., 3.};
+    REQUIRE(almost_equal(trapz(v.cbegin(), v.cend(), 1.), 4.));
+    REQUIRE(almost_equal(trapz(v.cbegin(), v.cend(), 0.5), 2.));
+}
+
+TEST_CASE("trapz additional scalars") {
+    // N < 2 edge cases
+    REQUIRE(almost_equal(trapz(std::vector<double>{}, 1.), 0.));
+    REQUIRE(almost_equal(trapz(std::array{42.}, 1.), 0.));
+
+    // different dx types
+    REQUIRE(almost_equal(trapz(std::array{1., 2., 3.}, 0.5), 2.));
+    REQUIRE(almost_equal(trapz(std::array{1., 2., 3.}, 2), 8.));
+}
+
+TEST_CASE("trapz physical quantity - span & iterator pairs") {
+    using namespace units::literals;
+
+    SECTION("length x length > area") {
+        const std::array a{1._m, 2._m, 3._m};
+        std::span<const decltype(1._m)> s{a};
+        REQUIRE(almost_equal(trapz(s, 1._m), 4._m2));
+        REQUIRE(almost_equal(trapz(a.cbegin(), a.cend(), 1._m), 4._m2));
+    }
+
+    SECTION("area x length => volume") {
+        const std::array a{1._m2, 2._m2, 3._m2};
+        std::span<const decltype(1._m2)> s{a};
+        REQUIRE(almost_equal(trapz(s, 1._m), 4._m3));
+    }
+
+    SECTION("volt x milliampere => milliwatt") {
+        const std::vector v{1._V, 2._V, 3._V};
+        std::span<const decltype(1._V)> s{v};
+        REQUIRE(almost_equal(trapz(s, 1._mA), 4._mW));
+        REQUIRE(almost_equal(trapz(v.cbegin(), v.cend(), 1._mA), 4._mW));
+    }
+}
+
+static_assert(float_equal(trapz(std::array<double, 0>{}, 1.), 0.));
+static_assert(float_equal(trapz(std::array{1., 2., 3.}, 1.), 4.));
+static_assert(float_equal(trapz(std::array{1., 2., 3.}, 0.5), 2.));
+
+//---------------------------------------------------------------------------------
+// diff
+//---------------------------------------------------------------------------------
 
 TEST_CASE("diff") {
     static_assert(diff(std::array<double, 0>{}).empty());

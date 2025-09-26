@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <iterator>
 #include <limits>
+#include <numeric>
 #include <tuple>
 #include <type_traits>
 #include <vector>
@@ -37,39 +38,52 @@ auto quiet_nan() {
 // amax
 //---------------------------------------------------------------------------------
 
-template <class Array>
-constexpr scicpp_pure auto amax(const Array &f) {
-    if (unlikely(f.empty())) {
-        return detail::quiet_nan<Array>();
+template <std::ranges::input_range R, class Proj = std::identity>
+    requires std::indirect_strict_weak_order<
+        std::less<>,
+        std::projected<std::ranges::iterator_t<R>, Proj>>
+constexpr scicpp_pure auto amax(R &&r, Proj proj = {}) {
+    using T = std::remove_cvref_t<std::ranges::range_value_t<R>>;
+
+    if (unlikely(std::ranges::empty(r))) {
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
-    return *std::max_element(f.cbegin(), f.cend());
+    return *std::ranges::max_element(r, std::less<>{}, proj);
 }
 
 //---------------------------------------------------------------------------------
 // amin
 //---------------------------------------------------------------------------------
 
-template <class Array>
-constexpr scicpp_pure auto amin(const Array &f) {
-    if (unlikely(f.empty())) {
-        return detail::quiet_nan<Array>();
+template <std::ranges::input_range R, class Proj = std::identity>
+    requires std::indirect_strict_weak_order<
+        std::less<>,
+        std::projected<std::ranges::iterator_t<R>, Proj>>
+constexpr scicpp_pure auto amin(R &&r, Proj proj = {}) {
+    using T = std::remove_cvref_t<std::ranges::range_value_t<R>>;
+
+    if (unlikely(std::ranges::empty(r))) {
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
-    return *std::min_element(f.cbegin(), f.cend());
+    return *std::ranges::min_element(r, std::less<>{}, proj);
 }
 
 //---------------------------------------------------------------------------------
 // ptp
 //---------------------------------------------------------------------------------
 
-template <class Array>
-constexpr scicpp_pure auto ptp(const Array &f) {
-    if (unlikely(f.empty())) {
-        return detail::quiet_nan<Array>();
+template <std::ranges::input_range R>
+    requires requires(const std::ranges::range_value_t<R> &x) { x - x; }
+constexpr scicpp_pure auto ptp(R &&r) {
+    using T = std::remove_cvref_t<std::ranges::range_value_t<R>>;
+
+    if (unlikely(std::ranges::empty(r))) {
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
-    const auto [it_min, it_max] = std::minmax_element(f.cbegin(), f.cend());
+    auto [it_min, it_max] = std::ranges::minmax_element(r, std::less<>{});
     return *it_max - *it_min;
 }
 
@@ -160,8 +174,7 @@ auto quantile_interp_index(T h) {
     } else if constexpr (interpolation == QuantileInterp::NEAREST) {
         return std::nearbyint(h);
     } else if constexpr (interpolation == QuantileInterp::MIDPOINT) {
-        // cf. std::midpoint (C++20)
-        return T{0.5} * (std::floor(h) + std::ceil(h));
+        return std::midpoint(std::floor(h), std::ceil(h));
     } else { // interpolation == LINEAR
         return h;
     }

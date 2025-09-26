@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <span>
 
 namespace scicpp::stats {
 
@@ -18,7 +19,10 @@ TEST_CASE("amax") {
     static_assert(float_equal(amax(std::array{1., 2., 3.}), 3.));
     REQUIRE(std::isnan(amax(std::array<double, 0>{})));
     REQUIRE(almost_equal(amax(std::array{1., 4., 5., 6., 2., 3.}), 6.));
-    REQUIRE(almost_equal(amax(std::vector{1., 4., 5., 6., 2., 3.}), 6.));
+    const auto v = std::vector{1., 4., 5., 6., 2., 3.};
+    REQUIRE(almost_equal(amax(v), 6.));
+    const auto s = std::span{v}.subspan(1, 4);
+    REQUIRE(almost_equal(amax(s), 6.));
 }
 
 TEST_CASE("amax physical quantities") {
@@ -32,7 +36,10 @@ TEST_CASE("amin") {
     static_assert(float_equal(amin(std::array{1., 2., 3.}), 1.));
     REQUIRE(std::isnan(amin(std::array<double, 0>{})));
     REQUIRE(almost_equal(amin(std::array{1., 4., 5., 6., 2., 3.}), 1.));
-    REQUIRE(almost_equal(amin(std::vector{1., 4., 5., 6., 2., 3.}), 1.));
+    const auto v = std::vector{1., 4., 5., 6., 2., 3.};
+    REQUIRE(almost_equal(amin(v), 1.));
+    const auto s = std::span{v}.subspan(1, 4);
+    REQUIRE(almost_equal(amin(s), 2.));
 }
 
 TEST_CASE("amin physical quantities") {
@@ -46,7 +53,10 @@ TEST_CASE("ptp") {
     static_assert(float_equal(ptp(std::array{1., 2., 3.}), 2.));
     REQUIRE(std::isnan(ptp(std::array<double, 0>{})));
     REQUIRE(almost_equal(ptp(std::array{1., 4., 5., 6., 2., 3.}), 5.));
-    REQUIRE(almost_equal(ptp(std::vector{1., 4., 5., 6., 2., 3.}), 5.));
+    const auto v = std::vector{1., 4., 5., 6., 2., 3.};
+    REQUIRE(almost_equal(ptp(v), 5.));
+    const auto s = std::span{v}.subspan(1, 4);
+    REQUIRE(almost_equal(ptp(s), 4.));
 }
 
 TEST_CASE("ptp physical quantities") {

@@ -93,32 +93,32 @@ template <std::ranges::input_range R>
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto cumsum(Array &&a) {
+[[nodiscard]] constexpr auto cumsum(Array &&a) {
     std::partial_sum(std::cbegin(a), std::cend(a), std::begin(a));
     return std::move(a);
 }
 
 template <class Array>
-constexpr auto cumsum(const Array &a) {
+[[nodiscard]] constexpr auto cumsum(const Array &a) {
     return cumsum(Array(a));
 }
 
 template <class T, std::size_t Extent>
-constexpr auto cumsum(std::span<T, Extent> s) {
+[[nodiscard]] constexpr auto cumsum(std::span<T, Extent> s) {
     std::partial_sum(s.begin(), s.end(), s.begin());
     return s;
 }
 
 template <class T, std::size_t Extent>
-auto cumsum(std::span<const T, Extent> s) {
+[[nodiscard]] auto cumsum(std::span<const T, Extent> s) {
     std::vector<T> out(s.begin(), s.end());
     std::partial_sum(out.begin(), out.end(), out.begin());
     return out;
 }
 
 template <std::ranges::input_range R>
-auto nancumsum(R &&r) {
-    return cumacc(r, std::plus<>{}, filters::not_nan);
+[[nodiscard]] auto nancumsum(R &&r) {
+    return cumacc(std::forward<R>(r), std::plus<>{}, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
@@ -126,45 +126,69 @@ auto nancumsum(R &&r) {
 //---------------------------------------------------------------------------------
 
 template <class Array>
-constexpr auto cumprod(Array &&a) {
-    std::partial_sum(a.cbegin(), a.cend(), a.begin(), std::multiplies<>());
+[[nodiscard]] constexpr auto cumprod(Array &&a) {
+    std::partial_sum(
+        std::cbegin(a), std::cend(a), std::begin(a), std::multiplies<>{});
     return std::move(a);
 }
 
 template <class Array>
-constexpr auto cumprod(const Array &a) {
+[[nodiscard]] constexpr auto cumprod(const Array &a) {
     return cumprod(Array(a));
 }
 
-template <typename T>
-auto nancumprod(const std::vector<T> &v) {
-    return cumacc(v, std::multiplies<>(), filters::not_nan);
+template <class T, std::size_t Extent>
+[[nodiscard]] constexpr auto cumprod(std::span<T, Extent> s) {
+    std::partial_sum(s.begin(), s.end(), s.begin(), std::multiplies<>{});
+    return s;
+}
+
+template <class T, std::size_t Extent>
+[[nodiscard]] auto cumprod(std::span<const T, Extent> s) {
+    std::vector<T> out(s.begin(), s.end());
+    std::partial_sum(out.begin(), out.end(), out.begin(), std::multiplies<>{});
+    return out;
+}
+
+template <std::ranges::input_range R>
+[[nodiscard]] auto nancumprod(R &&r) {
+    return cumacc(std::forward<R>(r), std::multiplies<>{}, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
 // trapz
 //---------------------------------------------------------------------------------
 
-template <class InputIt,
-          typename T1 = typename std::iterator_traits<InputIt>::value_type,
-          typename T2>
-constexpr auto trapz(InputIt first, InputIt last, T2 dx) {
-    using ret_t = decltype(std::declval<T1>() * std::declval<T2>());
+template <std::ranges::random_access_range R, class Dx>
+[[nodiscard]] constexpr auto trapz(R &&r, const Dx &dx) {
+    using T1 = std::remove_cvref_t<std::ranges::range_value_t<R>>;
+    using ret_t = decltype(std::declval<T1>() * std::declval<Dx>());
     using raw_t = units::representation_t<ret_t>;
-    using dx_t = std::conditional_t<units::is_quantity_v<T2>, T2, raw_t>;
+    using dx_t = std::conditional_t<units::is_quantity_v<Dx>, Dx, raw_t>;
 
-    if (std::distance(first, last) == 0) {
-        return ret_t(static_cast<raw_t>(0));
+    const auto n = std::ranges::size(r);
+
+    if (n < 2) {
+        return ret_t(raw_t{0});
     }
 
-    return static_cast<raw_t>(0.5) * dx_t(dx) *
-           (*first + static_cast<raw_t>(2) * sum(first + 1, last - 1) +
-            *(last - 1));
+    const auto first = std::ranges::begin(r);
+    const auto last = std::ranges::end(r);
+
+    const auto &f0 = *first;
+    const auto &fn_1 = *std::ranges::prev(last);
+
+    const auto interior_first = std::ranges::next(first);
+    const auto interior_last = std::ranges::prev(last);
+    const auto interior = std::ranges::subrange(interior_first, interior_last);
+
+    const auto s = sum(interior);
+    return raw_t{0.5} * dx_t(dx) * (f0 + raw_t{2} * s + fn_1);
 }
 
-template <class Array, typename T>
-constexpr auto trapz(const Array &f, T dx) {
-    return trapz(f.cbegin(), f.cend(), dx);
+template <std::input_iterator It, std::sentinel_for<It> S, class Dx>
+[[nodiscard]] constexpr auto trapz(It first, S last, const Dx &dx) {
+    return trapz(std::ranges::subrange(first, last), dx);
 }
 
 //---------------------------------------------------------------------------------
