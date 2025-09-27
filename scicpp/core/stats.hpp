@@ -25,15 +25,6 @@
 
 namespace scicpp::stats {
 
-namespace detail {
-
-template <class Array>
-auto quiet_nan() {
-    return std::numeric_limits<typename Array::value_type>::quiet_NaN();
-}
-
-} // namespace detail
-
 //---------------------------------------------------------------------------------
 // amax
 //---------------------------------------------------------------------------------
@@ -42,7 +33,7 @@ template <std::ranges::input_range R, class Proj = std::identity>
     requires std::indirect_strict_weak_order<
         std::less<>,
         std::projected<std::ranges::iterator_t<R>, Proj>>
-constexpr scicpp_pure auto amax(R &&r, Proj proj = {}) {
+[[nodiscard]] constexpr scicpp_pure auto amax(R &&r, Proj proj = {}) {
     using T = std::remove_cvref_t<std::ranges::range_value_t<R>>;
 
     if (unlikely(std::ranges::empty(r))) {
@@ -60,7 +51,7 @@ template <std::ranges::input_range R, class Proj = std::identity>
     requires std::indirect_strict_weak_order<
         std::less<>,
         std::projected<std::ranges::iterator_t<R>, Proj>>
-constexpr scicpp_pure auto amin(R &&r, Proj proj = {}) {
+[[nodiscard]] constexpr scicpp_pure auto amin(R &&r, Proj proj = {}) {
     using T = std::remove_cvref_t<std::ranges::range_value_t<R>>;
 
     if (unlikely(std::ranges::empty(r))) {
@@ -76,7 +67,7 @@ constexpr scicpp_pure auto amin(R &&r, Proj proj = {}) {
 
 template <std::ranges::input_range R>
     requires requires(const std::ranges::range_value_t<R> &x) { x - x; }
-constexpr scicpp_pure auto ptp(R &&r) {
+[[nodiscard]] constexpr scicpp_pure auto ptp(R &&r) {
     using T = std::remove_cvref_t<std::ranges::range_value_t<R>>;
 
     if (unlikely(std::ranges::empty(r))) {
@@ -91,13 +82,17 @@ constexpr scicpp_pure auto ptp(R &&r) {
 // average
 //---------------------------------------------------------------------------------
 
-template <class Array1, class Array2>
-constexpr auto average(const Array1 &f, const Array2 &weights) {
-    if (unlikely(f.empty() || (f.size() != weights.size()))) {
-        return detail::quiet_nan<Array1>();
+template <std::ranges::input_range R, std::ranges::input_range Weights>
+[[nodiscard]] constexpr auto average(R &&r, Weights &&weights) {
+    using T = std::remove_cvref_t<std::ranges::range_value_t<R>>;
+
+    if (unlikely(std::ranges::empty(r) ||
+                 (std::ranges::size(r) != std::ranges::size(weights)))) {
+        return std::numeric_limits<T>::quiet_NaN();
     }
 
-    return inner(f, weights) / sum(weights);
+    return inner(std::forward<R>(r), std::forward<Weights>(weights)) /
+           sum(std::forward<Weights>(weights));
 }
 
 //---------------------------------------------------------------------------------
