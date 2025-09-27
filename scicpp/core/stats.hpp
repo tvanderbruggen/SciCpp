@@ -105,7 +105,6 @@ namespace detail {
 template <class InputIt>
 auto median_inplace(InputIt first, InputIt last) {
     using T = typename std::iterator_traits<InputIt>::value_type;
-    using raw_t = units::representation_t<T>;
     const auto size = std::distance(first, last);
 
     if (unlikely(size == 0)) {
@@ -120,7 +119,7 @@ auto median_inplace(InputIt first, InputIt last) {
         return *target;
     } else {
         const auto max_it = std::max_element(first, first + half);
-        return (*max_it + *target) / raw_t{2}; // cf. std::midpoint (C++20)
+        return units::midpoint(*max_it, *target);
     }
 }
 

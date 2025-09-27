@@ -223,4 +223,14 @@ TEST_CASE("Complex") {
                          std::complex(inf_m, -0_m)));
 }
 
+TEST_CASE("midpoint") {
+    REQUIRE(almost_equal(units::midpoint(0., 2.), 1.));
+    REQUIRE(almost_equal(units::midpoint(0_m, 2_m), 1_m));
+    REQUIRE(almost_equal(units::midpoint(1_V, 3_V), 2_V));
+    print(units::midpoint(1_m, 3000_mm));
+    REQUIRE(almost_equal(units::midpoint(1_m, 3000_mm), 2_m));
+    REQUIRE(almost_equal(units::midpoint(1000_mm, 0.003_km), 2_m));
+    static_assert(float_equal(units::midpoint(1_m, 3000_mm), 2_m));
+}
+
 } // namespace scicpp::units

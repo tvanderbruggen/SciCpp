@@ -79,6 +79,10 @@ TEST_CASE("average") {
     REQUIRE(almost_equal<2>(
         average(std::vector{1., 2., 3.}, std::vector{4., 5., 6.}),
         2.133333333333333));
+    const auto v = std::vector{0., 1., 2., 3., 4.};
+    const auto s = std::span{v}.subspan(1, 3);
+    REQUIRE(almost_equal<2>(average(s, std::vector{4., 5., 6.}),
+                            2.133333333333333));
     // printf("%.20f\n",
     //        average(linspace(0., 87946., 1000000), linspace(0., 156., 1000000)));
     REQUIRE(almost_equal<6>(

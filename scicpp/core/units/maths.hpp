@@ -11,6 +11,7 @@
 #include <cmath>
 #include <complex>
 #include <limits>
+#include <numeric>
 
 // Extend std maths functions that are compatible with units
 // (Mostly comparisons and power functions).
@@ -387,6 +388,19 @@ auto polar(T1 r, T2 theta) {
 template <typename T>
 auto proj(T z) {
     return T(std::proj(value(z)));
+}
+
+// midpoint
+
+template <typename T1, typename T2>
+constexpr auto midpoint(T1 x, T2 y) {
+    if constexpr (is_quantity_v<T1> || is_quantity_v<T2>) {
+        static_assert(is_same_dimension<T1, T2>);
+
+        return T1(std::midpoint(value(x), value(quantity_cast<T1>(y))));
+    } else {
+        return std::midpoint(x, y);
+    }
 }
 
 } // namespace scicpp::units
