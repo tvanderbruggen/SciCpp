@@ -462,6 +462,10 @@ TEST_CASE("diff physical quantity") {
                          {1._m, 2._m, 3._m, -7._m}));
 }
 
+//---------------------------------------------------------------------------------
+// inner
+//---------------------------------------------------------------------------------
+
 TEST_CASE("inner") {
     using namespace scicpp::operators;
 
@@ -470,14 +474,21 @@ TEST_CASE("inner") {
     REQUIRE(inner(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) == -32);
     REQUIRE(inner(std::array{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
     REQUIRE(inner(std::vector{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
+    const auto v1 = std::vector{56, 1, 2, 4, 7, 8, 12};
+    const auto v2 = std::vector{89, 1, 2, 3, -7, 3, 14};
+    const auto s1 = std::span{v1}.subspan(1, 4);
+    const auto s2 = std::span{v2}.subspan(1, 4);
+    REQUIRE(inner(s1, s2) == -32);
     REQUIRE(dot(std::vector{1, 2, 4, 7}, std::vector{1, 2, 3, -7}) == -32);
     REQUIRE(dot(std::vector{1, 2, 4, 7}, std::array{1, 2, 3, -7}) == -32);
+    REQUIRE(dot(s1, s2) == -32);
     // printf("%.20f\n",
     //        inner(linspace(0., 1253., 1000000), linspace(0., 148253., 1000000)));
     REQUIRE(almost_equal<2>(
         inner(linspace(0., 1253., 1000000), linspace(0., 148253., 1000000)),
         61920367293532.47));
     REQUIRE(vdot(std::array{1, 2, 4, 7}, std::array{1, 2, 3, -7}) == -32);
+    REQUIRE(vdot(s1, s2) == -32);
     REQUIRE(vdot(std::array{1. + 0.i, 2.i, 4. + 0.i, 7.i},
                  std::array{1., 2., 3., -7.}) == 13. + 45.i);
     REQUIRE(vdot(std::array{1., 2., 3., -7.},

@@ -254,16 +254,19 @@ auto diff(const std::vector<T> &a, int n = 1) {
 // inner, dot, vdot
 //---------------------------------------------------------------------------------
 
-template <class InputItLhs, class InputItRhs, class ProductOp>
-constexpr scicpp_pure auto inner(InputItLhs first1,
-                                 InputItLhs last1,
-                                 InputItRhs first2,
-                                 InputItRhs last2,
-                                 ProductOp op) {
-    using T = std::invoke_result_t<
-        ProductOp,
-        typename std::iterator_traits<InputItLhs>::value_type,
-        typename std::iterator_traits<InputItRhs>::value_type>;
+template <std::input_iterator I1,
+          std::sentinel_for<I1> S1,
+          std::input_iterator I2,
+          std::sentinel_for<I2> S2,
+          class ProductOp>
+[[nodiscard]] constexpr scicpp_pure auto
+inner(I1 first1, S1 last1, I2 first2, S2 last2, ProductOp op) {
+    using T =
+        std::invoke_result_t<ProductOp,
+                             typename std::iterator_traits<I1>::value_type,
+                             typename std::iterator_traits<I2>::value_type>;
+    scicpp_require(std::distance(first1, last1) ==
+                   std::distance(first2, last2));
 
     return pairwise_accumulate<64>(
         first1,
@@ -282,28 +285,33 @@ constexpr scicpp_pure auto inner(InputItLhs first1,
         std::plus<>());
 }
 
-template <class InputItLhs, class InputItRhs>
-constexpr auto inner(InputItLhs first1,
-                     InputItLhs last1,
-                     InputItRhs first2,
-                     InputItRhs last2) {
+template <std::input_iterator I1,
+          std::sentinel_for<I1> S1,
+          std::input_iterator I2,
+          std::sentinel_for<I2> S2>
+[[nodiscard]] constexpr auto inner(I1 first1, S1 last1, I2 first2, S2 last2) {
     return inner(first1, last1, first2, last2, std::multiplies<>());
 }
 
-template <class Array1, class Array2>
-constexpr auto inner(const Array1 &a1, const Array2 &a2) {
-    return inner(a1.cbegin(), a1.cend(), a2.cbegin(), a2.cend());
+template <std::ranges::input_range R1, std::ranges::input_range R2>
+[[nodiscard]] constexpr auto inner(R1 &&r1, R2 &&r2) {
+    return inner(std::ranges::begin(r1),
+                 std::ranges::end(r1),
+                 std::ranges::begin(r2),
+                 std::ranges::end(r2));
 }
 
 // inner and dot are the same for 1D arrays
-template <class Array1, class Array2>
-constexpr auto dot(const Array1 &a1, const Array2 &a2) {
-    return inner(a1, a2);
+template <std::ranges::input_range R1, std::ranges::input_range R2>
+[[nodiscard]] constexpr auto dot(R1 &&r1, R2 &&r2) {
+    return inner(std::forward<R1>(r1), std::forward<R2>(r2));
 }
 
-template <class InputItLhs, class InputItRhs>
-constexpr auto
-vdot(InputItLhs first1, InputItLhs last1, InputItRhs first2, InputItRhs last2) {
+template <std::input_iterator I1,
+          std::sentinel_for<I1> S1,
+          std::input_iterator I2,
+          std::sentinel_for<I2> S2>
+[[nodiscard]] constexpr auto vdot(I1 first1, S1 last1, I2 first2, S2 last2) {
     return inner(first1, last1, first2, last2, [](auto x1, auto x2) {
         if constexpr (meta::is_complex_v<decltype(x1)>) {
             return std::conj(x1) * x2;
@@ -313,9 +321,12 @@ vdot(InputItLhs first1, InputItLhs last1, InputItRhs first2, InputItRhs last2) {
     });
 }
 
-template <class ArrayLhs, class ArrayRhs>
-constexpr auto vdot(const ArrayLhs &a1, const ArrayRhs &a2) {
-    return vdot(a1.cbegin(), a1.cend(), a2.cbegin(), a2.cend());
+template <std::ranges::input_range R1, std::ranges::input_range R2>
+[[nodiscard]] constexpr auto vdot(R1 &&r1, R2 &&r2) {
+    return vdot(std::ranges::begin(r1),
+                std::ranges::end(r1),
+                std::ranges::begin(r2),
+                std::ranges::end(r2));
 }
 
 //---------------------------------------------------------------------------------
