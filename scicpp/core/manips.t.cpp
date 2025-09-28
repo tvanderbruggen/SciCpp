@@ -5,6 +5,8 @@
 
 #include "scicpp/core/print.hpp"
 
+#include <span>
+
 namespace scicpp {
 
 TEST_CASE("concatenate") {
@@ -243,6 +245,67 @@ TEST_CASE("slice_array") {
         REQUIRE(array_equal(slice_array(arr, -2, -5, -1), {6, 5, 4}));
         REQUIRE(array_equal(slice_array(arr, 2, -2), {3, 4, 5}));
         REQUIRE(slice_array(std::array<int, 0>{}, 2, -2).empty());
+    }
+
+    SECTION("slice_array span (dynamic extent over std::vector)") {
+        const std::vector<int> vec{1, 2, 3, 4, 5, 6, 7};
+        std::span<const int> s{vec};
+
+        REQUIRE(array_equal(slice_array(s, -2, -50, -1),
+                            std::vector<int>{6, 5, 4, 3, 2, 1}));
+        REQUIRE(
+            array_equal(slice_array(s, -2, -5, -2), std::vector<int>{6, 4}));
+        REQUIRE(slice_array(s, -2, -5).empty());
+        REQUIRE(array_equal(slice_array(s, 2, -2), std::vector<int>{3, 4, 5}));
+        REQUIRE(array_equal(slice_array(s, 0, int(s.size())),
+                            std::vector<int>(vec.begin(), vec.end())));
+
+        // empty span
+        std::span<const int> empty{};
+        REQUIRE(slice_array(empty, 2, -2).empty());
+    }
+
+    SECTION("slice_array span (dynamic extent over std::array)") {
+        const std::array<int, 7> arr{1, 2, 3, 4, 5, 6, 7};
+        std::span<const int> s{arr};
+
+        REQUIRE(array_equal(slice_array(s, -2, -50, -1),
+                            std::vector<int>{6, 5, 4, 3, 2, 1}));
+        REQUIRE(
+            array_equal(slice_array(s, -2, -5, -2), std::vector<int>{6, 4}));
+        REQUIRE(slice_array(s, -2, -5).empty());
+        REQUIRE(array_equal(slice_array(s, 2, 5), std::vector<int>{3, 4, 5}));
+        REQUIRE(array_equal(slice_array(s, -5, -2), std::vector<int>{3, 4, 5}));
+        REQUIRE(array_equal(slice_array(s, -4, 5), std::vector<int>{4, 5}));
+        REQUIRE(array_equal(slice_array(s, 0, int(s.size())),
+                            std::vector<int>(arr.begin(), arr.end())));
+        REQUIRE(
+            array_equal(slice_array(s, -2, -5, -1), std::vector<int>{6, 5, 4}));
+    }
+
+    SECTION("slice_array span (static extent over std::array)") {
+        const std::array<int, 7> arr{1, 2, 3, 4, 5, 6, 7};
+        std::span<const int, 7> s{arr};
+
+        REQUIRE(array_equal(slice_array(s, -2, -50, -1),
+                            std::vector<int>{6, 5, 4, 3, 2, 1}));
+        REQUIRE(
+            array_equal(slice_array(s, -2, -5, -2), std::vector<int>{6, 4}));
+        REQUIRE(slice_array(s, -2, -5).empty());
+        REQUIRE(array_equal(slice_array(s, 2, -2), std::vector<int>{3, 4, 5}));
+    }
+
+    SECTION("slice_array span with units (dynamic extent)") {
+        using namespace units::literals;
+
+        const std::vector arr{1_kg, 2_kg, 3_kg, 4_kg, 5_kg, 6_kg, 7_kg};
+        std::span<const decltype(1_kg)> s{arr};
+
+        REQUIRE(almost_equal(slice_array(s, -2, -50, -1),
+                             std::vector{6_kg, 5_kg, 4_kg, 3_kg, 2_kg, 1_kg}));
+        REQUIRE(
+            almost_equal(slice_array(s, -2, -5, -2), std::vector{6_kg, 4_kg}));
+        REQUIRE(slice_array(s, -2, -5).empty());
     }
 }
 

@@ -14,7 +14,9 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <iterator>
+#include <ranges>
 #include <type_traits>
 #include <vector>
 
@@ -51,8 +53,8 @@ template <typename Array1,
           meta::enable_if_iterable<Array1> = 0,
           meta::enable_if_iterable<Array2> = 0>
 auto concatenate(const Array1 &a1, const Array2 &a2) {
-    using T1 = typename Array1::value_type;
-    using T2 = typename Array2::value_type;
+    using T1 = Array1::value_type;
+    using T2 = Array2::value_type;
 
     if constexpr (units::is_quantity_v<T1>) {
         static_assert(units::is_same_dimension<T1, T2>);
@@ -75,7 +77,7 @@ auto concatenate(const Array1 &a1, const Array2 &a2) {
 
 template <typename Array, typename T, meta::enable_if_iterable<Array> = 0>
 auto concatenate(std::vector<T> &&a1, const Array &a2) {
-    using Tarray = typename Array::value_type;
+    using Tarray = Array::value_type;
 
     const auto N1 = a1.size();
     a1.resize(N1 + a2.size());
@@ -104,7 +106,7 @@ template <typename Array,
           meta::enable_if_iterable<Array> = 0,
           std::enable_if_t<std::is_lvalue_reference_v<Array>, int> = 0>
 auto concatenate(const Array &a1, std::vector<T> &&a2) {
-    using Tarray = typename Array::value_type;
+    using Tarray = Array::value_type;
 
     a2.reserve(a1.size() + a2.size());
 
@@ -176,38 +178,64 @@ constexpr auto flip(const Array &a) {
 // return the result of a[slice(start, stop, step)]
 //-----------------------------------------------------------------------------
 
-template <typename Array, typename DiffTp = typename Array::difference_type>
-auto slice_array(const Array &a, DiffTp start, DiffTp stop, DiffTp step = 1) {
-    using T = typename Array::value_type;
+template <std::ranges::random_access_range R>
+scicpp_pure auto slice_array(const R &r,
+                             std::ptrdiff_t start,
+                             std::ptrdiff_t stop,
+                             std::ptrdiff_t step = 1) {
+    using T = std::ranges::range_value_t<R>;
+    std::vector<T> out;
     scicpp_require(step != 0);
 
-    const auto n = DiffTp(a.size());
-    start = start < 0 ? n + start : start;
-    stop = stop < 0 ? n + stop : stop;
+    const std::ptrdiff_t n = std::ranges::ssize(r);
+    if (n == 0) {
+        return out;
+    }
 
-    auto left = std::min(start, stop);
-    left = left < 0 ? -1 : left;
+    // normalize negatives: [-n, n-1] => [0, n] for bounds handling
+    auto norm_neg = [n](std::ptrdiff_t i) { return (i < 0) ? (i + n) : i; };
 
-    auto right = std::max(start, stop);
-    right = right > n ? n : right;
+    if (step > 0) {
+        // clamp to [0, n] (note: stop is exclusive)
+        start = std::clamp(norm_neg(start), std::ptrdiff_t{0}, n);
+        stop = std::clamp(norm_neg(stop), std::ptrdiff_t{0}, n);
 
-    std::vector<T> res;
-
-    if ((step < 0) && (stop < start)) {
-        res.reserve(std::size_t((stop - start) / step));
-
-        for (; right > left; right += step) {
-            res.push_back(a[std::size_t(right)]);
+        if (start >= stop) {
+            return out;
         }
-    } else if ((step > 0) && (stop > start)) {
-        res.reserve(std::size_t((stop - start) / step));
 
-        for (; right > left; left += step) {
-            res.push_back(a[std::size_t(left)]);
+        const auto span = stop - start;
+        const auto count = (span + (step - 1)) / step;
+        out.reserve(static_cast<std::size_t>(count));
+
+        auto it0 = std::ranges::begin(r);
+
+        for (auto i = start; i < stop; i += step) {
+            out.push_back(*(it0 + i));
+        }
+    } else { // step < 0
+        // for negative step, valid element indices are [0, n-1]
+        // stop is exclusive; typical Python semantics iterate while i > stop
+        start = std::clamp(norm_neg(start), std::ptrdiff_t{0}, n - 1);
+        stop = std::clamp(norm_neg(stop), std::ptrdiff_t{-1}, n - 1);
+
+        if (start <= stop) {
+            return out;
+        }
+
+        const auto span = start - stop;
+        const auto k = -step;
+        const auto count = (span + (k - 1)) / k;
+        out.reserve(static_cast<std::size_t>(count));
+
+        auto it0 = std::ranges::begin(r);
+
+        for (auto i = start; i > stop; i += step) { // step is negative
+            out.push_back(*(it0 + i));
         }
     }
 
-    return res;
+    return out;
 }
 
 } // namespace scicpp

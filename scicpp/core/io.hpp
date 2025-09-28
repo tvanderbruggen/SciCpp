@@ -62,7 +62,7 @@ auto to_number([[maybe_unused]] const char *str) {
     } else if constexpr (std::is_integral_v<T>) {
         return static_cast<T>(std::atoi(str));
     } else if constexpr (meta::is_complex_v<T>) {
-        using scal_t = typename T::value_type;
+        using scal_t = T::value_type;
         scal_t x, y;
 
         if (std::sscanf(str, "%lf+%lfj", &x, &y) > 0) {
