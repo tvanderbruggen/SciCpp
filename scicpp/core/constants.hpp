@@ -154,7 +154,8 @@ struct physical_constants {
     static constexpr auto muN = static_cast<T>(0.5L) * e * hbar / m_p;
 
     // Rydberg constant
-    static constexpr auto Rinf = static_cast<T>(0.5L) * alpha * alpha * m_e * c / h;
+    static constexpr auto Rinf =
+        static_cast<T>(0.5L) * alpha * alpha * m_e * c / h;
 
     // Bohr radius
     static constexpr auto a0 = hbar / (alpha * m_e * c);
