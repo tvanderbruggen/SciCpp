@@ -211,7 +211,7 @@ constexpr scicpp_pure auto lfilter(const std::array<T, Nb> &b,
 
 template <typename Array1, typename Array2, typename Array3>
 auto lfilter(const Array1 &b, const Array2 &a, const Array3 &x) {
-    using T = typename Array1::value_type;
+    using T = Array1::value_type;
     static_assert(std::is_same_v<T, typename Array2::value_type>);
     static_assert(std::is_same_v<T, typename Array3::value_type>);
 
@@ -237,7 +237,7 @@ auto lfilter(const Array1 &b,
              const Array2 &a,
              const Array3 &x,
              const Array4 &zi) {
-    using T = typename Array1::value_type;
+    using T = Array1::value_type;
     static_assert(std::is_same_v<T, typename Array2::value_type>);
     static_assert(std::is_same_v<T, typename Array3::value_type>);
     static_assert(std::is_same_v<T, typename Array4::value_type>);
@@ -280,7 +280,7 @@ template <FiltfiltPadType padtype,
           typename Array2,
           typename Array3,
           typename Array4,
-          typename DiffTp = typename Array1::difference_type>
+          typename DiffTp = Array1::difference_type>
 auto fwd_filter(const Array1 &b,
                 const Array2 &a,
                 const Array3 &x,
@@ -337,7 +337,7 @@ auto filtfilt(const Array1 &b,
               const Array2 &a,
               const Array3 &x,
               DiffTp padlen = -1) {
-    using T = typename Array1::value_type;
+    using T = Array1::value_type;
     static_assert(std::is_same_v<T, typename Array2::value_type>);
     static_assert(std::is_same_v<T, typename Array3::value_type>);
     using namespace scicpp::operators;
@@ -380,19 +380,23 @@ constexpr auto deconvolve(const std::array<T, N> &signal,
 
 template <typename Array1, typename Array2>
 auto deconvolve(const Array1 &signal, const Array2 &divisor) {
-    using T = typename Array1::value_type;
+    using T = Array1::value_type;
     static_assert(std::is_same_v<T, typename Array2::value_type>);
 
     const auto N = signal.size();
     const auto D = divisor.size();
 
     if (D > N) {
+#if defined(__GNUC__) && !defined(__clang__)
 // GCC Bug 113239
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
         return std::tuple{empty<T>(), Array1(signal)};
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
     } else {
         using namespace scicpp::operators;
 
