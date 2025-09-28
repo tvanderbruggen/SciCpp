@@ -129,7 +129,7 @@ template <typename T,
           typename Offset1,
           typename Offset2>
 using common_quantity_t =
-    typename common_quantity<T, Dim, Scale1, Scale2, Offset1, Offset2>::type;
+    common_quantity<T, Dim, Scale1, Scale2, Offset1, Offset2>::type;
 
 // quantity_cast
 
@@ -143,7 +143,7 @@ constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
     static_assert(std::is_same_v<Dim, typename ToQty::dim>,
                   "Cannot cast to a quantity with different dimension");
 
-    using to_rep_t = typename ToQty::value_type;
+    using to_rep_t = ToQty::value_type;
     using rep_t = std::common_type_t<T, to_rep_t>;
 
     using QtyScale = scale_divide<Scale, typename ToQty::scal>;
@@ -419,7 +419,7 @@ auto root(T x) {
     static_assert(Root > 0);
 
     if constexpr (is_quantity_v<T>) {
-        using rept_t = typename T::value_type;
+        using rept_t = T::value_type;
         using DimRoot = dimension_root<typename T::dim, Root>;
         using ScalRoot = scale_root<typename T::scal, Root>;
         return quantity<rept_t, DimRoot, ScalRoot>(
@@ -466,7 +466,7 @@ struct representation_type_impl<std::complex<quantity<T, Dim, Scale, Offset>>> {
 } // namespace detail
 
 template <class T>
-using representation_t = typename detail::representation_type_impl<T>::type;
+using representation_t = detail::representation_type_impl<T>::type;
 
 // is_same_dimension
 template <class Qty1, class Qty2>
@@ -514,7 +514,7 @@ struct dimensional_system_impl {
 } // namespace detail
 
 template <std::size_t N>
-using dimensional_system = typename detail::dimensional_system_impl<N>::type;
+using dimensional_system = detail::dimensional_system_impl<N>::type;
 
 template <std::size_t I, typename DimSyst>
 using get_base_dimension = std::tuple_element_t<I, DimSyst>;

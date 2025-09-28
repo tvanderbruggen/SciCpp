@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <concepts>
 #include <functional>
 #include <iterator>
 #include <numeric>
@@ -32,7 +33,7 @@ namespace scicpp {
 
 template <class Array, class UnaryOp>
 [[nodiscard]] constexpr auto map(UnaryOp op, Array &&a) {
-    using InputType = typename std::remove_reference_t<Array>::value_type;
+    using InputType = std::remove_reference_t<Array>::value_type;
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {
@@ -47,7 +48,7 @@ template <class Array, class UnaryOp>
 
 template <class Array, class UnaryOp>
 [[nodiscard]] constexpr auto map(UnaryOp op, const Array &a) {
-    using InputType = typename Array::value_type;
+    using InputType = Array::value_type;
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     auto res = utils::set_array<ReturnType>(a);
@@ -67,8 +68,8 @@ template <class Array1,
           class BinaryOp,
           std::enable_if_t<!std::is_lvalue_reference_v<Array1>, int> = 0>
 [[nodiscard]] constexpr auto map(BinaryOp op, Array1 &&a1, const Array2 &a2) {
-    using InputType1 = typename Array1::value_type;
-    using InputType2 = typename Array2::value_type;
+    using InputType1 = Array1::value_type;
+    using InputType2 = Array2::value_type;
     using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     scicpp_require(a1.size() == a2.size());
@@ -88,8 +89,8 @@ template <class Array1,
           class BinaryOp,
           std::enable_if_t<!std::is_lvalue_reference_v<Array2>, int> = 0>
 [[nodiscard]] constexpr auto map(BinaryOp op, const Array1 &a1, Array2 &&a2) {
-    using InputType1 = typename Array1::value_type;
-    using InputType2 = typename Array2::value_type;
+    using InputType1 = Array1::value_type;
+    using InputType2 = Array2::value_type;
     using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     scicpp_require(a1.size() == a2.size());
@@ -111,8 +112,8 @@ template <class Array1,
                                !std::is_lvalue_reference_v<Array2>,
                            int> = 0>
 [[nodiscard]] constexpr auto map(BinaryOp op, Array1 &&a1, Array2 &&a2) {
-    using InputType1 = typename Array1::value_type;
-    using InputType2 = typename Array2::value_type;
+    using InputType1 = Array1::value_type;
+    using InputType2 = Array2::value_type;
     using ReturnType = std::invoke_result_t<BinaryOp, InputType1, InputType2>;
 
     if constexpr (std::is_same_v<InputType2, ReturnType>) {
@@ -208,33 +209,39 @@ struct Trim {
 // so we cannot implement it for std::array.
 
 template <typename T, class UnaryPredicate>
+    requires std::indirect_unary_predicate<UnaryPredicate, const T *>
 [[nodiscard]] auto filter(std::vector<T> &&a, UnaryPredicate p) {
-    static_assert(meta::is_predicate<UnaryPredicate, T>);
-
     const auto i =
         std::remove_if(a.begin(), a.end(), [p](auto v) { return !p(v); });
     a.erase(i, a.end());
     return std::move(a);
 }
 
-template <class Array, class UnaryPredicate>
-[[nodiscard]] auto filter(const Array &a, UnaryPredicate p) {
-    return filter(std::vector(std::cbegin(a), std::cend(a)), p);
+template <std::ranges::input_range R, class UnaryPredicate>
+[[nodiscard]] auto filter(R &&r, UnaryPredicate &&p) {
+    return filter(std::vector(std::cbegin(r), std::cend(r)),
+                  std::forward<UnaryPredicate>(p));
 }
 
 //---------------------------------------------------------------------------------
 // filter_reduce
 //---------------------------------------------------------------------------------
 
-template <class InputIt, class UnaryPredicate, class BinaryOp, typename T>
-[[nodiscard]] constexpr scicpp_pure auto filter_reduce(
-    InputIt first, InputIt last, BinaryOp op, T init, UnaryPredicate filter) {
-    using IteratorType = typename std::iterator_traits<InputIt>::value_type;
-    using ReturnType = std::invoke_result_t<BinaryOp, T, IteratorType>;
+namespace detail {
+template <class F, class T, class Ref>
+concept ClosedFoldOp = std::regular_invocable<F &, T, Ref> &&
+                       std::same_as<std::invoke_result_t<F &, T, Ref>, T>;
+}
 
-    static_assert(std::is_same_v<ReturnType, T>);
-    static_assert(meta::is_predicate<UnaryPredicate, IteratorType>);
-
+template <std::input_iterator It,
+          std::sentinel_for<It> S,
+          class UnaryPredicate,
+          class BinaryOp,
+          typename T>
+    requires std::indirect_unary_predicate<UnaryPredicate, It> &&
+             detail::ClosedFoldOp<BinaryOp, T, std::iter_reference_t<It>>
+[[nodiscard]] constexpr scicpp_pure auto
+filter_reduce(It first, S last, BinaryOp op, T init, UnaryPredicate filter) {
     signed_size_t cnt = 0;
 
     for (; first != last; ++first) {
@@ -247,18 +254,24 @@ template <class InputIt, class UnaryPredicate, class BinaryOp, typename T>
     return std::tuple{init, cnt};
 }
 
-template <class Array, class UnaryPredicate, class BinaryOp, typename T2>
+template <std::ranges::input_range R,
+          class UnaryPredicate,
+          class BinaryOp,
+          typename T2>
 [[nodiscard]] constexpr scicpp_pure auto
-filter_reduce(const Array &a, BinaryOp op, T2 init, UnaryPredicate &&filter) {
-    return filter_reduce(
-        a.cbegin(), a.cend(), op, init, std::forward<UnaryPredicate>(filter));
+filter_reduce(R &&r, BinaryOp &&op, T2 init, UnaryPredicate &&filter) {
+    return filter_reduce(std::cbegin(r),
+                         std::cend(r),
+                         std::forward<BinaryOp>(op),
+                         init,
+                         std::forward<UnaryPredicate>(filter));
 }
 
 //---------------------------------------------------------------------------------
 // reduce
 //---------------------------------------------------------------------------------
 
-template <class Array, class BinaryOp, typename T = typename Array::value_type>
+template <class Array, class BinaryOp, typename T = Array::value_type>
 [[nodiscard]] constexpr scicpp_pure auto
 reduce(const Array &a, BinaryOp op, T init) {
     return filter_reduce(a, op, init, filters::all);
@@ -348,7 +361,8 @@ template <signed_size_t PW_BLOCKSIZE,
 template <class InputIt,
           class UnaryPredicate,
           class AssociativeBinaryOp,
-          typename T = typename std::iterator_traits<InputIt>::value_type>
+          typename T = std::iterator_traits<InputIt>::value_type>
+    requires std::indirect_unary_predicate<UnaryPredicate, InputIt>
 [[nodiscard]] constexpr scicpp_pure auto
 filter_reduce_associative(InputIt first,
                           InputIt last,
@@ -378,7 +392,7 @@ filter_reduce_associative(InputIt first,
 template <class Array,
           class UnaryPredicate,
           class AssociativeBinaryOp,
-          typename T = typename Array::value_type>
+          typename T = Array::value_type>
 [[nodiscard]] constexpr scicpp_pure auto filter_reduce_associative(
     const Array &a, AssociativeBinaryOp op, UnaryPredicate &&filter) {
     return filter_reduce_associative(
@@ -391,7 +405,7 @@ template <class Array,
 
 template <class Array, class BinaryOp, class UnaryPredicate>
 auto cumacc(Array &&a, BinaryOp op, UnaryPredicate p) {
-    using InputType = typename std::remove_reference_t<Array>::value_type;
+    using InputType = std::remove_reference_t<Array>::value_type;
     using ReturnType = std::invoke_result_t<BinaryOp, InputType, InputType>;
     static_assert(meta::is_predicate<UnaryPredicate, InputType>);
     static_assert(std::is_same_v<InputType, ReturnType>);

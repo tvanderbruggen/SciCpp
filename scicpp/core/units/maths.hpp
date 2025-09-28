@@ -63,7 +63,7 @@ auto fabs(T x) {
 template <typename T>
 auto abs(T x) {
     if constexpr (meta::is_complex_v<std::decay_t<T>>) {
-        using scal_t = typename T::value_type;
+        using scal_t = T::value_type;
         return scal_t(std::abs(value(x)));
     } else {
         return T(std::abs(value(x)));
@@ -102,7 +102,7 @@ auto fma(T1 x, T2 y, T3 z) {
 template <typename T>
 auto sqrt(T x) {
     if constexpr (is_quantity_v<T>) {
-        using rept_t = typename T::value_type;
+        using rept_t = T::value_type;
         using DimRoot = dimension_root<typename T::dim, 2>;
         using ScalRoot = scale_root<typename T::scal, 2>;
         return quantity<rept_t, DimRoot, ScalRoot>(std::sqrt(value(x)));
@@ -114,7 +114,7 @@ auto sqrt(T x) {
 template <typename T>
 auto cbrt(T x) {
     if constexpr (is_quantity_v<T>) {
-        using rept_t = typename T::value_type;
+        using rept_t = T::value_type;
         using DimRoot = dimension_root<typename T::dim, 3>;
         using ScalRoot = scale_root<typename T::scal, 3>;
         return quantity<rept_t, DimRoot, ScalRoot>(std::cbrt(value(x)));
@@ -126,7 +126,7 @@ auto cbrt(T x) {
 template <intmax_t n, typename T, meta::disable_if_iterable<T> = 0>
 constexpr auto pow([[maybe_unused]] T a) {
     if constexpr (is_quantity_v<T>) {
-        using rept_t = typename T::value_type;
+        using rept_t = T::value_type;
         using DimPow = dimension_power<typename T::dim, n>;
         using ScalPow = scale_power<typename T::scal, n>;
         return quantity<rept_t, DimPow, ScalPow>(pow<n>(value(a)));
@@ -351,7 +351,7 @@ auto log1p(T x) {
 template <typename T>
 auto norm(T z) {
     if constexpr (meta::is_complex_v<std::decay_t<T>>) {
-        using scal_t = typename T::value_type;
+        using scal_t = T::value_type;
 
         if constexpr (is_quantity_v<scal_t>) {
             using ret_t = quantity_multiply<scal_t, scal_t>;
@@ -372,7 +372,7 @@ auto norm(T z) {
 template <typename T>
 auto arg(T z) {
     if constexpr (meta::is_complex_v<std::decay_t<T>>) {
-        using scal_t = typename T::value_type;
+        using scal_t = T::value_type;
         return radian<representation_t<scal_t>>(std::arg(value(z)));
     } else {
         return radian<representation_t<T>>(std::arg(value(z)));

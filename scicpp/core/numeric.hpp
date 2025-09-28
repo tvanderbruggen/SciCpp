@@ -13,6 +13,7 @@
 #include <array>
 #include <cmath>
 #include <complex>
+#include <concepts>
 #include <cstddef>
 #include <functional>
 #include <iterator>
@@ -768,8 +769,8 @@ namespace detail {
 template <class InputIt, class Predicate, class Comparator>
 constexpr scicpp_pure auto
 argcmp(InputIt first, InputIt last, Predicate filter, Comparator compare) {
-    using IteratorType = typename std::iterator_traits<InputIt>::value_type;
-    using IdxTp = typename std::iterator_traits<InputIt>::difference_type;
+    using IteratorType = std::iterator_traits<InputIt>::value_type;
+    using IdxTp = std::iterator_traits<InputIt>::difference_type;
 
     static_assert(meta::is_predicate<Predicate, IteratorType>);
     static_assert(meta::is_predicate<Comparator, IteratorType, IteratorType>);
@@ -856,8 +857,8 @@ constexpr scicpp_pure auto nanargmin(const Array &a) {
 
 template <class InputIt, class Predicate>
 constexpr auto argwhere(InputIt first, InputIt last, Predicate filter) {
-    using IteratorType = typename std::iterator_traits<InputIt>::value_type;
-    using IdxTp = typename std::iterator_traits<InputIt>::difference_type;
+    using IteratorType = std::iterator_traits<InputIt>::value_type;
+    using IdxTp = std::iterator_traits<InputIt>::difference_type;
 
     static_assert(meta::is_predicate<Predicate, IteratorType>);
 

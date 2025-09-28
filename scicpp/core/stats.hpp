@@ -104,7 +104,7 @@ namespace detail {
 // https://stackoverflow.com/questions/1719070/what-is-the-right-approach-when-using-stl-container-for-median-calculation
 template <class InputIt>
 auto median_inplace(InputIt first, InputIt last) {
-    using T = typename std::iterator_traits<InputIt>::value_type;
+    using T = std::iterator_traits<InputIt>::value_type;
     const auto size = std::distance(first, last);
 
     if (unlikely(size == 0)) {
@@ -179,7 +179,7 @@ template <QuantileInterp interpolation, class InputIt, typename T>
 auto quantile_inplace(InputIt first, InputIt last, T q) {
     scicpp_require(q >= T{0} && q <= T{1});
 
-    using ItTp = typename std::iterator_traits<InputIt>::value_type;
+    using ItTp = std::iterator_traits<InputIt>::value_type;
     using RetTp = std::conditional_t<std::is_integral_v<ItTp>, double, ItTp>;
 
     const auto size = std::distance(first, last);
@@ -314,7 +314,7 @@ auto naniqr(const Array &f, double rng0 = 25., double rng1 = 75.) {
 
 template <class InputIt, class Predicate>
 constexpr auto mean(InputIt first, InputIt last, Predicate filter) {
-    using T = typename std::iterator_traits<InputIt>::value_type;
+    using T = std::iterator_traits<InputIt>::value_type;
 
     if (unlikely(std::distance(first, last) == 0)) {
         return std::numeric_limits<T>::quiet_NaN();
@@ -352,7 +352,7 @@ constexpr auto tmean(const Array &f,
 
 template <class Array>
 auto gmean(Array &&f) {
-    using T = typename std::decay_t<Array>::value_type;
+    using T = std::decay_t<Array>::value_type;
 
     if (unlikely(f.empty())) {
         return std::numeric_limits<T>::quiet_NaN();
@@ -386,8 +386,8 @@ constexpr scicpp_pure auto covariance(InputIt1 first1,
                                       InputIt2 first2,
                                       InputIt2 last2,
                                       Predicate filter) {
-    using T1 = typename std::iterator_traits<InputIt1>::value_type;
-    using T2 = typename std::iterator_traits<InputIt2>::value_type;
+    using T1 = std::iterator_traits<InputIt1>::value_type;
+    using T2 = std::iterator_traits<InputIt2>::value_type;
     using raw_t1 = units::representation_t<T1>;
     using raw_t2 = units::representation_t<T2>;
     using raw_t = std::common_type_t<raw_t1, raw_t2>;
@@ -565,7 +565,7 @@ auto nansem(const Array &a) {
     return sem<ddof>(a, filters::not_nan);
 }
 
-template <int ddof = 1, class Array, typename T = typename Array::value_type>
+template <int ddof = 1, class Array, typename T = Array::value_type>
 constexpr auto tsem(const Array &f,
                     const std::array<T, 2> &limits,
                     const std::array<bool, 2> &inclusive = {true, true}) {
@@ -579,7 +579,7 @@ constexpr auto tsem(const Array &f,
 template <intmax_t n, class Array, class Predicate>
 scicpp_pure auto moment(const Array &f, [[maybe_unused]] Predicate filter) {
     using namespace operators;
-    using T = typename Array::value_type;
+    using T = Array::value_type;
 
     if constexpr (n == 0) {
         return T{1};

@@ -137,6 +137,20 @@ TEST_CASE("filter_reduce") {
     REQUIRE(res == 6);
     REQUIRE(cnt == 2);
 
+    const auto vect = std::vector{1, 2, 3, 4, 5};
+    const auto [res1, cnt1] = filter_reduce(
+        vect, std::plus<>(), 0, [](auto v) { return v % 2 == 0; });
+
+    REQUIRE(res1 == 6);
+    REQUIRE(cnt1 == 2);
+
+    const auto sp = std::span{vect};
+    const auto [res2, cnt2] =
+        filter_reduce(sp, std::plus<>(), 0, [](auto v) { return v % 2 == 0; });
+
+    REQUIRE(res2 == 6);
+    REQUIRE(cnt2 == 2);
+
     REQUIRE(std::get<0>(
                 filter_reduce(std::vector<int>{}, std::plus<>(), 1, [](auto v) {
                     return v % 2 == 0;
