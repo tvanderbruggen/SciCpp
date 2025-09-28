@@ -154,17 +154,19 @@ map(BinaryOp op, const Array1 &a1, const Array2 &a2) {
 
 template <class Func>
 constexpr auto vectorize(Func &&f) {
-    return [&](auto &&...arrays) {
-        if constexpr ((meta::is_iterable_v<decltype(arrays)> && ...)) {
+    using F = std::decay_t<Func>;
+    return [fun = F(std::forward<Func>(f))]<class... As>(
+               As &&...arrays) scicpp_const -> decltype(auto) {
+        if constexpr ((meta::is_iterable_v<std::remove_reference_t<As>> &&
+                       ...)) {
             return map(
-                [&](auto &&...args) scicpp_const {
-                    return std::invoke(std::forward<Func>(f),
+                [fun](auto &&...args) scicpp_const -> decltype(auto) {
+                    return std::invoke(fun,
                                        std::forward<decltype(args)>(args)...);
                 },
-                std::forward<decltype(arrays)>(arrays)...);
+                std::forward<As>(arrays)...);
         } else {
-            return std::invoke(std::forward<Func>(f),
-                               std::forward<decltype(arrays)>(arrays)...);
+            return std::invoke(fun, std::forward<As>(arrays)...);
         }
     };
 }
