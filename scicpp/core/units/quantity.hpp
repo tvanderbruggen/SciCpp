@@ -11,6 +11,7 @@
 #include "scicpp/core/meta.hpp"
 #include "scicpp/core/units/arithmetic.hpp"
 
+#include <array>
 #include <cmath>
 #include <complex>
 #include <cstdint>
@@ -20,6 +21,7 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace scicpp::units {
 

@@ -8,8 +8,8 @@ TMP=tmp
 
 CPP_VERSION = 20
 
-# COMPILER ?= clang
-COMPILER ?= gcc
+COMPILER ?= clang
+# COMPILER ?= gcc
 
 CROSS_COMPILE = 
 ARCH_FLAGS = -march=native
@@ -30,7 +30,7 @@ ifeq ($(COMPILER),gcc)
   WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond -Wsuggest-attribute=pure -Wsuggest-attribute=const
 else
   CC = $(CROSS_COMPILE)clang
-  CCXX = $(CROSS_COMPILE)clang
+  CCXX = $(CROSS_COMPILE)clang #-ftime-trace
   WARNINGS += -Wpessimizing-move -Wno-zero-length-array -Wextra-semi -Wreserved-id-macro -Wconversion -Wshadow-field
 #   WARNINGS += -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation-unknown-command -Wno-newline-eof -ferror-limit=200
 endif

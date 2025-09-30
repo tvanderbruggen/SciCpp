@@ -29,6 +29,13 @@ TEST_CASE("A quantity is an arithmetic-like type") {
     static_assert(std::is_trivially_move_assignable_v<meter<>>);
 }
 
+TEST_CASE("representation_t") {
+    static_assert(std::is_same_v<representation_t<float>, float>);
+    static_assert(std::is_same_v<representation_t<length<int>>, int>);
+    static_assert(std::is_same_v<representation_t<std::complex<length<double>>>,
+                                 std::complex<double>>);
+}
+
 TEST_CASE("Casting") {
     SECTION("Implicit conversions") {
         // Implicit conversions between floating point types are allowed

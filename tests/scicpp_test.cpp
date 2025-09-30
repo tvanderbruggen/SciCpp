@@ -26,6 +26,7 @@ using namespace std::literals;
 #include "scicpp/core/units/maths.t.cpp"
 #include "scicpp/core/units/quantity.t.cpp"
 #include "scicpp/core/units/units.t.cpp"
+#include "scicpp/core/units/utilities.t.cpp"
 #include "scicpp/core/utils.t.cpp"
 #include "scicpp/linalg/matrices.t.cpp"
 #include "scicpp/linalg/solve.t.cpp"
