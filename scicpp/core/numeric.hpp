@@ -375,7 +375,7 @@ constexpr auto operator!(Array &&a) {
 
 // scalar compare
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator==(Array &&a, T scalar) {
@@ -383,7 +383,7 @@ constexpr auto operator==(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator==(T scalar, Array &&a) {
@@ -391,7 +391,7 @@ constexpr auto operator==(T scalar, Array &&a) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator!=(Array &&a, T scalar) {
@@ -399,7 +399,7 @@ constexpr auto operator!=(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator!=(T scalar, Array &&a) {
@@ -407,7 +407,7 @@ constexpr auto operator!=(T scalar, Array &&a) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator<(Array &&a, T scalar) {
@@ -415,7 +415,7 @@ constexpr auto operator<(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator>=(Array &&a, T scalar) {
@@ -423,7 +423,7 @@ constexpr auto operator>=(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator<(T scalar, Array &&a) {
@@ -431,7 +431,7 @@ constexpr auto operator<(T scalar, Array &&a) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator>=(T scalar, Array &&a) {
@@ -439,7 +439,7 @@ constexpr auto operator>=(T scalar, Array &&a) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator<=(Array &&a, T scalar) {
@@ -447,7 +447,7 @@ constexpr auto operator<=(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator<=(T scalar, Array &&a) {
@@ -455,7 +455,7 @@ constexpr auto operator<=(T scalar, Array &&a) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator>(Array &&a, T scalar) {
@@ -463,7 +463,7 @@ constexpr auto operator>(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator>(T scalar, Array &&a) {
@@ -472,7 +472,7 @@ constexpr auto operator>(T scalar, Array &&a) {
 
 // scalar multiply
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator*(Array &&a, T scalar) {
@@ -480,7 +480,7 @@ constexpr auto operator*(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator*(T scalar, Array &&a) {
@@ -490,7 +490,7 @@ constexpr auto operator*(T scalar, Array &&a) {
 // scalar add
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator+(Array &&a, T scalar) {
@@ -498,7 +498,7 @@ constexpr auto operator+(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator+(T scalar, Array &&a) {
@@ -508,7 +508,7 @@ constexpr auto operator+(T scalar, Array &&a) {
 // scalar substract
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator-(Array &&a, T scalar) {
@@ -516,7 +516,7 @@ constexpr auto operator-(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator-(T scalar, Array &&a) {
@@ -526,7 +526,7 @@ constexpr auto operator-(T scalar, Array &&a) {
 // scalar divide
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator/(Array &&a, T scalar) {
@@ -534,7 +534,7 @@ constexpr auto operator/(Array &&a, T scalar) {
 }
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator/(T scalar, Array &&a) {
@@ -559,7 +559,7 @@ constexpr auto modulus(T x, T y) {
 } // namespace detail
 
 template <class Array,
-          typename T = typename Array::value_type,
+          typename T = Array::value_type,
           detail::enable_if_operator_iterable<Array> = 0,
           detail::enable_if_scalar<T> = 0>
 constexpr auto operator%(Array &&a, T scalar) {

@@ -123,6 +123,11 @@ TEST_CASE("median") {
 
     const auto a = std::array{3., 4., 1., 2.};
     REQUIRE(almost_equal(median(a), 2.5));
+
+    const auto s = std::span{v};
+    REQUIRE(almost_equal(median(s), 2.));
+
+    static_assert(float_equal(median(std::array{3., 4., 1., 2.}), 2.5));
 }
 
 TEST_CASE("median physical units") {
@@ -184,6 +189,14 @@ TEST_CASE("percentile midpoint") {
     REQUIRE(almost_equal(nanpercentile<QuantileInterp::MIDPOINT>(
                              std::array{2., nan, 4., 1., nan, 3.}, 75.),
                          3.5));
+
+    const auto v = std::vector{2., 1., 3.};
+    const auto s = std::span{v};
+    REQUIRE(almost_equal(percentile<QuantileInterp::MIDPOINT>(s, 100.), 3.));
+
+    static_assert(float_equal(
+        percentile<QuantileInterp::MIDPOINT>(std::array{2., 1., 3.}, 100.),
+        3.));
 }
 
 TEST_CASE("percentile linear") {
@@ -285,6 +298,10 @@ TEST_CASE("iqr") {
 
     const auto v = std::vector{2., 4., 1., 3.};
     REQUIRE(almost_equal(iqr(v, 0., 100.), ptp(v)));
+    const auto s = std::span{v};
+    REQUIRE(almost_equal(iqr(s, 0., 100.), ptp(s)));
+    static_assert(float_equal(iqr(std::array{2., 4., 1., 3.}, 0., 100.),
+                              ptp(std::array{2., 4., 1., 3.})));
 }
 
 TEST_CASE("mean") {

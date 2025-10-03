@@ -4,12 +4,15 @@
 #ifndef SCICPP_CORE_META
 #define SCICPP_CORE_META
 
+#include "scicpp/core/macros.hpp"
+
 #include <Eigen/Dense>
 #include <array>
 #include <complex>
 #include <cstdint>
 #include <cstdlib>
 #include <ratio>
+#include <span>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -287,6 +290,28 @@ auto test_implicitly_convertible(...) -> std::false_type;
 template <class From, class To>
 constexpr bool is_implicitly_convertible_v =
     decltype(detail::test_implicitly_convertible<From, To>(0))::value;
+
+//---------------------------------------------------------------------------------
+// range_size
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class R>
+struct range_size : std::integral_constant<std::size_t, std::dynamic_extent> {};
+
+template <class T, std::size_t N>
+struct range_size<std::array<T, N>>
+    : std::integral_constant<std::size_t, static_cast<std::size_t>(N)> {};
+
+template <class T, std::size_t N>
+struct range_size<std::span<T, N>>
+    : std::integral_constant<std::size_t, static_cast<std::size_t>(N)> {};
+
+} // namespace detail
+
+template <class T>
+constexpr std::size_t range_size_v = detail::range_size<T>::value;
 
 } // namespace scicpp::meta
 

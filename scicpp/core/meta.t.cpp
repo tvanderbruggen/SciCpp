@@ -134,4 +134,11 @@ TEST_CASE("is_implicitly_convertible_v") {
     static_assert(!is_implicitly_convertible_v<std::string, const char *>);
 }
 
+TEST_CASE("range_size") {
+    static_assert(range_size_v<std::array<int, 8>> == 8);
+    static_assert(range_size_v<std::vector<int>> == std::dynamic_extent);
+    static_assert(range_size_v<std::span<int>> == std::dynamic_extent);
+    static_assert(range_size_v<std::span<int, 8>> == 8);
+}
+
 } // namespace scicpp::meta
