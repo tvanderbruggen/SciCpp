@@ -103,7 +103,7 @@ template <std::ranges::input_range R, std::ranges::input_range Weights>
 namespace detail {
 
 // https://stackoverflow.com/questions/1719070/what-is-the-right-approach-when-using-stl-container-for-median-calculation
-template <std::input_iterator It, std::sentinel_for<It> S>
+template <std::random_access_iterator It, std::sized_sentinel_for<It> S>
 [[nodiscard]] constexpr auto median_inplace(It first, S last) {
     using T = std::iter_value_t<It>;
     const auto size = std::distance(first, last);
@@ -126,7 +126,7 @@ template <std::input_iterator It, std::sentinel_for<It> S>
 
 } // namespace detail
 
-template <std::input_iterator It, std::sentinel_for<It> S, class Predicate>
+template <std::random_access_iterator It, std::sized_sentinel_for<It> S, class Predicate>
 [[nodiscard]] auto median(It first, S last, Predicate &&pred) {
     using T = std::iter_value_t<It>;
     auto v = filter(std::vector<T>(first, last), std::forward<Predicate>(pred));
@@ -196,6 +196,14 @@ template <QuantileInterp interpolation, class T>
     }
 }
 
+// nearbyint(h) == h not triggering -Werror=float-equal
+template <typename T>
+constexpr bool is_integer(T h) {
+    constexpr auto eps = std::numeric_limits<double>::epsilon();
+    return fabs(nearbyint(h) - h) <=
+           eps * std::max(fabs(nearbyint(h)), fabs(h));
+}
+
 // https://stackoverflow.com/questions/28548703/why-does-stdnth-element-return-sorted-vectors-for-input-vectors-with-n-33-el
 template <QuantileInterp interpolation,
           std::random_access_iterator It,
@@ -223,7 +231,7 @@ template <QuantileInterp interpolation,
     const auto h0 =
         quantile_interp_index<interpolation>(q * static_cast<T>(size - 1));
 
-    if (float_equal(nearbyint(h0), h0)) { // h0 is an integer
+    if (is_integer(h0)) {
         const auto n0 = std::min(first + signed_size_t(h0), last);
         std::nth_element(first, n0, last);
         return RetTp(*n0);
@@ -240,8 +248,8 @@ template <QuantileInterp interpolation,
 } // namespace detail
 
 template <QuantileInterp interpolation = QuantileInterp::LINEAR,
-          std::input_iterator It,
-          std::sentinel_for<It> S,
+          std::random_access_iterator It,
+          std::sized_sentinel_for<It> S,
           class Predicate,
           typename T>
 [[nodiscard]] auto quantile(It first, S last, T q, Predicate &&p) {
@@ -353,7 +361,7 @@ template <QuantileInterp interpolation = QuantileInterp::LINEAR,
 // mean
 //---------------------------------------------------------------------------------
 
-template <std::input_iterator It, std::sentinel_for<It> S, class Predicate>
+template <std::random_access_iterator It, std::sized_sentinel_for<It> S, class Predicate>
 [[nodiscard]] constexpr auto mean(It first, S last, Predicate &&filter) {
     using T = std::iter_value_t<It>;
 
@@ -424,10 +432,10 @@ template <std::ranges::input_range R>
 //---------------------------------------------------------------------------------
 
 template <int ddof = 0,
-          std::input_iterator It1,
-          std::sentinel_for<It1> S1,
-          std::input_iterator It2,
-          std::sentinel_for<It2> S2,
+          std::random_access_iterator It1,
+          std::sized_sentinel_for<It1> S1,
+          std::random_access_iterator It2,
+          std::sized_sentinel_for<It2> S2,
           class Predicate>
 [[nodiscard]] constexpr scicpp_pure auto
 covariance(It1 first1, S1 last1, It2 first2, S2 last2, Predicate &&filter) {
