@@ -18,6 +18,15 @@ namespace scicpp::utils {
 //---------------------------------------------------------------------------------
 
 template <typename OutputType, typename T, std::size_t N>
+constexpr auto set_array(const std::span<T, N> &s) {
+    if constexpr (N == std::dynamic_extent) {
+        return std::vector<OutputType>(s.size());
+    } else {
+        return std::array<OutputType, N>{};
+    }
+}
+
+template <typename OutputType, typename T, std::size_t N>
 constexpr auto set_array(const std::array<T, N> & /* unused */) {
     return std::array<OutputType, N>{};
 }

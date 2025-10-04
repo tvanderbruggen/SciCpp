@@ -308,21 +308,30 @@ TEST_CASE("mean") {
     static_assert(float_equal(mean(std::array{1., 2., 3.}), 2.));
     REQUIRE(std::isnan(mean(std::array<double, 0>{})));
     REQUIRE(almost_equal(mean(std::array{1., 2., 3.}), 2.));
-    REQUIRE(almost_equal(mean(std::vector{1., 2., 3.}), 2.));
+    const auto v = std::vector{1., 2., 3.};
+    REQUIRE(almost_equal(mean(v), 2.));
+    const auto s = std::span{v};
+    REQUIRE(almost_equal(mean(s), 2.));
 }
 
 TEST_CASE("mean physical units") {
     using namespace units::literals;
     REQUIRE(units::isnan(mean(std::array<units::mass<double>, 0>{})));
     REQUIRE(almost_equal(mean(std::array{1_m, 2_m, 3_m}), 2_m));
-    REQUIRE(almost_equal(mean(std::vector{1_m, 2_m, 3_m}), 2_m));
+    const auto v = std::vector{1_m, 2_m, 3_m};
+    REQUIRE(almost_equal(mean(v), 2_m));
+    const auto s = std::span{v};
+    REQUIRE(almost_equal(mean(s), 2_m));
 }
 
 TEST_CASE("nanmean") {
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
     REQUIRE(std::isnan(nanmean(std::array<double, 0>{})));
     REQUIRE(almost_equal(nanmean(std::array{1., nan, 2., 3., nan}), 2.));
-    REQUIRE(almost_equal(nanmean(std::vector{1., 2., nan, 3.}), 2.));
+    const auto v = std::vector{1., 2., nan, 3.};
+    REQUIRE(almost_equal(nanmean(v), 2.));
+    const auto s = std::span{v};
+    REQUIRE(almost_equal(nanmean(s), 2.));
 }
 
 TEST_CASE("tmean") {
@@ -335,6 +344,10 @@ TEST_CASE("tmean") {
     REQUIRE(std::isnan(tmean(std::array<double, 0>{}, {3., 17.})));
     REQUIRE(std::isnan(
         tmean(std::array{1., 2., 3., 4.}, {2., 2.}, {false, false})));
+    const auto v = std::vector{1., 2., 3., 4.};
+    REQUIRE(std::isnan(tmean(v, {2., 2.}, {false, false})));
+    const auto s = std::span{v};
+    REQUIRE(std::isnan(tmean(s, {2., 2.}, {false, false})));
 }
 
 TEST_CASE("tmean physical units") {
@@ -353,7 +366,10 @@ TEST_CASE("tmean physical units") {
 TEST_CASE("gmean") {
     REQUIRE(std::isnan(gmean(std::array<double, 0>{})));
     REQUIRE(almost_equal(gmean(std::array{1., 2., 3.}), 1.8171205928321397));
-    REQUIRE(almost_equal(gmean(std::vector{1., 2., 3.}), 1.8171205928321397));
+    const auto v0 = std::vector{1., 2., 3.};
+    REQUIRE(almost_equal(gmean(v0), 1.8171205928321397));
+    const auto s = std::span{v0};
+    REQUIRE(almost_equal(gmean(s), 1.8171205928321397));
     REQUIRE(std::isnan(gmean(std::array{-1., -2., -3.})));
     constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
     REQUIRE(almost_equal(nangmean(std::array{1., nan, 2., nan, 3.}),
@@ -605,11 +621,14 @@ TEST_CASE("covariance") {
     // printf("%.20f\n", covariance(v1, v1));
     // Compare with result from numpy
     REQUIRE(almost_equal<32>(covariance(v1, v1), 199999599960000.12));
+    const auto s1 = std::span{v1};
+    REQUIRE(almost_equal<32>(covariance(s1, s1), 199999599960000.12));
     auto v2 = std::vector(500000, 1.);
     v2.back() = 1E10;
     // printf("%.20f\n", covariance<1>(v1, v2));
     // Compare with result from numpy (np.cov(v1, v1)[0][1]) for which ddof = 1
     REQUIRE(almost_equal<55>(covariance<1>(v1, v2), -400000799.9215977));
+    REQUIRE(almost_equal<55>(covariance<1>(s1, v2), -400000799.9215977));
 
     REQUIRE(
         almost_equal(nancovariance(std::array{1., nan, 2., 3., nan, 4., nan},

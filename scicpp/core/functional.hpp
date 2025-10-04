@@ -37,11 +37,11 @@ template <class Array, class UnaryOp>
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {
-        std::transform(a.cbegin(), a.cend(), a.begin(), op);
+        std::transform(std::cbegin(a), std::cend(a), std::begin(a), op);
         return std::move(a);
     } else {
         auto res = utils::set_array<ReturnType>(a);
-        std::transform(a.cbegin(), a.cend(), res.begin(), op);
+        std::transform(std::cbegin(a), std::cend(a), res.begin(), op);
         return res;
     }
 }
@@ -52,7 +52,7 @@ template <class Array, class UnaryOp>
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     auto res = utils::set_array<ReturnType>(a);
-    std::transform(a.cbegin(), a.cend(), res.begin(), op);
+    std::transform(std::cbegin(a), std::cend(a), res.begin(), op);
     return res;
 }
 
@@ -75,11 +75,16 @@ template <class Array1,
     scicpp_require(a1.size() == a2.size());
 
     if constexpr (std::is_same_v<InputType1, ReturnType>) {
-        std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a1.begin(), op);
+        std::transform(std::cbegin(a1),
+                       std::cend(a1),
+                       std::cbegin(a2),
+                       std::begin(a1),
+                       op);
         return std::move(a1);
     } else {
         auto res = utils::set_array<ReturnType>(a1);
-        std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), res.begin(), op);
+        std::transform(
+            std::cbegin(a1), std::cend(a1), std::cbegin(a2), res.begin(), op);
         return res;
     }
 }
@@ -96,11 +101,16 @@ template <class Array1,
     scicpp_require(a1.size() == a2.size());
 
     if constexpr (std::is_same_v<InputType2, ReturnType>) {
-        std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), a2.begin(), op);
+        std::transform(std::cbegin(a1),
+                       std::cend(a1),
+                       std::cbegin(a2),
+                       std::begin(a2),
+                       op);
         return std::move(a2);
     } else {
         auto res = utils::set_array<ReturnType>(a2);
-        std::transform(a1.cbegin(), a1.cend(), a2.cbegin(), res.begin(), op);
+        std::transform(
+            std::cbegin(a1), std::cend(a1), std::cbegin(a2), res.begin(), op);
         return res;
     }
 }

@@ -153,7 +153,7 @@ template <std::ranges::input_range R>
         return detail::median_inplace(std::begin(r), std::end(r));
     } else {
         using T = std::ranges::range_value_t<R>;
-        constexpr std::size_t N = meta::range_size_v<std::remove_cvref_t<R>>;
+        constexpr std::size_t N = meta::range_size_v<R>;
 
         // If size known at compile-time copy in std::array else use std::vector
         if constexpr (N != std::dynamic_extent &&
@@ -270,7 +270,7 @@ template <QuantileInterp interpolation = QuantileInterp::LINEAR,
             std::begin(r), std::end(r), q);
     } else {
         using RTp = std::ranges::range_value_t<R>;
-        constexpr std::size_t N = meta::range_size_v<std::remove_cvref_t<R>>;
+        constexpr std::size_t N = meta::range_size_v<R>;
 
         // If size known at compile-time copy in std::array else use std::vector
         if constexpr (N != std::dynamic_extent &&
@@ -347,82 +347,86 @@ template <QuantileInterp interpolation = QuantileInterp::LINEAR,
 // mean
 //---------------------------------------------------------------------------------
 
-template <class InputIt, class Predicate>
-constexpr auto mean(InputIt first, InputIt last, Predicate filter) {
-    using T = std::iterator_traits<InputIt>::value_type;
+template <std::input_iterator It, std::sentinel_for<It> S, class Predicate>
+[[nodiscard]] constexpr auto mean(It first, S last, Predicate &&filter) {
+    using T = std::iter_value_t<It>;
 
     if (unlikely(std::distance(first, last) == 0)) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
-    const auto [res, cnt] = sum(first, last, filter);
+    const auto [res, cnt] = sum(first, last, std::forward<Predicate>(filter));
     return res / units::representation_t<T>(static_cast<int>(cnt));
 }
 
-template <class Array, class Predicate>
-constexpr auto mean(const Array &f, Predicate filter) {
-    return mean(f.cbegin(), f.cend(), filter);
+template <std::ranges::input_range R, class Predicate>
+[[nodiscard]] constexpr auto mean(const R &r, Predicate &&filter) {
+    return mean(std::cbegin(r), std::cend(r), std::forward<Predicate>(filter));
 }
 
-template <class Array>
-constexpr auto mean(const Array &f) {
-    return mean(f, filters::all);
+template <std::ranges::input_range R>
+[[nodiscard]] constexpr auto mean(const R &r) {
+    return mean(r, filters::all);
 }
 
-template <class Array>
-auto nanmean(const Array &f) {
-    return mean(f, filters::not_nan);
+template <std::ranges::input_range R>
+[[nodiscard]] auto nanmean(const R &r) {
+    return mean(r, filters::not_nan);
 }
 
-template <class Array, typename T = Array::value_type>
-constexpr auto tmean(const Array &f,
-                     const std::array<T, 2> &limits,
-                     const std::array<bool, 2> &inclusive = {true, true}) {
-    return mean(f, filters::Trim<T>(limits, inclusive));
+template <std::ranges::input_range R,
+          typename T = std::remove_cvref_t<std::ranges::range_value_t<R>>>
+[[nodiscard]] constexpr auto
+tmean(const R &r,
+      const std::array<T, 2> &limits,
+      const std::array<bool, 2> &inclusive = {true, true}) {
+    return mean(r, filters::Trim<T>(limits, inclusive));
 }
 
 //---------------------------------------------------------------------------------
 // gmean
 //---------------------------------------------------------------------------------
 
-template <class Array>
-auto gmean(Array &&f) {
-    using T = std::decay_t<Array>::value_type;
+template <std::ranges::input_range R>
+[[nodiscard]] auto gmean(R &&r) {
+    using T = std::remove_cvref_t<std::ranges::range_value_t<R>>;
 
-    if (unlikely(f.empty())) {
+    if (unlikely(std::ranges::empty(r))) {
         return std::numeric_limits<T>::quiet_NaN();
     }
 
     if constexpr (units::is_quantity_v<T>) {
         using namespace operators;
-        return T(std::exp(mean(log(std::forward<Array>(f) / T(1)))));
+        return T(std::exp(mean(log(std::forward<R>(r) / T(1)))));
     } else {
-        return std::exp(mean(log(std::forward<Array>(f))));
+        return std::exp(mean(log(std::forward<R>(r))));
     }
 }
 
-template <class Array, class Predicate>
-auto gmean(Array &&f, Predicate p) {
-    return gmean(filter(std::forward<Array>(f), p));
+template <std::ranges::input_range R, class Predicate>
+[[nodiscard]] auto gmean(R &&r, Predicate &&p) {
+    return gmean(filter(std::forward<R>(r), std::forward<Predicate>(p)));
 }
 
-template <class Array>
-auto nangmean(Array &&f) {
-    return gmean(std::forward<Array>(f), filters::not_nan);
+template <std::ranges::input_range R>
+[[nodiscard]] auto nangmean(R &&r) {
+    return gmean(std::forward<R>(r), filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------
 // covariance
 //---------------------------------------------------------------------------------
 
-template <int ddof = 0, class InputIt1, class InputIt2, class Predicate>
-constexpr scicpp_pure auto covariance(InputIt1 first1,
-                                      InputIt1 last1,
-                                      InputIt2 first2,
-                                      InputIt2 last2,
-                                      Predicate filter) {
-    using T1 = std::iterator_traits<InputIt1>::value_type;
-    using T2 = std::iterator_traits<InputIt2>::value_type;
+template <int ddof = 0,
+          std::input_iterator It1,
+          std::sentinel_for<It1> S1,
+          std::input_iterator It2,
+          std::sentinel_for<It2> S2,
+          class Predicate>
+[[nodiscard]] constexpr scicpp_pure auto
+covariance(It1 first1, S1 last1, It2 first2, S2 last2, Predicate &&filter) {
+    using T1 = std::iter_value_t<It1>;
+    using T2 = std::iter_value_t<It2>;
     using raw_t1 = units::representation_t<T1>;
     using raw_t2 = units::representation_t<T2>;
     using raw_t = std::common_type_t<raw_t1, raw_t2>;
@@ -446,8 +450,8 @@ constexpr scicpp_pure auto covariance(InputIt1 first1,
         first2,
         last2,
         [&](auto f1, auto l1, auto f2, auto l2) {
-            const auto m1 = mean(f1, l1, filter);
-            const auto m2 = mean(f2, l2, filter);
+            const auto m1 = mean(f1, l1, std::forward<Predicate>(filter));
+            const auto m2 = mean(f2, l2, std::forward<Predicate>(filter));
 
             auto res = utils::set_zero<prod_t>();
             signed_size_t cnt = 0;
@@ -493,21 +497,31 @@ constexpr scicpp_pure auto covariance(InputIt1 first1,
     }
 }
 
-template <int ddof = 0, class Array1, class Array2, class Predicate>
-constexpr scicpp_pure auto
-covariance(const Array1 &f1, const Array2 &f2, Predicate filter) {
-    return std::get<0>(covariance<ddof>(
-        f1.cbegin(), f1.cend(), f2.cbegin(), f2.cend(), filter));
+template <int ddof = 0,
+          std::ranges::input_range R1,
+          std::ranges::input_range R2,
+          class Predicate>
+[[nodiscard]] constexpr scicpp_pure auto
+covariance(const R1 &r1, const R2 &r2, Predicate &&filter) {
+    return std::get<0>(covariance<ddof>(std::cbegin(r1),
+                                        std::cend(r1),
+                                        std::cbegin(r2),
+                                        std::cend(r2),
+                                        std::forward<Predicate>(filter)));
 }
 
-template <int ddof = 0, class Array1, class Array2>
-constexpr auto covariance(const Array1 &f1, const Array2 &f2) {
-    return covariance<ddof>(f1, f2, filters::all);
+template <int ddof = 0,
+          std::ranges::input_range R1,
+          std::ranges::input_range R2>
+[[nodiscard]] constexpr auto covariance(const R1 &r1, const R2 &r2) {
+    return covariance<ddof>(r1, r2, filters::all);
 }
 
-template <int ddof = 0, class Array1, class Array2>
-scicpp_pure auto nancovariance(const Array1 &f1, const Array2 &f2) {
-    return covariance<ddof>(f1, f2, filters::not_nan);
+template <int ddof = 0,
+          std::ranges::input_range R1,
+          std::ranges::input_range R2>
+[[nodiscard]] scicpp_pure auto nancovariance(const R1 &r1, const R2 &r2) {
+    return covariance<ddof>(r1, r2, filters::not_nan);
 }
 
 //---------------------------------------------------------------------------------

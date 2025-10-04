@@ -309,7 +309,8 @@ struct range_size<std::span<T, N>> : std::integral_constant<std::size_t, N> {};
 } // namespace detail
 
 template <class T>
-constexpr std::size_t range_size_v = detail::range_size<T>::value;
+constexpr std::size_t range_size_v =
+    detail::range_size<std::remove_cvref_t<T>>::value;
 
 } // namespace scicpp::meta
 
