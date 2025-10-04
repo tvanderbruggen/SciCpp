@@ -361,7 +361,9 @@ template <QuantileInterp interpolation = QuantileInterp::LINEAR,
 // mean
 //---------------------------------------------------------------------------------
 
-template <std::input_iterator It, std::sized_sentinel_for<It> S, class Predicate>
+template <std::input_iterator It,
+          std::sized_sentinel_for<It> S,
+          class Predicate>
 [[nodiscard]] constexpr auto mean(It first, S last, Predicate &&filter) {
     using T = std::iter_value_t<It>;
 
