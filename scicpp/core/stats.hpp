@@ -198,8 +198,8 @@ template <QuantileInterp interpolation, class T>
 
 // https://stackoverflow.com/questions/28548703/why-does-stdnth-element-return-sorted-vectors-for-input-vectors-with-n-33-el
 template <QuantileInterp interpolation,
-          std::input_iterator It,
-          std::sentinel_for<It> S,
+          std::random_access_iterator It,
+          std::sized_sentinel_for<It> S,
           typename T>
 [[nodiscard]] constexpr auto quantile_inplace(It first, S last, T q) {
     scicpp_require(q >= T{0} && q <= T{1});
@@ -214,7 +214,10 @@ template <QuantileInterp interpolation,
     }
 
     if (size == 1) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnull-dereference"
         return RetTp(*first);
+#pragma GCC diagnostic pop
     }
 
     const auto h0 =
@@ -280,7 +283,10 @@ template <QuantileInterp interpolation = QuantileInterp::LINEAR,
             return detail::quantile_inplace<interpolation>(
                 buf.begin(), buf.end(), q);
         } else {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnull-dereference"
             std::vector<RTp> v(std::begin(r), std::end(r));
+#pragma GCC diagnostic pop
             return detail::quantile_inplace<interpolation>(
                 v.begin(), v.end(), q);
         }
