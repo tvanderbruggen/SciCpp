@@ -249,13 +249,33 @@ auto sinc(T x) {
 // Nearest integer floating point operations
 
 template <typename T>
-auto floor(T x) {
-    return T(std::floor(value(x)));
+constexpr auto floor(T x) {
+    if constexpr (std::is_integral_v<representation_t<T>>) {
+        return x;
+    }
+
+    if (std::is_constant_evaluated()) {
+        const auto i = static_cast<long long>(value(x));
+        const auto ti = T(i);
+        return ti > x ? T(i - 1) : ti;
+    } else {
+        return T(std::floor(value(x)));
+    }
 }
 
 template <typename T>
-auto ceil(T x) {
-    return T(std::ceil(value(x)));
+constexpr auto ceil(T x) {
+    if constexpr (std::is_integral_v<representation_t<T>>) {
+        return x;
+    }
+
+    if (std::is_constant_evaluated()) {
+        const auto i = static_cast<long long>(value(x));
+        const auto ti = T(i);
+        return ti < x ? T(i + 1) : ti;
+    } else {
+        return T(std::ceil(value(x)));
+    }
 }
 
 template <typename T>
@@ -268,9 +288,17 @@ auto round(T x) {
     return T(std::round(value(x)));
 }
 
-template <typename T>
-auto nearbyint(T x) {
-    return T(std::nearbyint(value(x)));
+template <class T>
+constexpr T nearbyint(T x) {
+    if constexpr (std::is_integral_v<representation_t<T>>) {
+        return x;
+    }
+
+    if (std::is_constant_evaluated()) {
+        return x >= T{0} ? floor(x + T{0.5}) : ceil(x - T{0.5});
+    } else {
+        return T(std::nearbyint(value(x)));
+    }
 }
 
 template <typename T>

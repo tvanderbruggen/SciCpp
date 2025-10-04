@@ -82,11 +82,15 @@ TEST_CASE("hypot") {
 
 TEST_CASE("floor, ceil, trunc, round, nearbyint, rint") {
     REQUIRE(almost_equal(floor(2.7_m), 2_m));
+    static_assert(float_equal(floor(2.7_m), 2_m));
     REQUIRE(almost_equal(ceil(2.7_m), 3_m));
+    static_assert(float_equal(ceil(2.7_m), 3_m));
+    static_assert(float_equal(ceil(3_V), 3_V));
     REQUIRE(almost_equal(trunc(2.7_m), 2_m));
     REQUIRE(almost_equal(round(2.7_m), 3_m));
     std::fesetround(FE_TONEAREST);
     REQUIRE(almost_equal(nearbyint(2.1_m), 2_m));
+    static_assert(float_equal(nearbyint(2.1_m), 2_m));
     REQUIRE(almost_equal(rint(2.1_m), 2_m));
 }
 

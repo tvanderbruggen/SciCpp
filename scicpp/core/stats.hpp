@@ -181,64 +181,16 @@ enum class QuantileInterp : int { LOWER, HIGHER, NEAREST, MIDPOINT, LINEAR };
 
 namespace detail {
 
-// TODO move to math header
-template <class T>
-constexpr T cxx20_floor(T x) {
-    if constexpr (std::is_integral_v<T>) {
-        return x;
-    }
-
-    if (std::is_constant_evaluated()) {
-        auto i = static_cast<long long>(x);
-        T ti = static_cast<T>(i);
-        return ti > x ? static_cast<T>(i - 1) : ti;
-    } else {
-        using std::floor;
-        return floor(x);
-    }
-}
-
-template <class T>
-constexpr T cxx20_ceil(T x) {
-    if constexpr (std::is_integral_v<T>) {
-        return x;
-    }
-
-    if (std::is_constant_evaluated()) {
-        auto i = static_cast<long long>(x);
-        T ti = static_cast<T>(i);
-        return ti < x ? static_cast<T>(i + 1) : ti;
-    } else {
-        using std::ceil;
-        return ceil(x);
-    }
-}
-
-// tie-breaking: “nearest, ties to away-from-zero” (close to default FE_TONEAREST for non-.5 cases)
-template <class T>
-constexpr T cxx20_nearbyint(T x) {
-    if constexpr (std::is_integral_v<T>) {
-        return x;
-    }
-
-    if (std::is_constant_evaluated()) {
-        return x >= T{0} ? cxx20_floor(x + T{0.5}) : cxx20_ceil(x - T{0.5});
-    } else {
-        using std::nearbyint;
-        return nearbyint(x);
-    }
-}
-
 template <QuantileInterp interpolation, class T>
 [[nodiscard]] constexpr T quantile_interp_index(T h) {
     if constexpr (interpolation == QuantileInterp::LOWER) {
-        return cxx20_floor(h);
+        return floor(h);
     } else if constexpr (interpolation == QuantileInterp::HIGHER) {
-        return cxx20_ceil(h);
+        return ceil(h);
     } else if constexpr (interpolation == QuantileInterp::NEAREST) {
-        return cxx20_nearbyint(h);
+        return nearbyint(h);
     } else if constexpr (interpolation == QuantileInterp::MIDPOINT) {
-        return std::midpoint(cxx20_floor(h), cxx20_ceil(h));
+        return std::midpoint(floor(h), ceil(h));
     } else { // LINEAR
         return h;
     }
@@ -268,7 +220,7 @@ template <QuantileInterp interpolation,
     const auto h0 =
         quantile_interp_index<interpolation>(q * static_cast<T>(size - 1));
 
-    if (float_equal(cxx20_nearbyint(h0), h0)) { // h0 is an integer
+    if (float_equal(nearbyint(h0), h0)) { // h0 is an integer
         const auto n0 = std::min(first + signed_size_t(h0), last);
         std::nth_element(first, n0, last);
         return RetTp(*n0);

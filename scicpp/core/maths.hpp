@@ -92,6 +92,7 @@ const auto around = vectorize([](auto x) { return units::round(x); });
 const auto floor = vectorize([](auto x) { return units::floor(x); });
 const auto ceil = vectorize([](auto x) { return units::ceil(x); });
 const auto trunc = vectorize([](auto x) { return units::trunc(x); });
+const auto nearbyint = vectorize([](auto x) { return units::nearbyint(x); });
 const auto rint = vectorize([](auto x) { return units::rint(x); });
 
 // Complex numbers

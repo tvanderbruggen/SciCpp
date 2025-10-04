@@ -301,12 +301,10 @@ template <class R>
 struct range_size : std::integral_constant<std::size_t, std::dynamic_extent> {};
 
 template <class T, std::size_t N>
-struct range_size<std::array<T, N>>
-    : std::integral_constant<std::size_t, static_cast<std::size_t>(N)> {};
+struct range_size<std::array<T, N>> : std::integral_constant<std::size_t, N> {};
 
 template <class T, std::size_t N>
-struct range_size<std::span<T, N>>
-    : std::integral_constant<std::size_t, static_cast<std::size_t>(N)> {};
+struct range_size<std::span<T, N>> : std::integral_constant<std::size_t, N> {};
 
 } // namespace detail
 
