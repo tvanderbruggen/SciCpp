@@ -126,7 +126,7 @@ template <std::random_access_iterator It, std::sized_sentinel_for<It> S>
 
 } // namespace detail
 
-template <std::random_access_iterator It, std::sized_sentinel_for<It> S, class Predicate>
+template <std::input_iterator It, std::sentinel_for<It> S, class Predicate>
 [[nodiscard]] auto median(It first, S last, Predicate &&pred) {
     using T = std::iter_value_t<It>;
     auto v = filter(std::vector<T>(first, last), std::forward<Predicate>(pred));
@@ -248,8 +248,8 @@ template <QuantileInterp interpolation,
 } // namespace detail
 
 template <QuantileInterp interpolation = QuantileInterp::LINEAR,
-          std::random_access_iterator It,
-          std::sized_sentinel_for<It> S,
+          std::input_iterator It,
+          std::sentinel_for<It> S,
           class Predicate,
           typename T>
 [[nodiscard]] auto quantile(It first, S last, T q, Predicate &&p) {
@@ -361,7 +361,7 @@ template <QuantileInterp interpolation = QuantileInterp::LINEAR,
 // mean
 //---------------------------------------------------------------------------------
 
-template <std::random_access_iterator It, std::sized_sentinel_for<It> S, class Predicate>
+template <std::input_iterator It, std::sized_sentinel_for<It> S, class Predicate>
 [[nodiscard]] constexpr auto mean(It first, S last, Predicate &&filter) {
     using T = std::iter_value_t<It>;
 
@@ -432,9 +432,9 @@ template <std::ranges::input_range R>
 //---------------------------------------------------------------------------------
 
 template <int ddof = 0,
-          std::random_access_iterator It1,
+          std::input_iterator It1,
           std::sized_sentinel_for<It1> S1,
-          std::random_access_iterator It2,
+          std::input_iterator It2,
           std::sized_sentinel_for<It2> S2,
           class Predicate>
 [[nodiscard]] constexpr scicpp_pure auto
