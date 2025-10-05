@@ -227,7 +227,7 @@ TEST_CASE("Complex") {
                          std::complex(inf_m, -0_m)));
 }
 
-TEST_CASE("midpoint") {
+TEST_CASE("units::midpoint") {
     REQUIRE(almost_equal(units::midpoint(0., 2.), 1.));
     REQUIRE(almost_equal(units::midpoint(0_m, 2_m), 1_m));
     REQUIRE(almost_equal(units::midpoint(1_V, 3_V), 2_V));

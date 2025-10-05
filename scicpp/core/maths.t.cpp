@@ -190,6 +190,16 @@ TEST_CASE("Miscellaneous") {
     REQUIRE(almost_equal<2>(pow<3>(3_m), 27_m3));
 }
 
+TEST_CASE("midpoint") {
+    using namespace units::literals;
+
+    static_assert(float_equal(midpoint(4., 6.), 5.));
+
+    REQUIRE(almost_equal(
+        midpoint(std::vector{10_V, 11_V, 12_V}, std::vector{12_V, 13_V, 14_V}),
+        {11_V, 12_V, 13_V}));
+}
+
 TEST_CASE("Lerp") {
     using namespace units::literals;
 

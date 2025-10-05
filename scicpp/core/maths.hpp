@@ -168,10 +168,13 @@ constexpr auto pow(T &&a) {
 }
 
 //---------------------------------------------------------------------------------
-// C++ 20 midpoint and lerp
+// midpoint and lerp
 //---------------------------------------------------------------------------------
 
-// lerp c++ 20
+const auto midpoint =
+    vectorize([](auto x, auto y) { return units::midpoint(x, y); });
+
+// lerp c++ 20 => TODO use std lib directly
 // Derived from https://github.com/llvm-mirror/libcxx/blob/master/include/cmath
 // Handles physical quantities
 

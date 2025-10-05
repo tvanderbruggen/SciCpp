@@ -120,7 +120,7 @@ template <std::random_access_iterator It, std::sized_sentinel_for<It> S>
         return *target;
     } else {
         const auto max_it = std::max_element(first, first + half);
-        return units::midpoint(*max_it, *target);
+        return midpoint(*max_it, *target);
     }
 }
 
@@ -130,7 +130,6 @@ template <std::input_iterator It, std::sentinel_for<It> S, class Predicate>
 [[nodiscard]] auto median(It first, S last, Predicate &&pred) {
     using T = std::iter_value_t<It>;
     auto v = filter(std::vector<T>(first, last), std::forward<Predicate>(pred));
-
     return detail::median_inplace(v.begin(), v.end());
 }
 
@@ -190,7 +189,7 @@ template <QuantileInterp interpolation, class T>
     } else if constexpr (interpolation == QuantileInterp::NEAREST) {
         return nearbyint(h);
     } else if constexpr (interpolation == QuantileInterp::MIDPOINT) {
-        return std::midpoint(floor(h), ceil(h));
+        return midpoint(floor(h), ceil(h));
     } else { // LINEAR
         return h;
     }
