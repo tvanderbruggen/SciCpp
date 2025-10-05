@@ -167,7 +167,7 @@ constexpr auto vectorize(Func &&f) {
     using F = std::decay_t<Func>;
     return [fun = F(std::forward<Func>(f))]<class... As>(
                As &&...arrays) scicpp_const -> decltype(auto) {
-        if constexpr ((meta::is_iterable_v<std::remove_reference_t<As>> &&
+        if constexpr ((meta::Iterable<std::remove_reference_t<As>> &&
                        ...)) {
             return map(
                 [fun](auto &&...args) scicpp_const -> decltype(auto) {

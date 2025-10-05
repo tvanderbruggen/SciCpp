@@ -139,12 +139,11 @@ using common_quantity_t =
 
 // quantity_cast
 
-template <typename ToQty,
+template <Quantity ToQty,
           typename T,
           typename Dim,
           typename Scale,
-          typename Offset,
-          enable_if_is_quantity<ToQty> = 0>
+          typename Offset>
 constexpr auto quantity_cast(const quantity<T, Dim, Scale, Offset> &qty) {
     static_assert(std::is_same_v<Dim, typename ToQty::dim>,
                   "Cannot cast to a quantity with different dimension");
@@ -361,12 +360,11 @@ struct quantity {
     T m_value;
 };
 
-template <typename T1,
+template <meta::NonIterable T1,
           typename T2,
           typename Dim,
           typename Scale,
           typename Offset,
-          meta::disable_if_iterable<T1> = 0,
           meta::disable_if_complex<T1> = 0>
 constexpr auto operator*(T1 factor,
                          const quantity<T2, Dim, Scale, Offset> &rhs) {
@@ -375,34 +373,31 @@ constexpr auto operator*(T1 factor,
 }
 
 template <typename T1,
-          typename T2,
+          meta::NonIterable T2,
           typename Dim,
           typename Scale,
           typename Offset,
-          meta::disable_if_iterable<T2> = 0,
           meta::disable_if_complex<T2> = 0>
 constexpr auto operator*(const quantity<T1, Dim, Scale, Offset> &rhs,
                          T2 factor) {
     return factor * rhs;
 }
 
-template <typename T1,
+template <meta::NonIterable T1,
           typename T2,
           typename Dim,
           typename Scale,
-          typename Offset,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset>
 constexpr auto operator/(T1 factor,
                          const quantity<T2, Dim, Scale, Offset> &rhs) {
     return factor * rhs.inv();
 }
 
 template <typename T1,
-          typename T2,
+          meta::NonIterable T2,
           typename Dim,
           typename Scale,
           typename Offset,
-          meta::disable_if_iterable<T2> = 0,
           meta::disable_if_complex<T2> = 0>
 constexpr auto operator/(const quantity<T1, Dim, Scale, Offset> &rhs,
                          T2 factor) {
@@ -413,7 +408,7 @@ template <typename T>
 constexpr auto value(T x) {
     if constexpr (meta::is_complex_v<std::decay_t<T>>) {
         return std::complex(value(x.real()), value(x.imag()));
-    } else if constexpr (is_quantity_v<T>) {
+    } else if constexpr (Quantity<T>) {
         return x.value();
     } else {
         return x;
@@ -424,7 +419,7 @@ template <intmax_t Root, typename T>
 auto root(T x) {
     static_assert(Root > 0);
 
-    if constexpr (is_quantity_v<T>) {
+    if constexpr (Quantity<T>) {
         using rept_t = T::value_type;
         using DimRoot = dimension_root<typename T::dim, Root>;
         using ScalRoot = scale_root<typename T::scal, Root>;
@@ -551,11 +546,10 @@ using get_base_quantity =
 
 // Operator *
 
-template <typename T1,
+template <meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
@@ -569,11 +563,10 @@ template <typename T1,
           typename Dim1,
           typename Scale1,
           typename Offset1,
-          typename T2,
+          meta::NonIterable T2,
           typename Dim2,
           typename Scale2,
-          typename Offset2,
-          meta::disable_if_iterable<T2> = 0>
+          typename Offset2>
 constexpr auto
 operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const std::complex<quantity<T2, Dim2, Scale2, Offset2>> &factor) {
@@ -584,12 +577,11 @@ operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
 }
 
 template <typename Tp,
-          typename T1,
+          meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
           typename Offset1,
-          disable_if_is_quantity<Tp> = 0,
-          meta::disable_if_iterable<T1> = 0>
+          disable_if_is_quantity<Tp> = 0>
 constexpr auto
 operator*(const Tp &rhs,
           const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
@@ -598,12 +590,11 @@ operator*(const Tp &rhs,
 }
 
 template <typename Tp,
-          typename T1,
+          meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
           typename Offset1,
-          disable_if_is_quantity<Tp> = 0,
-          meta::disable_if_iterable<T1> = 0>
+          disable_if_is_quantity<Tp> = 0>
 constexpr auto
 operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const Tp &factor) {
@@ -611,13 +602,11 @@ operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
                                                              factor);
 }
 
-template <typename Qty,
-          typename T1,
+template <Quantity Qty,
+          meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          enable_if_is_quantity<Qty> = 0,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator*(const Qty &rhs,
           const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
@@ -626,13 +615,11 @@ operator*(const Qty &rhs,
         value(factor) * value(rhs));
 }
 
-template <typename Qty,
-          typename T1,
+template <Quantity Qty,
+          meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          enable_if_is_quantity<Qty> = 0,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const Qty &factor) {
@@ -641,11 +628,10 @@ operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
         value(factor) * value(rhs));
 }
 
-template <typename T1,
+template <meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator*(const quantity<T1, Dim1, Scale1, Offset1> &rhs,
           const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
@@ -654,11 +640,10 @@ operator*(const quantity<T1, Dim1, Scale1, Offset1> &rhs,
         value(factor) * value(rhs));
 }
 
-template <typename T1,
+template <meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const quantity<T1, Dim1, Scale1, Offset1> &factor) {
@@ -670,12 +655,11 @@ operator*(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
 // Operator /
 
 template <typename Tp,
-          typename T1,
+          meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
           typename Offset1,
-          disable_if_is_quantity<Tp> = 0,
-          meta::disable_if_iterable<T1> = 0>
+          disable_if_is_quantity<Tp> = 0>
 constexpr auto
 operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const Tp &factor) {
@@ -684,12 +668,11 @@ operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
 }
 
 template <typename Tp,
-          typename T1,
+          meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
           typename Offset1,
-          disable_if_is_quantity<Tp> = 0,
-          meta::disable_if_iterable<T1> = 0>
+          disable_if_is_quantity<Tp> = 0>
 constexpr auto
 operator/(const Tp &rhs,
           const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
@@ -697,11 +680,10 @@ operator/(const Tp &rhs,
         rhs / value(factor));
 }
 
-template <typename T1,
+template <meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator/(const quantity<T1, Dim1, Scale1, Offset1> &rhs,
           const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
@@ -710,11 +692,10 @@ operator/(const quantity<T1, Dim1, Scale1, Offset1> &rhs,
         value(rhs) / value(factor));
 }
 
-template <typename T1,
+template <meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const quantity<T1, Dim1, Scale1, Offset1> &factor) {
@@ -723,13 +704,11 @@ operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
         value(rhs) / value(factor));
 }
 
-template <typename Qty,
-          typename T1,
+template <Quantity Qty,
+          meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          enable_if_is_quantity<Qty> = 0,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator/(const Qty &rhs,
           const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
@@ -738,11 +717,10 @@ operator/(const Qty &rhs,
         value(rhs) / value(factor));
 }
 
-template <typename T1,
+template <meta::NonIterable T1,
           typename Dim1,
           typename Scale1,
-          typename Offset1,
-          meta::disable_if_iterable<T1> = 0>
+          typename Offset1>
 constexpr auto
 operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &factor) {
@@ -756,11 +734,10 @@ template <typename T1,
           typename Dim1,
           typename Scale1,
           typename Offset1,
-          typename T2,
+          meta::NonIterable T2,
           typename Dim2,
           typename Scale2,
-          typename Offset2,
-          meta::disable_if_iterable<T2> = 0>
+          typename Offset2>
 constexpr auto
 operator/(const std::complex<quantity<T1, Dim1, Scale1, Offset1>> &rhs,
           const std::complex<quantity<T2, Dim2, Scale2, Offset2>> &factor) {

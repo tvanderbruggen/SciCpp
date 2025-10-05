@@ -527,7 +527,7 @@ class TxtLoader {
 // savetxt
 //---------------------------------------------------------------------------------
 
-template <typename Array, std::enable_if_t<meta::is_iterable_v<Array>, int> = 0>
+template <meta::Iterable Array>
 void savetxt(const std::filesystem::path &fname,
              const Array &X,
              [[maybe_unused]] char delimiter,

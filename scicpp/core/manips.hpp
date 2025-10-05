@@ -48,10 +48,8 @@ constexpr auto concatenate(const std::array<T1, N1> &a1,
     }
 }
 
-template <typename Array1,
-          typename Array2,
-          meta::enable_if_iterable<Array1> = 0,
-          meta::enable_if_iterable<Array2> = 0>
+template <meta::Iterable Array1,
+          meta::Iterable Array2>
 auto concatenate(const Array1 &a1, const Array2 &a2) {
     using T1 = Array1::value_type;
     using T2 = Array2::value_type;
@@ -75,7 +73,7 @@ auto concatenate(const Array1 &a1, const Array2 &a2) {
     }
 }
 
-template <typename Array, typename T, meta::enable_if_iterable<Array> = 0>
+template <meta::Iterable Array, typename T>
 auto concatenate(std::vector<T> &&a1, const Array &a2) {
     using Tarray = Array::value_type;
 

@@ -23,17 +23,15 @@ namespace scicpp::signal {
 // FFT helper functions
 //---------------------------------------------------------------------------------
 
-template <class Array>
+template <meta::Iterable Array>
 auto fftshift(Array &&a) {
-    static_assert(meta::is_iterable_v<Array>);
     std::rotate(
         a.begin(), a.begin() + signed_size_t(a.size() + 1) / 2, a.end());
     return std::move(a);
 }
 
-template <class Array>
+template <meta::Iterable Array>
 auto fftshift(const Array &a) {
-    static_assert(meta::is_iterable_v<Array>);
     auto res = utils::set_array(a);
     const auto offset = (signed_size_t(a.size() - 1) / 2) + 1;
     std::copy(a.cbegin() + offset, a.cend(), res.begin());
@@ -43,16 +41,14 @@ auto fftshift(const Array &a) {
     return res;
 }
 
-template <class Array>
+template <meta::Iterable Array>
 auto ifftshift(Array &&a) {
-    static_assert(meta::is_iterable_v<Array>);
     std::rotate(a.begin(), a.begin() + signed_size_t(a.size()) / 2, a.end());
     return std::move(a);
 }
 
-template <class Array>
+template <meta::Iterable Array>
 auto ifftshift(const Array &a) {
-    static_assert(meta::is_iterable_v<Array>);
     auto res = utils::set_array(a);
     const auto offset = (signed_size_t(a.size()) / 2);
     std::copy(a.cbegin() + offset, a.cend(), res.begin());
@@ -165,10 +161,8 @@ Integral next_fast_len(Integral n) {
     return detail::next_ugly_number(n);
 }
 
-template <typename Array>
+template <meta::Iterable Array>
 auto zero_padding(const Array &v, std::size_t new_size) {
-    static_assert(meta::is_iterable_v<Array>);
-
     using T = typename Array::value_type;
     auto res = zeros<T>(new_size);
     std::copy(v.cbegin(),

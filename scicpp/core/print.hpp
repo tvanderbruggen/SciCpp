@@ -242,7 +242,7 @@ int print_array_elements(Stream &stream,
 
 } // namespace detail
 
-template <class Stream, class Array, meta::enable_if_iterable<Array> = 0>
+template <class Stream, meta::Iterable Array>
 void print(Stream &stream, const Array &A, const PrintOptions &prtopts) {
     if (A.empty()) {
         stream << "[]\n";
@@ -295,7 +295,7 @@ void print(const T &A) {
     print(std::cout, A);
 }
 
-template <class Array, meta::enable_if_iterable<Array> = 0>
+template <meta::Iterable Array>
 auto array2string(const Array &A,
                   const PrintOptions &prtopts = PrintOptions{}) {
     std::ostringstream ss;

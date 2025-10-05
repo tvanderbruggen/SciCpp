@@ -45,13 +45,13 @@ template <class Array>
 using element_type_t = typename element_type<Array>::type;
 
 // Convert vector of quantity to values
-template <typename Array, meta::enable_if_iterable<Array> = 0>
+template <meta::Iterable Array>
 constexpr auto value(Array &&x) {
     return map([&](auto a) { return units::value(a); }, std::forward<Array>(x));
 }
 
 // Convert vector of values to quantities
-template <typename Qty, typename Array, meta::enable_if_iterable<Array> = 0>
+template <typename Qty, meta::Iterable Array>
 constexpr auto to_quantity(Array &&x) {
     return map([&](auto a) { return Qty(a); }, std::forward<Array>(x));
 }
@@ -124,13 +124,12 @@ class Spectrum {
 
     template <SpectrumScaling scaling = SpectrumScaling::DENSITY,
               bool return_freqs = true,
-              typename Array>
+              meta::Iterable Array>
     auto welch(const Array &x) {
         using namespace operators;
 
         using EltTp = detail::element_type_t<Array>;
 
-        static_assert(meta::is_iterable_v<Array>);
         static_assert(std::is_same_v<EltTp, T> ||
                       std::is_same_v<EltTp, std::complex<T>>);
 
@@ -180,16 +179,14 @@ class Spectrum {
 
     template <SpectrumScaling scaling = SpectrumScaling::DENSITY,
               bool return_freqs = true,
-              typename Array1,
-              typename Array2>
+              meta::Iterable Array1,
+              meta::Iterable Array2>
     auto csd(const Array1 &x, const Array2 &y) {
         using namespace operators;
 
         using EltTp1 = detail::element_type_t<Array1>;
         using EltTp2 = detail::element_type_t<Array2>;
 
-        static_assert(meta::is_iterable_v<Array1>);
-        static_assert(meta::is_iterable_v<Array2>);
         static_assert(std::is_same_v<EltTp1, T> ||
                       std::is_same_v<EltTp1, std::complex<T>>);
         static_assert(std::is_same_v<EltTp2, T> ||

@@ -48,10 +48,8 @@ auto apply_permutation(const std::vector<T> &vec,
 
 } // namespace detail
 
-template <Rtype rtype, typename Array, typename T>
+template <Rtype rtype, meta::Iterable Array, typename T>
 auto unique_roots(const Array &p, T tol = 1E-3) {
-    static_assert(meta::is_iterable_v<Array>);
-
     using Tp = typename Array::value_type;
 
     std::vector p_copy(p.cbegin(), p.cend());

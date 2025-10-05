@@ -17,9 +17,8 @@ namespace scicpp::signal {
 // Boundary extension functions
 // ----------------------------------------------------------------------------
 
-template <typename Array, typename DiffTp = typename Array::difference_type>
+template <meta::Iterable Array, typename DiffTp = typename Array::difference_type>
 auto odd_ext(const Array &x, DiffTp n) {
-    static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
     using raw_t = units::representation_t<T>;
     using namespace operators;
@@ -39,9 +38,8 @@ auto odd_ext(const Array &x, DiffTp n) {
     return (left_end - left_ext) | x | (right_end - right_ext);
 }
 
-template <typename Array, typename DiffTp = typename Array::difference_type>
+template <meta::Iterable Array, typename DiffTp = typename Array::difference_type>
 auto even_ext(const Array &x, DiffTp n) {
-    static_assert(meta::is_iterable_v<Array>);
     using namespace operators;
 
     scicpp_require(n <= DiffTp(x.size()) - 1);
@@ -54,9 +52,8 @@ auto even_ext(const Array &x, DiffTp n) {
            slice_array(x, DiffTp(-2), -(n + 2), DiffTp(-1));
 }
 
-template <typename Array, typename DiffTp = typename Array::difference_type>
+template <meta::Iterable Array, typename DiffTp = typename Array::difference_type>
 auto const_ext(const Array &x, DiffTp n) {
-    static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
     using raw_t = units::representation_t<T>;
     using namespace operators;
@@ -73,9 +70,8 @@ auto const_ext(const Array &x, DiffTp n) {
            (ones<raw_t>(padding) * x.back());
 }
 
-template <typename Array, typename DiffTp = typename Array::difference_type>
+template <meta::Iterable Array, typename DiffTp = typename Array::difference_type>
 auto zero_ext(const Array &x, DiffTp n) {
-    static_assert(meta::is_iterable_v<Array>);
     using T = typename Array::value_type;
     using namespace operators;
 

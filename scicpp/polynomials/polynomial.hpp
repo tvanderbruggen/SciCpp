@@ -36,7 +36,7 @@ namespace scicpp::polynomial {
 
 template <class T, class Array>
 auto polyval(T &&x, const Array &coeffs) {
-    if constexpr (meta::is_iterable_v<T>) {
+    if constexpr (meta::Iterable<T>) {
         return map([&](auto v) { return polyval(v, coeffs); },
                    std::forward<T>(x));
     } else {
