@@ -31,6 +31,11 @@ TEST_CASE("is_std_array") {
     static_assert(is_std_array_v<std::array<double, 10>>);
 }
 
+TEST_CASE("is_std_span") {
+    static_assert(!is_std_span_v<Eigen::Matrix2d>);
+    static_assert(is_std_span_v<std::span<double, 10>>);
+}
+
 TEST_CASE("is_std_tuple") {
     static_assert(!is_std_tuple_v<std::vector<double>>);
     static_assert(is_std_tuple_v<std::tuple<double, int, float>>);

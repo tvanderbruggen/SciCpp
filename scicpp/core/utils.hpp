@@ -47,7 +47,8 @@ constexpr auto set_array(const Array &a) {
 // C++20 span
 //---------------------------------------------------------------------------------
 
-template <meta::Iterable Array, typename DiffTp = typename Array::difference_type>
+template <meta::Iterable Array,
+          typename DiffTp = typename Array::difference_type>
 auto subvector(const Array &v, signed_size_t len, DiffTp offset = 0) {
     using T = Array::value_type;
 

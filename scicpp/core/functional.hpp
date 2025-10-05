@@ -32,27 +32,37 @@ namespace scicpp {
 // Unary operations
 
 template <std::ranges::input_range R, class UnaryOp>
-[[nodiscard]] constexpr auto map(UnaryOp op, R &&a) {
+    requires std::indirectly_unary_invocable<UnaryOp &,
+                                             std::ranges::iterator_t<R>>
+[[nodiscard]] constexpr auto map(UnaryOp &&op, R &&r) {
     using InputType = std::remove_cvref_t<std::ranges::range_value_t<R>>;
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
-    if constexpr (std::is_same_v<InputType, ReturnType>) {
-        std::transform(std::cbegin(a), std::cend(a), std::begin(a), op);
-        return std::move(a);
+    if constexpr (std::is_same_v<InputType, ReturnType> &&
+                  std::ranges::output_range<R, ReturnType>) {
+        std::ranges::transform(
+            std::forward<R>(r), std::begin(r), std::forward<UnaryOp>(op));
+        return std::move(r);
     } else {
-        auto res = utils::set_array<ReturnType>(a);
-        std::transform(std::cbegin(a), std::cend(a), res.begin(), op);
+        auto res = utils::set_array<ReturnType>(r);
+        std::transform(std::cbegin(r),
+                       std::cend(r),
+                       res.begin(),
+                       std::forward<UnaryOp>(op));
         return res;
     }
 }
 
 template <std::ranges::input_range R, class UnaryOp>
-[[nodiscard]] constexpr auto map(UnaryOp op, const R &a) {
+    requires std::indirectly_unary_invocable<UnaryOp &,
+                                             std::ranges::iterator_t<R>>
+[[nodiscard]] constexpr auto map(UnaryOp &&op, const R &r) {
     using InputType = std::remove_cvref_t<std::ranges::range_value_t<R>>;
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
-    auto res = utils::set_array<ReturnType>(a);
-    std::transform(std::cbegin(a), std::cend(a), res.begin(), op);
+    auto res = utils::set_array<ReturnType>(r);
+    std::transform(
+        std::cbegin(r), std::cend(r), res.begin(), std::forward<UnaryOp>(op));
     return res;
 }
 
@@ -167,8 +177,7 @@ constexpr auto vectorize(Func &&f) {
     using F = std::decay_t<Func>;
     return [fun = F(std::forward<Func>(f))]<class... As>(
                As &&...arrays) scicpp_const -> decltype(auto) {
-        if constexpr ((meta::Iterable<std::remove_reference_t<As>> &&
-                       ...)) {
+        if constexpr ((meta::Iterable<std::remove_reference_t<As>> && ...)) {
             return map(
                 [fun](auto &&...args) scicpp_const -> decltype(auto) {
                     return std::invoke(fun,

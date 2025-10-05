@@ -45,45 +45,8 @@ template <typename T>
 using disable_if_complex = std::enable_if_t<!is_complex_v<T>, int>;
 
 //---------------------------------------------------------------------------------
-// is_iterable
+// concept Iterable
 //---------------------------------------------------------------------------------
-
-// https://stackoverflow.com/questions/13830158/check-if-a-variable-is-iterable
-
-namespace detail {
-
-// To allow ADL with custom begin/end
-using std::begin;
-using std::end;
-
-template <typename T>
-auto is_iterable_impl(int)
-    -> decltype(begin(std::declval<T &>()) !=
-                    end(std::declval<T &>()), // begin/end and operator !=
-                void(),                       // Handle evil operator ,
-                ++std::declval<
-                    decltype(begin(std::declval<T &>())) &>(), // operator ++
-                void(*begin(std::declval<T &>())),             // operator*
-                std::true_type{});
-
-template <typename T>
-std::false_type is_iterable_impl(...);
-
-template <typename T>
-using is_iterable = decltype(detail::is_iterable_impl<T>(0));
-
-} // namespace detail
-
-template <typename T>
-constexpr bool is_iterable_v = detail::is_iterable<T>::value;
-
-template <typename... T>
-using disable_if_iterable = std::enable_if_t<(!is_iterable_v<T> || ...), int>;
-
-template <typename... T>
-using enable_if_iterable = std::enable_if_t<(is_iterable_v<T> && ...), int>;
-
-// Concepts
 
 template <class T>
 concept Iterable = std::ranges::input_range<std::remove_cvref_t<T>>;
@@ -122,6 +85,22 @@ struct is_std_array<std::array<Scalar, N>> : std::true_type {};
 
 template <class T>
 constexpr bool is_std_array_v = detail::is_std_array<T>::value;
+
+//---------------------------------------------------------------------------------
+// std::span traits
+//---------------------------------------------------------------------------------
+
+namespace detail {
+
+template <class T>
+struct is_std_span : std::false_type {};
+template <typename Scalar, std::size_t N>
+struct is_std_span<std::span<Scalar, N>> : std::true_type {};
+
+} // namespace detail
+
+template <class T>
+constexpr bool is_std_span_v = detail::is_std_span<T>::value;
 
 //---------------------------------------------------------------------------------
 // std::tuple traits

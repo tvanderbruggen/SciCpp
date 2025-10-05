@@ -48,8 +48,7 @@ constexpr auto concatenate(const std::array<T1, N1> &a1,
     }
 }
 
-template <meta::Iterable Array1,
-          meta::Iterable Array2>
+template <meta::Iterable Array1, meta::Iterable Array2>
 auto concatenate(const Array1 &a1, const Array2 &a2) {
     using T1 = Array1::value_type;
     using T2 = Array2::value_type;
@@ -130,8 +129,7 @@ namespace operators {
 
 // Define a concatenation operator |
 
-template <meta::Iterable ArrayLhs,
-          meta::Iterable ArrayRhs>
+template <meta::Iterable ArrayLhs, meta::Iterable ArrayRhs>
 constexpr auto operator|(ArrayLhs &&a, ArrayRhs &&b) {
     return concatenate(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
