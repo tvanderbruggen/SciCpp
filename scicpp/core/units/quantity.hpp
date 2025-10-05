@@ -14,6 +14,7 @@
 #include <array>
 #include <cmath>
 #include <complex>
+#include <concepts>
 #include <cstdint>
 #include <cstdio>
 #include <numeric>
@@ -106,6 +107,9 @@ using enable_if_is_quantity = std::enable_if_t<is_quantity_v<T>, int>;
 
 template <class T>
 using disable_if_is_quantity = std::enable_if_t<!is_quantity_v<T>, int>;
+
+template <class T>
+concept Quantity = is_quantity_v<std::remove_cvref_t<T>>;
 
 // common_quantity
 

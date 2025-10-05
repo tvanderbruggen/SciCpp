@@ -29,7 +29,7 @@ namespace scicpp {
 
 template <typename T>
 constexpr auto fabs(T &&x) {
-    if constexpr (meta::is_iterable_v<T>) {
+    if constexpr (meta::Iterable<T>) {
         return map([](auto v) { return fabs(v); }, std::forward<T>(x));
     } else {
         using U = std::decay_t<T>;
@@ -143,8 +143,8 @@ const auto cbrt = vectorize([](auto x) { return units::cbrt(x); });
 
 template <typename T1, typename T2>
 constexpr auto pow(T1 &&x, T2 &&y) {
-    if constexpr (meta::is_iterable_v<T1>) {
-        if constexpr (meta::is_iterable_v<T2>) {
+    if constexpr (meta::Iterable<T1>) {
+        if constexpr (meta::Iterable<T2>) {
             return map([](auto a, auto b) { return std::pow(a, b); },
                        std::forward<T1>(x),
                        std::forward<T2>(y));
@@ -153,7 +153,7 @@ constexpr auto pow(T1 &&x, T2 &&y) {
                        std::forward<T1>(x));
         }
     } else { // x is a scalar
-        if constexpr (meta::is_iterable_v<T2>) {
+        if constexpr (meta::Iterable<T2>) {
             return map([&](auto a) { return std::pow(x, a); },
                        std::forward<T2>(y));
         } else {
@@ -162,7 +162,7 @@ constexpr auto pow(T1 &&x, T2 &&y) {
     }
 }
 
-template <intmax_t n, typename T, meta::enable_if_iterable<T> = 0>
+template <intmax_t n, meta::Iterable T>
 constexpr auto pow(T &&a) {
     return map([](auto x) { return units::pow<n>(x); }, std::forward<T>(a));
 }
@@ -175,7 +175,7 @@ constexpr auto pow(T &&a) {
 // Derived from https://github.com/llvm-mirror/libcxx/blob/master/include/cmath
 // Handles physical quantities
 
-template <typename T1, typename T2, meta::disable_if_iterable<T1> = 0>
+template <meta::NonIterable T1, typename T2>
 constexpr auto lerp(T1 a, T1 b, T2 t) noexcept {
     using ret_t = decltype(std::declval<T1>() * std::declval<T2>());
 
@@ -199,7 +199,7 @@ constexpr auto lerp(T1 a, T1 b, T2 t) noexcept {
     }
 }
 
-template <typename T1, typename T2, meta::enable_if_iterable<T1> = 0>
+template <meta::Iterable T1, typename T2>
 constexpr auto lerp(T1 &&a, T1 &&b, T2 t) {
     return map([=](auto x, auto y) { return lerp(x, y, t); },
                std::forward<T1>(a),

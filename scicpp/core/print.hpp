@@ -281,7 +281,7 @@ void print(Stream &stream, const Array &A, const PrintOptions &prtopts) {
 
 template <class Stream, class T>
 void print(Stream &stream, const T &A) {
-    if constexpr (meta::is_iterable_v<T>) {
+    if constexpr (meta::Iterable<T>) {
         print(stream, A, PrintOptions{});
     } else {
         detail::ElementFormater fmter(PrintOptions{}, false, 12);

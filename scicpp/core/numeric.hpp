@@ -345,7 +345,7 @@ namespace detail {
 
 template <class T>
 constexpr bool is_operator_iterable_v =
-    meta::is_iterable_v<T> && !meta::is_eigen_container_v<T>;
+    meta::Iterable<T> && !meta::is_eigen_container_v<T>;
 
 template <class T>
 using enable_if_operator_iterable =
@@ -658,57 +658,39 @@ constexpr auto operator%(ArrayLhs &&a, ArrayRhs &&b) {
 // So we implement the Numpy comparison function, but not the related operators.
 //---------------------------------------------------------------------------------
 
-template <class ArrayLhs,
-          class ArrayRhs,
-          meta::enable_if_iterable<ArrayLhs> = 0,
-          meta::enable_if_iterable<ArrayRhs> = 0>
+template <meta::Iterable ArrayLhs, meta::Iterable ArrayRhs>
 constexpr auto equal(ArrayLhs &&a, ArrayRhs &&b) {
     return map([](auto u, auto v) { return u == v; },
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
 }
 
-template <class ArrayLhs,
-          class ArrayRhs,
-          meta::enable_if_iterable<ArrayLhs> = 0,
-          meta::enable_if_iterable<ArrayRhs> = 0>
+template <meta::Iterable ArrayLhs, meta::Iterable ArrayRhs>
 constexpr auto not_equal(ArrayLhs &&a, ArrayRhs &&b) {
     using namespace operators;
     return !equal(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
 
-template <class ArrayLhs,
-          class ArrayRhs,
-          meta::enable_if_iterable<ArrayLhs> = 0,
-          meta::enable_if_iterable<ArrayRhs> = 0>
+template <meta::Iterable ArrayLhs, meta::Iterable ArrayRhs>
 constexpr auto less(ArrayLhs &&a, ArrayRhs &&b) {
     return map([](auto u, auto v) { return u < v; },
                std::forward<ArrayLhs>(a),
                std::forward<ArrayRhs>(b));
 }
 
-template <class ArrayLhs,
-          class ArrayRhs,
-          meta::enable_if_iterable<ArrayLhs> = 0,
-          meta::enable_if_iterable<ArrayRhs> = 0>
+template <meta::Iterable ArrayLhs, meta::Iterable ArrayRhs>
 constexpr auto less_equal(ArrayLhs &&a, ArrayRhs &&b) {
     using namespace operators;
     return !less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
 }
 
-template <class ArrayLhs,
-          class ArrayRhs,
-          meta::enable_if_iterable<ArrayLhs> = 0,
-          meta::enable_if_iterable<ArrayRhs> = 0>
+template <meta::Iterable ArrayLhs, meta::Iterable ArrayRhs>
 constexpr auto greater_equal(ArrayLhs &&a, ArrayRhs &&b) {
     using namespace operators;
     return !less(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
 
-template <class ArrayLhs,
-          class ArrayRhs,
-          meta::enable_if_iterable<ArrayLhs> = 0,
-          meta::enable_if_iterable<ArrayRhs> = 0>
+template <meta::Iterable ArrayLhs, meta::Iterable ArrayRhs>
 constexpr auto greater(ArrayLhs &&a, ArrayRhs &&b) {
     return less(std::forward<ArrayLhs>(b), std::forward<ArrayRhs>(a));
 }

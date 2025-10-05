@@ -101,9 +101,8 @@ auto concatenate(std::vector<T> &&a1, const Array &a2) {
     return std::move(a1);
 }
 
-template <typename Array,
+template <meta::Iterable Array,
           typename T,
-          meta::enable_if_iterable<Array> = 0,
           std::enable_if_t<std::is_lvalue_reference_v<Array>, int> = 0>
 auto concatenate(const Array &a1, std::vector<T> &&a2) {
     using Tarray = Array::value_type;
@@ -133,19 +132,16 @@ namespace operators {
 
 // Define a concatenation operator |
 
-template <class ArrayLhs,
-          class ArrayRhs,
-          meta::enable_if_iterable<ArrayLhs> = 0,
-          meta::enable_if_iterable<ArrayRhs> = 0>
+template <meta::Iterable ArrayLhs,
+          meta::Iterable ArrayRhs>
 constexpr auto operator|(ArrayLhs &&a, ArrayRhs &&b) {
     return concatenate(std::forward<ArrayLhs>(a), std::forward<ArrayRhs>(b));
 }
 
 } // namespace operators
 
-template <typename... Arrays>
+template <meta::Iterable... Arrays>
 constexpr auto concatenate(Arrays &&...a) {
-    static_assert((meta::is_iterable_v<Arrays> && ...));
     using namespace operators;
     return (std::forward<Arrays>(a) | ...);
 }

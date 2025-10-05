@@ -8,6 +8,10 @@
 #include "scicpp/core/print.hpp"
 #include "scicpp/core/range.hpp"
 
+#include <array>
+#include <span>
+#include <vector>
+
 namespace scicpp {
 
 TEST_CASE("map") {
@@ -20,6 +24,9 @@ TEST_CASE("map") {
                              {-1., -2., -3.}));
         REQUIRE(almost_equal(map(std::negate<>(), std::vector{1., 2., 3.}),
                              {-1., -2., -3.}));
+        // const auto s = std::span{v};
+        // REQUIRE(almost_equal(map(std::negate<>(), s.subspan(0,1)),
+        //                      {-1., -2.}));
         REQUIRE(almost_equal(map(std::negate<>(), v), {-1., -2., -3.}));
         REQUIRE(almost_equal(map([](auto z) { return std::conj(z); }, vc),
                              {1. - 3.i, 2. + 2.i, 3. - 1.i}));

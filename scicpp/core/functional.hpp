@@ -31,9 +31,9 @@ namespace scicpp {
 
 // Unary operations
 
-template <class Array, class UnaryOp>
-[[nodiscard]] constexpr auto map(UnaryOp op, Array &&a) {
-    using InputType = std::remove_reference_t<Array>::value_type;
+template <std::ranges::input_range R, class UnaryOp>
+[[nodiscard]] constexpr auto map(UnaryOp op, R &&a) {
+    using InputType = std::remove_cvref_t<std::ranges::range_value_t<R>>;
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     if constexpr (std::is_same_v<InputType, ReturnType>) {
@@ -46,9 +46,9 @@ template <class Array, class UnaryOp>
     }
 }
 
-template <class Array, class UnaryOp>
-[[nodiscard]] constexpr auto map(UnaryOp op, const Array &a) {
-    using InputType = Array::value_type;
+template <std::ranges::input_range R, class UnaryOp>
+[[nodiscard]] constexpr auto map(UnaryOp op, const R &a) {
+    using InputType = std::remove_cvref_t<std::ranges::range_value_t<R>>;
     using ReturnType = std::invoke_result_t<UnaryOp, InputType>;
 
     auto res = utils::set_array<ReturnType>(a);

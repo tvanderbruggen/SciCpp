@@ -72,7 +72,7 @@ struct interp1d {
 
     template <typename T>
     auto operator()(T &&x) const {
-        if constexpr (meta::is_iterable_v<T>) {
+        if constexpr (meta::Iterable<T>) {
             return map(s, std::forward<T>(x));
         } else {
             return s(x);

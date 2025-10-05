@@ -47,10 +47,9 @@ constexpr auto set_array(const Array &a) {
 // C++20 span
 //---------------------------------------------------------------------------------
 
-template <typename Array, typename DiffTp = typename Array::difference_type>
+template <meta::Iterable Array, typename DiffTp = typename Array::difference_type>
 auto subvector(const Array &v, signed_size_t len, DiffTp offset = 0) {
-    using T = typename Array::value_type;
-    static_assert(meta::is_iterable_v<Array>);
+    using T = Array::value_type;
 
     const auto length = std::min(len, signed_size_t(v.size()));
 
@@ -70,7 +69,7 @@ auto subvector(const Array &v, signed_size_t len, DiffTp offset = 0) {
 template <typename T>
 constexpr auto set_zero() {
     if constexpr (meta::is_complex_v<T>) {
-        using U = typename T::value_type;
+        using U = T::value_type;
         return T(U(0), U(0));
     } else {
         return T(0);

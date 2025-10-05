@@ -92,7 +92,7 @@ struct rlc_filter {
 
     template <typename T>
     auto operator()(T &&x) const {
-        if constexpr (sci::meta::is_iterable_v<T>) {
+        if constexpr (sci::meta::Iterable<T>) {
             return sci::map([&](auto f) { return impedance(f); },
                             std::forward<T>(x));
         } else {

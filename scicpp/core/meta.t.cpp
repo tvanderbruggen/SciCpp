@@ -14,10 +14,11 @@ TEST_CASE("is_complex") {
     static_assert(is_complex_v<std::complex<units::volt<double>>>);
 }
 
-TEST_CASE("is_iterable") {
-    static_assert(is_iterable_v<std::array<double, 3>>);
-    static_assert(is_iterable_v<std::vector<float>>);
-    static_assert(!is_iterable_v<double>);
+TEST_CASE("Iterable") {
+    static_assert(Iterable<std::array<double, 3>>);
+    static_assert(Iterable<std::vector<float>>);
+    static_assert(Iterable<std::span<float>>);
+    static_assert(NonIterable<double>);
 }
 
 TEST_CASE("is_std_vector") {

@@ -85,9 +85,17 @@ TEST_CASE("almost_equal physical quantity") {
         const auto f2 = f1;
         REQUIRE(almost_equal(f1, f2));
     }
+
+    SECTION("std::span") {
+        const std::vector f1{1._kg, 2._kg, 3.141_kg};
+        const auto f2 = f1;
+        const auto s1 = std::span{f1};
+        const auto s2 = std::span{f2};
+        REQUIRE(almost_equal(s1, s2));
+    }
 }
 
-TEST_CASE("operator==") {
+TEST_CASE("array_equal") {
     SECTION("std::array") {
         const std::array f1{1, 2, 3};
         const auto f2 = f1;
@@ -102,6 +110,14 @@ TEST_CASE("operator==") {
         REQUIRE(array_equal(f1, f2));
         REQUIRE(!array_equal(f1, {1, 2, 42}));
         REQUIRE(!array_equal(f1, {1, 2}));
+    }
+
+    SECTION("std::span") {
+        const std::vector f1{1, 2, 3};
+        const auto f2 = f1;
+        const auto s1 = std::span{f1};
+        const auto s2 = std::span{f2};
+        REQUIRE(array_equal(s1, s2));
     }
 }
 

@@ -9,6 +9,7 @@
 #include <Eigen/Dense>
 #include <array>
 #include <complex>
+#include <concepts>
 #include <cstdint>
 #include <cstdlib>
 #include <ratio>
@@ -81,6 +82,14 @@ using disable_if_iterable = std::enable_if_t<(!is_iterable_v<T> || ...), int>;
 
 template <typename... T>
 using enable_if_iterable = std::enable_if_t<(is_iterable_v<T> && ...), int>;
+
+// Concepts
+
+template <class T>
+concept Iterable = std::ranges::input_range<std::remove_cvref_t<T>>;
+
+template <class T>
+concept NonIterable = !Iterable<T>;
 
 //---------------------------------------------------------------------------------
 // std::vector traits
