@@ -22,7 +22,7 @@ WARNINGS = -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wpedantic
 WARNINGS += -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual
 WARNINGS += -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2
 WARNINGS += -Wfloat-equal -Wsign-promo -Wdisabled-optimization #-Weffc++
-WARNINGS += -Wzero-as-null-pointer-constant -Wmissing-field-initializers -Wcomma -Wswitch-enum -Wredundant-move
+WARNINGS += -Wzero-as-null-pointer-constant -Wmissing-field-initializers -Wswitch-enum -Wredundant-move
 
 ifeq ($(COMPILER),gcc)
   CC = $(CROSS_COMPILE)gcc-13
@@ -34,7 +34,7 @@ else
   CC = $(CROSS_COMPILE)clang
   CCXX = $(CROSS_COMPILE)clang #-ftime-trace
   WARNINGS += -Wpessimizing-move -Wno-zero-length-array -Wextra-semi -Wreserved-id-macro -Wconversion -Wshadow-field
-  WARNINGS += -Wrange-loop-construct -Wbitwise-instead-of-logical -Wmove -Winconsistent-missing-override
+  WARNINGS += -Wcomma -Wrange-loop-construct -Wbitwise-instead-of-logical -Wmove -Winconsistent-missing-override
 #   WARNINGS += -Wunsafe-buffer-usage
 #   WARNINGS += -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation-unknown-command -Wno-newline-eof -ferror-limit=200
 endif
