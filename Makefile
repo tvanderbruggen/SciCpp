@@ -29,7 +29,8 @@ ifeq ($(COMPILER),gcc)
   CCXX = $(CROSS_COMPILE)g++-13
 
   WARNINGS += -Wuseless-cast -Wlogical-op -Wduplicated-cond -Wsuggest-attribute=pure -Wsuggest-attribute=const
-  WARNINGS += -Wduplicated-branches -Wplacement-new=2 -Wclass-memaccess -Wsubobject-linkage -Walloc-zero -Wstringop-overread -Wstringop-overflow=2 -Wformat-truncation=2
+  WARNINGS += -Wplacement-new=2 -Wclass-memaccess -Wsubobject-linkage -Walloc-zero -Wstringop-overread -Wstringop-overflow=2 -Wformat-truncation=2
+#   WARNINGS += -Wduplicated-branches
 else
   CC = $(CROSS_COMPILE)clang
   CCXX = $(CROSS_COMPILE)clang #-ftime-trace
