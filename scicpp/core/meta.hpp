@@ -267,7 +267,8 @@ namespace detail {
 
 template <class From, class To>
 auto test_implicitly_convertible(int)
-    -> decltype(void(std::declval<void (&)(To)>()(std::declval<From>())),
+    -> decltype(static_cast<void>(
+                    (std::declval<void (&)(To)>()(std::declval<From>()))),
                 std::true_type{});
 
 template <class, class>
